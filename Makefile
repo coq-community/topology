@@ -49,6 +49,7 @@ COQSRCLIBS:=-I $(COQLIB)/kernel -I $(COQLIB)/lib \
   -I $(COQLIB)/plugins/firstorder \
   -I $(COQLIB)/plugins/fourier \
   -I $(COQLIB)/plugins/funind \
+  -I $(COQLIB)/plugins/interface \
   -I $(COQLIB)/plugins/micromega \
   -I $(COQLIB)/plugins/nsatz \
   -I $(COQLIB)/plugins/omega \
@@ -61,8 +62,10 @@ COQSRCLIBS:=-I $(COQLIB)/kernel -I $(COQLIB)/lib \
   -I $(COQLIB)/plugins/subtac/test \
   -I $(COQLIB)/plugins/syntax \
   -I $(COQLIB)/plugins/xml
-COQLIBS:= -R . Topology
-COQDOCLIBS:=-R . Topology
+COQLIBS:= -R . Topology\
+  -R ../ZornsLemma ZornsLemma
+COQDOCLIBS:=-R . Topology\
+  -R ../ZornsLemma ZornsLemma
 
 ##########################
 #                        #
