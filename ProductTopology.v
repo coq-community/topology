@@ -93,7 +93,7 @@ exists xa.
 apply ultrafilter_cluster_point_is_limit; trivial.
 red; intros.
 destruct (H0 (inverse_image (product_space_proj a) S));
-  [left | right]; constructor; try autorewrite with sets; trivial.
+  [left | right]; constructor; try rewrite inverse_image_complement; trivial.
 exists choice_fun.
 apply product_filter_limit; trivial.
 Qed.

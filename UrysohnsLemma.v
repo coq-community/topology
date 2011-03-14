@@ -507,9 +507,8 @@ apply dr_eq_scale.
 simpl pos_power2.
 unfold nat_of_P.
 simpl Pmult_nat.
-rewrite mult_comm.
-rewrite Pmult_nat_2_mult_2_permute.
-apply mult_comm.
+rewrite mult_comm. rewrite ZL6. 
+rewrite mult_comm. simpl. rewrite plus_0_r. reflexivity.
 assert (dr_lt (m_over_2_to_n m n) (m_over_2_to_n 1 0)).
 apply dr_lt_wd with (m_over_2_to_n m n)
   (m_over_2_to_n (nat_of_P (pos_power2 n)) n).

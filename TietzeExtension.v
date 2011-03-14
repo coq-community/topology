@@ -515,7 +515,7 @@ assert (Rabs (2/3) < 1).
 rewrite Rabs_right; fourier.
 
 destruct (pow_lt_1_zero (2/3) H2 (eps/2) H0) as [N2].
-Require Import MinMax.
+Require Import Max.
 pose (N := max N1 N2).
 apply Rle_lt_trans with (R_metric (g (subspace_inc F x))
           (proj1_sig (extension_approximation_seq N) (subspace_inc F x)) +
@@ -751,7 +751,7 @@ simpl in H2.
 destruct H2 as [a [b]].
 pose (f0 := fun x:point_set (SubspaceTopology F) => subspace_inc U (a (f x))).
 destruct (open_bounded_Tietze_extension_theorem X F f0) as [g0 [? []]];
-  trivial.
+  trivial. unfold f0.
 apply continuous_composition.
 apply subspace_inc_continuous.
 apply continuous_composition; trivial.

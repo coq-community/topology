@@ -377,7 +377,7 @@ intros.
 destruct H.
 destruct H0.
 constructor.
-autorewrite with sets.
+rewrite inverse_image_intersection.
 apply filter_intersection; trivial.
 
 intros.
@@ -386,12 +386,12 @@ constructor.
 apply filter_upward_closed with (inverse_image f S1); auto with sets.
 
 constructor.
-autorewrite with sets.
+rewrite inverse_image_full.
 apply filter_full.
 
 red; intro.
 destruct H.
-autorewrite with sets in H.
+rewrite inverse_image_empty in H.
 revert H; apply filter_empty.
 Defined.
 
