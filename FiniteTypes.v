@@ -697,7 +697,7 @@ Lemma finite_sum: forall X Y:Type, FiniteT X -> FiniteT Y ->
 Proof.
 intros.
 induction H0.
-apply bij_finite with _ (inl False).
+apply bij_finite with _ inl.
 assumption.
 pose (g := fun (x:X+False) => match x with
   | inl x => x
@@ -821,9 +821,6 @@ assumption.
 exists ginv.
 destruct x as [f y0]; try extensionality t;
 try destruct t as [t0|]; trivial.
-unfold g; unfold ginv; simpl.
-f_equal.
-extensionality x; trivial.
 intro.
 extensionality t; destruct t as [t0|]; trivial.
 
