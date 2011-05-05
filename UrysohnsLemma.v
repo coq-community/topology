@@ -150,10 +150,10 @@ induction p.
 destruct IHp as [n].
 exists (S n).
 unfold Zlt.
-simpl.
+simpl. rewrite Pos.compare_xI_xO.
 unfold Zlt in H0.
 simpl in H0.
-apply Pcompare_eq_Lt; trivial.
+now rewrite H0.
 destruct IHp as [n].
 exists (S n).
 unfold Zlt; simpl.
@@ -505,10 +505,7 @@ replace (nat_of_P (pos_power2 (S n0))) with
   ((2 * nat_of_P (pos_power2 n0))%nat).
 apply dr_eq_scale.
 simpl pos_power2.
-unfold nat_of_P.
-simpl Pmult_nat.
-rewrite mult_comm. rewrite ZL6. 
-rewrite mult_comm. simpl. rewrite plus_0_r. reflexivity.
+symmetry. apply Pos2Nat.inj_xO.
 assert (dr_lt (m_over_2_to_n m n) (m_over_2_to_n 1 0)).
 apply dr_lt_wd with (m_over_2_to_n m n)
   (m_over_2_to_n (nat_of_P (pos_power2 n)) n).
