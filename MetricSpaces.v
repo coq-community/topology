@@ -435,7 +435,7 @@ apply H0.
 intros.
 destruct H2 as [x ? U].
 destruct (H1 x).
-apply open_neighborhood_basis_elements.
+Opaque In. apply open_neighborhood_basis_elements. Transparent In.
 rewrite H3; constructor.
 simpl.
 auto with *.
@@ -456,7 +456,7 @@ destruct (H2 n) as [? [? ?]].
 apply H4 in H3.
 destruct H3 as [x ? V].
 destruct (H1 x).
-apply open_neighborhood_basis_elements.
+Opaque In. apply open_neighborhood_basis_elements. Transparent In.
 rewrite H7; constructor.
 destruct n as [n g].
 simpl.

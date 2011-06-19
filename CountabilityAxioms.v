@@ -72,7 +72,7 @@ intros; apply classic.
 intros.
 destruct a as [[x0]].
 simpl.
-apply H1; trivial.
+Opaque In. apply H1; trivial. Transparent In.
 
 Require Import ClassicalChoice.
 destruct (choice (fun (n:nat) (x:point_set X) => In (U n) x /\

@@ -22,7 +22,7 @@ destruct (H x0).
 red; intros.
 pose (U := open_ball _ d x0 (eps/2)).
 destruct (H0 U) as [N].
-apply open_neighborhood_basis_elements.
+Opaque In. apply open_neighborhood_basis_elements. Transparent In.
 constructor.
 Require Import Fourier.
 fourier.
