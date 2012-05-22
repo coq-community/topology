@@ -264,7 +264,7 @@ pose proof (ZL' chains chains_ord chains_order chains_sup).
 
 apply NNPP.
 unfold maximal.
-intuition.
+dintuition.
 assert (forall x:T, ~ forall y:T, R x y -> x = y).
 apply not_ex_all_not.
 exact H0.
