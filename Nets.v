@@ -3,6 +3,8 @@ Require Export DirectedSets.
 Require Export InteriorsClosures.
 Require Export Continuity.
 
+Set Asymmetric Patterns.
+
 Section Net.
 
 Variable I:DirectedSet.

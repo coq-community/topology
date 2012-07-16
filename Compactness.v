@@ -3,6 +3,8 @@ Require Export Nets.
 Require Export FilterLimits.
 Require Export Continuity.
 
+Set Asymmetric Patterns.
+
 Definition compact (X:TopologicalSpace) :=
   forall C:Family (point_set X),
     (forall U:Ensemble (point_set X), In C U -> open U) ->

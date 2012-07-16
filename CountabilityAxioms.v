@@ -3,6 +3,8 @@ Require Export CountableTypes.
 Require Export NeighborhoodBases.
 Require Import EnsemblesSpec.
 
+Global Set Asymmetric Patterns.
+
 Definition first_countable (X:TopologicalSpace) : Prop :=
   forall x:point_set X, exists NBx:Family (point_set X),
     neighborhood_basis NBx x /\ Countable NBx.

@@ -1,3 +1,5 @@
+Set Asymmetric Patterns.
+
 (* define nonnegative dyadic rationals *)
 Inductive dyadic_rational : Type :=
   | m_over_2_to_n: forall m n:nat, dyadic_rational.
