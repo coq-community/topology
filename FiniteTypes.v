@@ -1,3 +1,5 @@
+Set Asymmetric Patterns.
+
 Require Export Ensembles.
 Require Import EnsemblesImplicit.
 Require Export Image.

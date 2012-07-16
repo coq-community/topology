@@ -6,6 +6,8 @@ Require Export Relation_Definitions.
 Require Import Relation_Definitions_Implicit.
 Require Import Description.
 
+Set Asymmetric Patterns.
+
 Inductive CountableT (X:Type) : Prop :=
   | intro_nat_injection: forall f:X->nat, injective f -> CountableT X.
 
