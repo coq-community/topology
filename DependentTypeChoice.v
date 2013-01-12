@@ -1,3 +1,4 @@
+Set Asymmetric Patterns.
 Require Import ClassicalChoice.
 
 Lemma choice_on_dependent_type: forall {A:Type} {B:A->Type}
