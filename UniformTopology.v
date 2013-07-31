@@ -132,7 +132,7 @@ Require Import Description.
 apply constructive_definite_description.
 apply -> unique_existence; split.
 apply H; trivial.
-apply Hausdorff_impl_net_limit_unique.
+apply (Hausdorff_impl_net_limit_unique y).
 apply T3_sep_impl_Hausdorff.
 apply normal_sep_impl_T3_sep.
 apply metrizable_impl_normal_sep.
