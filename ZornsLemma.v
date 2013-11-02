@@ -481,7 +481,7 @@ split; trivial.
 intros Sbar ?.
 Require Import InverseImage.
 pose (S := inverse_image (quotient_projection _) Sbar).
-let H:=fresh in refine (let H:=ub_of_chain S _ in _).
+refine (let H1:=ub_of_chain S _ in _).
 red; intros.
 pose proof (H0 (quotient_projection _ x) (quotient_projection _ y)).
 rewrite 2 inducedR_prop in H3.
@@ -504,7 +504,7 @@ destruct H1.
 exists x.
 red; intros.
 red in H0.
-let H:=fresh in refine (let H:=H0 (quotient_projection Requiv y) _ in _).
+refine (let H2:=H0 (quotient_projection Requiv y) _ in _).
 rewrite inducedR_prop.
 assumption.
 unfold quotient_projection in H2.
