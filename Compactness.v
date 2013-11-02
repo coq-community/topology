@@ -257,8 +257,7 @@ Proof.
 intros.
 apply finite_nonempty_closed_intersection_impl_compact.
 intros.
-let H:=fresh in
-  refine (let H:=_ in let filt := Build_Filter_from_subbasis F H in _).
+refine (let H2:=_ in let filt := Build_Filter_from_subbasis F H2 in _).
 intros.
 rewrite indexed_to_family_intersection.
 apply H1.

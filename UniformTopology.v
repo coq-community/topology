@@ -141,7 +141,7 @@ exists d; trivial; apply MetricTopology_metrizable.
 red; intros f ?.
 refine (let H1 := _ in let H2 := _ in ex_intro _
   (exist _ (fun x:X => proj1_sig (cauchy_limit
-                  (fun n:nat => proj1_sig (f n) x) (H1 x))) H2) _).
+                  (fun n:nat => proj1_sig (f n) x) (H1 x))) H2) _); [ | clearbody H1 | clearbody H1 H2 ].
 intros.
 red; intros.
 destruct (H0 eps H1) as [N].

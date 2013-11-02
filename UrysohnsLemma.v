@@ -295,7 +295,7 @@ Definition packaged_expand_U_dyadic :
     (forall m:nat, open (f m)) /\
     (forall m:nat, Included (closure (f m)) (f (S m))) }.
 refine (fun fsig => match fsig with
-  | exist f (conj Hopen Hincr) => exist _ (expand_U_dyadic f Hopen Hincr) _
+  | exist f (conj Hopen Hincr as a) => exist _ (expand_U_dyadic f Hopen Hincr) _
   end).
 destruct a.
 split.

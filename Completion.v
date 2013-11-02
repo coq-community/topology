@@ -127,7 +127,7 @@ assert (d y z <= d y x + d x z) by apply d_metric.
 fourier.
 
 exists (uniform_space R_metric (d x0)).
-refine (let H:=_ in ex_intro _ (fun x:X => exist _ (d x) (H x)) _).
+refine (let H0:=_ in ex_intro _ (fun x:X => exist _ (d x) (H0 x)) _).
 intros.
 exists (d x0 x).
 red; intros.

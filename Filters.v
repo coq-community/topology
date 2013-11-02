@@ -224,7 +224,8 @@ Require Import DecidableDec.
 destruct (classic_dec (Inhabited S)) as [Hnonempty|Hempty].
 refine (let H0:=_ in let H1:=_ in let H2:=_ in let H3:=_ in
   let ub:=Build_Filter X (IndexedUnion (fun F':{F':PO | In S F'} =>
-    filter_family (proj1_sig (proj1_sig F')))) H0 H1 H2 H3 in _).
+    filter_family (proj1_sig (proj1_sig F')))) H0 H1 H2 H3 in _);
+  [ | clearbody H0 | clearbody H0 H1 | clearbody H0 H1 H2 | clearbody H0 H1 H2 H3 ].
 intros.
 destruct H0 as [F1'].
 destruct H1 as [F2'].

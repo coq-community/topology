@@ -199,7 +199,7 @@ refine (fix g (n:nat) {struct n} := match n return
                        (3/2)^m * (f x - gm (subspace_inc F x))) H in
          exist _ (fun x:point_set X => gm x + (2/3)^m * approx x) _
          end
-end); clear g.
+end); clear g; [ | | clearbody H ].
 simpl.
 split.
 apply continuous_constant.
@@ -470,7 +470,7 @@ constructor.
 unfold R_metric; f_equal; auto with real.
 
 apply lt_plus_epsilon_le; intros.
-refine (let H1:=metric_space_net_limit_converse _ _ _ _ _ _ n eps H0 in _).
+refine (let H1:=metric_space_net_limit_converse _ _ _ _ _ _ n eps H0 in _); [ | | clearbody H1 ]; shelve_unifiable.
 apply MetricTopology_metrizable.
 destruct H1 as [N].
 refine (Rle_lt_trans _ _ _
@@ -508,7 +508,7 @@ unfold Tietze_extension_func;
   destruct constructive_definite_description as [[g]]; simpl.
 assert (eps/2 > 0) by fourier.
 refine (let H1:=metric_space_net_limit_converse _ _ _ _ _ _ n (eps/2) H0
-          in _).
+          in _); [ | | clearbody H1 ]; shelve_unifiable.
 apply MetricTopology_metrizable.
 destruct H1 as [N1].
 assert (Rabs (2/3) < 1).
