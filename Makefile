@@ -17,28 +17,17 @@
 # coq_makefile -f Make -o Makefile 
 #
 
-.DEFAULT_GOAL := all
-
 # 
-# This Makefile may take arguments passed as environment variables:
-# COQBIN to specify the directory where Coq binaries resides;
-# TIMECMD set a command to log .v compilation time;
-# TIMED if non empty, use the default time command as TIMECMD;
-# ZDEBUG/COQDEBUG to specify debug flags for ocamlc&ocamlopt/coqc;
-# DSTROOT to specify a prefix to install path.
+# This Makefile may take 3 arguments passed as environment variables:
+#   - COQBIN to specify the directory where Coq binaries resides;
+#   - CAMLBIN and CAMLP4BIN to give the path for the OCaml and Camlp4/5 binaries.
+COQLIB:=$(shell $(COQBIN)coqtop -where | sed -e 's/\\/\\\\/g')
+CAMLP4:="$(shell $(COQBIN)coqtop -config | awk -F = '/CAMLP4=/{print $$2}')"
+ifndef CAMLP4BIN
+  CAMLP4BIN:=$(CAMLBIN)
+endif
 
-# Here is a hack to make $(eval $(shell works:
-define donewline
-
-
-endef
-includecmdwithout@ = $(eval $(subst @,$(donewline),$(shell { $(1) | tr -d '\r' | tr '\n' '@'; })))
-$(call includecmdwithout@,$(COQBIN)coqtop -config)
-
-TIMED=
-TIMECMD=
-STDTIME?=/usr/bin/time -f "$* (user: %U mem: %M ko)"
-TIMER=$(if $(TIMED), $(STDTIME), $(TIMECMD))
+CAMLP4LIB:=$(shell $(CAMLP4BIN)$(CAMLP4) -where)
 
 ##########################
 #                        #
@@ -46,10 +35,37 @@ TIMER=$(if $(TIMED), $(STDTIME), $(TIMECMD))
 #                        #
 ##########################
 
-COQLIBS?= -R ../ZornsLemma ZornsLemma\
-  -R . Topology
-COQDOCLIBS?=-R ../ZornsLemma ZornsLemma\
-  -R . Topology
+OCAMLLIBS:=
+COQSRCLIBS:=-I $(COQLIB)/kernel -I $(COQLIB)/lib \
+  -I $(COQLIB)/library -I $(COQLIB)/parsing \
+  -I $(COQLIB)/pretyping -I $(COQLIB)/interp \
+  -I $(COQLIB)/proofs -I $(COQLIB)/tactics \
+  -I $(COQLIB)/toplevel \
+  -I $(COQLIB)/plugins/cc \
+  -I $(COQLIB)/plugins/decl_mode \
+  -I $(COQLIB)/plugins/dp \
+  -I $(COQLIB)/plugins/extraction \
+  -I $(COQLIB)/plugins/field \
+  -I $(COQLIB)/plugins/firstorder \
+  -I $(COQLIB)/plugins/fourier \
+  -I $(COQLIB)/plugins/funind \
+  -I $(COQLIB)/plugins/interface \
+  -I $(COQLIB)/plugins/micromega \
+  -I $(COQLIB)/plugins/nsatz \
+  -I $(COQLIB)/plugins/omega \
+  -I $(COQLIB)/plugins/quote \
+  -I $(COQLIB)/plugins/ring \
+  -I $(COQLIB)/plugins/romega \
+  -I $(COQLIB)/plugins/rtauto \
+  -I $(COQLIB)/plugins/setoid_ring \
+  -I $(COQLIB)/plugins/subtac \
+  -I $(COQLIB)/plugins/subtac/test \
+  -I $(COQLIB)/plugins/syntax \
+  -I $(COQLIB)/plugins/xml
+COQLIBS:= -R . Topology\
+  -R ../ZornsLemma ZornsLemma
+COQDOCLIBS:=-R . Topology\
+  -R ../ZornsLemma ZornsLemma
 
 ##########################
 #                        #
@@ -57,131 +73,99 @@ COQDOCLIBS?=-R ../ZornsLemma ZornsLemma\
 #                        #
 ##########################
 
-
-OPT?=
-COQDEP?="$(COQBIN)coqdep" -c
-COQFLAGS?=-q $(OPT) $(COQLIBS) $(OTHERFLAGS) $(COQ_XML)
-COQCHKFLAGS?=-silent -o
-COQDOCFLAGS?=-interpolate -utf8
-COQC?=$(TIMER) "$(COQBIN)coqc"
-GALLINA?="$(COQBIN)gallina"
-COQDOC?="$(COQBIN)coqdoc"
-COQCHK?="$(COQBIN)coqchk"
-COQMKTOP?="$(COQBIN)coqmktop"
-
-##################
-#                #
-# Install Paths. #
-#                #
-##################
-
-ifdef USERINSTALL
-XDG_DATA_HOME?="$(HOME)/.local/share"
-COQLIBINSTALL=$(XDG_DATA_HOME)/coq
-COQDOCINSTALL=$(XDG_DATA_HOME)/doc/coq
-else
-COQLIBINSTALL="${COQLIB}user-contrib"
-COQDOCINSTALL="${DOCDIR}user-contrib"
+ZFLAGS=$(OCAMLLIBS) $(COQSRCLIBS) -I $(CAMLP4LIB)
+OPT:=
+COQFLAGS:=-q $(OPT) $(COQLIBS) $(OTHERFLAGS) $(COQ_XML)
+ifdef CAMLBIN
+  COQMKTOPFLAGS:=-camlbin $(CAMLBIN) -camlp4bin $(CAMLP4BIN)
 endif
+COQC:=$(COQBIN)coqc
+COQDEP:=$(COQBIN)coqdep -c
+GALLINA:=$(COQBIN)gallina
+COQDOC:=$(COQBIN)coqdoc
+COQMKTOP:=$(COQBIN)coqmktop
+CAMLLIB:=$(shell $(CAMLBIN)ocamlc.opt -where)
+CAMLC:=$(CAMLBIN)ocamlc.opt -c -rectypes
+CAMLOPTC:=$(CAMLBIN)ocamlopt.opt -c -rectypes
+CAMLLINK:=$(CAMLBIN)ocamlc.opt -rectypes
+CAMLOPTLINK:=$(CAMLBIN)ocamlopt.opt -rectypes
+GRAMMARS:=grammar.cma
+CAMLP4EXTEND:=pa_extend.cmo pa_macro.cmo q_MLast.cmo
+CAMLP4OPTIONS:=
+PP:=-pp "$(CAMLP4BIN)$(CAMLP4)o -I $(CAMLLIB) -I . $(COQSRCLIBS) $(CAMLP4EXTEND) $(GRAMMARS) $(CAMLP4OPTIONS) -impl"
 
-######################
-#                    #
-# Files dispatching. #
-#                    #
-######################
+###################################
+#                                 #
+# Definition of the "all" target. #
+#                                 #
+###################################
 
-VFILES:=WeakTopology.v\
-  UrysohnsLemma.v\
-  UniformTopology.v\
-  TopologicalSpaces.v\
-  TietzeExtension.v\
-  SupInf.v\
-  SubspaceTopology.v\
-  Subbases.v\
-  StrongTopology.v\
-  SeparatednessAxioms.v\
-  RTopology.v\
-  RFuncContinuity.v\
-  RationalsInReals.v\
-  ProductTopology.v\
-  OrderTopology.v\
-  OpenBases.v\
-  Nets.v\
-  Neighborhoods.v\
-  NeighborhoodBases.v\
-  MetricSpaces.v\
-  InteriorsClosures.v\
-  Homeomorphisms.v\
-  Filters.v\
-  FiltersAndNets.v\
-  FilterLimits.v\
-  DirectedSets.v\
-  CountabilityAxioms.v\
-  ContinuousFactorization.v\
-  Continuity.v\
-  Connectedness.v\
-  Completion.v\
+VFILES:=Compactness.v\
   Completeness.v\
-  Compactness.v
-
--include $(addsuffix .d,$(VFILES))
-.SECONDARY: $(addsuffix .d,$(VFILES))
-
-VO=vo
-VOFILES:=$(VFILES:.v=.$(VO))
+  Completion.v\
+  Connectedness.v\
+  Continuity.v\
+  ContinuousFactorization.v\
+  CountabilityAxioms.v\
+  DirectedSets.v\
+  FilterLimits.v\
+  FiltersAndNets.v\
+  Filters.v\
+  Homeomorphisms.v\
+  InteriorsClosures.v\
+  MetricSpaces.v\
+  NeighborhoodBases.v\
+  Neighborhoods.v\
+  Nets.v\
+  OpenBases.v\
+  OrderTopology.v\
+  ProductTopology.v\
+  RationalsInReals.v\
+  RFuncContinuity.v\
+  RTopology.v\
+  SeparatednessAxioms.v\
+  StrongTopology.v\
+  Subbases.v\
+  SubspaceTopology.v\
+  SupInf.v\
+  TietzeExtension.v\
+  TopologicalSpaces.v\
+  UniformTopology.v\
+  UrysohnsLemma.v\
+  WeakTopology.v
+VOFILES:=$(VFILES:.v=.vo)
 GLOBFILES:=$(VFILES:.v=.glob)
+VIFILES:=$(VFILES:.v=.vi)
 GFILES:=$(VFILES:.v=.g)
 HTMLFILES:=$(VFILES:.v=.html)
 GHTMLFILES:=$(VFILES:.v=.g.html)
-ifeq '$(HASNATDYNLINK)' 'true'
-HASNATDYNLINK_OR_EMPTY := yes
-else
-HASNATDYNLINK_OR_EMPTY :=
-endif
-
-#######################################
-#                                     #
-# Definition of the toplevel targets. #
-#                                     #
-#######################################
 
 all: $(VOFILES) 
+spec: $(VIFILES)
 
-quick:
-	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) all VO=vi
-checkproofs:
-	$(COQC) $(COQDEBUG) $(COQFLAGS) -schedule-vi-checking $(J) $(VOFILES:%.vo=%.vi)
 gallina: $(GFILES)
 
 html: $(GLOBFILES) $(VFILES)
 	- mkdir -p html
-	$(COQDOC) -toc $(COQDOCFLAGS) -html $(COQDOCLIBS) -d html $(VFILES)
+	$(COQDOC) -toc -html $(COQDOCLIBS) -d html $(VFILES)
 
 gallinahtml: $(GLOBFILES) $(VFILES)
 	- mkdir -p html
-	$(COQDOC) -toc $(COQDOCFLAGS) -html -g $(COQDOCLIBS) -d html $(VFILES)
+	$(COQDOC) -toc -html -g $(COQDOCLIBS) -d html $(VFILES)
 
 all.ps: $(VFILES)
-	$(COQDOC) -toc $(COQDOCFLAGS) -ps $(COQDOCLIBS) -o $@ `$(COQDEP) -sort -suffix .v $^`
+	$(COQDOC) -toc -ps $(COQDOCLIBS) -o $@ `$(COQDEP) -sort -suffix .v $(VFILES)`
 
 all-gal.ps: $(VFILES)
-	$(COQDOC) -toc $(COQDOCFLAGS) -ps -g $(COQDOCLIBS) -o $@ `$(COQDEP) -sort -suffix .v $^`
+	$(COQDOC) -toc -ps -g $(COQDOCLIBS) -o $@ `$(COQDEP) -sort -suffix .v $(VFILES)`
 
 all.pdf: $(VFILES)
-	$(COQDOC) -toc $(COQDOCFLAGS) -pdf $(COQDOCLIBS) -o $@ `$(COQDEP) -sort -suffix .v $^`
+	$(COQDOC) -toc -pdf $(COQDOCLIBS) -o $@ `$(COQDEP) -sort -suffix .v $(VFILES)`
 
 all-gal.pdf: $(VFILES)
-	$(COQDOC) -toc $(COQDOCFLAGS) -pdf -g $(COQDOCLIBS) -o $@ `$(COQDEP) -sort -suffix .v $^`
+	$(COQDOC) -toc -pdf -g $(COQDOCLIBS) -o $@ `$(COQDEP) -sort -suffix .v $(VFILES)`
 
-validate: $(VOFILES)
-	$(COQCHK) $(COQCHKFLAGS) $(COQLIBS) $(notdir $(^:.vo=))
 
-beautify: $(VFILES:=.beautified)
-	for file in $^; do mv $${file%.beautified} $${file%beautified}old && mv $${file} $${file%.beautified}; done
-	@echo 'Do not do "make clean" until you are sure that everything went well!'
-	@echo 'If there were a problem, execute "for file in $$(find . -name \*.v.old -print); do mv $${file} $${file%.old}; done" in your shell/'
-
-.PHONY: all opt byte archclean clean install uninstall_me.sh uninstall userinstall depend html validate
 
 ####################
 #                  #
@@ -189,92 +173,66 @@ beautify: $(VFILES:=.beautified)
 #                  #
 ####################
 
+.PHONY: all opt byte archclean clean install depend html
+
+%.vo %.glob: %.v
+	$(COQC) $(COQDEBUG) $(COQFLAGS) $*
+
+%.vi: %.v
+	$(COQC) -i $(COQDEBUG) $(COQFLAGS) $*
+
+%.g: %.v
+	$(GALLINA) $<
+
+%.tex: %.v
+	$(COQDOC) -latex $< -o $@
+
+%.html: %.v %.glob
+	$(COQDOC) -html $< -o $@
+
+%.g.tex: %.v
+	$(COQDOC) -latex -g $< -o $@
+
+%.g.html: %.v %.glob
+	$(COQDOC) -html -g $< -o $@
+
+%.v.d: %.v
+	$(COQDEP) -slash $(COQLIBS) "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
+
 byte:
 	$(MAKE) all "OPT:=-byte"
 
 opt:
 	$(MAKE) all "OPT:=-opt"
 
-userinstall:
-	+$(MAKE) USERINSTALL=true install
-
 install:
-	cd "." && for i in $(VOFILES) $(CMOFILES) $(CMIFILES) $(CMAFILES); do \
-	 install -d "`dirname "$(DSTROOT)"$(COQLIBINSTALL)/Topology/$$i`"; \
-	 install -m 0644 $$i "$(DSTROOT)"$(COQLIBINSTALL)/Topology/$$i; \
-	done
-
-install-doc:
-	install -d "$(DSTROOT)"$(COQDOCINSTALL)/$(INSTALLDEFAULTROOT)/html
-	for i in html/*; do \
-	 install -m 0644 $$i "$(DSTROOT)"$(COQDOCINSTALL)/$(INSTALLDEFAULTROOT)/$$i;\
-	done
-
-uninstall_me.sh:
-	echo '#!/bin/sh' > $@ 
-	printf 'cd "$${DSTROOT}"$(COQLIBINSTALL)/Topology && rm -f $(VOFILES) $(CMOFILES) $(CMIFILES) $(CMAFILES) && find . -type d -and -empty -delete\ncd "$${DSTROOT}"$(COQLIBINSTALL) && find "Topology" -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
-	printf 'cd "$${DSTROOT}"$(COQDOCINSTALL)/$(INSTALLDEFAULTROOT) \\\n' >> "$@"
-	printf '&& rm -f $(shell find "html" -maxdepth 1 -and -type f -print)\n' >> "$@"
-	printf 'cd "$${DSTROOT}"$(COQDOCINSTALL) && find $(INSTALLDEFAULTROOT)/html -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
-	chmod +x $@
-
-uninstall: uninstall_me.sh
-	sh $<
+	mkdir -p $(COQLIB)/user-contrib
+	(for i in $(VOFILES); do \
+	 install -d `dirname $(COQLIB)/user-contrib/Topology/$$i`; \
+	 install $$i $(COQLIB)/user-contrib/Topology/$$i; \
+	 done)
 
 clean:
-	rm -f $(VOFILES) $(VOFILES:.vo=.vi) $(GFILES) $(VFILES:.v=.v.d) $(VFILES:=.beautified) $(VFILES:=.old)
-	rm -f all.ps all-gal.ps all.pdf all-gal.pdf all.glob $(VFILES:.v=.glob) $(VFILES:.v=.tex) $(VFILES:.v=.g.tex) all-mli.tex
-	- rm -rf html mlihtml uninstall_me.sh
+	rm -f $(CMOFILES) $(CMIFILES) $(CMXFILES) $(CMXSFILES) $(OFILES) $(VOFILES) $(VIFILES) $(GFILES) $(MLFILES:.ml=.cmo) $(MLFILES:.ml=.cmx) *~
+	rm -f all.ps all-gal.ps all.pdf all-gal.pdf all.glob $(VFILES:.v=.glob) $(HTMLFILES) $(GHTMLFILES) $(VFILES:.v=.tex) $(VFILES:.v=.g.tex) $(VFILES:.v=.v.d)
+	- rm -rf html
 
 archclean:
 	rm -f *.cmx *.o
 
-printenv:
-	@"$(COQBIN)coqtop" -config
-	@echo 'CAMLC =	$(CAMLC)'
-	@echo 'CAMLOPTC =	$(CAMLOPTC)'
-	@echo 'PP =	$(PP)'
-	@echo 'COQFLAGS =	$(COQFLAGS)'
-	@echo 'COQLIBINSTALL =	$(COQLIBINSTALL)'
-	@echo 'COQDOCINSTALL =	$(COQDOCINSTALL)'
+
+printenv: 
+	@echo CAMLC =	$(CAMLC)
+	@echo CAMLOPTC =	$(CAMLOPTC)
+	@echo CAMLP4LIB =	$(CAMLP4LIB)
 
 Makefile: Make
-	mv -f $@ $@.bak
-	"$(COQBIN)coq_makefile" -f $< -o $@
+	mv -f Makefile Makefile.bak
+	$(COQBIN)coq_makefile -f Make -o Makefile
 
 
-###################
-#                 #
-# Implicit rules. #
-#                 #
-###################
-
-%.vo %.glob: %.v
-	$(COQC) $(COQDEBUG) $(COQFLAGS) $*
-
-%.vi: %.v
-	$(COQC) -quick $(COQDEBUG) $(COQFLAGS) $*
-
-%.g: %.v
-	$(GALLINA) $<
-
-%.tex: %.v
-	$(COQDOC) $(COQDOCFLAGS) -latex $< -o $@
-
-%.html: %.v %.glob
-	$(COQDOC) $(COQDOCFLAGS) -html $< -o $@
-
-%.g.tex: %.v
-	$(COQDOC) $(COQDOCFLAGS) -latex -g $< -o $@
-
-%.g.html: %.v %.glob
-	$(COQDOC) $(COQDOCFLAGS)  -html -g $< -o $@
-
-%.v.d: %.v
-	$(COQDEP) $(COQLIBS) "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
-
-%.v.beautified:
-	$(COQC) $(COQDEBUG) $(COQFLAGS) -beautify $*
+-include $(VFILES:.v=.v.d)
+.SECONDARY: $(VFILES:.v=.v.d)
 
 # WARNING
 #
