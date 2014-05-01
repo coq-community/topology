@@ -6,6 +6,7 @@ Require Export Relation_Definitions.
 Require Import Relation_Definitions_Implicit.
 Require Import Description.
 
+Local Unset Injection On Proofs.
 Set Asymmetric Patterns.
 
 Inductive CountableT (X:Type) : Prop :=

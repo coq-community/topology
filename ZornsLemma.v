@@ -6,6 +6,8 @@ Require Export Ensembles.
 Require Import EnsemblesImplicit.
 Require Import Proj1SigInjective.
 
+Local Unset Injection On Proofs.
+
 Section ZL'.
 
 Variable T:Type.
