@@ -3,6 +3,7 @@ Require Export CountableTypes.
 Require Export NeighborhoodBases.
 Require Import EnsemblesSpec.
 
+Local Unset Injection On Proofs.
 Global Set Asymmetric Patterns.
 
 Definition first_countable (X:TopologicalSpace) : Prop :=
