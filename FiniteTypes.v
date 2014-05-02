@@ -1005,12 +1005,12 @@ extensionality X; extensionality HFinite.
 generalize HFinite.
 induction HFinite.
 intro.
-destruct (proof_irrelevance _ empty_finite HFinite).
+destruct (proof_irrelevance _ empty_finite HFinite). 
 congruence.
 intro.
 destruct (proof_irrelevance _ (add_finite T HFinite) HFinite0).
-congruence.
+rewrite Hoption_f. rewrite Hoption_g. rewrite IHHFinite. reflexivity.
 intro.
 destruct (proof_irrelevance _ (bij_finite _ _ f0 HFinite H) HFinite0).
-congruence.
+now rewrite Hbijection_f, Hbijection_g, IHHFinite. 
 Qed.
