@@ -6,6 +6,8 @@ Require Export Ensembles.
 Require Import EnsemblesImplicit.
 Require Import Proj1SigInjective.
 
+Unset Standard Proposition Elimination Names.
+
 Local Unset Injection On Proofs.
 
 Section ZL'.

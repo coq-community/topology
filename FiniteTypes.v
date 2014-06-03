@@ -1,5 +1,3 @@
-Set Asymmetric Patterns.
-
 Require Export Ensembles.
 Require Import EnsemblesImplicit.
 Require Export Image.
@@ -9,6 +7,9 @@ Require Export FunctionProperties.
 Require Import DecidableDec.
 Require Import ProofIrrelevance.
 Require Import Description.
+
+Set Asymmetric Patterns.
+Unset Standard Proposition Elimination Names.
 
 Inductive FiniteT : Type -> Prop :=
   | empty_finite: FiniteT False

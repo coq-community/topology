@@ -1,5 +1,7 @@
-Set Asymmetric Patterns.
 Require Import ClassicalChoice.
+
+Set Asymmetric Patterns.
+Unset Standard Proposition Elimination Names.
 
 Lemma choice_on_dependent_type: forall {A:Type} {B:A->Type}
   (R:forall a:A, B a -> Prop),

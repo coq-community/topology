@@ -8,6 +8,8 @@ Require Import ZornsLemma.
 Require Import Proj1SigInjective.
 Require Import EnsemblesSpec.
 
+Unset Standard Proposition Elimination Names.
+
 Section WellOrder.
 
 (* this definition is for the strict order, e.g. the
