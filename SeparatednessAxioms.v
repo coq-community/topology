@@ -1,6 +1,8 @@
 Require Export TopologicalSpaces.
 Require Import InteriorsClosures.
 
+Local Unset Standard Proposition Elimination Names.
+
 Definition T0_sep (X:TopologicalSpace) : Prop :=
   forall x y:point_set X, x <> y ->
   (exists U:Ensemble (point_set X), open U /\ In U x /\ ~ In U y) \/

@@ -2,6 +2,8 @@ Require Export TopologicalSpaces.
 Require Export Continuity.
 Require Export SubspaceTopology.
 
+Local Unset Standard Proposition Elimination Names.
+
 Section continuous_factorization.
 
 Variable X Y:TopologicalSpace.

@@ -1,5 +1,6 @@
 Require Export Completeness.
 
+Local Unset Standard Proposition Elimination Names.
 Local Unset Injection On Proofs.
 
 Lemma completion_exists: forall (X:Type) (d:X->X->R) (d_metric:metric d),

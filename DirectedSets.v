@@ -3,6 +3,8 @@ Require Import Relation_Definitions_Implicit.
 Require Import Classical.
 Require Import Arith.
 
+Local Unset Standard Proposition Elimination Names.
+
 Record DirectedSet := {
   DS_set : Type;
   DS_ord : relation DS_set;

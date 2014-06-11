@@ -2,6 +2,8 @@ Require Export Reals.
 Require Import EnsemblesImplicit.
 Require Import ImageImplicit.
 
+Local Unset Standard Proposition Elimination Names.
+
 Definition sup := completeness.
 
 Open Scope R_scope.

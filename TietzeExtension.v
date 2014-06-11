@@ -1,6 +1,8 @@
 Require Export RTopology.
 Require Export SeparatednessAxioms.
 
+Local Unset Standard Proposition Elimination Names.
+
 (* This proof of the Tietze extension theorem is heavily based on
    the proof described on planetmath.org. *)
 

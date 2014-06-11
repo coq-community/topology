@@ -1,5 +1,7 @@
 Require Export MetricSpaces.
 
+Local Unset Standard Proposition Elimination Names.
+
 Section Completeness.
 
 Variable X:Type.

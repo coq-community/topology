@@ -3,6 +3,7 @@ Require Export CountableTypes.
 Require Export NeighborhoodBases.
 Require Import EnsemblesSpec.
 
+Local Unset Standard Proposition Elimination Names.
 Local Unset Injection On Proofs.
 Global Set Asymmetric Patterns.
 
@@ -63,7 +64,7 @@ apply inj_finite with _ (fun x:{x:{x:Ensemble (point_set X) | In NB x}
 Require Import InfiniteTypes.
 apply finite_nat_initial_segment.
 red.
-intros [[x0]] [[y0]] ?.
+intros [[x0 P] p] [[y0 Q] q] ?.
 simpl in H3.
 Require Import Proj1SigInjective.
 apply subset_eq_compatT.

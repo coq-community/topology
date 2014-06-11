@@ -4,6 +4,8 @@ Require Export NeighborhoodBases.
 Require Import RationalsInReals.
 Require Export EnsemblesSpec.
 
+Local Unset Standard Proposition Elimination Names.
+
 Open Scope R_scope.
 
 Section metric.

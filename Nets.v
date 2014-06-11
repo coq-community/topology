@@ -3,6 +3,7 @@ Require Export DirectedSets.
 Require Export InteriorsClosures.
 Require Export Continuity.
 
+Local Unset Standard Proposition Elimination Names.
 Set Asymmetric Patterns.
 
 Section Net.
