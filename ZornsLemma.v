@@ -425,7 +425,7 @@ destruct H.
 split; trivial.
 
 pose (Rquo := quotient Requiv).
-let Hnew:=fresh in
+let Hnew:=fresh"_H" in
   refine (let Hnew:=_ in
      let inducedR := induced_function2arg R H H Hnew in
      let inducedR_prop := induced_function2arg_correct R H H Hnew in _).
