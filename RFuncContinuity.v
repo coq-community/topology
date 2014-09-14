@@ -72,7 +72,7 @@ pose proof (sum_continuous _
   (fun p:point_set (ProductTopology2 RTop RTop) => fst p)
   (fun p:point_set (ProductTopology2 RTop RTop) => -snd p) (x,y)).
 simpl in H.
-match goal with |- continuous_at ?f ?p =>
+match goal with |- continuous_at ?f ?q =>
   replace f with (fun p:R*R => fst p + - snd p) end.
 apply sum_continuous.
 apply continuous_func_continuous_everywhere.
@@ -197,7 +197,7 @@ Proof.
 apply pointwise_continuity_2arg.
 intros x0 y0.
 red.
-match goal with |- continuous_at ?f ?p => replace f with
+match goal with |- continuous_at ?f ?q => replace f with
   (fun p:point_set RTop*point_set RTop =>
    (fst p - x0) * (snd p - y0) + y0 * fst p + x0 * snd p - x0 * y0) end.
 apply diff_continuous.
@@ -325,7 +325,7 @@ Lemma Rdiv_continuous: forall x y:R, y <> 0 ->
 Proof.
 intros.
 red.
-match goal with |- continuous_at ?f ?p => replace f with
+match goal with |- continuous_at ?f ?q => replace f with
   (fun p:point_set RTop * point_set RTop => fst p * / snd p) end.
 apply product_continuous.
 apply continuous_func_continuous_everywhere; apply product2_fst_continuous.
