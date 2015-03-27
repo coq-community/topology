@@ -82,7 +82,7 @@ Theorem TychonoffProductTheorem:
 Proof.
 intro.
 apply ultrafilter_limit_impl_compact; intros.
-Require Import DependentTypeChoice.
+From ZornsLemma Require Import DependentTypeChoice.
 destruct (choice_on_dependent_type (fun (a:A) (x:point_set (X a)) =>
   filter_limit (filter_direct_image (product_space_proj a) U) x))
   as [choice_fun].
@@ -281,7 +281,7 @@ Inductive ProductTopology2_basis :
 Lemma ProductTopology2_basis_is_basis:
   open_basis ProductTopology2_basis.
 Proof.
-Require Import FiniteIntersections.
+From ZornsLemma Require Import FiniteIntersections.
 assert (open_basis (finite_intersections (weak_topology_subbasis prod2_proj))
   (X:=ProductTopology2)) by apply
   Build_TopologicalSpace_from_open_basis_basis.

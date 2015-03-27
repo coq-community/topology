@@ -102,7 +102,7 @@ constructor.
 symmetry; apply d_metric.
 
 destruct x as [f0 Hf]; destruct y as [g0 Hg].
-Require Import Proj1SigInjective.
+From ZornsLemma Require Import Proj1SigInjective.
 apply subset_eq_compatT.
 Require Import FunctionalExtensionality.
 extensionality x.

@@ -1,6 +1,6 @@
 Require Export TopologicalSpaces.
 Require Export Subbases.
-Require Export InverseImage.
+From ZornsLemma Require Export InverseImage.
 Require Export Continuity.
 Require Export Nets.
 
@@ -64,6 +64,8 @@ apply continuous_func_continuous_everywhere.
 apply weak_topology_makes_continuous_funcs.
 Qed.
 
+From ZornsLemma Require Import FiniteIntersections.
+
 Lemma net_limit_in_projections_impl_net_limit_in_weak_topology :
   (forall a:A, net_limit (fun i:DS_set I => (f a) (x i))
                          ((f a) x0)) ->
@@ -71,7 +73,6 @@ Lemma net_limit_in_projections_impl_net_limit_in_weak_topology :
 Proof.
 intros.
 red; intros.
-Require Import FiniteIntersections.
 assert (@open_basis WeakTopology
         (finite_intersections weak_topology_subbasis)).
 apply Build_TopologicalSpace_from_open_basis_basis.

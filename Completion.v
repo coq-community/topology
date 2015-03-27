@@ -34,7 +34,7 @@ assert (d'_metric0 : metric (fun (y1 y2:{y:Y | In F y}) =>
 constructor; try destruct x; try destruct y; try destruct z; simpl;
   try apply d'_metric.
 intros.
-Require Import Proj1SigInjective.
+From ZornsLemma Require Import Proj1SigInjective.
 apply subset_eq_compatT.
 apply d'_metric; trivial.
 exists d'_metric0.

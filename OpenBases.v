@@ -1,6 +1,6 @@
 Require Export TopologicalSpaces.
 Require Import ClassicalChoice.
-Require Import EnsemblesSpec.
+From ZornsLemma Require Import EnsemblesSpec.
 
 Local Unset Standard Proposition Elimination Names.
 

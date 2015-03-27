@@ -450,7 +450,7 @@ replace 0 with (0 * / (1+x)); auto with real.
 intros.
 destruct y as [x].
 simpl.
-Require Import Proj1SigInjective.
+From ZornsLemma Require Import Proj1SigInjective.
 apply subset_eq_compatT.
 destruct i.
 destruct H1.

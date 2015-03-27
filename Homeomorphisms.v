@@ -65,7 +65,7 @@ Inductive homeomorphic (X Y:TopologicalSpace) : Prop :=
     homeomorphism f -> homeomorphic X Y.
 
 Require Export Relation_Definitions.
-Require Import Relation_Definitions_Implicit.
+From ZornsLemma Require Import Relation_Definitions_Implicit.
 
 Lemma homeomorphic_equiv: equivalence homeomorphic.
 Proof.

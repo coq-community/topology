@@ -1,7 +1,7 @@
 Require Export TopologicalSpaces.
 Require Export OpenBases.
-Require Export FiniteTypes.
-Require Export EnsemblesSpec.
+From ZornsLemma Require Export FiniteTypes.
+From ZornsLemma Require Export EnsemblesSpec.
 
 Section Subbasis.
 
@@ -84,7 +84,7 @@ Section build_from_subbasis.
 Variable X:Type.
 Variable S:Family X.
 
-Require Import FiniteIntersections.
+From ZornsLemma Require Import FiniteIntersections.
 
 Definition Build_TopologicalSpace_from_subbasis : TopologicalSpace.
 refine (Build_TopologicalSpace_from_open_basis

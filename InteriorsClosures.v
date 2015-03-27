@@ -1,5 +1,5 @@
 Require Export TopologicalSpaces.
-Require Export EnsemblesSpec.
+From ZornsLemma Require Export EnsemblesSpec.
 
 Section interior_closure.
 

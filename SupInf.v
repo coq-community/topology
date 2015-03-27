@@ -1,6 +1,6 @@
 Require Export Reals.
-Require Import EnsemblesImplicit.
-Require Import ImageImplicit.
+From ZornsLemma Require Import EnsemblesImplicit.
+From ZornsLemma Require Import ImageImplicit.
 
 Local Unset Standard Proposition Elimination Names.
 

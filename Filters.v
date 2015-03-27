@@ -1,5 +1,5 @@
-Require Export Families.
-Require Import EnsemblesSpec.
+From ZornsLemma Require Export Families.
+From ZornsLemma Require Import EnsemblesSpec.
 
 Local Unset Standard Proposition Elimination Names.
 
@@ -24,8 +24,8 @@ Record filter_basis {X:Type} (F:Filter X) (B:Family X) : Prop := {
     In B S' /\ Included S' S
 }.
 
-Require Export IndexedFamilies.
-Require Export FiniteTypes.
+From ZornsLemma Require Export IndexedFamilies.
+From ZornsLemma Require Export FiniteTypes.
 
 Lemma filter_finite_indexed_intersection: forall {X:Type} (F:Filter X)
   {A:Type} (S:IndexedFamily A X),
@@ -129,8 +129,8 @@ End filter_from_basis.
 
 Implicit Arguments Build_Filter_from_basis [[X]].
 
-Require Export FiniteTypes.
-Require Export IndexedFamilies.
+From ZornsLemma Require Export FiniteTypes.
+From ZornsLemma Require Export IndexedFamilies.
 
 Record filter_subbasis {X:Type} (F:Filter X) (B:Family X) : Prop := {
   filter_subbasis_elements: Included B (filter_family F);
@@ -149,7 +149,7 @@ Hypothesis B_subbasis_cond: forall (J:Type) (V:J->Ensemble X),
   FiniteT J -> (forall j:J, In B (V j)) ->
   Inhabited (IndexedIntersection V).
 
-Require Import FiniteIntersections.
+From ZornsLemma Require Import FiniteIntersections.
 
 Definition Build_Filter_from_subbasis: Filter X.
 refine (Build_Filter_from_basis (finite_intersections B) _ _ _).
@@ -198,11 +198,12 @@ Definition ultrafilter {X:Type} (F:Filter X) : Prop :=
   forall S:Ensemble X, In (filter_family F) S \/
                        In (filter_family F) (Ensembles.Complement S).
 
+From ZornsLemma Require Import ZornsLemma.
+
 Lemma ultrafilter_extension: forall {X:Type} (F:Filter X),
   exists U:Filter X, Included (filter_family F) (filter_family U) /\
                      ultrafilter U.
 Proof.
-Require Import ZornsLemma.
 intros.
 pose (PO := { F':Filter X | Included (filter_family F) (filter_family F') }).
 pose (PO_ord := fun (F1' F2':PO) =>
@@ -222,7 +223,7 @@ red; simpl.
 auto with sets.
 
 intros.
-Require Import DecidableDec.
+From ZornsLemma Require Import DecidableDec.
 destruct (classic_dec (Inhabited S)) as [Hnonempty|Hempty].
 refine (let H0:=_ in let H1:=_ in let H2:=_ in let H3:=_ in
   let ub:=Build_Filter X (IndexedUnion (fun F':{F':PO | In S F'} =>
@@ -370,7 +371,7 @@ red; intros.
 constructor; trivial; constructor.
 Qed.
 
-Require Export InverseImage.
+From ZornsLemma Require Export InverseImage.
 
 Definition filter_direct_image {X Y:Type} (f:X->Y) (F:Filter X) : Filter Y.
 refine (Build_Filter Y

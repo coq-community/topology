@@ -92,7 +92,7 @@ Let d_restriction := fun x y:FT => d (proj1_sig x) (proj1_sig y).
 
 Lemma d_restriction_metric: metric d_restriction.
 Proof.
-Require Import Proj1SigInjective.
+From ZornsLemma Require Import Proj1SigInjective.
 constructor; intros; try destruct x; try destruct y; try destruct z;
   try apply subset_eq_compatT; apply d_metric; trivial.
 Qed.

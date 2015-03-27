@@ -1,5 +1,5 @@
 Require Export Subbases.
-Require Export Relation_Definitions_Implicit.
+From ZornsLemma Require Export Relation_Definitions_Implicit.
 Require Export SeparatednessAxioms.
 
 Section OrderTopology.

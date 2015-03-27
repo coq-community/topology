@@ -1,5 +1,5 @@
 Require Export TopologicalSpaces.
-Require Export InverseImage.
+From ZornsLemma Require Export InverseImage.
 Require Export Continuity.
 
 Section StrongTopology.

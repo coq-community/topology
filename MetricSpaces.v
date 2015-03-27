@@ -2,7 +2,7 @@ Require Export Reals.
 Require Export TopologicalSpaces.
 Require Export NeighborhoodBases.
 Require Import RationalsInReals.
-Require Export EnsemblesSpec.
+From ZornsLemma Require Export EnsemblesSpec.
 
 Local Unset Standard Proposition Elimination Names.
 
@@ -409,7 +409,7 @@ end.
 red; intros.
 destruct x1 as [[r1 x1] [[pos_r1 i1]]].
 destruct x2 as [[r2 x2] [[pos_r2 i2]]].
-Require Import Proj1SigInjective.
+From ZornsLemma Require Import Proj1SigInjective.
 apply subset_eq_compatT.
 apply H4 in H5.
 f_equal.
@@ -766,7 +766,7 @@ apply closure_inflationary.
 rewrite <- H1; apply closure_closed.
 
 intros.
-Require Import DecidableDec.
+From ZornsLemma Require Import DecidableDec.
 case (classic_dec (Inhabited F)); intro.
 case (classic_dec (Inhabited G)); intro.
 

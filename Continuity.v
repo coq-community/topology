@@ -1,6 +1,6 @@
 Require Export TopologicalSpaces.
 Require Export Neighborhoods.
-Require Export InverseImage.
+From ZornsLemma Require Export InverseImage.
 Require Export OpenBases.
 Require Export NeighborhoodBases.
 Require Export Subbases.

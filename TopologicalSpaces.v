@@ -1,9 +1,9 @@
 Require Export Ensembles.
-Require Import EnsemblesImplicit.
-Require Export Families.
-Require Export IndexedFamilies.
-Require Export FiniteTypes.
-Require Import EnsemblesSpec.
+From ZornsLemma Require Import EnsemblesImplicit.
+From ZornsLemma Require Export Families.
+From ZornsLemma Require Export IndexedFamilies.
+From ZornsLemma Require Export FiniteTypes.
+From ZornsLemma Require Import EnsemblesSpec.
 
 Record TopologicalSpace : Type := {
   point_set : Type;

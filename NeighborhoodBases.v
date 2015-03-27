@@ -1,8 +1,8 @@
 Require Export TopologicalSpaces.
 Require Export Neighborhoods.
 Require Export OpenBases.
-Require Export IndexedFamilies.
-Require Export EnsemblesSpec.
+From ZornsLemma Require Export IndexedFamilies.
+From ZornsLemma Require Export EnsemblesSpec.
 
 Record neighborhood_basis {X:TopologicalSpace}
   (NB:Family (point_set X)) (x:point_set X) : Prop := {

@@ -781,7 +781,7 @@ rewrite H7.
 intros.
 replace (exist _ (f0 x) i) with (a (f x)).
 apply H4.
-Require Import Proj1SigInjective.
+From ZornsLemma Require Import Proj1SigInjective.
 apply (proj1_sig_injective (In U)).
 simpl.
 reflexivity.

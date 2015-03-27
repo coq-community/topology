@@ -1,7 +1,7 @@
 Require Export TopologicalSpaces.
-Require Export CountableTypes.
+From ZornsLemma Require Export CountableTypes.
 Require Export NeighborhoodBases.
-Require Import EnsemblesSpec.
+From ZornsLemma Require Import EnsemblesSpec.
 
 Local Unset Standard Proposition Elimination Names.
 Local Unset Injection On Proofs.
@@ -61,12 +61,12 @@ apply open_finite_indexed_intersection.
 apply inj_finite with _ (fun x:{x:{x:Ensemble (point_set X) | In NB x}
                            | (g x < n)%nat} =>
   exist (fun m:nat => (m<n)%nat) (g (proj1_sig x)) (proj2_sig x)).
-Require Import InfiniteTypes.
+From ZornsLemma Require Import InfiniteTypes.
 apply finite_nat_initial_segment.
 red.
 intros [[x0 P] p] [[y0 Q] q] ?.
 simpl in H3.
-Require Import Proj1SigInjective.
+From ZornsLemma Require Import Proj1SigInjective.
 apply subset_eq_compatT.
 apply subset_eq_compatT.
 injection H3; intros.
@@ -170,7 +170,7 @@ red; intros.
 unfold g in H2.
 destruct x1 as [[U [? ?]]].
 destruct x2 as [[V [? ?]]].
-Require Import Proj1SigInjective.
+From ZornsLemma Require Import Proj1SigInjective.
 apply subset_eq_compatT.
 apply subset_eq_compatT.
 injection H2; trivial.
