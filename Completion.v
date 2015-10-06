@@ -1,4 +1,6 @@
 Require Export Completeness.
+Require Import UniformTopology.
+Require Import RTopology.
 
 Local Unset Standard Proposition Elimination Names.
 Local Unset Injection On Proofs.
@@ -112,8 +114,6 @@ destruct H as [x0].
 (* we now construct Y as the uniform space of functions X->R,
    with base point "distance from x0"; the embedding of X into this
    space is to send x to "distance from x" *)
-Require Import UniformTopology.
-Require Import RTopology.
 assert (forall x y z:X, R_metric (d x z) (d y z) <= d x y).
 unfold R_metric.
 assert (forall a b:R, -b <= a -> a <= b -> Rabs a <= b).

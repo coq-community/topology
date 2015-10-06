@@ -1,5 +1,6 @@
 Require Export TopologicalSpaces.
 Require Export WeakTopology.
+From ZornsLemma Require Import DependentTypeChoice.
 
 Section product_topology.
 
@@ -82,7 +83,6 @@ Theorem TychonoffProductTheorem:
 Proof.
 intro.
 apply ultrafilter_limit_impl_compact; intros.
-From ZornsLemma Require Import DependentTypeChoice.
 destruct (choice_on_dependent_type (fun (a:A) (x:point_set (X a)) =>
   filter_limit (filter_direct_image (product_space_proj a) U) x))
   as [choice_fun].
