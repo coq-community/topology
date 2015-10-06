@@ -5,6 +5,8 @@ Require Import DecidableDec.
 Require Export Relation_Definitions.
 Require Import Relation_Definitions_Implicit.
 Require Import Description.
+Require Import Proj1SigInjective.
+Require Import DependentTypeChoice.
 
 Local Unset Injection On Proofs.
 Set Asymmetric Patterns.
@@ -248,7 +250,6 @@ intros.
 red.
 apply inj_countable with (@proj1_sig _ (fun x:X => In S x)).
 assumption.
-Require Import Proj1SigInjective.
 red; intros.
 apply proj1_sig_injective.
 assumption.
@@ -340,7 +341,6 @@ Lemma countable_union: forall {X A:Type}
     Countable (IndexedUnion F).
 Proof.
 intros.
-Require Import DependentTypeChoice.
 destruct (choice_on_dependent_type (fun (a:A)
                                (f:{x:X | In (F a) x} -> nat) =>
   injective f)) as [choice_fun_inj].

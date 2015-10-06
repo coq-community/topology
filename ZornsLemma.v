@@ -5,6 +5,7 @@ Require Import Relation_Definitions_Implicit.
 Require Export Ensembles.
 Require Import EnsemblesImplicit.
 Require Import Proj1SigInjective.
+Require Import InverseImage.
 
 Unset Standard Proposition Elimination Names.
 
@@ -483,7 +484,6 @@ apply R_impl_equality_of_equiv_class; trivial.
 split; trivial.
 
 intros Sbar ?.
-Require Import InverseImage.
 pose (S := inverse_image (quotient_projection _) Sbar).
 refine (let H1:=ub_of_chain S _ in _).
 red; intros.
