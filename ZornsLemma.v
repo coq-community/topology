@@ -427,7 +427,7 @@ split; trivial.
 
 pose (Rquo := quotient Requiv).
 let Hnew:=fresh"_H" in
-  refine (let Hnew:=_ in
+  unshelve refine (let Hnew:=_ in
      let inducedR := induced_function2arg R H H Hnew in
      let inducedR_prop := induced_function2arg_correct R H H Hnew in _).
 intros.
@@ -485,7 +485,7 @@ split; trivial.
 
 intros Sbar ?.
 pose (S := inverse_image (quotient_projection _) Sbar).
-refine (let H1:=ub_of_chain S _ in _).
+unshelve refine (let H1:=ub_of_chain S _ in _).
 red; intros.
 pose proof (H0 (quotient_projection _ x) (quotient_projection _ y)).
 rewrite 2 inducedR_prop in H3.
@@ -508,7 +508,7 @@ destruct H1.
 exists x.
 red; intros.
 red in H0.
-refine (let H2:=H0 (quotient_projection Requiv y) _ in _).
+unshelve refine (let H2:=H0 (quotient_projection Requiv y) _ in _).
 rewrite inducedR_prop.
 assumption.
 unfold quotient_projection in H2.
