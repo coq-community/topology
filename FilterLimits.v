@@ -110,7 +110,7 @@ constructor.
 destruct H0.
 exists x; trivial.
 
-refine (let H1:=_ in let H2:=_ in let H3:=_ in
+unshelve refine (let H1:=_ in let H2:=_ in let H3:=_ in
   let Sfilt := Build_Filter_from_basis (Singleton S)
   H1 H2 H3 in _).
 exists S; constructor.
@@ -125,7 +125,7 @@ destruct H3.
 destruct H4.
 exists S; split; auto with sets.
 
-refine (let H4:=_ in
+unshelve refine (let H4:=_ in
   ex_intro _ (filter_sum (neighborhood_filter x0) Sfilt H4) _).
 intros.
 simpl in H4.

@@ -78,7 +78,7 @@ refine (Build_TopologicalSpace X B_open _ _ _).
 intros.
 pose proof (choice (fun (x:{S:Ensemble X | In F S}) (F:Family X) =>
   Included F B /\ proj1_sig x = FamilyUnion F)).
-refine (let H1:=(H0 _) in _); [ | clearbody H1 ].
+unshelve refine (let H1:=(H0 _) in _); [ | clearbody H1 ].
 intros.
 destruct x.
 pose proof (H x i).

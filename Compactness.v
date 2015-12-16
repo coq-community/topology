@@ -70,7 +70,7 @@ Proof.
 intros.
 apply NNPP; red; intro.
 pose (C := [ U:Ensemble (point_set X) | In F (Complement U) ]).
-refine (let H3:=(H C _ _) in _).
+unshelve refine (let H3:=(H C _ _) in _).
 intros.
 destruct H3.
 apply H0 in H3.
@@ -91,7 +91,7 @@ exact H6.
 
 destruct H3 as [C' [? [? ?]]].
 pose (F' := [G : Ensemble (point_set X) | In C' (Complement G)]).
-refine (let H6 := (H1 F' _ _) in _).
+unshelve refine (let H6 := (H1 F' _ _) in _).
 assert (F' = Im C' Complement).
 apply Extensionality_Ensembles; split; red; intros.
 destruct H6.
@@ -134,7 +134,7 @@ intros.
 red; intros.
 apply NNPP; red; intro.
 pose (F := [ G:Ensemble (point_set X) | In C (Complement G) ]).
-refine (let H3 := (H F _ _) in _).
+unshelve refine (let H3 := (H F _ _) in _).
 intros.
 destruct H3.
 apply H0; trivial.
@@ -258,7 +258,7 @@ Proof.
 intros.
 apply finite_nonempty_closed_intersection_impl_compact.
 intros.
-refine (let H2:=_ in let filt := Build_Filter_from_subbasis F H2 in _).
+unshelve refine (let H2:=_ in let filt := Build_Filter_from_subbasis F H2 in _).
 intros.
 rewrite indexed_to_family_intersection.
 apply H1.

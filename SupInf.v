@@ -17,7 +17,7 @@ Definition is_glb (E:R->Prop) (m:R) :=
 
 Definition inf: forall E:R->Prop, lower_bound E -> (exists x:R, E x) ->
   { m:R | is_glb E m }.
-refine (fun E Hlb Hinh =>
+unshelve refine (fun E Hlb Hinh =>
   let H:=_ in let H0:=_ in
   exist _ (- (proj1_sig (sup (Im E Ropp) H H0))) _).
 destruct Hlb as [m].

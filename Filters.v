@@ -225,7 +225,7 @@ auto with sets.
 intros.
 From ZornsLemma Require Import DecidableDec.
 destruct (classic_dec (Inhabited S)) as [Hnonempty|Hempty].
-refine (let H0:=_ in let H1:=_ in let H2:=_ in let H3:=_ in
+unshelve refine (let H0:=_ in let H1:=_ in let H2:=_ in let H3:=_ in
   let ub:=Build_Filter X (IndexedUnion (fun F':{F':PO | In S F'} =>
     filter_family (proj1_sig (proj1_sig F')))) H0 H1 H2 H3 in _);
   [ | clearbody H0 | clearbody H0 H1 | clearbody H0 H1 H2 | clearbody H0 H1 H2 H3 ].
@@ -305,7 +305,7 @@ contradiction H2.
 exists x.
 auto with sets.
 
-refine (let H2:=_ in let H3:=_ in let H4:=_ in
+unshelve refine (let H2:=_ in let H3:=_ in let H4:=_ in
   let Uext := Build_Filter_from_basis
        (Im (filter_family U) (fun S':Ensemble X =>
           Intersection S' (Ensembles.Complement S))) H2 H3 H4 in _).

@@ -186,7 +186,7 @@ Definition extension_approximation_seq: forall n:nat,
     (forall x:point_set X, -1 + (2/3)^n <= g0 x <= 1 - (2/3)^n) /\
     (forall x:point_set (SubspaceTopology F),
       -(2/3)^n <= f x - g0 (subspace_inc F x) <= (2/3)^n) }.
-refine (fix g (n:nat) {struct n} := match n return
+simple refine (fix g (n:nat) {struct n} := match n return
   { g0:point_set X -> point_set RTop |
     continuous g0 /\
     (forall x:point_set X, -1 + (2/3)^n <= g0 x <= 1 - (2/3)^n) /\
@@ -472,7 +472,7 @@ constructor.
 unfold R_metric; f_equal; auto with real.
 
 apply lt_plus_epsilon_le; intros.
-refine (let H1:=metric_space_net_limit_converse _ _ _ _ _ _ n eps H0 in _); [ | | clearbody H1 ]; shelve_unifiable.
+unshelve refine (let H1:=metric_space_net_limit_converse _ _ _ _ _ _ n eps H0 in _); [ | | clearbody H1 ]; shelve_unifiable.
 apply MetricTopology_metrizable.
 destruct H1 as [N].
 refine (Rle_lt_trans _ _ _
@@ -509,7 +509,7 @@ apply lt_plus_epsilon_le; intros.
 unfold Tietze_extension_func;
   destruct constructive_definite_description as [[g]]; simpl.
 assert (eps/2 > 0) by fourier.
-refine (let H1:=metric_space_net_limit_converse _ _ _ _ _ _ n (eps/2) H0
+unshelve refine (let H1:=metric_space_net_limit_converse _ _ _ _ _ _ n (eps/2) H0
           in _); [ | | clearbody H1 ]; shelve_unifiable.
 apply MetricTopology_metrizable.
 destruct H1 as [N1].
