@@ -1,3 +1,3 @@
 [submodule "zorns-lemma"]
 	path = zorns-lemma
-	url = https://scm.gforge.inria.fr/anonscm/git/coq-contribs/zorns-lemma.git
+	url = https://github.com/coq-contribs/zorns-lemma.git
