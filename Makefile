@@ -6,7 +6,13 @@ clean: Makefile.coq
 	rm -f Makefile.coq
 
 Makefile.coq: Make
-	$(COQBIN)coq_makefile -f Make -o Makefile.coq
+ifeq ($(USE_GIT_SUBMODULES),yes)
+	# This is what we have to do if we cannot rely on things installed via OPAM
+	$(COQBIN)coq_makefile -f Make -o Makefile.coq -R zorns-lemma ZornsLemma
+else
+	# This is what we do if we can rely on things installed via OPAM
+	$(COQBIN)coq_makefile -f Make -o Makefile.coq -R `coqtop -where`/user-contrib/ZornsLemma ZornsLemma
+endif
 
 %: Makefile.coq
 	+make -f Makefile.coq $@

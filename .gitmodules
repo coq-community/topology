@@ -1,0 +1,3 @@
+[submodule "zorns-lemma"]
+	path = zorns-lemma
+	url = https://github.com/coq-contribs/zorns-lemma.git
