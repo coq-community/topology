@@ -1,5 +1,4 @@
 -R . Topology
--R zorns-lemma ZornsLemma
 
 Compactness.v
 Completeness.v
