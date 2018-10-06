@@ -3,6 +3,7 @@ Require Export QArith.
 Require Export Qreals.
 
 Open Scope R_scope.
+
 Lemma inverses_of_nats_approach_0:
   forall eps:R, eps > 0 -> exists n:nat, (n > 0)%nat /\
                                          / (INR n) < eps.
@@ -28,18 +29,18 @@ apply archimed.
 apply archimed.
 auto with *.
 
-destruct H0 as [[ | p | p]].
-destruct H0.
-contradict H0; auto with *.
+(* we've just proved the result for Z, now need to bring it to N *)
+destruct H0. destruct H0.
+exists (Z.to_nat x). split.
 
-destruct H0.
-exists (nat_of_P p).
-split; auto with *.
+apply (Z2Nat.inj_lt 0 x).
+auto with zarith.
+auto with zarith. apply Z.gt_lt. assumption.
 
-destruct H0.
-contradict H0.
-red; intro.
-inversion H0.
+assert (L: forall z, (0 <= z)%Z -> INR (Z.to_nat z) = IZR z).
+intros z GE0. assert (T := INR_IZR_INZ (Z.to_nat z)).
+rewrite (Z2Nat.id z GE0) in T. assumption.
+rewrite L. assumption. auto with zarith.
 Qed.
 
 Lemma Z_interpolation: forall x y:R, y > x+1 ->
@@ -66,11 +67,6 @@ Proof.
 intros.
 assert (0 < / IZR (' n)).
 cut (0 < IZR (' n)); auto with real.
-replace 0 with (IZR 0) by trivial.
-cut ((0 < ' n)%Z); auto with *.
-apply IZR_lt.
-unfold Zlt.
-trivial.
 
 destruct (Z_interpolation (IZR (' n) * x)
   (IZR (' n) * y)) as [m].
@@ -88,7 +84,7 @@ ring.
 exists m.
 unfold Q2R.
 simpl.
-replace (INR (nat_of_P n)) with (IZR (' n)) by auto with real.
+replace (INR (nat_of_P n)) with (IZR (' n)); auto with real.
 replace x with ((IZR (' n) * x) / IZR (' n)).
 replace y with ((IZR (' n) * y) / IZR (' n)).
 
@@ -100,6 +96,9 @@ field.
 auto with *.
 field.
 auto with *.
+rewrite <- positive_nat_Z.
+rewrite <- INR_IZR_INZ.
+reflexivity.
 Qed.
 
 Lemma rationals_dense_in_reals: forall x y:R, x<y ->
