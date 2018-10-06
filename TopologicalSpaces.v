@@ -16,9 +16,9 @@ Record TopologicalSpace : Type := {
   open_full : open Full_set
 }.
 
-Implicit Arguments open [[t]].
-Implicit Arguments open_family_union [[t]].
-Implicit Arguments open_intersection2 [[t]].
+Arguments open {t}.
+Arguments open_family_union {t}.
+Arguments open_intersection2 {t}.
 
 Lemma open_empty: forall X:TopologicalSpace,
   open (@Empty_set (point_set X)).
@@ -331,4 +331,4 @@ Qed.
 
 End Build_from_closed_sets.
 
-Implicit Arguments Build_TopologicalSpace_from_closed_sets [[X]].
+Arguments Build_TopologicalSpace_from_closed_sets {X}.

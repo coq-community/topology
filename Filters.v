@@ -15,7 +15,7 @@ Record Filter (X:Type) : Type := {
   filter_empty: ~ In filter_family Empty_set
 }.
 
-Implicit Arguments filter_family [[X]].
+Arguments filter_family {X}.
 
 Record filter_basis {X:Type} (F:Filter X) (B:Family X) : Prop := {
   filter_basis_elements: Included B (filter_family F);
@@ -127,7 +127,7 @@ Qed.
 
 End filter_from_basis.
 
-Implicit Arguments Build_Filter_from_basis [[X]].
+Arguments Build_Filter_from_basis {X}.
 
 From ZornsLemma Require Export FiniteTypes.
 From ZornsLemma Require Export IndexedFamilies.
@@ -192,7 +192,7 @@ Qed.
 
 End filter_from_subbasis.
 
-Implicit Arguments Build_Filter_from_subbasis [[X]].
+Arguments Build_Filter_from_subbasis {X}.
 
 Definition ultrafilter {X:Type} (F:Filter X) : Prop :=
   forall S:Ensemble X, In (filter_family F) S \/
@@ -459,4 +459,4 @@ Defined.
 
 End filter_sum.
 
-Implicit Arguments filter_sum [[X]].
+Arguments filter_sum {X}.

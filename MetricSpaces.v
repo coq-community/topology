@@ -23,7 +23,7 @@ Record metric : Prop := {
 
 End metric.
 
-Implicit Arguments metric [[X]].
+Arguments metric {X}.
 
 Section metric_topology.
 
@@ -85,8 +85,8 @@ Defined.
 
 End metric_topology.
 
-Implicit Arguments metric_topology_neighborhood_basis [[X]].
-Implicit Arguments MetricTopology [[X]].
+Arguments metric_topology_neighborhood_basis {X}.
+Arguments MetricTopology {X}.
 
 Definition metrizes (X:TopologicalSpace)
   (d:point_set X -> point_set X -> R) : Prop :=
@@ -555,8 +555,8 @@ Qed.
 
 End dist_to_set.
 
-Implicit Arguments dist_to_set [[X]].
-Implicit Arguments dist_to_set_triangle_inequality [[X]].
+Arguments dist_to_set {X}.
+Arguments dist_to_set_triangle_inequality {X}.
 
 Section dist_to_set_and_topology.
 
