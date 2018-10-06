@@ -3,8 +3,6 @@ Require Import DecidableDec.
 Require Import Description.
 Require Import Classical.
 
-Unset Standard Proposition Elimination Names.
-
 (* CSB = Cantor-Schroeder-Bernstein theorem *)
 
 Section CSB.

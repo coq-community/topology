@@ -7,10 +7,6 @@ Require Import EnsemblesImplicit.
 Require Import Proj1SigInjective.
 Require Import InverseImage.
 
-Unset Standard Proposition Elimination Names.
-
-Local Unset Injection On Proofs.
-
 Section ZL'.
 
 Variable T:Type.
