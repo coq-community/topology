@@ -112,13 +112,13 @@ Qed.
 
 End WellOrder.
 
-Implicit Arguments total_strict_order [[T]].
-Implicit Arguments well_order [[T]].
-Implicit Arguments wo_well_founded [[T] [R]].
-Implicit Arguments wo_transitive [[T] [R]].
-Implicit Arguments wo_total_strict_order [[T] [R]].
-Implicit Arguments wo_irrefl [[T] [R]].
-Implicit Arguments wo_antisym [[T] [R]].
+Arguments total_strict_order {T}.
+Arguments well_order {T}.
+Arguments wo_well_founded {T} {R}.
+Arguments wo_transitive {T} {R}.
+Arguments wo_total_strict_order {T} {R}.
+Arguments wo_irrefl {T} {R}.
+Arguments wo_antisym {T} {R}.
 
 Section WellOrderMinimum.
 
@@ -172,7 +172,7 @@ Defined.
 
 End WellOrderMinimum.
 
-Implicit Arguments WO_minimum [[T]].
+Arguments WO_minimum {T}.
 
 Section WellOrderConstruction.
 
