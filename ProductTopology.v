@@ -100,8 +100,8 @@ Qed.
 
 End product_topology.
 
-Implicit Arguments ProductTopology [[A]].
-Implicit Arguments product_space_proj [[A] [X]].
+Arguments ProductTopology {A}.
+Arguments product_space_proj {A} {X}.
 
 Lemma product_map_continuous: forall {A:Type}
   (X:TopologicalSpace) (Y:A->TopologicalSpace)
@@ -421,8 +421,8 @@ Qed.
 
 End two_arg_convenience_results.
 
-Implicit Arguments continuous_2arg [[X] [Y] [Z]].
-Implicit Arguments continuous_at_2arg [[X] [Y] [Z]].
+Arguments continuous_2arg {X} {Y} {Z}.
+Arguments continuous_at_2arg {X} {Y} {Z}.
 
 Lemma continuous_composition_at_2arg:
   forall (W X Y Z:TopologicalSpace)

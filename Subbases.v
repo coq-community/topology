@@ -77,7 +77,7 @@ Qed.
 
 End Subbasis.
 
-Implicit Arguments subbasis [[X]].
+Arguments subbasis {X}.
 
 Section build_from_subbasis.
 

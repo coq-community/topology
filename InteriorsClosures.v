@@ -80,16 +80,16 @@ Qed.
 
 End interior_closure.
 
-Implicit Arguments interior [[X]].
-Implicit Arguments closure [[X]].
-Implicit Arguments interior_open [[X]].
-Implicit Arguments interior_deflationary [[X]].
-Implicit Arguments interior_fixes_open [[X]].
-Implicit Arguments interior_maximal [[X]].
-Implicit Arguments closure_closed [[X]].
-Implicit Arguments closure_inflationary [[X]].
-Implicit Arguments closure_fixes_closed [[X]].
-Implicit Arguments closure_minimal [[X]].
+Arguments interior {X}.
+Arguments closure {X}.
+Arguments interior_open {X}.
+Arguments interior_deflationary {X}.
+Arguments interior_fixes_open {X}.
+Arguments interior_maximal {X}.
+Arguments closure_closed {X}.
+Arguments closure_inflationary {X}.
+Arguments closure_fixes_closed {X}.
+Arguments closure_minimal {X}.
 
 Section interior_closure_relations.
 
@@ -293,15 +293,15 @@ Qed.
 
 End interior_closure_relations.
 
-Implicit Arguments interior_increasing [[X]].
-Implicit Arguments interior_intersection [[X]].
-Implicit Arguments interior_union [[X]].
-Implicit Arguments interior_complement [[X]].
-Implicit Arguments closure_increasing [[X]].
-Implicit Arguments closure_complement [[X]].
-Implicit Arguments closure_union [[X]].
-Implicit Arguments closure_intersection [[X]].
-Implicit Arguments dense [[X]].
+Arguments interior_increasing {X}.
+Arguments interior_intersection {X}.
+Arguments interior_union {X}.
+Arguments interior_complement {X}.
+Arguments closure_increasing {X}.
+Arguments closure_complement {X}.
+Arguments closure_union {X}.
+Arguments closure_intersection {X}.
+Arguments dense {X}.
 
 Section Build_from_closure.
 
@@ -362,4 +362,4 @@ Qed.
 
 End Build_from_closure.
 
-Implicit Arguments Build_TopologicalSpace_from_closure_operator [[X]].
+Arguments Build_TopologicalSpace_from_closure_operator {X}.

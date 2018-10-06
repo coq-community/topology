@@ -13,9 +13,9 @@ Record DirectedSet := {
     DS_ord i k /\ DS_ord j k
 }.
 
-Implicit Arguments DS_ord [[d]].
-Implicit Arguments DS_ord_cond [[d]].
-Implicit Arguments DS_join_cond [[d]].
+Arguments DS_ord {d}.
+Arguments DS_ord_cond {d}.
+Arguments DS_join_cond {d}.
 
 Section for_large.
 
@@ -100,13 +100,13 @@ Qed.
 
 End for_large.
 
-Implicit Arguments eventually [[I]].
-Implicit Arguments eventually_and [[I]].
-Implicit Arguments eventually_impl_base [[I]].
-Implicit Arguments eventually_impl [[I]].
-Implicit Arguments exists_arbitrarily_large [[I]].
-Implicit Arguments not_eal_eventually_not [[I]].
-Implicit Arguments not_eventually_eal_not [[I]].
+Arguments eventually {I}.
+Arguments eventually_and {I}.
+Arguments eventually_impl_base {I}.
+Arguments eventually_impl {I}.
+Arguments exists_arbitrarily_large {I}.
+Arguments not_eal_eventually_not {I}.
+Arguments not_eventually_eal_not {I}.
 
 Notation "'for' 'large' i : I , p" :=
   (eventually (fun i:I => p))

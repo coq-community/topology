@@ -137,8 +137,8 @@ Qed.
 
 End continuity.
 
-Implicit Arguments continuous [[X] [Y]].
-Implicit Arguments continuous_at [[X] [Y]].
+Arguments continuous {X} {Y}.
+Arguments continuous_at {X} {Y}.
 
 Lemma continuous_composition_at: forall {X Y Z:TopologicalSpace}
   (f:point_set Y -> point_set Z) (g:point_set X -> point_set Y)

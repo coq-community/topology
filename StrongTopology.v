@@ -72,4 +72,4 @@ Qed.
 
 End StrongTopology.
 
-Implicit Arguments StrongTopology [[A] [X] [Y]].
+Arguments StrongTopology {A} {X} {Y}.

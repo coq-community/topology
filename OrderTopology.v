@@ -163,4 +163,4 @@ End if_total_order.
 
 End OrderTopology.
 
-Implicit Arguments OrderTopology [[X]].
+Arguments OrderTopology {X}.
