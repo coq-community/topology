@@ -1,4 +1,3 @@
-Local Unset Standard Proposition Elimination Names.
 Set Asymmetric Patterns.
 
 (* define nonnegative dyadic rationals *)

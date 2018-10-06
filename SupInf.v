@@ -2,8 +2,6 @@ Require Export Reals.
 From ZornsLemma Require Import EnsemblesImplicit.
 From ZornsLemma Require Import ImageImplicit.
 
-Local Unset Standard Proposition Elimination Names.
-
 Definition sup := completeness.
 
 Open Scope R_scope.

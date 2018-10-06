@@ -2,9 +2,6 @@ Require Export Completeness.
 Require Import UniformTopology.
 Require Import RTopology.
 
-Local Unset Standard Proposition Elimination Names.
-Local Unset Injection On Proofs.
-
 Lemma completion_exists: forall (X:Type) (d:X->X->R) (d_metric:metric d),
   exists Y:Type, exists i:X->Y, exists d':Y->Y->R,
   exists d'_metric:metric d',
