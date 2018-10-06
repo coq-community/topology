@@ -2,8 +2,6 @@ Require Export TopologicalSpaces.
 Require Export OrderTopology.
 Require Export Reals.
 
-Local Unset Standard Proposition Elimination Names.
-
 Definition RTop := OrderTopology Rle.
 
 Require Export MetricSpaces.

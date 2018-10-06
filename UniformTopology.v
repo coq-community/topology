@@ -1,7 +1,5 @@
 Require Export MetricSpaces.
 
-Local Unset Standard Proposition Elimination Names.
-
 Section UniformTopology.
 
 Variable X Y:Type.

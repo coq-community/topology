@@ -1,8 +1,6 @@
 Require Export RTopology.
 Require Export ProductTopology.
 
-Local Unset Standard Proposition Elimination Names.
-
 Lemma Rplus_continuous: continuous_2arg Rplus (X:=RTop) (Y:=RTop) (Z:=RTop).
 Proof.
 apply pointwise_continuity_2arg.

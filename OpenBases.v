@@ -2,8 +2,6 @@ Require Export TopologicalSpaces.
 Require Import ClassicalChoice.
 From ZornsLemma Require Import EnsemblesSpec.
 
-Local Unset Standard Proposition Elimination Names.
-
 Section OpenBasis.
 
 Variable X : TopologicalSpace.

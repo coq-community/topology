@@ -1,8 +1,6 @@
 From ZornsLemma Require Export Families.
 From ZornsLemma Require Import EnsemblesSpec.
 
-Local Unset Standard Proposition Elimination Names.
-
 Record Filter (X:Type) : Type := {
   filter_family: Family X;
   filter_intersection: forall S1 S2:Ensemble X,
