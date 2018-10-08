@@ -174,7 +174,7 @@ apply Rlt_trans with (IZR (up (1/(y-x)))).
 apply archimed.
 apply IZR_lt; trivial.
 
-destruct m as [m|m|].
+destruct m as [|m|].
 unfold Q2R in H2.
 simpl in H2.
 replace (0 * _) with 0 in H2 by ring.
