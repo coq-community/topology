@@ -230,12 +230,13 @@ rewrite <- missing_pow_mult.
 replace (3/2*(2/3)) with 1 by field.
 apply pow1.
 replace (-1) with ((3/2)^m * (- (2/3)^m)).
-pattern 1 at 21; replace 1 with ((3/2)^m * (2/3)^m).
+pattern 1 at 1; replace 1 with ((3/2)^m * (2/3)^m).
 assert (0 <= (3/2)^m).
 apply pow_le.
 fourier.
 split; apply Rmult_le_compat_l; trivial.
 replace ((3/2)^m * -(2/3)^m) with (- ((3/2)^m * (2/3)^m)) by ring.
+change (-1) with (Ropp 1).
 f_equal; trivial.
 
 assert (forall x:point_set X, -1/3 <= approx x <= 1/3).
@@ -726,6 +727,7 @@ contradiction H10.
 unfold Rabs in H11; destruct Rcase_abs in H11.
 constructor; right.
 replace (g0 x) with (- -(g0 x)) by auto with real.
+change (-1) with (Ropp 1).
 f_equal; trivial.
 constructor; left; trivial.
 destruct (H7 x).

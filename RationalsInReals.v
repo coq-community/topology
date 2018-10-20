@@ -34,6 +34,7 @@ contradict H0; auto with *.
 
 destruct H0.
 exists (nat_of_P p).
+unfold IZR in H1; rewrite <- INR_IPR in H1.
 split; auto with *.
 
 destruct H0.
@@ -66,12 +67,6 @@ Proof.
 intros.
 assert (0 < / IZR (' n)).
 cut (0 < IZR (' n)); auto with real.
-replace 0 with (IZR 0) by trivial.
-cut ((0 < ' n)%Z); auto with *.
-apply IZR_lt.
-unfold Zlt.
-trivial.
-
 destruct (Z_interpolation (IZR (' n) * x)
   (IZR (' n) * y)) as [m].
 apply Rgt_minus in H.
@@ -88,7 +83,6 @@ ring.
 exists m.
 unfold Q2R.
 simpl.
-replace (INR (nat_of_P n)) with (IZR (' n)) by auto with real.
 replace x with ((IZR (' n) * x) / IZR (' n)).
 replace y with ((IZR (' n) * y) / IZR (' n)).
 
