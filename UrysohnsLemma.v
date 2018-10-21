@@ -79,6 +79,7 @@ apply dr_eq_refl.
 Qed.
 
 Require Export QArith.
+Local Notation " ' x " := (Zpos x) (at level 20, no associativity) : Z_scope.
 
 Fixpoint pos_power2 (n:nat) : positive := match n with
   | O => 1%positive

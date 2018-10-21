@@ -60,6 +60,8 @@ assumption.
 assumption.
 Qed.
 
+Local Notation " ' x " := (Zpos x) (at level 20, no associativity) : Z_scope.
+
 Lemma rational_interpolation: forall (x y:R) (n:positive),
   x<y -> IZR (' n) > 1/(y-x) ->
   exists m:Z, x < Q2R (m # n) < y.
