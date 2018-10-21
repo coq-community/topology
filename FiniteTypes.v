@@ -474,7 +474,7 @@ pose (g := fun (x:{x:X | P (f x)}) =>
   match x with
   | exist x0 i => exist (fun x:Y => P x) (f x0) i
   end).
-apply bij_finite with _ g.
+apply (bij_finite _ _ g).
 apply IHFiniteT.
 intro; apply H0.
 destruct H1.
