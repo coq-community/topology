@@ -200,85 +200,100 @@ simple refine (fix g (n:nat) {struct n} := match n return
          exist _ (fun x:point_set X => gm x + (2/3)^m * approx x) _
          end
 end); clear g; [ | | clearbody H ].
-simpl.
-split.
-apply continuous_constant.
-split.
-intros; split; ring_simplify; auto with real.
-intros.
-destruct (f_bound x).
-split; fourier.
-apply pointwise_continuity; intros.
-apply const_multiple_continuous.
-apply diff_continuous.
-apply continuous_func_continuous_everywhere; trivial.
-apply continuous_composition_at.
-destruct y.
-apply continuous_func_continuous_everywhere; trivial.
-apply continuous_func_continuous_everywhere; apply subspace_inc_continuous.
-
-assert (forall x:point_set (SubspaceTopology F),
-  -1 <= (3/2)^m * (f x - gm (subspace_inc F x)) <= 1).
-intros.
-destruct y.
-destruct H1.
-destruct (H2 x).
-assert ((3/2)^m * (2/3)^m = 1).
-rewrite <- missing_pow_mult.
-replace (3/2*(2/3)) with 1 by field.
-apply pow1.
-replace (-1) with ((3/2)^m * (- (2/3)^m)).
-pattern 1 at 1; replace 1 with ((3/2)^m * (2/3)^m).
-assert (0 <= (3/2)^m).
-apply pow_le.
-fourier.
-split; apply Rmult_le_compat_l; trivial.
-replace ((3/2)^m * -(2/3)^m) with (- ((3/2)^m * (2/3)^m)) by ring.
-change (-1) with (Ropp 1).
-f_equal; trivial.
-
-assert (forall x:point_set X, -1/3 <= approx x <= 1/3).
-apply extension_approximation_bound.
-assert (forall x:point_set (SubspaceTopology F),
-  -2/3 <= (3/2)^m * (f x - gm (subspace_inc F x)) -
-          approx (subspace_inc F x) <= 2/3).
-apply extension_approximation_diff_bound; trivial.
-destruct y as [? []].
-split.
-apply pointwise_continuity; intros.
-apply sum_continuous.
-apply continuous_func_continuous_everywhere; trivial.
-apply const_multiple_continuous.
-apply continuous_func_continuous_everywhere.
-apply extension_approximation_continuous.
-
-split; intros.
-destruct (H4 x).
-simpl.
-destruct (H1 x).
-assert (0 <= (2/3)^m).
-apply pow_le; fourier.
-assert ((2/3)^m * (-1/3) <= (2/3)^m * approx x <= (2/3)^m * (1/3)).
-split; apply Rmult_le_compat_l; trivial.
-destruct H11.
-split; fourier.
-
-simpl.
-replace (-(2/3*(2/3)^m)) with ((2/3)^m * (-2/3)) by field.
-replace (2/3*(2/3)^m) with ((2/3)^m * (2/3)) by ring.
-replace (f x - (gm (subspace_inc F x) + (2/3)^m * approx (subspace_inc F x)))
-  with ((2/3)^m * ((3/2)^m * (f x - gm (subspace_inc F x)) -
-                   approx (subspace_inc F x))).
-assert (0 <= (2/3)^m).
-apply pow_le; fourier.
-destruct (H2 x).
-split; apply Rmult_le_compat_l; trivial.
-ring_simplify.
-replace ((2/3)^m*(3/2)^m) with 1.
-ring.
-rewrite <- missing_pow_mult.
-replace (2/3*(3/2)) with 1 by field.
-symmetry; apply pow1.
+-
+  simpl.
+  split.
+  apply continuous_constant.
+  split.
+  intros; split; ring_simplify; auto with real.
+  intros.
+  destruct (f_bound x).
+  split; fourier.
+-
+  apply pointwise_continuity; intros.
+  apply const_multiple_continuous.
+  apply diff_continuous.
+  apply continuous_func_continuous_everywhere; trivial.
+  apply continuous_composition_at.
+  destruct y.
+  apply continuous_func_continuous_everywhere; trivial.
+  apply continuous_func_continuous_everywhere; apply subspace_inc_continuous.
+-
+-
+  assert (H023m: 0 <= (2/3)^m).
+  {
+    apply pow_le; fourier.
+  }
+  assert (H032m: 0 <= (3/2)^m).
+  {
+    apply pow_le; fourier.
+  }
+  assert (forall x:point_set (SubspaceTopology F),
+             -1 <= (3/2)^m * (f x - gm (subspace_inc F x)) <= 1).
+  {
+    intros.
+    destruct y as [? []].
+    destruct (H2 x).
+    assert ((3/2)^m * (2/3)^m = 1).
+    {
+      rewrite <- missing_pow_mult.
+      replace (3/2*(2/3)) with 1 by field.
+      apply pow1.
+    }
+    replace (-1) with ((3/2)^m * (- (2/3)^m)).
+    pattern 1 at 0, 1; replace 1 with ((3/2)^m * (2/3)^m).
+    split; apply Rmult_le_compat_l; trivial.
+    replace ((3/2)^m * -(2/3)^m) with (- ((3/2)^m * (2/3)^m)) by ring.
+    rewrite H5. auto with real.
+  }
+  assert (forall x:point_set X, -1/3 <= approx x <= 1/3).
+  {
+    apply extension_approximation_bound.
+  }
+  assert (forall x:point_set (SubspaceTopology F),
+             -2/3 <= (3/2)^m * (f x - gm (subspace_inc F x)) -
+                           approx (subspace_inc F x) <= 2/3).
+  {
+    apply extension_approximation_diff_bound; trivial.
+  }
+  destruct y as [? []].
+  split.
+  +
+    apply pointwise_continuity; intros.
+    apply sum_continuous.
+    apply continuous_func_continuous_everywhere; trivial.
+    apply const_multiple_continuous.
+    apply continuous_func_continuous_everywhere.
+    apply extension_approximation_continuous.
+  +
+    split; intros.
+    *
+      destruct (H4 x).
+      simpl.
+      destruct (H1 x).
+      assert (0 <= (2/3)^m).
+      apply pow_le; fourier.
+      assert ((2/3)^m * (-1/3) <= (2/3)^m * approx x <= (2/3)^m * (1/3)).
+      {
+        split; apply Rmult_le_compat_l; trivial.
+      }
+      destruct H11.
+      split; fourier.
+    *
+      simpl.
+      replace (-(2/3*(2/3)^m)) with ((2/3)^m * (-2/3)) by field.
+      replace (2/3*(2/3)^m) with ((2/3)^m * (2/3)) by ring.
+      replace (f x - (gm (subspace_inc F x) + (2/3)^m * approx (subspace_inc F x)))
+        with ((2/3)^m * ((3/2)^m * (f x - gm (subspace_inc F x)) -
+                               approx (subspace_inc F x))).
+      destruct (H2 x).
+      split; apply Rmult_le_compat_l; trivial.
+      ring_simplify.
+      replace ((2/3)^m*(3/2)^m) with 1.
+      ring.
+      rewrite <- missing_pow_mult.
+      replace (2/3*(3/2)) with 1 by field.
+      symmetry; apply pow1.
 Defined.
 
 Lemma extension_approximation_seq_diff: forall (n:nat) (x:point_set X),
