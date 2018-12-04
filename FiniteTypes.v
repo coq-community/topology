@@ -9,7 +9,6 @@ Require Import ProofIrrelevance.
 Require Import Description.
 
 Set Asymmetric Patterns.
-Unset Standard Proposition Elimination Names.
 
 Inductive FiniteT : Type -> Prop :=
   | empty_finite: FiniteT False

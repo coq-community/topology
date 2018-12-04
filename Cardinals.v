@@ -4,8 +4,6 @@ Require Import Relation_Definitions_Implicit.
 Require Import CSB.
 Require Import EnsemblesSpec.
 
-Unset Standard Proposition Elimination Names.
-
 Inductive Cardinal : Type :=
   | cardinality: Type -> Cardinal.
 

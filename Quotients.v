@@ -9,8 +9,6 @@ Require Import ProofIrrelevance.
 Require Import Proj1SigInjective.
 Require Export EnsemblesSpec.
 
-Unset Standard Proposition Elimination Names.
-
 Set Implicit Arguments.
 Section Quotient.
 Variable A:Type.

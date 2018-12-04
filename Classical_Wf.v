@@ -5,8 +5,6 @@ Require Export Relation_Definitions.
 Require Import Relation_Definitions_Implicit.
 Require Import EnsemblesSpec.
 
-Unset Standard Proposition Elimination Names.
-
 Section MinimalElements.
 
 Variable T:Type.

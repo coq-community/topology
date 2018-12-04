@@ -8,9 +8,7 @@ Require Import Description.
 Require Import Proj1SigInjective.
 Require Import DependentTypeChoice.
 
-Local Unset Injection On Proofs.
 Set Asymmetric Patterns.
-Unset Standard Proposition Elimination Names.
 
 Inductive CountableT (X:Type) : Prop :=
   | intro_nat_injection: forall f:X->nat, injective f -> CountableT X.

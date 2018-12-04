@@ -5,8 +5,6 @@ Require Import Arith.
 Require Import FunctionalExtensionality.
 Require Import EnsemblesSpec.
 
-Unset Standard Proposition Elimination Names.
-
 Lemma finite_nat_initial_segment: forall n:nat,
   FiniteT { m:nat | m < n }.
 Proof.

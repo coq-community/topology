@@ -7,10 +7,6 @@ Require Import EnsemblesImplicit.
 Require Import Proj1SigInjective.
 Require Import InverseImage.
 
-Unset Standard Proposition Elimination Names.
-
-Local Unset Injection On Proofs.
-
 Section ZL'.
 
 Variable T:Type.
@@ -155,8 +151,8 @@ Qed.
 
 End ZL'.
 
-Implicit Arguments chain [[T]].
-Implicit Arguments maximal [[T]].
+Arguments chain {T}.
+Arguments maximal {T}.
 
 Section ZL.
 
@@ -395,7 +391,7 @@ Qed.
 
 End ZL.
 
-Implicit Arguments ZornsLemma [[T]].
+Arguments ZornsLemma {T}.
 
 Require Import Quotients.
 
@@ -522,4 +518,4 @@ Qed.
 
 End ZL_preorder.
 
-Implicit Arguments premaximal [[T]].
+Arguments premaximal {T}.
