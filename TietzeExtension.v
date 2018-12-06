@@ -219,7 +219,6 @@ end); clear g; [ | | clearbody H ].
   apply continuous_func_continuous_everywhere; trivial.
   apply continuous_func_continuous_everywhere; apply subspace_inc_continuous.
 -
--
   assert (H023m: 0 <= (2/3)^m).
   {
     apply pow_le; fourier.
