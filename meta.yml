@@ -29,7 +29,6 @@ supported_coq_versions:
   opam: '{(>= "8.6" & < "8.10~") | (= "dev")}'
 
 tested_coq_versions:
-- version_or_url: https://github.com/coq/coq/tarball/master
 - version_or_url: 8.9
 - version_or_url: 8.8
 - version_or_url: 8.7
@@ -41,7 +40,7 @@ dependencies:
 - opam:
     name: coq-zorns-lemma
     version: '{(>= "8.6" & < "8.10~") | (= "dev")}'
-  nix: coq-zorns-lemma
+  nix: contribs.zorns-lemma
   description: |
     [Zorn's lemma](https://github.com/coq-community/zorns-lemma)
 

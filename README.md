@@ -30,7 +30,7 @@ This library develops some of the basic concepts and results of general topology
 - License: [GNU Lesser General Public License v2.1 or later](COPYING)
 - Compatible Coq versions: Coq 8.6 or later (use the corresponding branch or release for other Coq versions)
 - Additional dependencies:
-  - [Zorn&#39;s lemma](https://github.com/coq-community/zorns-lemma)
+  - [Zorn's lemma](https://github.com/coq-community/zorns-lemma)
 
 
 

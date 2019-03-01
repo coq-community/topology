@@ -17,7 +17,7 @@ pkgs.stdenv.mkDerivation {
 
   propagatedBuildInputs = [
     coq
-    coq-zorns-lemma
+    contribs.zorns-lemma
   ];
 
   src = if shell then null else ./.;
