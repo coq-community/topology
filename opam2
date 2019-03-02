@@ -17,8 +17,8 @@ remove: ["rm" "-R" "%{lib}%/coq/user-contrib/Topology"]
 flags: light-uninstall
 depends: [
   "ocaml"
-  "coq" {(>= "8.6" & < "8.10~") | (= "dev")}
-  "coq-zorns-lemma" {(>= "8.6" & < "8.10~") | (= "dev")}
+  "coq" {(>= "8.7" & < "8.10~") | (= "dev")}
+  "coq-zorns-lemma" {(>= "8.7" & < "8.10~") | (= "dev")}
 ]
 
 tags: [

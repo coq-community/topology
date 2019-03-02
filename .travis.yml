@@ -10,7 +10,6 @@ matrix:
   - env: COQ=8.9
   - env: COQ=8.8
   - env: COQ=8.7
-  - env: COQ=8.6
 
   # Test opam package
   - language: minimal
