@@ -154,6 +154,8 @@ End ZL'.
 Arguments chain {T}.
 Arguments maximal {T}.
 
+Require Export EnsemblesSpec.
+
 Section ZL.
 
 (* get rid of the need for a sup function and immediate successors *)
@@ -185,8 +187,6 @@ intros.
 apply proj1_sig_injective.
 auto with sets.
 Qed.
-
-Require Export EnsemblesSpec.
 
 Definition chains_sup_def : forall F: Ensemble chains,
   chain chains_ord F -> chains.

@@ -198,15 +198,15 @@ red; intros.
 congruence.
 Qed.
 
-Section le_cardinal_total.
-
-Variable X Y:Type.
-
 Require Import ZornsLemma.
 Require Import EnsemblesImplicit.
 Require Import ProofIrrelevance.
 Require Import FunctionalExtensionality.
 Require Import Description.
+
+Section le_cardinal_total.
+
+Variable X Y:Type.
 
 Record partial_injection : Type := {
   pi_dom: Ensemble X;

@@ -73,6 +73,8 @@ Qed.
 
 End MinimalElements.
 
+Require Import ClassicalChoice.
+
 Section DecreasingSequences.
 
 (* R is well-founded if and only if there is no infinite strictly
@@ -109,8 +111,6 @@ assumption.
 exists 0.
 assumption.
 Qed.
-
-Require Import ClassicalChoice.
 
 Lemma DSP_implies_WF: decreasing_sequence_property -> well_founded R.
 Proof.
