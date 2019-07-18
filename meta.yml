@@ -2,6 +2,7 @@
 fullname: Topology
 shortname: topology
 organization: coq-community
+coq-community: true
 
 synopsis: General Topology
 
@@ -26,14 +27,17 @@ license:
 
 supported_coq_versions:
   text: Coq 8.7 or later (use the corresponding branch or release for other Coq versions)
-  opam: '{(>= "8.7" & < "8.10~") | (= "dev")}'
+  opam: '{(>= "8.7" & < "8.11~") | (= "dev")}'
 
-tested_coq_versions:
-- version_or_url: 8.9
-- version_or_url: 8.8
-- version_or_url: 8.7
+tested_coq_nix_versions:
+- version_or_url: https://github.com/coq/coq-on-cachix/tarball/master
+- version_or_url: "8.10"
+- version_or_url: "8.9"
+- version_or_url: "8.8"
+- version_or_url: "8.7"
 
-tested_coq_opam_version: dev
+tested_coq_opam_versions:
+- version: dev
 
 dependencies:
 - opam:

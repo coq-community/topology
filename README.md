@@ -1,9 +1,6 @@
 # Topology
 
-[![Travis][travis-shield]][travis-link]
 
-[travis-shield]: https://travis-ci.com/coq-community/topology.svg?branch=master
-[travis-link]: https://travis-ci.com/coq-community/topology/builds
 
 
 
