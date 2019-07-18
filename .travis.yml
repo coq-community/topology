@@ -40,12 +40,6 @@ matrix:
 
   # Test supported versions of Coq via Nix
   - env:
-    - COQ=https://github.com/coq/coq-on-cachix/tarball/master
-    <<: *NIX
-  - env:
-    - COQ=8.10
-    <<: *NIX
-  - env:
     - COQ=8.9
     <<: *NIX
   - env:
