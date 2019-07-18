@@ -1,9 +1,6 @@
 # Zorn's Lemma
 
-[![Travis][travis-shield]][travis-link]
 
-[travis-shield]: https://travis-ci.com/coq-community/zorns-lemma.svg?branch=master
-[travis-link]: https://travis-ci.com/coq-community/zorns-lemma/builds
 
 
 
