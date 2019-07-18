@@ -1,6 +1,8 @@
 Require Export TopologicalSpaces.
 Require Export WeakTopology.
 From ZornsLemma Require Import DependentTypeChoice.
+Require Export FilterLimits.
+Require Export Compactness.
 
 Section product_topology.
 
@@ -32,8 +34,6 @@ intros.
 apply net_limit_in_projections_impl_net_limit_in_weak_topology;
   trivial.
 Qed.
-
-Require Export FilterLimits.
 
 Lemma product_filter_limit:
   forall (F:Filter (point_set ProductTopology))
@@ -75,8 +75,6 @@ rewrite <- H9 in H11.
 destruct H11.
 exact H11.
 Qed.
-
-Require Export Compactness.
 
 Theorem TychonoffProductTheorem:
   (forall a:A, compact (X a)) -> compact ProductTopology.
@@ -122,6 +120,9 @@ intros.
 apply continuous_func_preserves_net_limits; trivial.
 Qed.
 
+Require Import FunctionalExtensionality.
+From ZornsLemma Require Import FiniteIntersections.
+
 Section product_topology2.
 
 (* we provide a version of the product topology on X and Y
@@ -145,7 +146,6 @@ Lemma prod2_comp1: forall p:point_set prod2,
   prod2_conv2 (prod2_conv1 p) = p.
 Proof.
 intros.
-Require Import FunctionalExtensionality.
 extensionality i.
 destruct i; trivial.
 Qed.
@@ -281,7 +281,6 @@ Inductive ProductTopology2_basis :
 Lemma ProductTopology2_basis_is_basis:
   open_basis ProductTopology2_basis.
 Proof.
-From ZornsLemma Require Import FiniteIntersections.
 assert (open_basis (finite_intersections (weak_topology_subbasis prod2_proj))
   (X:=ProductTopology2)) by apply
   Build_TopologicalSpace_from_open_basis_basis.

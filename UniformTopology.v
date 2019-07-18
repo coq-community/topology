@@ -1,4 +1,10 @@
 Require Export MetricSpaces.
+From ZornsLemma Require Import Proj1SigInjective.
+Require Import FunctionalExtensionality.
+Require Export Completeness.
+Require Import Description.
+Require Import Max.
+Require Import Fourier.
 
 Section UniformTopology.
 
@@ -100,9 +106,7 @@ constructor.
 symmetry; apply d_metric.
 
 destruct x as [f0 Hf]; destruct y as [g0 Hg].
-From ZornsLemma Require Import Proj1SigInjective.
 apply subset_eq_compatT.
-Require Import FunctionalExtensionality.
 extensionality x.
 apply d_metric.
 simpl in H.
@@ -119,8 +123,6 @@ Qed.
 Definition UniformTopology : TopologicalSpace :=
   MetricTopology uniform_metric uniform_metric_is_metric.
 
-Require Export Completeness.
-
 Lemma uniform_metric_complete: complete d d_metric ->
   complete uniform_metric uniform_metric_is_metric.
 Proof.
@@ -128,7 +130,6 @@ intros.
 assert (forall y:Net nat_DS (MetricTopology d d_metric), cauchy d y ->
   { y0:Y | net_limit y y0 }) as cauchy_limit.
 intros.
-Require Import Description.
 apply constructive_definite_description.
 apply -> unique_existence; split.
 apply H; trivial.
@@ -180,7 +181,6 @@ pose proof (metric_space_net_limit_converse _ _
   (MetricTopology_metrizable _ d d_metric) nat_DS
   (fun n:nat => proj1_sig (f n) x) x0 n).
 destruct (H7 eps H6) as [i0].
-Require Import Max.
 pose (N' := max N i0).
 apply Rle_lt_trans with (d (fN x) (proj1_sig (f N') x) +
                          d x0 (proj1_sig (f N') x)).
@@ -211,7 +211,6 @@ auto with real.
 apply metric_space_net_limit with uniform_metric.
 apply MetricTopology_metrizable.
 intros.
-Require Import Fourier.
 assert (eps/2 > 0) by fourier.
 destruct (H0 (eps/2) H4) as [N].
 exists N; intros.

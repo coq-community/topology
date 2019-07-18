@@ -79,12 +79,12 @@ End Subbasis.
 
 Arguments subbasis {X}.
 
+From ZornsLemma Require Import FiniteIntersections.
+
 Section build_from_subbasis.
 
 Variable X:Type.
 Variable S:Family X.
-
-From ZornsLemma Require Import FiniteIntersections.
 
 Definition Build_TopologicalSpace_from_subbasis : TopologicalSpace.
 refine (Build_TopologicalSpace_from_open_basis

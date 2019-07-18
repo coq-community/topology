@@ -139,6 +139,8 @@ Record filter_subbasis {X:Type} (F:Filter X) (B:Family X) : Prop := {
           Included (IndexedIntersection T) S
 }.
 
+From ZornsLemma Require Import FiniteIntersections.
+
 Section filter_from_subbasis.
 
 Variable X:Type.
@@ -146,8 +148,6 @@ Variable B:Family X.
 Hypothesis B_subbasis_cond: forall (J:Type) (V:J->Ensemble X),
   FiniteT J -> (forall j:J, In B (V j)) ->
   Inhabited (IndexedIntersection V).
-
-From ZornsLemma Require Import FiniteIntersections.
 
 Definition Build_Filter_from_subbasis: Filter X.
 refine (Build_Filter_from_basis (finite_intersections B) _ _ _).

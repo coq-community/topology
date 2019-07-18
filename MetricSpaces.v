@@ -505,6 +505,8 @@ intro.
 destruct (H2 a) as [? [? ?]]; trivial.
 Qed.
 
+Require Export SupInf.
+
 Section dist_to_set.
 
 Variable X:Type.
@@ -512,8 +514,6 @@ Variable d:X->X->R.
 Hypothesis d_is_metric: metric d.
 Variable S:Ensemble X.
 Hypothesis S_nonempty: Inhabited S.
-
-Require Export SupInf.
 
 Definition dist_to_set (x:X) : R.
 refine (proj1_sig (inf (Im S (d x)) _ _)).

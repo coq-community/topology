@@ -1,4 +1,5 @@
 Require Export MetricSpaces.
+Require Import Fourier.
 
 Section Completeness.
 
@@ -24,7 +25,6 @@ pose (U := open_ball _ d x0 (eps/2)).
 destruct (H0 U) as [N].
 Opaque In. apply open_neighborhood_basis_elements. Transparent In.
 constructor.
-Require Import Fourier.
 fourier.
 constructor.
 rewrite metric_zero; trivial.
@@ -78,6 +78,8 @@ End Completeness.
 Arguments cauchy {X}.
 Arguments complete {X}.
 
+From ZornsLemma Require Import Proj1SigInjective.
+
 Section closed_subset_of_complete.
 
 Variable X:Type.
@@ -90,7 +92,6 @@ Let d_restriction := fun x y:FT => d (proj1_sig x) (proj1_sig y).
 
 Lemma d_restriction_metric: metric d_restriction.
 Proof.
-From ZornsLemma Require Import Proj1SigInjective.
 constructor; intros; try destruct x; try destruct y; try destruct z;
   try apply subset_eq_compatT; apply d_metric; trivial.
 Qed.

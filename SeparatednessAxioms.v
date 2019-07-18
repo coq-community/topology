@@ -207,8 +207,9 @@ destruct H4 as [U [V [? [? [? [? ?]]]]]].
 exists U; exists V; repeat split; auto with sets.
 Qed.
 
-Section Hausdorff_and_nets.
 Require Export Nets.
+
+Section Hausdorff_and_nets.
 
 Lemma Hausdorff_impl_net_limit_unique:
   forall {X:TopologicalSpace} {I:DirectedSet} (x:Net I X),

@@ -200,10 +200,14 @@ contradict H.
 auto with real.
 Qed.
 
-Section Urysohns_Lemma_construction.
-
 Require Export TopologicalSpaces.
 Require Export InteriorsClosures.
+Require Import Div2.
+Require Import Even.
+Require Import Arith.
+Require Export RTopology.
+
+Section Urysohns_Lemma_construction.
 
 Variable X:TopologicalSpace.
 Variable normal_sep_fun: forall F U:Ensemble (point_set X),
@@ -239,8 +243,6 @@ simpl.
 red; intros; constructor.
 Qed.
 
-Require Import Div2.
-Require Import Even.
 Definition expand_U_dyadic (f:nat->Ensemble (point_set X))
   (Hopen: forall n:nat, open (f n))
   (Hincr: forall n:nat, Included (closure (f n)) (f (S n)))
@@ -346,7 +348,6 @@ rewrite div2_double.
 assert (forall m:nat, even (2*m)).
 induction m0.
 constructor.
-Require Import Arith.
 replace ((2 * S m0)%nat) with ((S (S (2 * m0)))%nat) by ring.
 constructor; constructor; trivial.
 destruct even_odd_dec.
@@ -392,7 +393,6 @@ rewrite <- (U_dyadic_wd _ _ H1).
 trivial.
 Qed.
 
-Require Export RTopology.
 Definition Urysohns_Lemma_function : point_set X -> point_set RTop.
 refine (fun x:point_set X => proj1_sig (inf
  (Add

@@ -1,5 +1,10 @@
 Require Export RTopology.
 Require Export SeparatednessAxioms.
+Require Import Fourier.
+Require Import RFuncContinuity.
+Require Import UniformTopology.
+Require Import Description.
+Require Import Max.
 
 (* This proof of the Tietze extension theorem is heavily based on
    the proof described on planetmath.org. *)
@@ -112,7 +117,6 @@ destruct H0 as [[z] []].
 simpl in H2.
 destruct H1; destruct H2.
 destruct (proof_irrelevance _ i i0).
-Require Import Fourier.
 fourier.
 Defined.
 
@@ -160,7 +164,6 @@ Proof.
 unfold extension_approximation; destruct Urysohns_lemma_function as
   [g [? [? []]]]; simpl.
 apply pointwise_continuity; intros.
-Require Import RFuncContinuity.
 apply sum_continuous.
 apply continuous_func_continuous_everywhere; apply continuous_constant.
 apply const_multiple_continuous.
@@ -384,8 +387,6 @@ destruct Rcase_abs; fourier.
 fourier.
 Qed.
 
-Require Import UniformTopology.
-
 Definition convert_approx_to_uniform_space:
   nat -> uniform_space R_metric (fun _:point_set X => 0).
 refine (fun n:nat => exist _ (proj1_sig (extension_approximation_seq n)) _).
@@ -431,7 +432,6 @@ apply Rplus_lt_compat; apply H2; trivial.
 Qed.
 
 Definition Tietze_extension_func : point_set X -> point_set RTop.
-Require Import Description.
 refine (proj1_sig (proj1_sig (constructive_definite_description
   (fun f:point_set (UniformTopology R_metric (fun _:point_set X => 0)
                     R_metric_is_metric X_nonempty) =>
@@ -530,7 +530,6 @@ assert (Rabs (2/3) < 1).
 rewrite Rabs_right; fourier.
 
 destruct (pow_lt_1_zero (2/3) H2 (eps/2) H0) as [N2].
-Require Import Max.
 pose (N := max N1 N2).
 apply Rle_lt_trans with (R_metric (g (subspace_inc F x))
           (proj1_sig (extension_approximation_seq N) (subspace_inc F x)) +
@@ -608,6 +607,9 @@ Qed.
 
 End Tietze_extension_construction.
 
+Require Import ClassicalChoice.
+Require Import UrysohnsLemma.
+
 Lemma bounded_Tietze_extension_theorem: forall (X:TopologicalSpace)
   (F:Ensemble (point_set X)) (f:point_set (SubspaceTopology F) ->
                                 point_set RTop),
@@ -620,7 +622,6 @@ Lemma bounded_Tietze_extension_theorem: forall (X:TopologicalSpace)
 Proof.
 intros.
 destruct (classic (inhabited (point_set X))) as [Hinh|Hempty].
-Require Import ClassicalChoice.
 destruct (choice (fun 
   (FG:{FG:Ensemble (point_set X) * Ensemble (point_set X) | let (F,G):=FG in
                     closed F /\ closed G /\ Intersection F G = Empty_set})
@@ -632,7 +633,6 @@ destruct (choice (fun
 intros.
 destruct x as [[F' G] [? []]].
 simpl.
-Require Import UrysohnsLemma.
 apply UrysohnsLemma; trivial.
 pose (Urysohns_lemma_function := fun (F G:Ensemble (point_set X))
   (HF:closed F) (HG:closed G) (Hdisj:Intersection F G = Empty_set) =>
@@ -750,6 +750,9 @@ apply Rmult_le_compat_r; trivial.
 apply Rabs_pos.
 Qed.
 
+Require Import ContinuousFactorization.
+From ZornsLemma Require Import Proj1SigInjective.
+
 Theorem Tietze_extension_theorem: forall (X:TopologicalSpace)
   (F:Ensemble (point_set X)) (f:point_set (SubspaceTopology F) ->
                                 point_set RTop),
@@ -780,7 +783,6 @@ destruct i; trivial.
 assert (forall x:point_set X, In U (g0 x)).
 intros.
 constructor; apply H8.
-Require Import ContinuousFactorization.
 pose (g0_U := continuous_factorization g0 U H9).
 assert (continuous g0_U).
 apply factorization_is_continuous; trivial.
@@ -795,7 +797,6 @@ rewrite H7.
 intros.
 replace (exist _ (f0 x) i) with (a (f x)).
 apply H4.
-From ZornsLemma Require Import Proj1SigInjective.
 apply (proj1_sig_injective (In U)).
 simpl.
 reflexivity.

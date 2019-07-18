@@ -1,8 +1,9 @@
 Require Export TopologicalSpaces.
 Require Export Subbases.
-From ZornsLemma Require Export InverseImage.
 Require Export Continuity.
 Require Export Nets.
+From ZornsLemma Require Export InverseImage.
+From ZornsLemma Require Import FiniteIntersections.
 
 Section WeakTopology.
 
@@ -64,8 +65,6 @@ apply continuous_func_continuous_everywhere.
 apply weak_topology_makes_continuous_funcs.
 Qed.
 
-From ZornsLemma Require Import FiniteIntersections.
-
 Lemma net_limit_in_projections_impl_net_limit_in_weak_topology :
   (forall a:A, net_limit (fun i:DS_set I => (f a) (x i))
                          ((f a) x0)) ->
@@ -111,6 +110,8 @@ End WeakTopology.
 Arguments WeakTopology {X} {A} {Y}.
 Arguments weak_topology_subbasis {X} {A} {Y}.
 
+Require Import ClassicalChoice.
+
 Section WeakTopology1.
 
 Variable X:Type.
@@ -152,7 +153,6 @@ rewrite H3; rewrite H5.
 rewrite inverse_image_intersection.
 trivial.
 
-Require Import ClassicalChoice.
 destruct (choice (fun (U:{U:Ensemble X | In F U}) (V:Ensemble (point_set Y))
   => open V /\ proj1_sig U = inverse_image f V)) as [choice_fun].
 intros.
