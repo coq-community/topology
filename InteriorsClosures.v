@@ -93,7 +93,44 @@ Arguments closure_minimal {X}.
 
 Section interior_closure_relations.
 
+Definition idempotent {T:Type} (f:T->T) := forall x, f (f x) = f x.
+
+Hint Unfold idempotent.
+
 Variable X:TopologicalSpace.
+
+Lemma interior_idempotent : idempotent (@interior X).
+Proof.
+intro.
+apply Extensionality_Ensembles.
+split.
+apply interior_deflationary.
+red. intros.
+econstructor.
+econstructor.
+split.
+apply interior_open.
+intro.
+exact id.
+assumption.
+Qed.
+
+Lemma closure_idempotent : idempotent (@closure X).
+Proof.
+intro.
+apply Extensionality_Ensembles.
+split.
+red. intros.
+destruct H.
+apply H.
+constructor.
+split.
+apply closure_closed.
+red.
+intros.
+assumption.
+apply closure_inflationary.
+Qed.
 
 Lemma interior_increasing: forall S T:Ensemble (point_set X),
   Included S T -> Included (interior S) (interior T).
@@ -220,6 +257,83 @@ apply closure_increasing; auto with sets.
 assert (Included (closure (Intersection S T)) (closure T)).
 apply closure_increasing; auto with sets.
 auto with sets.
+Qed.
+
+Lemma closure_interior_idempotent:
+  idempotent (fun S => closure (@interior X S)).
+Proof.
+intro.
+apply Extensionality_Ensembles.
+split;
+red; intros;
+destruct H;
+apply H;
+constructor;
+split;
+try apply closure_closed;
+try apply interior_deflationary.
+red.
+intros.
+destruct H0.
+destruct H0.
+destruct H0.
+red.
+red.
+constructor.
+intros.
+destruct H3.
+destruct H3.
+apply H4.
+red.
+econstructor.
+red.
+constructor.
+split.
+exact H0.
+eapply Inclusion_is_transitive.
+eapply interior_maximal.
+assumption.
+exact H2.
+apply closure_inflationary.
+assumption.
+Qed.
+
+Lemma interior_closure_idempotent:
+  idempotent (fun S => interior (@closure X S)).
+Proof.
+intro.
+apply Extensionality_Ensembles.
+split;
+red; intros;
+destruct H;
+destruct H;
+destruct H.
+eapply interior_maximal.
+exact H.
+eapply Inclusion_is_transitive.
+exact H1.
+red.
+intros.
+destruct H2.
+apply H2.
+red.
+constructor.
+split.
+apply closure_closed.
+apply interior_deflationary.
+assumption.
+red.
+red.
+econstructor.
+constructor.
+split.
+exact H.
+eapply Inclusion_is_transitive.
+eapply interior_maximal.
+assumption.
+exact H1.
+apply closure_inflationary.
+assumption.
 Qed.
 
 Lemma meets_every_open_neighborhood_impl_closure:
@@ -363,3 +477,108 @@ Qed.
 End Build_from_closure.
 
 Arguments Build_TopologicalSpace_from_closure_operator {X}.
+
+Section Build_from_interior.
+
+Variable X:Type.
+Variable int : Ensemble X -> Ensemble X.
+Hypothesis int_deflationary: forall S:Ensemble X,
+  Included (int S) S.
+Hypothesis int_respects_intersection: forall S1 S2:Ensemble X,
+  int (Intersection S1 S2) = Intersection (int S1) (int S2).
+Hypothesis int_full: int Full_set = Full_set.
+Hypothesis int_idempotent: forall S:Ensemble X,
+  int (int S) = int S.
+
+Lemma int_increasing: forall S1 S2:Ensemble X,
+  Included S1 S2 -> Included (int S1) (int S2).
+Proof.
+intros.
+replace S1 with (Intersection S1 S2).
+rewrite int_respects_intersection.
+auto with sets.
+apply Extensionality_Ensembles; split; auto with sets.
+Qed.
+
+Lemma intersection_family_union : forall (S:Ensemble X) (F:Ensemble (Ensemble X)),
+  In F S -> Intersection S (FamilyUnion F) = S.
+Proof.
+  intros.
+  apply Extensionality_Ensembles.
+  split;
+  red;
+  intros.
+  destruct H0.
+  assumption.
+  constructor.
+  assumption.
+  econstructor.
+  exact H.
+  assumption.
+Qed.
+
+Lemma int_family_union: forall (S:Ensemble X) (F:Ensemble (Ensemble X)),
+  In F S ->
+  Included (int S) (int (FamilyUnion F)).
+Proof.
+  intros.
+  replace (int S) with (Intersection (int S) (int (FamilyUnion F))).
+  auto with sets.
+  rewrite <- int_respects_intersection.
+  f_equal.
+  apply intersection_family_union.
+  assumption.
+Qed.
+
+Definition Build_TopologicalSpace_from_interior_operator : TopologicalSpace.
+apply Build_TopologicalSpace with (point_set:=X) (open:=fun F => int F = F).
+intros.
+apply Extensionality_Ensembles.
+split.
+apply int_deflationary.
+red.
+intros.
+destruct H0.
+eapply int_family_union.
+exact H0.
+replace (int S) with S.
+assumption.
+symmetry.
+apply H.
+assumption.
+
+intros.
+rewrite <- H, <- H0 at 2.
+apply int_respects_intersection.
+assumption.
+Defined.
+
+Lemma Build_TopologicalSpace_from_interior_operator_interior:
+  forall S:Ensemble (point_set Build_TopologicalSpace_from_interior_operator),
+    interior S = int S.
+Proof.
+intros.
+apply Extensionality_Ensembles; split.
+red.
+intros.
+destruct H.
+destruct H.
+destruct H.
+simpl in *.
+eapply int_increasing.
+exact H1.
+rewrite H.
+assumption.
+red.
+intros.
+econstructor.
+constructor.
+split.
+apply int_idempotent.
+apply int_deflationary.
+assumption.
+Qed.
+
+End Build_from_interior.
+
+Arguments Build_TopologicalSpace_from_interior_operator {X}.
