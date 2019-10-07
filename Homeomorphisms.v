@@ -86,3 +86,9 @@ red; intros X Y ?.
 destruct H as [f [finv]].
 exists finv; exists f; trivial.
 Qed.
+
+Definition topological_property (P : TopologicalSpace -> Prop) :=
+  forall X Y (f : point_set X -> point_set Y),
+    homeomorphism f -> P X -> P Y.
+
+Hint Unfold topological_property.
