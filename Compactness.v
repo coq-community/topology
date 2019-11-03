@@ -1,7 +1,8 @@
 Require Export TopologicalSpaces.
 Require Export Nets.
 Require Export FilterLimits.
-Require Export Continuity.
+Require Export Homeomorphisms.
+Require Import InverseImageLemmas.
 
 Set Asymmetric Patterns.
 
@@ -689,4 +690,33 @@ replace (@Empty_set (point_set X)) with (Intersection
   (choice_fun_V x' G H4 (H7 x' i))).
 constructor; trivial.
 apply H3.
+Qed.
+
+Lemma topological_property_compact :
+  topological_property compact.
+Proof.
+  intros X Y f [g Hcont_f Hcont_g Hgf Hfg] Hcomp F H eq.
+  destruct (Hcomp (inverse_image (inverse_image g) F)) as [F' [H1 [H2 H3]]].
+  - intros.
+    rewrite <- (inverse_image_id Hgf).
+    apply Hcont_f.
+    apply H.
+    destruct H0.
+    assumption.
+  - erewrite <- inverse_image_full.
+    rewrite <- (inverse_image_id Hgf (FamilyUnion _)).
+    f_equal.
+    rewrite <- (inverse_image_family_union F Hgf),
+               inverse_image_id;
+      assumption.
+  - exists (inverse_image (inverse_image f) F').
+    split; [|split].
+    + apply (inverse_image_finite g);
+        assumption.
+    + intros S [Hin].
+      destruct (H2 _ Hin) as [H0].
+      rewrite inverse_image_id in H0;
+        assumption.
+    + rewrite <- (inverse_image_family_union _ Hfg Hgf), H3.
+      apply inverse_image_full.
 Qed.

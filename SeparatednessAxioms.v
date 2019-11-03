@@ -1,13 +1,55 @@
 Require Export TopologicalSpaces.
 Require Import InteriorsClosures.
+Require Import InverseImageLemmas.
+Require Import Homeomorphisms.
 
 Definition T0_sep (X:TopologicalSpace) : Prop :=
   forall x y:point_set X, x <> y ->
   (exists U:Ensemble (point_set X), open U /\ In U x /\ ~ In U y) \/
   (exists U:Ensemble (point_set X), open U /\ ~ In U x /\ In U y).
 
+Lemma topological_property_T0_sep : topological_property T0_sep.
+Proof.
+  intros X Y f [g Hcont_f Hcont_g Hgf Hfg] Hsep x y neq.
+  destruct (Hsep (g x) (g y)) as [[U [Hopen [Hin H']]] | [U [Hopen [H' Hin]]]];
+  [ shelve | left | right ];
+    exists (inverse_image g U);
+    repeat split;
+    try apply Hcont_g;
+    assumption + (intros [?]; contradiction).
+  Unshelve.
+  intro contra.
+  eapply f_equal in contra.
+  rewrite Hfg, Hfg in contra.
+  contradiction.
+Qed.
+
 Definition T1_sep (X:TopologicalSpace) : Prop :=
   forall x:point_set X, closed (Singleton x).
+
+Lemma topological_property_T1_sep : topological_property T1_sep.
+Proof.
+  intros X Y f [g Hcont_f Hcont_g Hgf Hfg] Hsep x.
+  replace (Singleton x) with (inverse_image g (Singleton (g x))).
+  - red.
+    rewrite <- inverse_image_complement.
+    apply Hcont_g.
+    apply Hsep.
+  - apply Extensionality_Ensembles.
+    split;
+      red;
+      intros.
+    + destruct H.
+      inversion H.
+      eapply f_equal in H1.
+      rewrite Hfg, Hfg in H1.
+      subst.
+      constructor.
+    + inversion H.
+      subst.
+      constructor.
+      constructor.
+Qed.
 
 Definition Hausdorff (X:TopologicalSpace) : Prop :=
   forall x y:point_set X, x <> y ->
@@ -17,6 +59,24 @@ Definition Hausdorff (X:TopologicalSpace) : Prop :=
   Intersection U V = Empty_set.
 Definition T2_sep := Hausdorff.
 
+Definition topological_property_Hausdorff :
+  topological_property Hausdorff.
+Proof.
+  intros X Y f [g Hcont_f Hcont_g Hgf Hfg] Hhaus x y neq.
+  destruct (Hhaus (g x) (g y)) as [U [V [HopenU [HopenV [HinU [HinV eq]]]]]].
+  - intro contra.
+    eapply f_equal in contra.
+    rewrite Hfg, Hfg in contra.
+    contradiction.
+  - exists (inverse_image g U), (inverse_image g V).
+    repeat split;
+      try apply Hcont_g;
+      try assumption.
+    erewrite <- inverse_image_intersection, <- inverse_image_empty.
+    f_equal.
+    assumption.
+Qed.
+
 Definition T3_sep (X:TopologicalSpace) : Prop :=
   T1_sep X /\
   forall (x:point_set X) (F:Ensemble (point_set X)),
@@ -24,6 +84,36 @@ Definition T3_sep (X:TopologicalSpace) : Prop :=
                           exists V:Ensemble (point_set X),
         open U /\ open V /\ In U x /\ Included F V /\
         Intersection U V = Empty_set.
+
+Lemma topological_property_T3_sep : topological_property T3_sep.
+Proof.
+  intros X Y f Hf [HT1 H].
+  split.
+  - eapply topological_property_T1_sep.
+    + exact Hf.
+    + assumption.
+  - destruct Hf as [g Hcont_f Hcont_g Hgf Hfg].
+    intros y F Hcl Hn.
+    destruct (H (g y) (inverse_image f F)) as [U [V [HopenU [HopenV [HinU [Hincl eq]]]]]].
+    + red.
+      rewrite <- inverse_image_complement.
+      apply Hcont_f.
+      assumption.
+    + intros [contra].
+      rewrite Hfg in contra.
+      contradiction.
+    + exists (inverse_image g U), (inverse_image g V).
+      repeat split;
+        try apply Hcont_g;
+        try assumption.
+     * apply Hincl.
+       constructor.
+       rewrite Hfg.
+       assumption.
+     * erewrite <- inverse_image_intersection, <- inverse_image_empty.
+       f_equal.
+       assumption.
+Qed.
 
 Definition normal_sep (X:TopologicalSpace) : Prop :=
   T1_sep X /\

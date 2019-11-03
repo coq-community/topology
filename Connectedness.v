@@ -1,4 +1,5 @@
 Require Export TopologicalSpaces.
+Require Import InverseImageLemmas.
 
 Definition clopen {X:TopologicalSpace} (S:Ensemble (point_set X))
   : Prop :=
@@ -8,7 +9,7 @@ Definition connected (X:TopologicalSpace) : Prop :=
   forall S:Ensemble (point_set X), clopen S ->
         S = Empty_set \/ S = Full_set.
 
-Require Export Continuity.
+Require Export Homeomorphisms.
 
 Lemma connected_img: forall {X Y:TopologicalSpace}
   (f:point_set X -> point_set Y),
@@ -119,4 +120,31 @@ simpl.
 trivial.
 destruct H8.
 destruct H6.
+Qed.
+
+Lemma topological_property_connected :
+  topological_property connected.
+Proof.
+  intros X Y f [g Hcont_f Hcont_g Hgf Hfg] Hconn S [Hopen Hclose].
+  destruct (Hconn (inverse_image f S));
+  [ | left | right ];
+    try apply Extensionality_Ensembles;
+    split; red; intros.
+  - apply Hcont_f.
+    assumption.
+  - rewrite <- inverse_image_complement.
+    apply Hcont_f.
+    assumption.
+  - rewrite <- Hfg.
+    apply in_inverse_image.
+    rewrite inverse_image_empty, <- H.
+    constructor.
+    rewrite Hfg.
+    assumption.
+  - destruct H0.
+  - constructor.
+  - rewrite <- Hfg.
+    apply in_inverse_image.
+    rewrite H.
+    constructor.
 Qed.

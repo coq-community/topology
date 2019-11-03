@@ -13,6 +13,7 @@ FiltersAndNets.v
 Filters.v
 Homeomorphisms.v
 InteriorsClosures.v
+InverseImageLemmas.v
 MetricSpaces.v
 NeighborhoodBases.v
 Neighborhoods.v
