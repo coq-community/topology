@@ -6,6 +6,16 @@ Require Import InverseImageLemmas.
 Require Export FiniteIntersections.
 Require Export CountableTypes.
 
+Ltac destruct_ensembles_in :=
+ match goal with
+   | [H : Ensembles.In _ _ |- _] => destruct H
+ end.
+
+Ltac extensionality_ensembles :=
+  apply Extensionality_Ensembles;
+  split; red; intros;
+    repeat destruct_ensembles_in.
+
 Section Lemmas.
 Open Scope nat.
 
@@ -20,9 +30,7 @@ Lemma intersection_full_set
   {U : Ensemble X} :
   Intersection Full_set U = U.
 Proof.
-apply Extensionality_Ensembles.
-split; red; intros;
-now try destruct H.
+now extensionality_ensembles.
 Qed.
 
 Lemma intersection_associative
@@ -30,10 +38,7 @@ Lemma intersection_associative
   (U V W: Ensemble X) :
   Intersection (Intersection U V) W = Intersection U (Intersection V W).
 Proof.
-apply Extensionality_Ensembles.
-split; red; intros;
-  repeat destruct H;
-  now repeat destruct H0.
+now extensionality_ensembles.
 Qed.
 
 Inductive finite_intersections_len {X : Type} (F : Family X) : IndexedFamily nat (Ensemble X) :=
@@ -215,14 +220,14 @@ apply countable_union.
        f (exist _ (proj1_sig (snd (g U))) _)))
       countable_nat_product _).
     intros [U HU] [V HV] eq.
-    injection eq as eq1 eq2.
-    apply Hfn, proj1_sig_eq in eq1.
-    apply Hf, proj1_sig_eq in eq2.
-    apply Proj1SigInjective.proj1_sig_injective.
-    now rewrite Hg, Hg, eq1, eq2.
-    Unshelve.
-    destruct (snd (g U)).
-    now apply finite_intersections_len_1_in.
+  injection eq as eq1 eq2.
+  apply Hfn, proj1_sig_eq in eq1.
+  apply Hf, proj1_sig_eq in eq2.
+  apply Proj1SigInjective.proj1_sig_injective.
+  now rewrite Hg, Hg, eq1, eq2.
+  Unshelve.
+  destruct (snd (g U)).
+  now apply finite_intersections_len_1_in.
 Qed.
 
 End Lemmas.
