@@ -1,5 +1,58 @@
+Require Import FunctionalExtensionality.
+Require Import Lra.
 Require Export RTopology.
 Require Export ProductTopology.
+
+Lemma continuous_at_iff_continuity_pt
+  {f : R -> R} {x : R} :
+  @continuous_at RTop RTop f x <-> continuity_pt f x.
+Proof.
+split.
+- intros H eps H0.
+  assert (neighbourhood (inverse_image f [r : R | Rabs (r - f x) < eps]) x) as H1.
+  apply RTop_neighborhood_is_neighbourhood, H, open_neighborhood_is_neighborhood.
+  split.
+  + replace [r : R | Rabs (r - f x) < eps] with [r : R | f x - eps < r < f x + eps]
+      by (FiniteIntersectionLemmas.extensionality_ensembles;
+          constructor;
+          apply Rabs_def1 + apply Rabs_def2 in H1;
+          lra).
+    apply R_interval_open.
+  + constructor.
+    apply Rabs_def1; lra.
+  + destruct H1 as [[alp H1] H2].
+    exists alp.
+    split; trivial.
+    intros x0 [? H3].
+    now destruct (H2 _ H3) as [[?]].
+- intros H U HU.
+  apply RTop_neighborhood_is_neighbourhood.
+  pose HU as H0.
+  apply RTop_neighborhood_is_neighbourhood in H0.
+  destruct H0 as [[eps H0] H1],
+          (H eps H0) as [alp [H2 H3]].
+  exists (mkposreal alp H2).
+  intros x' H'.
+  constructor.
+  destruct (Req_dec x x').
+  + subst.
+    destruct HU as [V [[H4 H5] H6]].
+    now apply H6.
+  + now apply H1, H3.
+Qed.
+
+Lemma continuous_iff_continuity
+  {f : R -> R} :
+  @continuous RTop RTop f <-> continuity f.
+Proof.
+split;
+  intros H ?.
+- now apply continuous_at_iff_continuity_pt,
+      continuous_func_continuous_everywhere.
+- apply pointwise_continuity.
+  intro.
+  now apply continuous_at_iff_continuity_pt.
+Qed.
 
 Lemma Rplus_continuous: continuous_2arg Rplus (X:=RTop) (Y:=RTop) (Z:=RTop).
 Proof.
@@ -9,42 +62,29 @@ red.
 pose proof (RTop_metrization (x+y)).
 apply continuous_at_neighborhood_basis with
   (metric_topology_neighborhood_basis R_metric (x+y)).
-apply open_neighborhood_basis_is_neighborhood_basis.
-apply RTop_metrization.
-
-intros.
-destruct H0.
-exists ([ p:point_set RTop * point_set RTop | let (x',y'):=p in
-  In (open_ball _ R_metric x (r/2)) x' /\
-  In (open_ball _ R_metric y (r/2)) y' ]).
-repeat split.
-apply ProductTopology2_basis_is_basis.
-constructor.
-pose proof (RTop_metrization x).
-destruct H1.
-apply (open_neighborhood_basis_elements
-  (open_ball _ R_metric x (r/2))).
-constructor.
-Require Import Fourier.
-fourier.
-destruct (RTop_metrization y).
-apply (open_neighborhood_basis_elements
-  (open_ball _ R_metric y (r/2))).
-constructor.
-fourier.
-rewrite metric_zero.
-fourier.
-apply R_metric_is_metric.
-rewrite metric_zero.
-fourier.
-apply R_metric_is_metric.
-destruct x0 as [x' y'].
-destruct H1 as [[[] []]].
-unfold R_metric.
-replace (x'+y' - (x+y)) with ((x'-x) + (y'-y)) by ring.
-apply Rle_lt_trans with (Rabs (x'-x) + Rabs(y'-y)).
-apply Rabs_triang.
-replace r with (r/2+r/2) by field; apply Rplus_lt_compat; trivial.
+- apply open_neighborhood_basis_is_neighborhood_basis,
+        RTop_metrization.
+- intros.
+  destruct H0.
+  exists ([ p:point_set RTop * point_set RTop | let (x',y'):=p in
+    In (open_ball _ R_metric x (r/2)) x' /\
+    In (open_ball _ R_metric y (r/2)) y' ]).
+  repeat split;
+    try (rewrite metric_zero; apply R_metric_is_metric + lra).
+  + apply ProductTopology2_basis_is_basis.
+    constructor;
+    [ destruct (RTop_metrization x) |
+      destruct (RTop_metrization y)];
+      apply (open_neighborhood_basis_elements (open_ball _ _ _ _));
+      constructor; lra.
+  + destruct x0 as [x' y'],
+             H1 as [[[] []]].
+    unfold R_metric.
+    replace (x'+y' - (x+y)) with ((x'-x) + (y'-y)) by ring.
+    apply Rle_lt_trans with (Rabs (x'-x) + Rabs(y'-y)).
+    * apply Rabs_triang.
+    * replace r with (r/2+r/2) by field.
+      now apply Rplus_lt_compat.
 Qed.
 
 Corollary sum_continuous: forall (X:TopologicalSpace)
@@ -54,8 +94,8 @@ Corollary sum_continuous: forall (X:TopologicalSpace)
 Proof.
 intros.
 apply continuous_composition_at_2arg; trivial.
-apply continuous_func_continuous_everywhere.
-apply Rplus_continuous.
+apply continuous_func_continuous_everywhere,
+      Rplus_continuous.
 Qed.
 
 (* Ropp_continuous was already proved in RTopology *)
@@ -72,19 +112,15 @@ pose proof (sum_continuous _
 simpl in H.
 match goal with |- continuous_at ?f ?q =>
   replace f with (fun p:R*R => fst p + - snd p) end.
-apply sum_continuous.
-apply continuous_func_continuous_everywhere.
-apply product2_fst_continuous.
-apply (continuous_composition_at (Y:=RTop)).
-apply continuous_func_continuous_everywhere.
-apply Ropp_continuous.
-apply continuous_func_continuous_everywhere.
-apply product2_snd_continuous.
-
-Require Import FunctionalExtensionality.
-extensionality p.
-destruct p as [x' y'].
-trivial.
+- apply sum_continuous.
+  + apply continuous_func_continuous_everywhere,
+          product2_fst_continuous.
+  + eapply (continuous_composition_at (Y:=RTop));
+      apply continuous_func_continuous_everywhere.
+    * apply Ropp_continuous.
+    * apply product2_snd_continuous.
+- extensionality p.
+  now destruct p.
 Qed.
 
 Corollary diff_continuous: forall (X:TopologicalSpace)
@@ -102,35 +138,13 @@ Lemma const_multiple_func_continuous: forall c:R,
   continuous (fun x:R => c*x) (X:=RTop) (Y:=RTop).
 Proof.
 intros.
-apply pointwise_continuity; intros.
-apply metric_space_fun_continuity with R_metric R_metric;
-  try apply RTop_metrization.
-destruct (classic (c=0)).
-exists 1.
-split.
-red; auto with real.
-intros.
-rewrite H.
-unfold R_metric.
-replace (0*x'-0*x) with 0 by ring.
-rewrite Rabs_R0.
-trivial.
-
-intros.
-exists (eps / Rabs c).
-split.
-apply Rmult_gt_0_compat; trivial.
-apply Rinv_0_lt_compat.
-apply Rabs_pos_lt; trivial.
-intros.
-unfold R_metric.
-replace (c*x' - c*x) with (c*(x'-x)) by ring.
-rewrite Rabs_mult.
-replace eps with (Rabs c * (eps / Rabs c)); try field.
-apply Rmult_lt_compat_l.
-apply Rabs_pos_lt; trivial.
-trivial.
-apply Rabs_no_R0; trivial.
+apply continuous_iff_continuity,
+      continuity_mult.
+- apply continuity_const.
+  red.
+  now intros.
+- intro.
+  apply derivable_continuous_pt, derivable_pt_id.
 Qed.
 
 Corollary const_multiple_continuous: forall (X:TopologicalSpace)
@@ -140,8 +154,8 @@ Corollary const_multiple_continuous: forall (X:TopologicalSpace)
 Proof.
 intros.
 apply continuous_composition_at; trivial.
-apply continuous_func_continuous_everywhere.
-apply const_multiple_func_continuous with (c:=c).
+apply continuous_func_continuous_everywhere,
+      const_multiple_func_continuous.
 Qed.
 
 Lemma Rmult_continuous_at_origin: continuous_at_2arg Rmult 0 0
@@ -151,43 +165,39 @@ red.
 pose proof (RTop_metrization 0).
 apply continuous_at_neighborhood_basis with
   (metric_topology_neighborhood_basis R_metric 0).
-apply open_neighborhood_basis_is_neighborhood_basis.
-replace (0*0) with 0 by auto with real.
-apply H.
+- apply open_neighborhood_basis_is_neighborhood_basis.
+  replace (0*0) with 0 by auto with real.
+  apply H.
 
-intros.
-destruct H0.
-exists (characteristic_function_to_ensemble
-  (fun p:point_set RTop * point_set RTop => let (x',y'):=p in
-  In (open_ball _ R_metric 0 r) x' /\
-  In (open_ball _ R_metric 0 1) y' )).
-repeat split.
-apply ProductTopology2_basis_is_basis.
-constructor.
-destruct H.
-apply (open_neighborhood_basis_elements (open_ball _ R_metric 0 r)).
-constructor; trivial.
-destruct H.
-apply (open_neighborhood_basis_elements (open_ball _ R_metric 0 1)).
-constructor; red; auto with real.
-rewrite metric_zero; trivial.
-apply R_metric_is_metric.
-rewrite metric_zero; auto with real.
-apply R_metric_is_metric.
-
-destruct H1.
-destruct x as [x y].
-destruct H1 as [[] []].
-unfold R_metric in H1, H2.
-unfold R_metric.
-replace (x*y-0) with (x*y) by auto with real.
-replace (x-0) with x in H1 by auto with real.
-replace (y-0) with y in H2 by auto with real.
-rewrite Rabs_mult.
-replace r with (r*1) by auto with real.
-apply Rmult_le_0_lt_compat; trivial.
-apply Rabs_pos.
-apply Rabs_pos.
+- intros.
+  destruct H0.
+  exists (characteristic_function_to_ensemble
+    (fun p:point_set RTop * point_set RTop => let (x',y'):=p in
+    In (open_ball _ R_metric 0 r) x' /\
+    In (open_ball _ R_metric 0 1) y' )).
+  repeat split.
+  + apply ProductTopology2_basis_is_basis.
+    constructor;
+      destruct H.
+    * apply (open_neighborhood_basis_elements (open_ball _ R_metric 0 r)).
+      now constructor.
+    * apply (open_neighborhood_basis_elements (open_ball _ R_metric 0 1)).
+      constructor; red; auto with real.
+  + rewrite metric_zero; trivial.
+    apply R_metric_is_metric.
+  + rewrite metric_zero; auto with real.
+    apply R_metric_is_metric.
+  + destruct H1.
+    destruct x as [x y].
+    destruct H1 as [[] []].
+    unfold R_metric in *.
+    replace (x*y-0) with (x*y) by auto with real.
+    replace (x-0) with x in H1 by auto with real.
+    replace (y-0) with y in H2 by auto with real.
+    rewrite Rabs_mult.
+    replace r with (r*1) by auto with real.
+    apply Rmult_le_0_lt_compat;
+      apply Rabs_pos + trivial.
 Qed.
 
 Lemma Rmult_continuous: continuous_2arg Rmult (X:=RTop) (Y:=RTop) (Z:=RTop).
@@ -198,30 +208,32 @@ red.
 match goal with |- continuous_at ?f ?q => replace f with
   (fun p:point_set RTop*point_set RTop =>
    (fst p - x0) * (snd p - y0) + y0 * fst p + x0 * snd p - x0 * y0) end.
-apply diff_continuous.
-apply sum_continuous.
-apply sum_continuous.
-apply continuous_composition_at_2arg with RTop RTop.
-simpl.
-replace (x0-x0) with 0 by ring.
-replace (y0-y0) with 0 by ring.
-apply Rmult_continuous_at_origin.
-apply diff_continuous.
-apply continuous_func_continuous_everywhere; apply product2_fst_continuous.
-apply continuous_func_continuous_everywhere; apply continuous_constant.
-apply diff_continuous.
-apply continuous_func_continuous_everywhere; apply product2_snd_continuous.
-apply continuous_func_continuous_everywhere; apply continuous_constant.
-apply const_multiple_continuous.
-apply continuous_func_continuous_everywhere; apply product2_fst_continuous.
-apply const_multiple_continuous.
-apply continuous_func_continuous_everywhere; apply product2_snd_continuous.
-apply continuous_func_continuous_everywhere; apply continuous_constant.
-
-extensionality p.
-destruct p as [x y].
-simpl.
-ring.
+- apply diff_continuous.
+  + apply sum_continuous.
+    * apply sum_continuous.
+      ** apply continuous_composition_at_2arg with RTop RTop.
+         *** simpl.
+             replace (x0-x0) with 0 by ring.
+             replace (y0-y0) with 0 by ring.
+             apply Rmult_continuous_at_origin.
+         *** apply diff_continuous;
+               apply continuous_func_continuous_everywhere;
+               apply product2_fst_continuous + apply continuous_constant.
+         *** apply diff_continuous;
+               apply continuous_func_continuous_everywhere;
+               apply product2_snd_continuous + apply continuous_constant.
+      ** apply const_multiple_continuous,
+               continuous_func_continuous_everywhere;
+           apply product2_fst_continuous.
+    * apply const_multiple_continuous,
+            continuous_func_continuous_everywhere;
+        apply product2_snd_continuous.
+  + apply continuous_func_continuous_everywhere;
+      apply continuous_constant.
+- extensionality p.
+  destruct p.
+  simpl.
+  ring.
 Qed.
 
 Corollary product_continuous: forall (X:TopologicalSpace)
@@ -235,87 +247,13 @@ apply continuous_func_continuous_everywhere.
 exact Rmult_continuous.
 Qed.
 
-Lemma Rinv_continuous_at_1: continuous_at Rinv 1 (X:=RTop) (Y:=RTop).
-Proof.
-apply metric_space_fun_continuity with R_metric R_metric;
-  try apply RTop_metrization.
-intros.
-exists (Rmin (1/2) (eps/2)).
-split; intros.
-apply Rmin_Rgt_r; split; fourier.
-assert (x' > 1/2).
-assert (Rabs (x'-1) < 1/2).
-apply Rlt_le_trans with (1 := H0).
-apply Rmin_l.
-destruct (Rabs_def2 _ _ H1).
-fourier.
-assert (/ x' < 2).
-rewrite <- Rinv_involutive.
-apply Rinv_lt_contravar.
-apply Rmult_lt_0_compat; fourier.
-unfold Rdiv in H1.
-replace (1 * / 2) with (/ 2) in H1 by auto with real.
-exact H1.
-intro.
-fourier.
-
-unfold R_metric.
-replace (/ x' - / 1) with ((1 - x') * / x'); try field.
-rewrite Rabs_mult.
-rewrite (Rabs_right (/ x')).
-rewrite Rabs_minus_sym.
-assert (Rabs (x' - 1) < eps/2).
-apply Rlt_le_trans with (1:=H0).
-apply Rmin_r.
-replace eps with ((eps/2) * 2) by field.
-apply Rmult_gt_0_lt_compat; trivial.
-apply Rinv_0_lt_compat.
-fourier.
-fourier.
-left.
-apply Rinv_0_lt_compat.
-fourier.
-intro.
-fourier.
-Qed.
-
-Lemma Rinv_continuous: forall x0:R, x0<>0 -> continuous_at Rinv x0
-                                             (X:=RTop) (Y:=RTop).
+Lemma Rinv_continuous (x : R) :
+  x <> 0 -> @continuous_at RTop RTop Rinv x.
 Proof.
 intros.
-apply continuous_at_is_local with
-  (f:=fun x:R => /x0 * Rinv (/x0 * x))
-  (N:=Complement (Singleton 0)).
-apply open_neighborhood_is_neighborhood.
-split.
-apply Hausdorff_impl_T1_sep.
-apply T3_sep_impl_Hausdorff.
-apply normal_sep_impl_T3_sep.
-apply metrizable_impl_normal_sep.
-exists R_metric.
-apply R_metric_is_metric.
-apply RTop_metrization.
-
-intro.
-destruct H0.
-contradiction H.
-reflexivity.
-
-intros.
-assert (x<>0).
-intro.
-contradiction H0.
-rewrite H1; constructor.
-simpl.
-field; split; trivial.
-
-apply const_multiple_continuous.
-apply (continuous_composition_at (Y:=RTop)).
-replace (/x0 * x0) with 1.
-apply Rinv_continuous_at_1.
-field; trivial.
-apply continuous_func_continuous_everywhere.
-apply const_multiple_func_continuous with (c:=/ x0).
+apply continuous_at_iff_continuity_pt,
+      continuity_pt_inv; trivial.
+apply derivable_continuous_pt, derivable_pt_id.
 Qed.
 
 Lemma Rdiv_continuous: forall x y:R, y <> 0 ->
@@ -325,16 +263,16 @@ intros.
 red.
 match goal with |- continuous_at ?f ?q => replace f with
   (fun p:point_set RTop * point_set RTop => fst p * / snd p) end.
-apply product_continuous.
-apply continuous_func_continuous_everywhere; apply product2_fst_continuous.
-apply continuous_composition_at.
-simpl.
-apply Rinv_continuous; trivial.
-apply continuous_func_continuous_everywhere; apply product2_snd_continuous.
-
-extensionality p.
-destruct p as [x' y'].
-trivial.
+- apply product_continuous.
+  + apply continuous_func_continuous_everywhere;
+      apply product2_fst_continuous.
+  + apply continuous_composition_at.
+    * simpl.
+      now apply Rinv_continuous.
+    * apply continuous_func_continuous_everywhere;
+        apply product2_snd_continuous.
+- extensionality p.
+  now destruct p.
 Qed.
 
 Corollary quotient_continuous: forall (X:TopologicalSpace)
@@ -349,7 +287,8 @@ Qed.
 
 Lemma Rabs_continuous: continuous Rabs (X:=RTop) (Y:=RTop).
 Proof.
-apply pointwise_continuity; intros.
+apply pointwise_continuity.
+intros.
 apply metric_space_fun_continuity with R_metric R_metric;
   try apply RTop_metrization.
 intros.
@@ -426,19 +365,19 @@ intros.
 unfold Rabs at 1 3; destruct Rcase_abs.
 rewrite Rabs_left.
 field.
-split; intro; fourier.
+split; intro; lra.
 assert (/ (1 + -x) > 0).
 apply Rinv_0_lt_compat.
-fourier.
+lra.
 replace 0 with (x*0) by auto with real.
 apply Rmult_lt_gt_compat_neg_l; trivial.
 
 rewrite Rabs_right.
 field.
-split; intro; fourier.
+split; intro; lra.
 assert (/ (1+x) > 0).
 apply Rinv_0_lt_compat.
-fourier.
+lra.
 apply Rle_ge.
 apply Rge_le in r.
 red in H1.
@@ -458,18 +397,18 @@ apply Rabs_def1; trivial.
 unfold Rabs at 1 3; destruct Rcase_abs.
 rewrite Rabs_left.
 field.
-split; intro; fourier.
+split; intro; lra.
 replace (1 - -x) with (1+x) by ring.
 assert (/ (1+x) > 0).
 apply Rinv_0_lt_compat.
-fourier.
+lra.
 unfold Rdiv.
 replace 0 with (x*0) by auto with real.
 apply Rmult_lt_gt_compat_neg_l; trivial.
 
 rewrite Rabs_right.
 field.
-split; intro; fourier.
+split; intro; lra.
 assert (/ (1-x) > 0).
 apply Rinv_0_lt_compat.
 apply Rgt_minus; trivial.
