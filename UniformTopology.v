@@ -1,7 +1,5 @@
 Require Export MetricSpaces.
 
-Local Unset Standard Proposition Elimination Names.
-
 Section UniformTopology.
 
 Variable X Y:Type.
@@ -252,9 +250,9 @@ Qed.
 
 End UniformTopology.
 
-Implicit Arguments uniform_space [[X] [Y]].
-Implicit Arguments uniform_metric [[X] [Y]].
-Implicit Arguments UniformTopology [[X] [Y]].
+Arguments uniform_space {X Y}.
+Arguments uniform_metric {X Y}.
+Arguments UniformTopology {X Y}.
 
 Section UniformTopology_and_continuity.
 

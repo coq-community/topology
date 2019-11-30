@@ -3,7 +3,6 @@ Require Export Nets.
 Require Export FilterLimits.
 Require Export Continuity.
 
-Local Unset Standard Proposition Elimination Names.
 Set Asymmetric Patterns.
 
 Definition compact (X:TopologicalSpace) :=

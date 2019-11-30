@@ -150,8 +150,8 @@ Qed.
 
 End net_tail_filter.
 
-Implicit Arguments net_tail [[X] [J]].
-Implicit Arguments tail_filter [[X] [J]].
+Arguments net_tail {X J}.
+Arguments tail_filter {X J}.
 
 Section filter_to_net.
 

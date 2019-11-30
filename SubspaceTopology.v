@@ -28,5 +28,5 @@ Qed.
 
 End Subspace.
 
-Implicit Arguments SubspaceTopology [[X]].
-Implicit Arguments subspace_inc [[X]].
+Arguments SubspaceTopology {X}.
+Arguments subspace_inc {X}.

@@ -2,8 +2,6 @@ Require Export TopologicalSpaces.
 Require Export Continuity.
 Require Export SubspaceTopology.
 
-Local Unset Standard Proposition Elimination Names.
-
 Section continuous_factorization.
 
 Variable X Y:TopologicalSpace.
@@ -35,7 +33,7 @@ Qed.
 
 End continuous_factorization.
 
-Implicit Arguments continuous_factorization [[X] [Y]].
+Arguments continuous_factorization {X Y}.
 
 Section continuous_surj_factorization.
 
@@ -79,4 +77,4 @@ Qed.
 
 End continuous_surj_factorization.
 
-Implicit Arguments continuous_surj_factorization [[X] [Y]].
+Arguments continuous_surj_factorization {X Y}.

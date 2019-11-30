@@ -1,7 +1,5 @@
 Require Export MetricSpaces.
 
-Local Unset Standard Proposition Elimination Names.
-
 Section Completeness.
 
 Variable X:Type.
@@ -77,8 +75,8 @@ Definition complete : Prop :=
 
 End Completeness.
 
-Implicit Arguments cauchy [[X]].
-Implicit Arguments complete [[X]].
+Arguments cauchy {X}.
+Arguments complete {X}.
 
 Section closed_subset_of_complete.
 

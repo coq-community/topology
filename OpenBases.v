@@ -2,8 +2,6 @@ Require Export TopologicalSpaces.
 Require Import ClassicalChoice.
 From ZornsLemma Require Import EnsemblesSpec.
 
-Local Unset Standard Proposition Elimination Names.
-
 Section OpenBasis.
 
 Variable X : TopologicalSpace.
@@ -48,10 +46,10 @@ Qed.
 
 End OpenBasis.
 
-Implicit Arguments open_basis [[X]].
-Implicit Arguments coverable_by_open_basis_impl_open [[X]].
-Implicit Arguments open_basis_elements [[X]].
-Implicit Arguments open_basis_cover [[X]].
+Arguments open_basis {X}.
+Arguments coverable_by_open_basis_impl_open {X}.
+Arguments open_basis_elements {X}.
+Arguments open_basis_cover {X}.
 
 Section BuildFromOpenBasis.
 
@@ -204,8 +202,8 @@ Qed.
 
 End BuildFromOpenBasis.
 
-Implicit Arguments open_basis_cond [[X]].
-Implicit Arguments open_basis_cover_cond [[X]].
-Implicit Arguments Build_TopologicalSpace_from_open_basis [[X]].
-Implicit Arguments Build_TopologicalSpace_from_open_basis_point_set [[X]].
-Implicit Arguments Build_TopologicalSpace_from_open_basis_basis [[X]].
+Arguments open_basis_cond {X}.
+Arguments open_basis_cover_cond {X}.
+Arguments Build_TopologicalSpace_from_open_basis {X}.
+Arguments Build_TopologicalSpace_from_open_basis_point_set {X}.
+Arguments Build_TopologicalSpace_from_open_basis_basis {X}.

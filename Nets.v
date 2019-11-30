@@ -3,7 +3,6 @@ Require Export DirectedSets.
 Require Export InteriorsClosures.
 Require Export Continuity.
 
-Local Unset Standard Proposition Elimination Names.
 Set Asymmetric Patterns.
 
 Section Net.
@@ -79,11 +78,11 @@ Qed.
 
 End Net.
 
-Implicit Arguments net_limit [[I] [X]].
-Implicit Arguments net_cluster_point [[I] [X]].
-Implicit Arguments net_limit_is_cluster_point [[I] [X]].
-Implicit Arguments net_limit_in_closure [[I] [X]].
-Implicit Arguments net_cluster_point_in_closure [[I] [X]].
+Arguments net_limit {I X}.
+Arguments net_cluster_point {I X}.
+Arguments net_limit_is_cluster_point {I X}.
+Arguments net_limit_in_closure {I X}.
+Arguments net_cluster_point_in_closure {I X}.
 
 Section neighborhood_net.
 
