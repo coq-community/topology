@@ -1,6 +1,7 @@
 Require Export TopologicalSpaces.
 Require Export OrderTopology.
 Require Export Reals.
+Require Import Lra.
 
 Definition RTop := OrderTopology Rle.
 
@@ -811,8 +812,7 @@ assert (R_metric (x n) (x N) < 1).
 apply H0; auto with arith.
 apply Rabs_def2 in H4.
 destruct H4.
-Require Import Fourier.
-fourier.
+lra.
 apply Rmax_r.
 apply Rle_trans with y; auto.
 apply Rmax_l.
@@ -836,7 +836,7 @@ destruct (R_cauchy_sequence_bounded _ H0) as [m].
 exists (-m).
 red; intros.
 cut (-x0 <= m).
-intros; fourier.
+intros; lra.
 apply H1.
 destruct H2 as [n].
 exists n; trivial.

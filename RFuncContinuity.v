@@ -1,7 +1,6 @@
 Require Export RTopology.
 Require Export ProductTopology.
-
-Local Unset Standard Proposition Elimination Names.
+Require Import Lra.
 
 Lemma Rplus_continuous: continuous_2arg Rplus (X:=RTop) (Y:=RTop) (Z:=RTop).
 Proof.
@@ -27,18 +26,17 @@ destruct H1.
 apply (open_neighborhood_basis_elements
   (open_ball _ R_metric x (r/2))).
 constructor.
-Require Import Fourier.
-fourier.
+lra.
 destruct (RTop_metrization y).
 apply (open_neighborhood_basis_elements
   (open_ball _ R_metric y (r/2))).
 constructor.
-fourier.
+lra.
 rewrite metric_zero.
-fourier.
+lra.
 apply R_metric_is_metric.
 rewrite metric_zero.
-fourier.
+lra.
 apply R_metric_is_metric.
 destruct x0 as [x' y'].
 destruct H1 as [[[] []]].
@@ -244,22 +242,22 @@ apply metric_space_fun_continuity with R_metric R_metric;
 intros.
 exists (Rmin (1/2) (eps/2)).
 split; intros.
-apply Rmin_Rgt_r; split; fourier.
+apply Rmin_Rgt_r; split; lra.
 assert (x' > 1/2).
 assert (Rabs (x'-1) < 1/2).
 apply Rlt_le_trans with (1 := H0).
 apply Rmin_l.
 destruct (Rabs_def2 _ _ H1).
-fourier.
+lra.
 assert (/ x' < 2).
 rewrite <- Rinv_involutive.
 apply Rinv_lt_contravar.
-apply Rmult_lt_0_compat; fourier.
+apply Rmult_lt_0_compat; lra.
 unfold Rdiv in H1.
 replace (1 * / 2) with (/ 2) in H1 by auto with real.
 exact H1.
 intro.
-fourier.
+lra.
 
 unfold R_metric.
 replace (/ x' - / 1) with ((1 - x') * / x'); try field.
@@ -272,13 +270,13 @@ apply Rmin_r.
 replace eps with ((eps/2) * 2) by field.
 apply Rmult_gt_0_lt_compat; trivial.
 apply Rinv_0_lt_compat.
-fourier.
-fourier.
+lra.
+lra.
 left.
 apply Rinv_0_lt_compat.
-fourier.
+lra.
 intro.
-fourier.
+lra.
 Qed.
 
 Lemma Rinv_continuous: forall x0:R, x0<>0 -> continuous_at Rinv x0
@@ -428,19 +426,19 @@ intros.
 unfold Rabs at 1 3; destruct Rcase_abs.
 rewrite Rabs_left.
 field.
-split; intro; fourier.
+split; intro; lra.
 assert (/ (1 + -x) > 0).
 apply Rinv_0_lt_compat.
-fourier.
+lra.
 replace 0 with (x*0) by auto with real.
 apply Rmult_lt_gt_compat_neg_l; trivial.
 
 rewrite Rabs_right.
 field.
-split; intro; fourier.
+split; intro; lra.
 assert (/ (1+x) > 0).
 apply Rinv_0_lt_compat.
-fourier.
+lra.
 apply Rle_ge.
 apply Rge_le in r.
 red in H1.
@@ -460,18 +458,18 @@ apply Rabs_def1; trivial.
 unfold Rabs at 1 3; destruct Rcase_abs.
 rewrite Rabs_left.
 field.
-split; intro; fourier.
+split; intro; lra.
 replace (1 - -x) with (1+x) by ring.
 assert (/ (1+x) > 0).
 apply Rinv_0_lt_compat.
-fourier.
+lra.
 unfold Rdiv.
 replace 0 with (x*0) by auto with real.
 apply Rmult_lt_gt_compat_neg_l; trivial.
 
 rewrite Rabs_right.
 field.
-split; intro; fourier.
+split; intro; lra.
 assert (/ (1-x) > 0).
 apply Rinv_0_lt_compat.
 apply Rgt_minus; trivial.

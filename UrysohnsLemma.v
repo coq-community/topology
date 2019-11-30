@@ -116,7 +116,7 @@ unfold dr2Q.
 unfold Qlt.
 simpl.
 apply Zmult_lt_compat_r.
-now unfold Zlt.
+now unfold Z.lt.
 auto with zarith.
 
 rewrite <- (dr2Q_wd _ _ H0).
@@ -148,24 +148,24 @@ assert (forall m:Z, exists n:nat, ((m < ' pos_power2 n)%Z)).
 intros.
 case m; intros.
 exists O.
-unfold Zlt; trivial.
+unfold Z.lt; trivial.
 induction p.
 destruct IHp as [n].
 exists (S n).
-unfold Zlt.
+unfold Z.lt.
 simpl. rewrite Pos.compare_xI_xO.
-unfold Zlt in H0.
+unfold Z.lt in H0.
 simpl in H0.
 now rewrite H0.
 destruct IHp as [n].
 exists (S n).
-unfold Zlt; simpl.
-unfold Zlt in H0; simpl in H0.
+unfold Z.lt; simpl.
+unfold Z.lt in H0; simpl in H0.
 trivial.
 exists (1%nat).
-unfold Zlt; trivial.
+unfold Z.lt; trivial.
 exists O.
-unfold Zlt; trivial.
+unfold Z.lt; trivial.
 
 destruct (H0 (up (1/(y-x)))) as [n].
 Require Import RationalsInReals.
@@ -175,7 +175,7 @@ apply Rlt_trans with (IZR (up (1/(y-x)))).
 apply archimed.
 apply IZR_lt; trivial.
 
-destruct m as [m|m|].
+destruct m as [|m|].
 unfold Q2R in H2.
 simpl in H2.
 replace (0 * _) with 0 in H2 by ring.
