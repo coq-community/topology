@@ -4,7 +4,7 @@ Require Import FunctionalExtensionality.
 Require Export Completeness.
 Require Import Description.
 Require Import Max.
-Require Import Fourier.
+Require Import Psatz.
 
 Section UniformTopology.
 
@@ -211,10 +211,10 @@ auto with real.
 apply metric_space_net_limit with uniform_metric.
 apply MetricTopology_metrizable.
 intros.
-assert (eps/2 > 0) by fourier.
+assert (eps/2 > 0) by lra.
 destruct (H0 (eps/2) H4) as [N].
 exists N; intros.
-apply Rle_lt_trans with (eps/2); try fourier.
+apply Rle_lt_trans with (eps/2); try lra.
 unfold uniform_metric; remember (f j) as fj; destruct fj as [fj].
 destruct sup; simpl.
 apply i.
@@ -285,7 +285,7 @@ apply open_neighborhood_basis_is_neighborhood_basis in H1.
 apply continuous_at_neighborhood_basis with (1:=H1).
 intros.
 destruct H2.
-assert (r/3>0) by fourier.
+assert (r/3>0) by lra.
 destruct (metric_space_net_limit_converse _ _
   (MetricTopology_metrizable _ _
      (uniform_metric_is_metric _ _ d y0 d_metric X_inh))
@@ -320,7 +320,7 @@ apply Rle_lt_trans with
 assert (d (proj1_sig (f N) x0) (proj1_sig f0 x) <=
         d (proj1_sig (f N) x0) (proj1_sig (f N) x) +
         d (proj1_sig (f N) x) (proj1_sig f0 x)) by apply d_metric.
-fourier.
+lra.
 assert (forall x':point_set X,
   d (proj1_sig f0 x') (proj1_sig (f N) x') < r/3).
 intros.
@@ -333,7 +333,7 @@ constructor.
 apply H4; simpl; auto with arith.
 rewrite (metric_sym _ d d_metric (proj1_sig (f N) x) (proj1_sig f0 x)).
 pose proof (H7 x0); pose proof (H7 x).
-fourier.
+lra.
 
 apply metrizable_impl_first_countable.
 exists (uniform_metric d y0 d_metric X_inh).

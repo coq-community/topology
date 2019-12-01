@@ -1,5 +1,5 @@
 Require Export MetricSpaces.
-Require Import Fourier.
+Require Import Psatz.
 
 Section Completeness.
 
@@ -25,10 +25,10 @@ pose (U := open_ball _ d x0 (eps/2)).
 destruct (H0 U) as [N].
 Opaque In. apply open_neighborhood_basis_elements. Transparent In.
 constructor.
-fourier.
+lra.
 constructor.
 rewrite metric_zero; trivial.
-fourier.
+lra.
 simpl in N.
 exists N.
 intros.
@@ -37,7 +37,7 @@ destruct (H2 n H4).
 apply Rle_lt_trans with (d x0 (x m) + d x0 (x n)).
 rewrite (metric_sym _ _ d_metric x0 (x m)); trivial.
 apply triangle_inequality; trivial.
-fourier.
+lra.
 Qed.
 
 Lemma cauchy_sequence_with_cluster_point_converges:
@@ -51,12 +51,12 @@ apply MetricTopology_metrizable.
 intros.
 red; intros.
 destruct (H (eps/2)) as [N].
-fourier.
+lra.
 pose (U := open_ball X d x0 (eps/2)).
 assert (open_neighborhood U x0 (X:=MetricTopology d d_metric)).
 apply MetricTopology_metrizable.
 constructor.
-fourier.
+lra.
 destruct H3.
 destruct (H0 U H3 H4 N) as [m [? []]].
 simpl in H5.
@@ -65,7 +65,7 @@ simpl in H7.
 apply Rle_lt_trans with (d x0 (x m) + d (x m) (x n)).
 apply triangle_inequality; trivial.
 assert (d (x m) (x n) < eps/2) by (apply H2; trivial).
-fourier.
+lra.
 Qed.
 
 Definition complete : Prop :=

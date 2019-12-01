@@ -1,10 +1,10 @@
 Require Export RTopology.
 Require Export SeparatednessAxioms.
-Require Import Fourier.
 Require Import RFuncContinuity.
 Require Import UniformTopology.
 Require Import Description.
 Require Import Max.
+Require Import Psatz.
 
 (* This proof of the Tietze extension theorem is heavily based on
    the proof described on planetmath.org. *)
@@ -117,7 +117,7 @@ destruct H0 as [[z] []].
 simpl in H2.
 destruct H1; destruct H2.
 destruct (proof_irrelevance _ i i0).
-fourier.
+lra.
 Defined.
 
 Lemma extension_approximation_bound: forall x:point_set X,
@@ -129,7 +129,7 @@ destruct Urysohns_lemma_function as [g].
 simpl.
 destruct a as [? [? []]].
 destruct (H0 x).
-split; fourier.
+split; lra.
 Qed.
 
 Lemma extension_approximation_diff_bound:
@@ -142,20 +142,20 @@ unfold extension_approximation; destruct Urysohns_lemma_function as
 destruct (f0_bound x).
 destruct (Rle_or_lt (f0 x) (-1/3)).
 replace (g (subspace_inc F x)) with 0.
-split; fourier.
+split; lra.
 symmetry; apply e.
 econstructor; trivial.
 constructor; trivial.
 
 destruct (Rle_or_lt (1/3) (f0 x)).
 replace (g (subspace_inc F x)) with 1.
-split; fourier.
+split; lra.
 symmetry; apply e0.
 econstructor; trivial.
 constructor; auto with real.
 
 destruct (a (subspace_inc F x)).
-split; fourier.
+split; lra.
 Qed.
 
 Lemma extension_approximation_continuous:
@@ -211,7 +211,7 @@ end); clear g; [ | | clearbody H ].
   intros; split; ring_simplify; auto with real.
   intros.
   destruct (f_bound x).
-  split; fourier.
+  split; lra.
 -
   apply pointwise_continuity; intros.
   apply const_multiple_continuous.
@@ -224,11 +224,11 @@ end); clear g; [ | | clearbody H ].
 -
   assert (H023m: 0 <= (2/3)^m).
   {
-    apply pow_le; fourier.
+    apply pow_le; lra.
   }
   assert (H032m: 0 <= (3/2)^m).
   {
-    apply pow_le; fourier.
+    apply pow_le; lra.
   }
   assert (forall x:point_set (SubspaceTopology F),
              -1 <= (3/2)^m * (f x - gm (subspace_inc F x)) <= 1).
@@ -274,13 +274,13 @@ end); clear g; [ | | clearbody H ].
       simpl.
       destruct (H1 x).
       assert (0 <= (2/3)^m).
-      apply pow_le; fourier.
+      apply pow_le; lra.
       assert ((2/3)^m * (-1/3) <= (2/3)^m * approx x <= (2/3)^m * (1/3)).
       {
         split; apply Rmult_le_compat_l; trivial.
       }
       destruct H11.
-      split; fourier.
+      split; lra.
     *
       simpl.
       replace (-(2/3*(2/3)^m)) with ((2/3)^m * (-2/3)) by field.
@@ -312,7 +312,7 @@ match goal with |- context [extension_approximation ?A ?B x] =>
     apply extension_approximation_bound ] end.
 intros.
 assert (0 <= (2/3)^n).
-apply pow_le; fourier.
+apply pow_le; lra.
 replace (-(1/3*(2/3)^n)) with ((2/3)^n*(-1/3)) by field.
 replace (1/3*(2/3)^n) with ((2/3)^n*(1/3)) by ring.
 replace (x0 x + (2/3)^n*p - x0 x) with ((2/3)^n*p) by ring.
@@ -354,7 +354,7 @@ apply H; trivial.
 apply Rge_minus.
 cut ((2/3)^n <= (2/3)^m); auto with real.
 apply Rle_R1_pow; trivial.
-split; fourier.
+split; lra.
 apply lt_le_weak in H0.
 rewrite (Rabs_left1 ((2/3)^m - (2/3)^n)).
 replace (- ((2/3)^m - (2/3)^n)) with ((2/3)^n - (2/3)^m) by ring.
@@ -362,7 +362,7 @@ rewrite Rabs_minus_sym.
 apply H; trivial.
 apply Rle_minus.
 apply Rle_R1_pow; trivial.
-split; fourier.
+split; lra.
 
 induction 1.
 repeat match goal with |- context [ ?y - ?y ] =>
@@ -383,8 +383,8 @@ assert (Rabs (proj1_sig (extension_approximation_seq m0) x -
         1/3 * (2/3)^m0).
 destruct H0.
 unfold Rabs.
-destruct Rcase_abs; fourier.
-fourier.
+destruct Rcase_abs; lra.
+lra.
 Qed.
 
 Definition convert_approx_to_uniform_space:
@@ -398,7 +398,7 @@ red; intros.
 destruct H.
 rewrite H0; clear y H0.
 destruct (a x).
-unfold Rabs; destruct Rcase_abs; fourier.
+unfold Rabs; destruct Rcase_abs; lra.
 Defined.
 
 Lemma extension_approximation_seq_cauchy:
@@ -408,8 +408,8 @@ Lemma extension_approximation_seq_cauchy:
 Proof.
 red; intros.
 assert (Rabs (2/3) < 1).
-rewrite Rabs_right; fourier.
-assert (0 < eps/2) by fourier.
+rewrite Rabs_right; lra.
+assert (0 < eps/2) by lra.
 destruct (pow_lt_1_zero (2/3) H0 (eps/2) H1) as [N].
 exists N.
 intros.
@@ -464,7 +464,7 @@ intros.
 cut (Rabs (Tietze_extension_func x) <= 1).
 intros.
 unfold Rabs in H; destruct Rcase_abs in H;
-  split; fourier.
+  split; lra.
 
 unfold Tietze_extension_func;
   destruct constructive_definite_description as [[g]].
@@ -502,10 +502,10 @@ unfold R_metric.
 destruct extension_approximation_seq as [h [? []]].
 destruct (a x1).
 simpl.
-unfold Rabs; destruct Rcase_abs; fourier.
+unfold Rabs; destruct Rcase_abs; lra.
 assert ((2/3)^N > 0).
-apply pow_lt; fourier.
-fourier.
+apply pow_lt; lra.
+lra.
 rewrite metric_sym; try apply uniform_metric_is_metric.
 apply H1.
 unfold DS_ord; constructor.
@@ -521,13 +521,13 @@ apply Rle_antisym; try (apply Rge_le; apply R_metric_is_metric).
 apply lt_plus_epsilon_le; intros.
 unfold Tietze_extension_func;
   destruct constructive_definite_description as [[g]]; simpl.
-assert (eps/2 > 0) by fourier.
+assert (eps/2 > 0) by lra.
 unshelve refine (let H1:=metric_space_net_limit_converse _ _ _ _ _ _ n (eps/2) H0
           in _); [ | | clearbody H1 ]; shelve_unifiable.
 apply MetricTopology_metrizable.
 destruct H1 as [N1].
 assert (Rabs (2/3) < 1).
-rewrite Rabs_right; fourier.
+rewrite Rabs_right; lra.
 
 destruct (pow_lt_1_zero (2/3) H2 (eps/2) H0) as [N2].
 pose (N := max N1 N2).
@@ -553,9 +553,9 @@ rewrite Rabs_right.
 destruct extension_approximation_seq as [h [? []]]; simpl.
 unfold R_metric.
 destruct (a0 x).
-unfold Rabs; destruct Rcase_abs; fourier.
+unfold Rabs; destruct Rcase_abs; lra.
 apply Rle_ge.
-apply pow_le; fourier.
+apply pow_le; lra.
 Qed.
 
 Let convert_continuity: forall h:point_set X -> R,
@@ -733,7 +733,7 @@ replace (0*Rabs (g0 x)) with 0; auto with real.
 assert (Rabs (g0 x) < 1).
 assert (Rabs (g0 x) <= 1).
 destruct (H5 x).
-unfold Rabs; destruct Rcase_abs; fourier.
+unfold Rabs; destruct Rcase_abs; lra.
 destruct H11; trivial.
 contradiction H10.
 unfold Rabs in H11; destruct Rcase_abs in H11.

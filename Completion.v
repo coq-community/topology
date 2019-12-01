@@ -1,6 +1,7 @@
 Require Export Completeness.
 Require Import UniformTopology.
 Require Import RTopology.
+Require Import Psatz.
 
 Lemma completion_exists: forall (X:Type) (d:X->X->R) (d_metric:metric d),
   exists Y:Type, exists i:X->Y, exists d':Y->Y->R,
@@ -116,15 +117,14 @@ unfold R_metric.
 assert (forall a b:R, -b <= a -> a <= b -> Rabs a <= b).
 intros.
 unfold Rabs.
-Require Import Fourier.
-destruct Rcase_abs; fourier.
+destruct Rcase_abs; lra.
 intros.
 apply H.
 assert (d x z <= d x y + d y z) by apply d_metric.
-fourier.
+lra.
 rewrite (metric_sym _ _ d_metric x y).
 assert (d y z <= d y x + d x z) by apply d_metric.
-fourier.
+lra.
 
 exists (uniform_space R_metric (d x0)).
 unshelve refine (let H0:=_ in ex_intro _ (fun x:X => exist _ (d x) (H0 x)) _).
