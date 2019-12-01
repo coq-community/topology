@@ -11,6 +11,7 @@ DirectedSets.v
 FilterLimits.v
 FiltersAndNets.v
 Filters.v
+FiniteIntersectionLemmas.v
 Homeomorphisms.v
 InteriorsClosures.v
 InverseImageLemmas.v

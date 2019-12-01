@@ -1,75 +1,151 @@
 Require Export TopologicalSpaces.
 Require Export OrderTopology.
-Require Export Reals.
+Require Export Completeness.
+Require Import Lra.
+Require Import FiniteIntersectionLemmas.
+Require Export MetricSpaces.
+Require Import RationalsInReals.
+Require Export Compactness.
+Require Export Connectedness.
 
 Definition RTop := OrderTopology Rle.
-
-Require Export MetricSpaces.
-
 Definition R_metric (x y:R) : R := Rabs (y-x).
 
 Lemma R_metric_is_metric: metric R_metric.
 Proof.
-constructor.
-intros.
-unfold R_metric.
-pose proof (Rabs_pos (y-x)).
-auto with *.
-
-intros.
-unfold R_metric.
-replace (y-x) with (-(x-y)); try ring.
-apply Rabs_Ropp.
-
-intros.
-unfold R_metric.
-replace (z-x) with ((y-x) + (z-y)); try ring.
-apply Rabs_triang.
-
-intros.
-unfold R_metric.
-replace (x-x) with 0; try ring.
-exact Rabs_R0.
-
-intros.
-assert (y-x=0).
-apply NNPP.
-contradict H.
-apply Rabs_no_R0; assumption.
-auto with *.
+constructor;
+  intros;
+  unfold R_metric in *.
+- pose proof (Rabs_pos (y-x)).
+  auto with real.
+- replace (y-x) with (-(x-y)) by ring.
+  apply Rabs_Ropp.
+- replace (z-x) with ((y-x) + (z-y)) by ring.
+  apply Rabs_triang.
+- replace (x-x) with 0 by ring.
+  exact Rabs_R0.
+- apply NNPP.
+  intro.
+  assert (y - x <> 0) by lra.
+  apply Rabs_no_R0 in H1.
+  contradiction.
 Qed.
 
 Lemma Rmetric_bound: forall x y z:R, R_metric x z < y - x ->
   z < y.
 Proof.
 intros.
-replace z with (x + (z-x)); try ring.
-apply Rle_lt_trans with (x + R_metric x z).
-assert (z - x <= R_metric x z).
-apply Rle_abs.
-auto with real.
-replace y with (x + (y-x)); try ring.
-auto with real.
+replace z with (x + (z-x)) by ring.
+apply Rle_lt_trans with (x + R_metric x z);
+[ assert (z - x <= R_metric x z) by apply Rle_abs |
+  replace y with (x + (y-x)) by ring];
+  lra.
 Qed.
 
 Lemma Rmetric_bound2: forall x y z:R, R_metric y z < y - x ->
   x < z.
 Proof.
 intros.
-replace z with (y + (z-y)); try ring.
-apply Rlt_le_trans with (y - R_metric y z).
-apply Rlt_minus in H.
-apply Rminus_lt.
-replace (x - (y - R_metric y z)) with
-  (R_metric y z - (y - x)); try ring.
-trivial.
+replace z with (y + (z-y)) by ring.
 assert (y - z <= R_metric y z).
-rewrite (metric_sym _ _ R_metric_is_metric y z).
+rewrite (metric_sym _ _ R_metric_is_metric).
 apply Rle_abs.
-apply Rle_minus in H0.
-apply Rminus_le.
-replace (y - R_metric y z - (y + (z - y))) with
-  (y - z - R_metric y z); trivial; ring.
+lra.
+Qed.
+
+Lemma family_union_singleton
+  {X : Type}
+  (S : Ensemble X) :
+  FamilyUnion (Singleton S) = S.
+Proof.
+now extensionality_ensembles;
+  try econstructor.
+Qed.
+
+Lemma R_lower_beam_open : forall p,
+  @open RTop [r : R | r < p].
+Proof.
+intro.
+replace [r : R | r < p] with
+        [y : R | y <= p /\ y <> p] by (extensionality_ensembles; constructor; lra).
+rewrite <- family_union_singleton.
+repeat (constructor + destruct H).
+Qed.
+
+Lemma R_upper_beam_open : forall p,
+  @open RTop [r : R | r > p].
+Proof.
+intro.
+replace [r : R | r > p] with
+        [y : R | p <= y /\ y <> p] by (extensionality_ensembles; constructor; lra).
+rewrite <- family_union_singleton.
+repeat (constructor + destruct H).
+Qed.
+
+Lemma R_interval_open : forall p q,
+  @open RTop [r : R | p < r < q].
+Proof.
+intros p q.
+replace [r : R | p < r < q] with
+        (Intersection [y : R | y < q] [y : R | y > p]) by (extensionality_ensembles; repeat constructor; lra).
+eapply (@open_intersection2 RTop).
+- apply R_lower_beam_open.
+- apply R_upper_beam_open.
+Qed.
+
+Lemma RTop_neighborhood_is_neighbourhood
+  (U : Ensemble R)
+  (r : R) :
+  @neighborhood RTop U r <-> neighbourhood U r.
+Proof.
+split.
+- intros [H1 [[[F H2] [V x H4 H5]] H6]].
+
+  eapply (neighbourhood_P1 V).
+  intros x' H'.
+  apply H6.
+  econstructor.
+  exact H4.
+  exact H'.
+  apply H2 in H4.
+  clear H2 H6 F H1.
+  induction H4.
+  + exists (RinvN 1).
+    now intros ? ?.
+  + destruct H as [y|y];
+      destruct H5 as [[H5 H6]];
+    [ refine (ex_intro _ (mkposreal (y - x) _) _) |
+      refine (ex_intro _ (mkposreal (x - y) _) _) ];
+      intros ? H;
+      apply Rabs_def2 in H;
+      simpl in H;
+      destruct H;
+      repeat constructor; lra.
+      Unshelve.
+      lra. lra.
+  + destruct H5 as [x H2 H3],
+             (IHfinite_intersections H2) as [[p Hp] H4],
+             (IHfinite_intersections0 H3) as [[q Hq] H5],
+             (Rlt_or_le p q);
+    [ exists (mkposreal p Hp) |
+      exists (mkposreal q Hq) ];
+      intros x' H';
+      apply Rabs_def2 in H';
+      simpl in H';
+      destruct H';
+      constructor;
+      apply H4 + apply H5;
+      apply Rabs_def1; simpl;
+      try assumption;
+      (try now (eapply Rlt_trans; try exact H7);
+      eapply Rlt_trans;
+      try exact H8); lra.
+- intros [[p Hp] H].
+  exists [x : R | r - p < x < r + p].
+  repeat split; try lra.
+  + apply R_interval_open.
+  + intros y [[H1 H2]].
+    apply H, Rabs_def1; simpl; lra.
 Qed.
 
 Lemma RTop_metrization: metrizes RTop R_metric.
@@ -78,150 +154,32 @@ refine (let Hsubbasis := Build_TopologicalSpace_from_subbasis_subbasis
   _ (order_topology_subbasis _ Rle) in _).
 clearbody Hsubbasis.
 red; intros.
-constructor.
-intros.
-destruct H.
-assert (open_ball (point_set RTop) R_metric x r = Intersection
-  [ y:R | x-r <= y /\ y <> x-r ]
-  [ y:R | y <= x+r /\ y <> x+r ]).
-apply Extensionality_Ensembles; split; red; intros.
-destruct H0.
-assert (x - r < x0).
-apply Rmetric_bound2 with x.
-ring_simplify; trivial.
-assert (x + r > x0).
-apply Rmetric_bound with x.
-ring_simplify; trivial.
-repeat split; auto with real.
-constructor.
-destruct H0.
-destruct H0.
-destruct H0.
-destruct H1.
-destruct H1.
-apply Rabs_def1.
-assert (x0-x <= r).
-apply Rminus_le.
-apply Rle_minus in H1.
-replace (x0 - x - r) with (x0 - (x + r)); trivial; ring.
-assert (x0 - x <> r).
-intro.
-contradiction H3.
-rewrite <- H5.
-ring.
-destruct (total_order_T (x0 - x) r) as [[|]|]; try tauto.
-assert (r < r).
-apply Rlt_le_trans with (x0 - x); trivial.
-contradict H6.
-apply Rlt_irrefl.
-assert (-r <= x0 - x).
-apply Rle_minus in H0.
-apply Rminus_le.
-replace (-r - (x0 - x)) with (x - r - x0); try ring; trivial.
-assert (-r <> x0 - x).
-intro.
-contradiction H2.
-replace r with (- -r); try ring.
-rewrite H5; ring.
-destruct (total_order_T (-r) (x0 - x)) as [[|]|]; try tauto.
-assert (-r < -r).
-apply Rle_lt_trans with (x0 - x); trivial.
-contradict H6.
-apply Rlt_irrefl.
-
-rewrite H0.
-constructor.
-apply (@open_intersection2 RTop).
-apply Hsubbasis; constructor.
-apply Hsubbasis; constructor.
-assert (x-r < x).
-apply Rminus_lt.
-ring_simplify.
-auto with real.
-assert (x+r > x).
-apply Rminus_gt.
-ring_simplify; trivial.
-repeat split; auto with real.
-
-intros.
-destruct H.
-destruct H.
-destruct H0.
-pose proof (H _ H0).
-assert (exists eps:R, eps > 0 /\ Included (open_ball _ R_metric x eps) S).
-clear H0.
-induction H2.
-exists 1.
-split.
-red.
-auto with real.
-intro; constructor.
-destruct H0.
-destruct H1.
-destruct H0.
-exists (x0-x).
-split.
-destruct (total_order_T x0 x) as [[]|].
-assert (x < x).
-apply Rle_lt_trans with x0; trivial.
-contradict H2.
-apply Rlt_irrefl.
-congruence.
-apply Rgt_minus; trivial.
-red; intros y ?.
-destruct H2.
-constructor.
-assert (y < x0).
-apply Rmetric_bound with x; trivial.
-split; auto with real.
-
-destruct H1.
-destruct H0.
-exists (x - x0).
-split.
-destruct (total_order_T x0 x) as [[]|].
-apply Rgt_minus; trivial.
-congruence.
-assert (x < x).
-apply Rlt_le_trans with x0; trivial.
-contradict H2.
-apply Rlt_irrefl.
-intros y ?.
-destruct H2.
-constructor.
-assert (x0 < y).
-apply Rmetric_bound2 with x; trivial.
-split; auto with real.
-destruct H1.
-apply IHfinite_intersections in H1.
-apply IHfinite_intersections0 in H3.
-destruct H1 as [eps1 []].
-destruct H3 as [eps2 []].
-exists (Rmin eps1 eps2).
-split.
-unfold Rmin.
-destruct Rle_dec; trivial.
-red; intros y ?.
-destruct H6.
-constructor.
-apply H4.
-constructor.
-apply Rlt_le_trans with (Rmin eps1 eps2); trivial.
-unfold Rmin; destruct Rle_dec; auto with real.
-apply H5.
-constructor.
-apply Rlt_le_trans with (Rmin eps1 eps2); trivial.
-unfold Rmin; destruct Rle_dec; auto with real.
-
-destruct H3 as [eps []].
-exists (open_ball R R_metric x eps).
-split.
-constructor.
-trivial.
-assert (Included S (FamilyUnion F)).
-intros y ?.
-exists S; trivial.
-auto with sets.
+constructor;
+  intros.
+- destruct H.
+  replace (open_ball (point_set RTop) R_metric x r) with
+          (Intersection
+            [ y:R | x-r <= y /\ y <> x-r ]
+            [ y:R | y <= x+r /\ y <> x+r ]).
+  constructor.
+  + apply (@open_intersection2 RTop);
+      apply Hsubbasis; constructor.
+  + repeat constructor; lra.
+  + extensionality_ensembles;
+      repeat constructor;
+      try apply Rabs_def2 in H0;
+      destruct H0;
+      try lra.
+    destruct H1.
+    apply Rabs_def1; lra.
+- intros.
+  apply open_neighborhood_is_neighborhood, RTop_neighborhood_is_neighbourhood in H.
+  destruct H.
+  exists (open_ball (point_set RTop) R_metric x x0).
+  split.
+  + now destruct x0.
+  + intros r [H0].
+    now apply H.
 Qed.
 
 Corollary RTop_metrizable: metrizable RTop.
@@ -230,47 +188,6 @@ exists R_metric.
 exact R_metric_is_metric.
 exact RTop_metrization.
 Qed.
-
-Lemma RTop_separable: separable RTop.
-Proof.
-Require Import RationalsInReals.
-exists (Im Full_set Q2R).
-apply countable_img.
-apply countable_type_ensemble.
-exact Q_countable.
-
-apply meets_every_nonempty_open_impl_dense.
-intros.
-destruct H0 as [x].
-destruct (RTop_metrization x).
-destruct (open_neighborhood_basis_cond U) as [V []].
-split; trivial.
-destruct H1.
-destruct (rationals_dense_in_reals (x-r) (x+r)) as [q].
-apply Rminus_gt.
-replace (x+r-(x-r)) with (r+r); try ring.
-apply Rgt_trans with r; auto with real.
-pattern r at 3.
-replace r with (r+0); try ring.
-auto with real.
-
-exists (Q2R q).
-constructor.
-exists q; trivial.
-constructor.
-apply H2.
-constructor.
-destruct H3.
-apply Rabs_def1.
-apply Rminus_lt.
-apply Rlt_minus in H4.
-replace (Q2R q - x - r) with (Q2R q - (x + r)); trivial; ring.
-apply Rminus_lt.
-apply Rlt_minus in H3.
-replace (-r - (Q2R q - x)) with (x - r - Q2R q); trivial; ring.
-Qed.
-
-Require Export Compactness.
 
 Lemma bounded_real_net_has_cluster_point: forall (I:DirectedSet)
   (x:Net I RTop) (a b:R), (forall i:DS_set I, a <= x i <= b) ->
@@ -424,19 +341,12 @@ simpl.
 trivial.
 
 assert (closed [x:point_set RTop | a <= x <= b]).
-assert ([x:point_set RTop | a <= x <= b] = Intersection
-                [ x:point_set RTop | a <= x ]
-                [ x:point_set RTop | x <= b ]).
-apply Extensionality_Ensembles; split; red; intros.
-destruct H1.
-destruct H1.
-constructor; constructor; trivial.
-destruct H1.
-destruct H1.
-destruct H2.
-constructor.
-auto.
-rewrite H1.
+replace [x:point_set RTop | a <= x <= b] with
+      (Intersection
+        [ x:point_set RTop | a <= x ]
+        [ x:point_set RTop | x <= b ]) by
+  (extensionality_ensembles;
+    do 2 constructor; lra).
 apply closed_intersection2.
 apply upper_closed_interval_closed.
 constructor; red; intros; auto with real.
@@ -487,101 +397,61 @@ Lemma R_compact_subset_bounded: forall A:Ensemble (point_set RTop),
   compact (SubspaceTopology A) -> bound A.
 Proof.
 intros.
-destruct (H (Im Full_set (fun y:R => inverse_image (subspace_inc _)
+destruct (H (Im Full_set (fun y => inverse_image (subspace_inc _)
                    [ x:point_set RTop | y - 1 < x < y + 1 ]))).
-intros.
-destruct H0.
-rewrite H1.
-apply subspace_inc_continuous.
-replace [x0:point_set RTop | x-1 < x0 < x+1] with
-  (Intersection [x0:point_set RTop | x-1 <= x0 /\ x0 <> x-1]
-                [x0:point_set RTop | x0 <= x+1 /\ x0 <> x+1]).
-pose proof (Build_TopologicalSpace_from_subbasis_subbasis
-  _ (order_topology_subbasis _ Rle)).
-apply open_intersection2.
-apply H2.
-constructor.
-apply H2.
-constructor.
-apply Extensionality_Ensembles; split; red; intros.
-destruct H2.
-destruct H2.
-destruct H2.
-destruct H3.
-destruct H3.
-constructor.
-split.
-destruct (total_order_T (x-1) x0) as [[|]|]; auto with real.
-contradiction H4; symmetry; trivial.
-assert (x0 < x0).
-apply Rlt_le_trans with (x-1); auto with real.
-contradict H6; apply Rlt_irrefl.
-destruct (total_order_T x0 (x+1)) as [[|]|]; auto with real.
-contradiction H5.
-assert (x0 < x0).
-apply Rle_lt_trans with (x+1); auto with real.
-contradict H6; apply Rlt_irrefl.
-destruct H2.
-destruct H2.
-constructor; constructor; split; auto with real.
+- intros U [H0].
+  subst.
+  apply subspace_inc_continuous, R_interval_open.
 
-apply Extensionality_Ensembles; split; red; intros.
-constructor.
-eexists.
-exists (proj1_sig x).
-constructor.
-reflexivity.
-constructor.
-constructor.
-destruct x.
-simpl.
-split; apply Rminus_lt; auto with real.
-replace (x-1-x) with (-1); try ring.
-apply Ropp_lt_gt_0_contravar.
-exact Rlt_0_1.
+- extensionality_ensembles;
+    econstructor.
+  + now exists (proj1_sig x).
+  + do 2 constructor.
+    destruct x.
+    simpl.
+    lra.
 
-destruct H0.
-destruct H1.
-assert (exists a:R, forall S:Ensemble (point_set (SubspaceTopology A)),
-  forall b:point_set (SubspaceTopology A),
-  Ensembles.In x S -> Ensembles.In S b -> proj1_sig b < a).
-clear H2.
-induction H0.
-exists 0.
-intros.
-destruct H0.
-destruct IHFinite.
-cut (Included A0 (Add A0 x)); auto with sets.
-assert (Ensembles.In (Add A0 x) x).
-right.
-constructor.
-apply H1 in H4.
-destruct H4.
-exists (Rmax x0 (x+1)).
-intros.
-destruct H6.
-apply Rlt_le_trans with x0.
-apply H3 with x1; trivial.
-unfold Rmax.
-destruct Rle_dec; auto with real.
-destruct H6.
-rewrite H5 in H7.
-destruct H7.
-destruct H6.
-apply Rlt_le_trans with (x+1).
-apply H6.
-unfold Rmax; destruct Rle_dec; auto with real.
+- destruct H0, H1.
+  assert (exists a:R, forall S:Ensemble (point_set (SubspaceTopology A)),
+    forall b:point_set (SubspaceTopology A),
+    Ensembles.In x S -> Ensembles.In S b -> proj1_sig b < a).
+  clear H2.
+  induction H0.
+  exists 0.
+  intros.
+  destruct H0.
+  destruct IHFinite.
+  cut (Included A0 (Add A0 x)); auto with sets.
+  assert (Ensembles.In (Add A0 x) x).
+  right.
+  constructor.
+  apply H1 in H4.
+  destruct H4.
+  exists (Rmax x0 (x+1)).
+  intros.
+  destruct H6.
+  apply Rlt_le_trans with x0.
+  apply H3 with x1; trivial.
+  unfold Rmax.
+  destruct Rle_dec; auto with real.
+  destruct H6.
+  rewrite H5 in H7.
+  destruct H7.
+  destruct H6.
+  apply Rlt_le_trans with (x+1).
+  apply H6.
+  unfold Rmax; destruct Rle_dec; auto with real.
 
-destruct H3 as [a].
-exists a.
-red; intros.
-assert (Ensembles.In (FamilyUnion x)
-  (exist (fun x:R => Ensembles.In A x) x0 H4)).
-rewrite H2; constructor.
-inversion H5.
-pose proof (H3 _ _ H6 H7).
-simpl in H9.
-auto with real.
+  destruct H3 as [a].
+  exists a.
+  red; intros.
+  assert (Ensembles.In (FamilyUnion x)
+    (exist (fun x:R => Ensembles.In A x) x0 H4)).
+  rewrite H2; constructor.
+  inversion H5.
+  pose proof (H3 _ _ H6 H7).
+  simpl in H9.
+  auto with real.
 Qed.
 
 Lemma Ropp_continuous: continuous Ropp (X:=RTop) (Y:=RTop).
@@ -599,8 +469,6 @@ replace (-x' - -x) with (x-x'); try ring.
 rewrite Rabs_minus_sym; trivial.
 Qed.
 
-Require Export Connectedness.
-
 Lemma R_connected: connected RTop.
 Proof.
 cut (forall S:Ensemble (point_set RTop),
@@ -614,12 +482,9 @@ left.
 assert (Complement S = Full_set).
 apply H; trivial.
 destruct H0; split; trivial.
-red; rewrite Complement_Complement; trivial.
-apply Extensionality_Ensembles; split; red; intros.
-assert (Ensembles.In (Complement S) x).
-rewrite H2; constructor.
-contradiction H4.
-destruct H3.
+red; now rewrite Complement_Complement.
+rewrite <- (Complement_Complement _ S), H2.
+now extensionality_ensembles.
 
 cut (forall S:Ensemble (point_set RTop),
   clopen S -> Ensembles.In S 0 -> forall x:R, x > 0 ->
@@ -646,12 +511,12 @@ destruct H3.
 rewrite Ropp_involutive in H3; trivial.
 
 intros.
-apply Extensionality_Ensembles; split; red; intros.
+extensionality_ensembles.
 constructor.
 destruct (total_order_T x 0) as [[|]|].
-apply H0; trivial.
+now apply H0.
 congruence.
-apply H; trivial.
+now apply H.
 
 intros.
 apply NNPP; intro.
@@ -775,8 +640,6 @@ apply Rinv_0_lt_compat.
 auto with real.
 Qed.
 
-Require Export Completeness.
-
 Lemma R_cauchy_sequence_bounded: forall x:nat->R,
   cauchy R_metric x -> bound (Im Full_set x).
 Proof.
@@ -811,8 +674,7 @@ assert (R_metric (x n) (x N) < 1).
 apply H0; auto with arith.
 apply Rabs_def2 in H4.
 destruct H4.
-Require Import Fourier.
-fourier.
+lra.
 apply Rmax_r.
 apply Rle_trans with y; auto.
 apply Rmax_l.
@@ -828,7 +690,7 @@ destruct (H eps H0) as [N].
 exists N.
 intros.
 replace (R_metric (- x m) (- x n)) with (R_metric (x m) (x n)).
-apply H1; trivial.
+now apply H1.
 unfold R_metric.
 replace (x n - x m) with (- (- x n - - x m)) by ring.
 apply Rabs_Ropp.
@@ -836,11 +698,11 @@ destruct (R_cauchy_sequence_bounded _ H0) as [m].
 exists (-m).
 red; intros.
 cut (-x0 <= m).
-intros; fourier.
+intros; lra.
 apply H1.
 destruct H2 as [n].
 exists n; trivial.
-f_equal; trivial.
+now f_equal.
 Qed.
 
 Lemma R_metric_complete: complete R_metric R_metric_is_metric.
@@ -858,4 +720,63 @@ apply metric_space_net_cluster_point with R_metric;
 intros.
 apply metric_space_net_cluster_point_converse with RTop; trivial.
 apply RTop_metrization.
+Qed.
+
+Lemma countable_union2
+  {X : Type}
+  {U V : Ensemble X} :
+  Countable U ->
+  Countable V ->
+  Countable (Union U V).
+Proof.
+intros Hf Hg.
+replace (Union U V) with (IndexedUnion (fun b : bool => if b then U else V)).
+- apply countable_union.
+  + apply (intro_nat_injection _ (fun b : bool => if b then 1 else 0)%nat).
+    now intros [|] [|] eq.
+  + now intros [|].
+- extensionality_ensembles.
+  + destruct a;
+      now (left + right).
+  + now apply indexed_union_intro with true.
+  + now apply indexed_union_intro with false.
+Qed.
+
+Lemma RTop_second_countable : second_countable RTop.
+Proof.
+apply intro_ctbl_basis with
+  (finite_intersections (Union
+    (ImageFamily (fun q => [r : R | r < Q2R q]))
+    (ImageFamily (fun q => [r : R | r > Q2R q])))).
+- constructor.
+  + intros S H.
+    induction H.
+    * apply open_full.
+    * destruct H as [S [[q Hq] H]| S [[q Hq] H]];
+        subst.
+      apply R_lower_beam_open.
+      apply R_upper_beam_open.
+    * now apply (@open_intersection2 RTop).
+  + intros r U H1 H2.
+    assert (neighborhood U r) as H by now exists U.
+    apply RTop_neighborhood_is_neighbourhood in H.
+    destruct H as [[d ?] H],
+            (rationals_dense_in_reals (r - d) r) as [p ?],
+            (rationals_dense_in_reals r (r + d)) as [q ?];
+    exists (Intersection [x : R | x > Q2R p] [x : R | x < Q2R q]) + lra.
+    repeat split;
+      simpl; try lra.
+    * do 2 constructor;
+      [ right | left ];
+        repeat econstructor.
+    * intros ? [y [?] [?]].
+      apply H, Rabs_def1;
+        simpl; lra.
+- apply finite_intersections_countable, countable_union2;
+    now apply countable_img, countable_type_ensemble, Q_countable.
+Qed.
+
+Lemma RTop_separable: separable RTop.
+Proof.
+  apply second_countable_impl_separable, RTop_second_countable.
 Qed.
