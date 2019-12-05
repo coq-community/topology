@@ -2,9 +2,10 @@ From Coq Require Import Program.Equality.
 From Coq Require Import omega.Omega.
 From Coq Require Import Logic.ClassicalChoice.
 
+From ZornsLemma Require Export FiniteIntersections.
+From ZornsLemma Require Export CountableTypes.
+
 Require Import InverseImageLemmas.
-Require Export FiniteIntersections.
-Require Export CountableTypes.
 
 Ltac destruct_ensembles_in :=
  match goal with
