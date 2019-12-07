@@ -7,3 +7,4 @@
 Makefile.coq
 Makefile.conf
 Makefile.coq.conf
+.coqdeps.d
