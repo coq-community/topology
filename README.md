@@ -54,7 +54,7 @@ the `Topology` namespace.
 - `Continuity.v`
 - `Homeomorphisms.v`
 
-# Filters and nets
+### Filters and nets
 
 - `Filters.v`
 - `FilterLimits.v`
@@ -62,14 +62,14 @@ the `Topology` namespace.
 - `Nets.v`
 - `FiltersAndNets.v` - various transformations between filters and nets
 
-# Properties
+### Properties
 
 - `Compactness.v`
 - `Connectedness.v`
 - `CountabilityAxioms.v` - first countable, second countable, separable, Lindelof
 - `SeparatednessAxioms.v` - T0, T1, Hausdorff, etc.
 
-# General constructions of topologies
+### General constructions of topologies
 
 - `OrderTopology.v`
 - `StrongTopology.v` - strong topology induced by a family of maps from
@@ -80,21 +80,21 @@ topological spaces
 - `SubspaceTopology.v`
 - `ContinuousFactorization.v` - a continuous map factors through its image
 
-# Metric spaces
+### Metric spaces
 
 - `MetricSpaces.v`
 - `Completeness.v`
 - `Completion.v`
 - `UniformTopology.v` - the topology of uniform convergence
 
-# Real analysis
+### Real analysis
 
 - `SupInf.v`
 - `RationalsInReals.v`
 - `RTopology.v` - definition and properties of topology on R
 - `RFuncContinuity.v` - reproof of continuity of basic functions on R
 
-# "First nontrivial results of topology"
+### "First nontrivial results of topology"
 
 - `UrysohnsLemma.v`
 - `TietzeExtension.v`
