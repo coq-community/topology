@@ -41,6 +41,14 @@ After installation, the included modules are available under
 the `Topology` namespace.
 
 
+For building it manually,
+you first have to specify the physical path of `ZornsLemma`,
+by e.g. adding this line to `Make`:
+```shell
+-R ../zorns-lemma ZornsLemma
+```
+(It isn't already there, because the path isn't prescribed and may vary.)
+
 ## Contents, roughly grouped in related categories:
 
 ### Basic definitions
