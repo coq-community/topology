@@ -546,11 +546,9 @@ red; intros.
 destruct X0 in H1; destruct X0 in H1; simpl in H1.
 destruct e; destruct e0.
 destruct H1.
-assert (x4 = x5).
+assert (x3 = x4).
 apply proof_irrelevance.
-destruct H1.
-destruct H2.
-assumption.
+now destruct H1, H2.
 Qed.
 
 End le_cardinal_total.

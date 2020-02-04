@@ -1,5 +1,6 @@
-Definition injective {X Y:Type} (f:X->Y) :=
-  forall x1 x2:X, f x1 = f x2 -> x1 = x2.
+Require Export Image.
+
+Arguments injective {U} {V}.
 Definition surjective {X Y:Type} (f:X->Y) :=
   forall y:Y, exists x:X, f x = y.
 Definition bijective {X Y:Type} (f:X->Y) :=
