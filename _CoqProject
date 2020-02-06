@@ -22,6 +22,7 @@ Nets.v
 OpenBases.v
 OrderTopology.v
 ProductTopology.v
+QuotientTopology.v
 RationalsInReals.v
 RFuncContinuity.v
 RTopology.v

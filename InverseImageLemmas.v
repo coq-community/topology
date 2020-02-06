@@ -47,6 +47,14 @@ Proof.
     assumption.
 Qed.
 
+Lemma inverse_image_full_set {X Y : Type} (f : X -> Y) :
+  inverse_image f Full_set = Full_set.
+Proof.
+apply Extensionality_Ensembles.
+split; red; intros;
+  repeat constructor.
+Qed.
+
 Lemma inverse_image_family_union
   {X Y : Type}
   {f : X -> Y}
@@ -79,6 +87,26 @@ Proof.
     + constructor.
       rewrite Hgf.
       assumption.
+Qed.
+
+Lemma inverse_image_family_union_fun
+  {X Y : Type}
+  (f : X -> Y)
+  (F : Family Y) :
+  inverse_image f (FamilyUnion F) = FamilyUnion (fun S => exists S', In F S' /\ S = inverse_image f S').
+Proof.
+apply Extensionality_Ensembles.
+split; red; intros;
+  inversion H;
+  inversion H0.
+- subst.
+  repeat econstructor;
+    exact H1 + assumption.
+- destruct H3.
+  subst.
+  repeat econstructor.
+  exact H3.
+  now destruct H1.
 Qed.
 
 Lemma inverse_image_singleton
