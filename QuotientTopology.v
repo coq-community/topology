@@ -1,7 +1,7 @@
-From ZornsLemma Require Import InverseImage Families Quotients.
-From Coq Require Export Ensembles.
+From Coq Require Import ProofIrrelevance.
+From ZornsLemma Require Import Families Quotients.
 Require Export TopologicalSpaces.
-Require Import InverseImageLemmas Continuity Connectedness Compactness.
+Require Import InverseImageLemmas Connectedness Compactness CountabilityAxioms.
 
 Definition QuotientTopology {X : TopologicalSpace} (R : Relation (point_set X)) :
   TopologicalSpace.
@@ -107,4 +107,20 @@ apply H in eqF.
 - intros U [? ? ? ?].
   subst.
   now apply quotient_projection_open_iff, HF.
+Qed.
+
+Lemma quotient_separable {X : TopologicalSpace} (R : Relation (point_set X)) :
+  separable X -> separable (QuotientTopology R).
+Proof.
+intros [S HC HD].
+exists (Im S (quotient_projection R)).
+- unshelve refine (surj_countable (fun x => exist _ (quotient_projection R (proj1_sig x)) _) HC _).
+  + destruct x.
+    now econstructor; trivial.
+  + intros [? [x H ? ?]].
+    exists (exist _ x H).
+    now apply subset_eq_compat.
+- now apply (dense_image_surjective S
+    (quotient_projection_continuous R)
+    (quotient_projection_surjective' R)).
 Qed.
