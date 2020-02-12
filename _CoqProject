@@ -8,6 +8,7 @@ Continuity.v
 ContinuousFactorization.v
 CountabilityAxioms.v
 DirectedSets.v
+EnsembleTactic.v
 FilterLimits.v
 FiltersAndNets.v
 Filters.v

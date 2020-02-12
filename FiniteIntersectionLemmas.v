@@ -2,20 +2,10 @@ From Coq Require Import Program.Equality.
 From Coq Require Import Lia.
 From Coq Require Import ClassicalChoice.
 
-Require Import InverseImageLemmas.
+Require Import InverseImageLemmas EnsembleTactic.
 From ZornsLemma Require Export FiniteIntersections.
 From ZornsLemma Require Export CountableTypes.
 From ZornsLemma Require Import Proj1SigInjective.
-
-Ltac destruct_ensembles_in :=
- match goal with
-   | [H : Ensembles.In _ _ |- _] => destruct H
- end.
-
-Ltac extensionality_ensembles :=
-  apply Extensionality_Ensembles;
-  split; red; intros;
-    repeat destruct_ensembles_in.
 
 Section Lemmas.
 Open Scope nat.
