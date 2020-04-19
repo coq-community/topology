@@ -256,6 +256,8 @@ Qed.
 
 Require Export CountabilityAxioms.
 
+Open Scope R_scope.
+
 Lemma metrizable_impl_first_countable: forall X:TopologicalSpace,
   metrizable X -> first_countable X.
 Proof.
@@ -557,6 +559,8 @@ Arguments dist_to_set {X}.
 Arguments dist_to_set_triangle_inequality {X}.
 
 Section dist_to_set_and_topology.
+
+Import InteriorsClosures.
 
 Variable X:TopologicalSpace.
 Variable d:point_set X -> point_set X -> R.

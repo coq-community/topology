@@ -95,7 +95,7 @@ Section interior_closure_relations.
 
 Definition idempotent {T:Type} (f:T->T) := forall x, f (f x) = f x.
 
-Hint Unfold idempotent.
+Hint Unfold idempotent : closure.
 
 Variable X:TopologicalSpace.
 

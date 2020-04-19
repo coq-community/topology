@@ -111,17 +111,16 @@ Qed.
 Lemma dr2Q_incr: forall x y:dyadic_rational,
   dr_lt x y -> dr2Q x < dr2Q y.
 Proof.
-induction 1.
-unfold dr2Q.
-unfold Qlt.
-simpl.
-apply Zmult_lt_compat_r.
-now unfold Z.lt.
-auto with zarith.
-
-rewrite <- (dr2Q_wd _ _ H0).
-rewrite <- (dr2Q_wd _ _ H1).
-trivial.
+  induction 1.
+  - unfold dr2Q.
+    unfold Qlt.
+    cbn.
+    apply Zmult_lt_compat_r.
+    + now unfold Z.lt.
+    + now apply Znat.inj_lt.
+  - rewrite <- (dr2Q_wd _ _ H0).
+    rewrite <- (dr2Q_wd _ _ H1).
+    trivial.
 Qed.
 
 Lemma Qlt_dr_lt: forall x y:dyadic_rational,
@@ -137,8 +136,11 @@ contradict H0.
 auto with qarith.
 Qed.
 
+Require Import Reals.
 Require Export Qreals.
+
 Open Scope R_scope.
+
 Lemma dyadic_rationals_dense_in_reals: forall x y:R,
   0 <= x < y -> exists q:dyadic_rational,
   x < Q2R (dr2Q q) < y.

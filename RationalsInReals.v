@@ -7,40 +7,43 @@ Lemma inverses_of_nats_approach_0:
   forall eps:R, eps > 0 -> exists n:nat, (n > 0)%nat /\
                                          / (INR n) < eps.
 Proof.
-intros.
-assert (exists n:Z, (n>0)%Z /\ / (IZR n) < eps).
-exists (up (/ eps)); split.
-assert (IZR (up (/ eps)) > 0).
-apply Rgt_trans with (/ eps).
-apply archimed.
-auto with *.
-assert ((0 < up (/ eps))%Z).
-apply lt_IZR.
-simpl.
-assumption.
-auto with *.
-pattern eps at 2.
-rewrite <- Rinv_involutive.
-apply Rinv_lt_contravar.
-apply Rmult_lt_0_compat; auto with *.
-apply Rlt_trans with (/ eps); auto with *.
-apply archimed.
-apply archimed.
-auto with *.
-
-destruct H0 as [[ | p | p]].
-destruct H0.
-contradict H0; auto with *.
-
-destruct H0.
-exists (nat_of_P p).
-unfold IZR in H1; rewrite <- INR_IPR in H1.
-split; auto with *.
-
-destruct H0.
-contradict H0.
-red; intro.
-inversion H0.
+  intros.
+  assert (exists n:Z, (n>0)%Z /\ / (IZR n) < eps).
+  {
+    exists (up (/ eps)); split.
+    - assert (IZR (up (/ eps)) > 0).
+      {
+        apply Rgt_trans with (/ eps).
+        apply archimed.
+        auto with *.
+      }
+      apply lt_0_IZR in H0.
+      apply Z.lt_gt.
+      assumption.
+    - auto with zarith.
+      pattern eps at 2.
+      rewrite <- Rinv_involutive.
+      apply Rinv_lt_contravar.
+      apply Rmult_lt_0_compat; auto with *.
+      apply Rlt_trans with (/ eps); auto with *.
+      apply archimed.
+      apply archimed.
+      auto with *.
+  }
+  destruct H0 as [[ | p | p]].
+  - destruct H0.
+    contradict H0; auto with *.
+    intro.
+    apply Z.gt_lt in H0.
+    inversion H0.
+  - destruct H0.
+    exists (nat_of_P p).
+    unfold IZR in H1; rewrite <- INR_IPR in H1.
+    split; auto with *.
+  - destruct H0.
+    contradict H0.
+    red; intro.
+    inversion H0.
 Qed.
 
 Lemma Z_interpolation: forall x y:R, y > x+1 ->
