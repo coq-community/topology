@@ -6,7 +6,6 @@ Require Export Relation_Definitions.
 Require Import Relation_Definitions_Implicit.
 Require Import Description.
 Require Import ProofIrrelevance.
-Require Import Proj1SigInjective.
 Require Export EnsemblesSpec.
 
 Set Implicit Arguments.
@@ -88,7 +87,7 @@ Lemma quotient_projection_collapses_R: forall x1 x2:A,
   R x1 x2 -> quotient_projection x1 = quotient_projection x2.
 Proof.
 intros.
-apply subset_eq_compatT.
+apply subset_eq_compat.
 apply R_impl_equality_of_equiv_class.
 assumption.
 Qed.

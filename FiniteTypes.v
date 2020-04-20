@@ -498,7 +498,7 @@ reflexivity.
 Qed.
 
 Lemma inj_finite: forall (X Y:Type) (f:X->Y),
-  FiniteT Y -> FunctionProperties.injective f ->
+  FiniteT Y -> injective f ->
   (forall y:Y, (exists x:X, f x = y) \/
                (~ exists x:X, f x = y)) ->
   FiniteT X.
@@ -572,26 +572,26 @@ end).
 assert (surjective g).
 apply IHFiniteT.
 red; intros.
-remember (f (Some x1)) as fx1; destruct fx1;
-remember (f (Some x2)) as fx2; destruct fx2.
+remember (f (Some x)) as fx; destruct fx;
+remember (f (Some y)) as fy; destruct fy.
 unfold g in H2.
-rewrite <- Heqfx1 in H2; rewrite <- Heqfx2 in H2.
-destruct H2; assert (f (Some x1) = f (Some x2)).
+rewrite <- Heqfx in H2; rewrite <- Heqfy in H2.
+destruct H2; assert (f (Some x) = f (Some y)).
 congruence.
 apply H0 in H2.
 injection H2; trivial.
 
-unfold g in H2; rewrite <- Heqfx1 in H2; rewrite <- Heqfx2 in H2.
+unfold g in H2; rewrite <- Heqfx in H2; rewrite <- Heqfy in H2.
 destruct H2.
-contradiction (H1 x1).
+contradiction (H1 x).
 symmetry; assumption.
 
-unfold g in H2; rewrite <- Heqfx1 in H2; rewrite <- Heqfx2 in H2.
+unfold g in H2; rewrite <- Heqfx in H2; rewrite <- Heqfy in H2.
 destruct H2.
-contradiction (H1 x2).
+contradiction (H1 y).
 symmetry; assumption.
 
-assert (Some x1 = Some x2).
+assert (Some x = Some y).
 apply H0.
 congruence.
 injection H3; trivial.
@@ -632,7 +632,7 @@ red; intros.
 unfold g in H1.
 repeat destruct X in H1.
 simpl in H1.
-assert (Some x1 = Some x2).
+assert (Some x = Some y).
 apply H0.
 congruence.
 injection H2; trivial.
@@ -654,7 +654,7 @@ assert (surjective f').
 apply IHFiniteT.
 red; intros.
 unfold f' in H3.
-assert (f (f0 x1) = f (f0 x2)).
+assert (f (f0 x) = f (f0 y)).
 congruence.
 apply H0 in H4.
 congruence.
@@ -667,7 +667,7 @@ congruence.
 Qed.
 
 Lemma finite_surj_inj: forall (X:Type) (f:X->X),
-  FiniteT X -> surjective f -> FunctionProperties.injective f.
+  FiniteT X -> surjective f -> injective f.
 Proof.
 intros.
 assert (exists g:X->X, forall x:X, f (g x) = x).
@@ -679,12 +679,12 @@ assert (surjective g).
 apply finite_inj_surj.
 assumption.
 red; intros.
-rewrite <- H1 with x1.
-rewrite <- H1 with x2.
+rewrite <- H1 with x.
+rewrite <- H1 with y.
 rewrite H2; reflexivity.
 red; intros.
-destruct (H2 x1).
-destruct (H2 x2).
+destruct (H2 x).
+destruct (H2 y).
 rewrite <- H4 in H3.
 rewrite <- H5 in H3.
 repeat rewrite H1 in H3.

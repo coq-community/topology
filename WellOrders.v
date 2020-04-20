@@ -5,7 +5,7 @@ Require Import Description.
 Require Import FunctionalExtensionality.
 Require Import Classical.
 Require Import ZornsLemma.
-Require Import Proj1SigInjective.
+Require Import ProofIrrelevance.
 Require Import EnsemblesSpec.
 
 Section WellOrder.
@@ -371,7 +371,7 @@ tauto.
 intro.
 case H2.
 right; left.
-apply subset_eq_compatT.
+apply subset_eq_compat.
 injection H3.
 trivial.
 unfold restriction_relation.
@@ -393,7 +393,7 @@ tauto.
 intro.
 case H2.
 right; left.
-apply subset_eq_compatT.
+apply subset_eq_compat.
 injection H3.
 trivial.
 unfold restriction_relation; simpl.
@@ -578,7 +578,7 @@ assumption.
 intro.
 case H0.
 right; left.
-apply subset_eq_compatT.
+apply subset_eq_compat.
 injection H1.
 trivial.
 
@@ -602,7 +602,7 @@ constructor 2.
 tauto.
 
 right; left.
-apply subset_eq_compatT.
+apply subset_eq_compat.
 destruct i1.
 destruct i2.
 trivial.
