@@ -338,35 +338,32 @@ Lemma countable_union: forall {X A:Type}
     (forall a:A, Countable (F a)) ->
     Countable (IndexedUnion F).
 Proof.
-intros.
-destruct (choice_on_dependent_type (fun (a:A)
-                               (f:{x:X | In (F a) x} -> nat) =>
-  injective f)) as [choice_fun_inj].
-intro.
-destruct (H0 a).
-exists f; trivial.
-
-destruct (choice (fun (x:{x:X | In (IndexedUnion F) x}) (a:A) =>
-  In (F a) (proj1_sig x))) as [choice_fun_a].
-destruct x as [x [a]].
-exists a.
-assumption.
-
-destruct countable_nat_product as [g].
-destruct H as [h].
-exists (fun x:{x:X | In (IndexedUnion F) x} =>
-  g (h (choice_fun_a x), choice_fun_inj (choice_fun_a x)
-                                   (exist _ (proj1_sig x) (H2 x)))).
-red; intros.
-apply H3 in H4.
-injection H4; intros.
-apply H in H6.
-revert H5.
-generalize (H2 x1).
-generalize (H2 x2).
-rewrite H6.
-intros.
-apply H1 in H5.
-injection H5.
-apply proj1_sig_injective.
+  intros.
+  pose (u := fun (a:A) (f:{x:X | In (F a) x} -> nat) => @injective _ _ f).
+  destruct (choice_on_dependent_type u) as [choice_fun_inj].
+  - intro.
+    destruct (H0 a).
+    exists f; trivial.
+  - destruct (choice (fun (x:{x:X | In (IndexedUnion F) x}) (a:A) =>
+                        In (F a) (proj1_sig x))) as [choice_fun_a].
+    + destruct x as [x [a]].
+      exists a. assumption.
+    + destruct countable_nat_product as [g].
+      destruct H as [h].
+      exists (fun x:{x:X | In (IndexedUnion F) x} =>
+                g (h (choice_fun_a x),
+                   choice_fun_inj (choice_fun_a x)
+                                  (exist _ (proj1_sig x) (H2 x)))).
+      red; intros.
+      apply H3 in H4.
+      injection H4; intros.
+      apply H in H6.
+      revert H5.
+      generalize (H2 x1).
+      generalize (H2 x2).
+      rewrite H6.
+      intros.
+      apply H1 in H5.
+      injection H5.
+      apply proj1_sig_injective.
 Qed.

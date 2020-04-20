@@ -1,5 +1,7 @@
 Require Import Classical.
 
+Declare Scope ordinal_scope.
+
 Inductive Ordinal : Type :=
   | ordS : Ordinal -> Ordinal
   | ord_sup: forall {I:Type}, (I->Ordinal) -> Ordinal.
@@ -37,7 +39,6 @@ Definition ord_ge (alpha beta:Ordinal) :=
 Definition ord_gt (alpha beta:Ordinal) :=
   ord_lt beta alpha.
 
-Delimit Scope ordinal_scope with Ordinal.
 Open Scope ordinal_scope.
 Notation "alpha < beta" := (ord_lt alpha beta) : ordinal_scope.
 Notation "alpha <= beta" := (ord_le alpha beta) : ordinal_scope.
