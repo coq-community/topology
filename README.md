@@ -4,9 +4,9 @@
 
 
 
+
 This library develops some basic set theory.
 The main purpose the author had in writing it was as support for the Topology library.
-
 
 
 ## Meta
@@ -15,7 +15,9 @@ The main purpose the author had in writing it was as support for the Topology li
   - Daniel Schepler (initial)
 - License: [GNU Lesser General Public License v2.1 or later](COPYING)
 - Compatible Coq versions: Coq 8.6 or later
-- Additional Coq dependencies: none
+- Additional dependencies: none
+- Coq namespace: `ZornsLemma`
+- Related publication(s): none
 
 ## Building and installation instructions
 
@@ -30,14 +32,11 @@ opam install coq-zorns-lemma
 To instead build and install manually, do:
 
 ``` shell
-git clone https://github.com/coq-community/zorns-lemma
+git clone https://github.com/coq-community/zorns-lemma.git
 cd zorns-lemma
 make   # or make -j <number-of-cores-on-your-machine>
 make install
 ```
-
-After installation, the included modules are available under
-the `ZornsLemma` namespace.
 
 
 
