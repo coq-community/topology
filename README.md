@@ -4,8 +4,8 @@
 
 
 
-This library develops some of the basic concepts and results of general topology.
 
+This library develops some of the basic concepts and results of general topology.
 
 
 ## Meta
@@ -14,9 +14,11 @@ This library develops some of the basic concepts and results of general topology
   - Daniel Schepler (initial)
 - License: [GNU Lesser General Public License v2.1 or later](COPYING)
 - Compatible Coq versions: Coq 8.7 or later (use the corresponding branch or release for other Coq versions)
-- Additional Coq dependencies:
+- Additional dependencies:
   - [Zorn's lemma](https://github.com/coq-community/zorns-lemma)
 
+- Coq namespace: `Topology`
+- Related publication(s): none
 
 ## Building and installation instructions
 
@@ -31,14 +33,11 @@ opam install coq-topology
 To instead build and install manually, do:
 
 ``` shell
-git clone https://github.com/coq-community/topology
+git clone https://github.com/coq-community/topology.git
 cd topology
 make   # or make -j <number-of-cores-on-your-machine>
 make install
 ```
-
-After installation, the included modules are available under
-the `Topology` namespace.
 
 
 For building it manually,

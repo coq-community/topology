@@ -1,5 +1,6 @@
 opam-version: "2.0"
 maintainer: "miloradovsky@gmail.com"
+version: "dev"
 
 homepage: "https://github.com/coq-community/topology"
 dev-repo: "git+https://github.com/coq-community/topology.git"
@@ -14,9 +15,8 @@ This library develops some of the basic concepts and results of general topology
 build: [make "-j%{jobs}%"]
 install: [make "install"]
 depends: [
-  "ocaml"
-  "coq" {(>= "8.7" & < "8.11~") | (= "dev")}
-  "coq-zorns-lemma" {(>= "8.7" & < "8.10~") | (= "dev")}
+  "coq" {(>= "8.7" & < "8.12~") | (= "dev")}
+  "coq-zorns-lemma" {(>= "8.7" & < "8.12~") | (= "dev")}
 ]
 
 tags: [
