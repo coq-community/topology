@@ -27,8 +27,8 @@ license:
   file: COPYING
 
 supported_coq_versions:
-  text: Coq 8.6 or later
-  opam: '{(>= "8.10 & < "8.12~") | (= "dev")}'
+  text: Coq 8.10 or later
+  opam: '{(>= "8.10" & < "8.12~") | (= "dev")}'
 
 tested_coq_nix_versions:
 - version_or_url: https://github.com/coq/coq-on-cachix/tarball/master
