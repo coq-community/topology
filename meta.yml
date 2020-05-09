@@ -42,7 +42,7 @@ tested_coq_opam_versions:
 dependencies:
 - opam:
     name: coq-zorns-lemma
-    version: '{(>= "8.7" & < "8.12~") | (= "dev")}'
+    version: '{(>= "8.10" & < "8.12~") | (= "dev")}'
   nix: contribs.zorns-lemma
   description: |
     [Zorn's lemma](https://github.com/coq-community/zorns-lemma)
