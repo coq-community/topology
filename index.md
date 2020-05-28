@@ -16,7 +16,7 @@ header-includes:
 
 ## About
 
-Welcome to the Topology project website!
+Welcome to the Topology project website! This project is part of [coq-community](https://github.com/coq-community/manifesto).
 
 This library develops some of the basic concepts and results of general topology.
 
@@ -37,6 +37,8 @@ Other related publications, if any, are listed below.
 ## Help and contact
 
 - Report issues on [GitHub](https://github.com/coq-community/topology/issues)
+- Chat with us on [Zulip](https://coq.zulipchat.com/#narrow/stream/237663-coq-community-devs.20.26.20users)
+- Discuss with us on Coq's [Discourse](https://coq.discourse.group) forum
 
 ## Authors and contributors
 

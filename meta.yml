@@ -2,7 +2,8 @@
 fullname: Topology
 shortname: topology
 organization: coq-community
-coq-community: true
+community: true
+travis: true
 
 synopsis: General Topology
 
