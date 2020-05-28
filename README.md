@@ -1,7 +1,21 @@
 # Zorn's Lemma
 
+[![Travis][travis-shield]][travis-link]
+[![Contributing][contributing-shield]][contributing-link]
+[![Code of Conduct][conduct-shield]][conduct-link]
+[![Zulip][zulip-shield]][zulip-link]
 
+[travis-shield]: https://travis-ci.com/coq-community/zorns-lemma.svg?branch=master
+[travis-link]: https://travis-ci.com/coq-community/zorns-lemma/builds
 
+[contributing-shield]: https://img.shields.io/badge/contributions-welcome-%23f7931e.svg
+[contributing-link]: https://github.com/coq-community/manifesto/blob/master/CONTRIBUTING.md
+
+[conduct-shield]: https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-%23f15a24.svg
+[conduct-link]: https://github.com/coq-community/manifesto/blob/master/CODE_OF_CONDUCT.md
+
+[zulip-shield]: https://img.shields.io/badge/chat-on%20zulip-%23c1272d.svg
+[zulip-link]: https://coq.zulipchat.com/#narrow/stream/237663-coq-community-devs.20.26.20users
 
 
 
@@ -13,8 +27,10 @@ The main purpose the author had in writing it was as support for the Topology li
 
 - Author(s):
   - Daniel Schepler (initial)
+- Coq-community maintainer(s):
+  - Andrew Miloradovsky ([**@amiloradovsky**](https://github.com/amiloradovsky))
 - License: [GNU Lesser General Public License v2.1 or later](COPYING)
-- Compatible Coq versions: Coq 8.6 or later
+- Compatible Coq versions: Coq 8.10 or later
 - Additional dependencies: none
 - Coq namespace: `ZornsLemma`
 - Related publication(s): none

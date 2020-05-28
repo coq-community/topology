@@ -2,7 +2,8 @@
 fullname: Zorn's Lemma
 shortname: zorns-lemma
 organization: coq-community
-coq-community: true
+community: true
+travis: true
 
 synopsis: This library develops some basic set theory.
 
