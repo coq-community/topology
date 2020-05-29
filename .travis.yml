@@ -44,19 +44,10 @@ jobs:
 
   # Test supported versions of Coq via Nix
   - env:
+    - COQ=https://github.com/coq/coq-on-cachix/tarball/v8.12
+    <<: *NIX
+  - env:
     - COQ=8.11
-    <<: *NIX
-  - env:
-    - COQ=8.10
-    <<: *NIX
-  - env:
-    - COQ=8.9
-    <<: *NIX
-  - env:
-    - COQ=8.8
-    <<: *NIX
-  - env:
-    - COQ=8.7
     <<: *NIX
 
   # Test supported versions of Coq via OPAM

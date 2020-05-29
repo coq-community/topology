@@ -29,7 +29,7 @@ This library develops some of the basic concepts and results of general topology
 - Coq-community maintainer(s):
   - Andrew Miloradovsky ([**@amiloradovsky**](https://github.com/amiloradovsky))
 - License: [GNU Lesser General Public License v2.1 or later](COPYING)
-- Compatible Coq versions: Coq 8.7 or later (use the corresponding branch or release for other Coq versions)
+- Compatible Coq versions: Coq 8.11 or later (use the corresponding branch or release for other Coq versions)
 - Additional dependencies:
   - [Zorn's lemma](https://github.com/coq-community/zorns-lemma)
 

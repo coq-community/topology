@@ -15,7 +15,7 @@ This library develops some of the basic concepts and results of general topology
 build: [make "-j%{jobs}%" ]
 install: [make "install"]
 depends: [
-  "coq" {(>= "8.7" & < "8.12~") | (= "dev")}
+  "coq" {(>= "8.11" & < "8.13~") | (= "dev")}
   "coq-zorns-lemma" {(>= "8.10" & < "8.12~") | (= "dev")}
 ]
 
