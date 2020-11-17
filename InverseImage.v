@@ -100,3 +100,43 @@ Hint Resolve @inverse_image_increasing : sets.
 Hint Rewrite @inverse_image_empty @inverse_image_full
   @inverse_image_intersection @inverse_image_union
   @inverse_image_complement @inverse_image_composition : sets.
+
+Require Import IndexedFamilies.
+
+Lemma inverse_image_indexed_intersection :
+  forall {A X Y:Type} (f:X->Y) (F:IndexedFamily A Y),
+    inverse_image f (IndexedIntersection F) =
+    IndexedIntersection (fun a:A => inverse_image f (F a)).
+Proof.
+intros.
+apply Extensionality_Ensembles; split; red; intros.
+- destruct H.
+  inversion_clear H.
+  constructor. intros.
+  constructor.
+  apply H0.
+- destruct H.
+  constructor.
+  constructor. intros.
+  destruct (H a).
+  exact H0.
+Qed.
+
+Lemma inverse_image_indexed_union :
+  forall {A X Y:Type} (f:X->Y) (F:IndexedFamily A Y),
+    inverse_image f (IndexedUnion F) =
+    IndexedUnion (fun a:A => inverse_image f (F a)).
+Proof.
+intros.
+apply Extensionality_Ensembles; split; red; intros.
+- destruct H.
+  inversion_clear H.
+  exists a.
+  constructor.
+  exact H0.
+- destruct H.
+  inversion_clear H.
+  constructor.
+  exists a.
+  exact H0.
+Qed.
