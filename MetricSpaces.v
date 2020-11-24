@@ -407,7 +407,7 @@ exists (fun x:T =>
     g (h (exist _ x0 i), f r)
   end)
 end.
-red; intros.
+red; intros x y H5.
 destruct x as [[r1 x1] [[pos_r1 i1]]].
 destruct y as [[r2 x2] [[pos_r2 i2]]].
 apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.

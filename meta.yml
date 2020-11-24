@@ -44,7 +44,7 @@ dependencies:
     name: coq-zorns-lemma
     version: '{(>= "8.11" & < "8.13~") | (= "dev")}'
   nix: contribs.zorns-lemma
-  description: |
+  description: |-
     [Zorn's lemma](https://github.com/coq-community/zorns-lemma)
 
 namespace: Topology
