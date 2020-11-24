@@ -33,7 +33,6 @@ and results of general topology in Coq.
 - Compatible Coq versions: Coq 8.11 or later (use the corresponding branch or release for other Coq versions)
 - Additional dependencies:
   - [Zorn's lemma](https://github.com/coq-community/zorns-lemma)
-
 - Coq namespace: `Topology`
 - Related publication(s): none
 
