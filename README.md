@@ -1,20 +1,37 @@
 # Zorn's Lemma
 
+[![CI][action-shield]][action-link]
+[![Contributing][contributing-shield]][contributing-link]
+[![Code of Conduct][conduct-shield]][conduct-link]
+[![Zulip][zulip-shield]][zulip-link]
+
+[action-shield]: https://github.com/coq-community/zorns-lemma/workflows/CI/badge.svg?branch=master
+[action-link]: https://github.com/coq-community/zorns-lemma/actions?query=workflow%3ACI
+
+[contributing-shield]: https://img.shields.io/badge/contributions-welcome-%23f7931e.svg
+[contributing-link]: https://github.com/coq-community/manifesto/blob/master/CONTRIBUTING.md
+
+[conduct-shield]: https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-%23f15a24.svg
+[conduct-link]: https://github.com/coq-community/manifesto/blob/master/CODE_OF_CONDUCT.md
+
+[zulip-shield]: https://img.shields.io/badge/chat-on%20zulip-%23c1272d.svg
+[zulip-link]: https://coq.zulipchat.com/#narrow/stream/237663-coq-community-devs.20.26.20users
 
 
 
-
-
-This library develops some basic set theory.
-The main purpose the author had in writing it was as support for the Topology library.
+This Coq library develops some basic set theory.
+The main purpose the author had in writing it
+was as support for the Topology library.
 
 
 ## Meta
 
 - Author(s):
   - Daniel Schepler (initial)
-- License: [GNU Lesser General Public License v2.1 or later](COPYING)
-- Compatible Coq versions: Coq 8.6 or later
+- Coq-community maintainer(s):
+  - Andrew Miloradovsky ([**@amiloradovsky**](https://github.com/amiloradovsky))
+- License: [GNU Lesser General Public License v2.1 or later](LICENSE)
+- Compatible Coq versions: Coq 8.10 or later
 - Additional dependencies: none
 - Coq namespace: `ZornsLemma`
 - Related publication(s): none
@@ -34,7 +51,7 @@ To instead build and install manually, do:
 ``` shell
 git clone https://github.com/coq-community/zorns-lemma.git
 cd zorns-lemma
-make   # or make -j <number-of-cores-on-your-machine>
+make   # or make -j <number-of-cores-on-your-machine> 
 make install
 ```
 
@@ -83,23 +100,4 @@ In alphabetical order, except where related files are grouped together:
 - `WellOrders.v` - some basic properties of well-orders, including a proof that Zorn's Lemma implies the well-ordering principle
 
 - `ZornsLemma.v` - proof that choice implies Zorn's Lemma
-
-## Copyright
-
-ZornsLemma Coq contribution
-Copyright (C) 2011  Daniel Schepler
-
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
