@@ -168,7 +168,7 @@ assert (metric (False_rect (False->R))).
 constructor; intros; destruct x.
 exists H0.
 repeat split.
-red; intros.
+red; intros x y H1.
 contradiction (H (inhabits x)).
 intros.
 contradiction (H (inhabits x2)).

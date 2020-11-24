@@ -161,7 +161,7 @@ match goal with |- CountableT ?S =>
 end.
 apply inj_countable with g.
 assumption.
-red; intros.
+red; intros x y H2.
 unfold g in H2.
 destruct x as [[U [? ?]]].
 destruct y as [[V [? ?]]].
