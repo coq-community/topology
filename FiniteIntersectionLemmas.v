@@ -1,10 +1,11 @@
 From Coq Require Import Program.Equality.
-From Coq Require Import omega.Omega.
-From Coq Require Import Logic.ClassicalChoice.
+From Coq Require Import Lia.
+From Coq Require Import ClassicalChoice.
 
 Require Import InverseImageLemmas.
 From ZornsLemma Require Export FiniteIntersections.
 From ZornsLemma Require Export CountableTypes.
+From ZornsLemma Require Import Proj1SigInjective.
 
 Ltac destruct_ensembles_in :=
  match goal with
@@ -59,7 +60,7 @@ intro H.
 red in H.
 dependent induction H;
   try rewrite IHfinite_intersections_len, intersection_full_set, IHfinite_intersections_len0;
-  reflexivity + omega.
+  reflexivity + lia.
 Qed.
 
 Lemma finite_intersections_len_1_in
@@ -79,8 +80,8 @@ dependent induction H.
     now apply IHfinite_intersections_len0.
   + rewrite (finite_intersections_len_0_full_set H0), Intersection_commutative, intersection_full_set.
     apply IHfinite_intersections_len.
-    omega.
-  + omega.
+    lia.
+  + lia.
 Qed.
 
 Lemma finite_intersections_len_SS_intersection
@@ -105,10 +106,10 @@ dependent induction H.
     now apply IHfinite_intersections_len0.
   + rewrite (finite_intersections_len_0_full_set H0), Intersection_commutative, intersection_full_set.
     apply IHfinite_intersections_len.
-    omega.
+    lia.
   + exists m, k, U, V.
     repeat split;
-      omega + assumption.
+      lia + assumption.
 Qed.
 
 Lemma finite_intersections_len_S_exists
@@ -141,7 +142,7 @@ intros [|n] IH U H.
   + rewrite Nat.add_0_r in eq2.
     subst.
     now exists V, W.
-  + apply IH in HV; [|omega].
+  + apply IH in HV; [|lia].
     destruct HV as [V1 [V2 [HV1 [HV2 eq3]]]].
     rewrite eq2, plus_n_Sm.
     exists (Intersection V1 W), V2.
@@ -209,7 +210,7 @@ apply countable_union.
   induction n.
   + apply intro_nat_injection with (fun x => 0).
     intros [U HU] [V HV] eq.
-    apply Proj1SigInjective.proj1_sig_injective.
+    apply proj1_sig_injective.
     simpl.
     now rewrite (finite_intersections_len_0_full_set HU),
                 (finite_intersections_len_0_full_set HV).

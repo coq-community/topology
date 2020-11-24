@@ -2,6 +2,7 @@ Require Export Completeness.
 Require Import UniformTopology.
 Require Import RTopology.
 Require Import Psatz.
+From Coq Require ProofIrrelevance.
 
 Lemma completion_exists: forall (X:Type) (d:X->X->R) (d_metric:metric d),
   exists Y:Type, exists i:X->Y, exists d':Y->Y->R,
@@ -34,8 +35,7 @@ assert (d'_metric0 : metric (fun (y1 y2:{y:Y | In F y}) =>
 constructor; try destruct x; try destruct y; try destruct z; simpl;
   try apply d'_metric.
 intros.
-From ZornsLemma Require Import Proj1SigInjective.
-apply subset_eq_compatT.
+apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
 apply d'_metric; trivial.
 exists d'_metric0.
 repeat split.
@@ -75,7 +75,7 @@ split.
 simpl; auto with arith.
 exists (proj1_sig (X0 i1)).
 constructor.
-apply subset_eq_compatT.
+apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
 reflexivity.
 pose proof (metric_space_net_limit_converse (MetricTopology d' d'_metric) d'
   (MetricTopology_metrizable _ d' d'_metric) nat_DS x0 x H4).
@@ -169,9 +169,9 @@ constructor; intros; destruct x.
 exists H0.
 repeat split.
 red; intros.
-contradiction (H (inhabits x1)).
+contradiction (H (inhabits x)).
 intros.
-contradiction (H (inhabits x1)).
+contradiction (H (inhabits x2)).
 red; intros.
 contradiction (x O).
 Qed.

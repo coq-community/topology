@@ -32,7 +32,7 @@ Proof.
   }
   destruct H0 as [[ | p | p]].
   - destruct H0.
-    contradict H0; auto with *.
+    contradict H0; auto.
     intro.
     apply Z.gt_lt in H0.
     inversion H0.

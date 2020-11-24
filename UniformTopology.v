@@ -1,10 +1,10 @@
 Require Export MetricSpaces.
-From ZornsLemma Require Import Proj1SigInjective.
 Require Import FunctionalExtensionality.
 Require Export Completeness.
 Require Import Description.
 Require Import Max.
 Require Import Psatz.
+From Coq Require ProofIrrelevance.
 
 Section UniformTopology.
 
@@ -106,7 +106,7 @@ constructor.
 symmetry; apply d_metric.
 
 destruct x as [f0 Hf]; destruct y as [g0 Hg].
-apply subset_eq_compatT.
+apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
 extensionality x.
 apply d_metric.
 simpl in H.
