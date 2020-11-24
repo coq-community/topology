@@ -1,5 +1,6 @@
 Require Export MetricSpaces.
 Require Import Psatz.
+From Coq Require ProofIrrelevance.
 
 Section Completeness.
 
@@ -78,8 +79,6 @@ End Completeness.
 Arguments cauchy {X}.
 Arguments complete {X}.
 
-From ZornsLemma Require Import Proj1SigInjective.
-
 Section closed_subset_of_complete.
 
 Variable X:Type.
@@ -93,7 +92,7 @@ Let d_restriction := fun x y:FT => d (proj1_sig x) (proj1_sig y).
 Lemma d_restriction_metric: metric d_restriction.
 Proof.
 constructor; intros; try destruct x; try destruct y; try destruct z;
-  try apply subset_eq_compatT; apply d_metric; trivial.
+  try apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat; apply d_metric; trivial.
 Qed.
 
 Lemma closed_subset_of_complete_is_complete:

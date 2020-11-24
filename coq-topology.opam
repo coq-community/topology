@@ -1,5 +1,5 @@
 opam-version: "2.0"
-maintainer: "miloradovsky@gmail.com"
+maintainer: "palmskog@gmail.com"
 version: "dev"
 
 homepage: "https://github.com/coq-community/topology"
@@ -7,16 +7,17 @@ dev-repo: "git+https://github.com/coq-community/topology.git"
 bug-reports: "https://github.com/coq-community/topology/issues"
 license: "LGPL-2.1-or-later"
 
-synopsis: "General Topology"
+synopsis: "General Topology in Coq"
 description: """
-This library develops some of the basic concepts and results of general topology.
+This library develops some of the basic concepts
+and results of general topology in Coq.
 """
 
 build: [make "-j%{jobs}%" ]
 install: [make "install"]
 depends: [
   "coq" {(>= "8.11" & < "8.13~") | (= "dev")}
-  "coq-zorns-lemma" {(>= "8.10" & < "8.12~") | (= "dev")}
+  "coq-zorns-lemma" {(>= "8.11" & < "8.13~") | (= "dev")}
 ]
 
 tags: [

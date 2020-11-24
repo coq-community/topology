@@ -11,3 +11,4 @@
 Makefile.conf
 Makefile.coq
 Makefile.coq.conf
+.lia.cache

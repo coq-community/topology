@@ -5,6 +5,7 @@ From Coq Require Import Logic.ClassicalChoice.
 Require Import InverseImageLemmas.
 From ZornsLemma Require Export FiniteIntersections.
 From ZornsLemma Require Export CountableTypes.
+From ZornsLemma Require Import Proj1SigInjective.
 
 Ltac destruct_ensembles_in :=
  match goal with
@@ -209,7 +210,7 @@ apply countable_union.
   induction n.
   + apply intro_nat_injection with (fun x => 0).
     intros [U HU] [V HV] eq.
-    apply Proj1SigInjective.proj1_sig_injective.
+    apply proj1_sig_injective.
     simpl.
     now rewrite (finite_intersections_len_0_full_set HU),
                 (finite_intersections_len_0_full_set HV).

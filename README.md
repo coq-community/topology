@@ -1,12 +1,12 @@
 # Topology
 
-[![Travis][travis-shield]][travis-link]
+[![CI][action-shield]][action-link]
 [![Contributing][contributing-shield]][contributing-link]
 [![Code of Conduct][conduct-shield]][conduct-link]
 [![Zulip][zulip-shield]][zulip-link]
 
-[travis-shield]: https://travis-ci.com/coq-community/topology.svg?branch=master
-[travis-link]: https://travis-ci.com/coq-community/topology/builds
+[action-shield]: https://github.com/coq-community/topology/workflows/CI/badge.svg?branch=master
+[action-link]: https://github.com/coq-community/topology/actions?query=workflow%3ACI
 
 [contributing-shield]: https://img.shields.io/badge/contributions-welcome-%23f7931e.svg
 [contributing-link]: https://github.com/coq-community/manifesto/blob/master/CONTRIBUTING.md
@@ -19,7 +19,8 @@
 
 
 
-This library develops some of the basic concepts and results of general topology.
+This library develops some of the basic concepts
+and results of general topology in Coq.
 
 
 ## Meta
@@ -28,7 +29,7 @@ This library develops some of the basic concepts and results of general topology
   - Daniel Schepler (initial)
 - Coq-community maintainer(s):
   - Andrew Miloradovsky ([**@amiloradovsky**](https://github.com/amiloradovsky))
-- License: [GNU Lesser General Public License v2.1 or later](COPYING)
+- License: [GNU Lesser General Public License v2.1 or later](LICENSE)
 - Compatible Coq versions: Coq 8.11 or later (use the corresponding branch or release for other Coq versions)
 - Additional dependencies:
   - [Zorn's lemma](https://github.com/coq-community/zorns-lemma)
@@ -55,14 +56,6 @@ make   # or make -j <number-of-cores-on-your-machine>
 make install
 ```
 
-
-For building it manually,
-you first have to specify the physical path of `ZornsLemma`,
-by e.g. adding this line to `Make`:
-```shell
--R ../zorns-lemma ZornsLemma
-```
-(It isn't already there, because the path isn't prescribed and may vary.)
 
 ## Contents, roughly grouped in related categories:
 
@@ -121,23 +114,3 @@ topological spaces
 
 - `UrysohnsLemma.v`
 - `TietzeExtension.v`
-
-## Copyright
-
-Topology Coq contribution
-Copyright (C) 2011  Daniel Schepler
-
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-

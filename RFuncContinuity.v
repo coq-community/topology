@@ -2,6 +2,7 @@ Require Import FunctionalExtensionality.
 Require Import Lra.
 Require Export RTopology.
 Require Export ProductTopology.
+From Coq Require ProofIrrelevance.
 
 Lemma continuous_at_iff_continuity_pt
   {f : R -> R} {x : R} :
@@ -387,8 +388,7 @@ replace 0 with (0 * / (1+x)); auto with real.
 intros.
 destruct y as [x].
 simpl.
-From ZornsLemma Require Import Proj1SigInjective.
-apply subset_eq_compatT.
+apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
 destruct i.
 destruct H1.
 assert (Rabs x < 1).

@@ -2,6 +2,7 @@ Require Export TopologicalSpaces.
 From ZornsLemma Require Export CountableTypes.
 Require Export NeighborhoodBases.
 From ZornsLemma Require Import EnsemblesSpec.
+From Coq Require ProofIrrelevance ClassicalChoice.
 
 Global Set Asymmetric Patterns.
 
@@ -64,9 +65,8 @@ apply finite_nat_initial_segment.
 red.
 intros [[x0 P] p] [[y0 Q] q] ?.
 simpl in H3.
-From ZornsLemma Require Import Proj1SigInjective.
-apply subset_eq_compatT.
-apply subset_eq_compatT.
+apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
+apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
 injection H3; intros.
 apply H2 in H4.
 injection H4; trivial.
@@ -75,9 +75,7 @@ intros.
 destruct a as [[x0]].
 simpl.
 Opaque In. apply H1; trivial. Transparent In.
-
-Require Import ClassicalChoice.
-destruct (choice (fun (n:nat) (x:point_set X) => In (U n) x /\
+destruct (ClassicalChoice.choice (fun (n:nat) (x:point_set X) => In (U n) x /\
                                                  In S x)) as [y].
 intros n.
 destruct (closure_impl_meets_every_open_neighborhood _ _ _ H0 (U n))
@@ -144,8 +142,7 @@ Lemma second_countable_impl_separable:
 Proof.
 intros.
 destruct H.
-Require Import ClassicalChoice.
-destruct (choice (fun (U:{U:Ensemble (point_set X) | In B U /\ Inhabited U})
+destruct (ClassicalChoice.choice (fun (U:{U:Ensemble (point_set X) | In B U /\ Inhabited U})
   (x:point_set X) => In (proj1_sig U) x)) as [choice_fun].
 intros.
 destruct x as [U [? ?]].
@@ -166,11 +163,10 @@ apply inj_countable with g.
 assumption.
 red; intros.
 unfold g in H2.
-destruct x1 as [[U [? ?]]].
-destruct x2 as [[V [? ?]]].
-From ZornsLemma Require Import Proj1SigInjective.
-apply subset_eq_compatT.
-apply subset_eq_compatT.
+destruct x as [[U [? ?]]].
+destruct y as [[V [? ?]]].
+apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
+apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
 injection H2; trivial.
 
 apply meets_every_nonempty_open_impl_dense.
@@ -207,7 +203,7 @@ red; intros.
 pose (basis_elts_contained_in_cover_elt :=
   [ U:Ensemble (point_set X) | In B U /\ Inhabited U /\
     exists V:Ensemble (point_set X), In cover V /\ Included U V ]).
-destruct (choice (fun (U:{U | In basis_elts_contained_in_cover_elt U})
+destruct (ClassicalChoice.choice (fun (U:{U | In basis_elts_contained_in_cover_elt U})
   (V:Ensemble (point_set X)) => In cover V /\ Included (proj1_sig U) V))
   as [choice_fun].
 intros.
