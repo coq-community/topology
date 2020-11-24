@@ -7,16 +7,17 @@ dev-repo: "git+https://github.com/coq-community/zorns-lemma.git"
 bug-reports: "https://github.com/coq-community/zorns-lemma/issues"
 license: "LGPL-2.1-or-later"
 
-synopsis: "This library develops some basic set theory."
+synopsis: "This library develops some basic set theory"
 description: """
-This library develops some basic set theory.
-The main purpose the author had in writing it was as support for the Topology library.
+This Coq library develops some basic set theory.
+The main purpose the author had in writing it
+was as support for the Topology library.
 """
 
-build: [make "-j%{jobs}%"]
+build: [make "-j%{jobs}%" ]
 install: [make "install"]
 depends: [
-  "coq" {(>= "8.10" & < "8.12~") | (= "dev")}
+  "coq" {(>= "8.10" & < "8.13~") | (= "dev")}
 ]
 
 tags: [
