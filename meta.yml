@@ -19,6 +19,8 @@ authors:
 maintainers:
 - name: Andrew Miloradovsky
   nickname: amiloradovsky
+- name: stop-cran
+  nickname: stop-cran
 
 opam-file-maintainer: palmskog@gmail.com
 
