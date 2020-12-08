@@ -5,6 +5,7 @@ Require Import Lra.
 Require Import FiniteIntersectionLemmas.
 Require Export MetricSpaces.
 Require Import RationalsInReals.
+Require Import EnsembleTactic.
 Require Export Compactness.
 Require Export Connectedness.
 

@@ -667,7 +667,6 @@ destruct x' as [x'].
 rewrite Heqxsig in H11; clear x0 Heqxsig.
 simpl in H11.
 destruct H11.
-simpl in H11.
 exists (exist _ (exist _ x' i0) i).
 simpl.
 trivial.
@@ -683,8 +682,7 @@ destruct H10.
 destruct H11.
 pose proof (H11 a).
 destruct a as [[x']].
-simpl in H12.
-simpl in H10.
+simpl in H12, H10.
 replace (@Empty_set (point_set X)) with (Intersection
   (choice_fun_U x' G H4 (H7 x' i))
   (choice_fun_V x' G H4 (H7 x' i))).
@@ -699,24 +697,22 @@ Proof.
   destruct (Hcomp (inverse_image (inverse_image g) F)) as [F' [H1 [H2 H3]]].
   - intros.
     rewrite <- (inverse_image_id Hgf).
-    apply Hcont_f.
-    apply H.
-    destruct H0.
-    assumption.
-  - erewrite <- inverse_image_full.
-    rewrite <- (inverse_image_id Hgf (FamilyUnion _)).
+    apply Hcont_f, H.
+    now destruct H0.
+  - erewrite <- inverse_image_full,
+             <- (inverse_image_id Hgf (FamilyUnion _)).
     f_equal.
-    rewrite <- (inverse_image_family_union F Hgf),
-               inverse_image_id;
-      assumption.
+    now rewrite <- (inverse_image_family_union F Hgf),
+               inverse_image_id.
   - exists (inverse_image (inverse_image f) F').
     split; [|split].
-    + apply (inverse_image_finite g);
-        assumption.
+    + apply inverse_image_finite; trivial.
+      intro y.
+      exists (g y).
+      now rewrite Hfg.
     + intros S [Hin].
       destruct (H2 _ Hin) as [H0].
-      rewrite inverse_image_id in H0;
-        assumption.
+      now rewrite inverse_image_id in H0.
     + rewrite <- (inverse_image_family_union _ Hfg Hgf), H3.
       apply inverse_image_full.
 Qed.

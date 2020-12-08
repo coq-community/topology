@@ -4,6 +4,7 @@ From ZornsLemma Require Export InverseImage.
 Require Export OpenBases.
 Require Export NeighborhoodBases.
 Require Export Subbases.
+Require Import InverseImageLemmas.
 
 Section continuity.
 
@@ -216,4 +217,28 @@ apply H6 in H8.
 destruct H8; trivial.
 auto.
 auto.
+Qed.
+
+Lemma dense_image_surjective {X Y : TopologicalSpace} {f : point_set X -> point_set Y}
+  (S : Ensemble (point_set X)) :
+  continuous f ->
+  surjective f ->
+  dense S ->
+  dense (Im S f).
+Proof.
+intros.
+apply Extensionality_Ensembles.
+split; red; intros; constructor.
+intros U [[? H4]].
+destruct (H0 x) as [x0 H5].
+assert (In (closure S) x0) as H6 by now rewrite H1.
+destruct H6.
+rewrite <- H5.
+apply in_inverse_image, H6.
+repeat split.
+- red.
+  rewrite <- inverse_image_complement.
+  auto.
+- apply H4.
+  now econstructor; trivial.
 Qed.

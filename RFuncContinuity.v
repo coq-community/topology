@@ -1,5 +1,6 @@
 Require Import FunctionalExtensionality.
 Require Import Lra.
+Require Import EnsembleTactic.
 Require Export RTopology.
 Require Export ProductTopology.
 From Coq Require ProofIrrelevance.
@@ -14,7 +15,7 @@ split.
   apply RTop_neighborhood_is_neighbourhood, H, open_neighborhood_is_neighborhood.
   split.
   + replace [r : R | Rabs (r - f x) < eps] with [r : R | f x - eps < r < f x + eps]
-      by (FiniteIntersectionLemmas.extensionality_ensembles;
+      by (extensionality_ensembles;
           constructor;
           apply Rabs_def1 + apply Rabs_def2 in H1;
           lra).
