@@ -28,17 +28,14 @@ Lemma eventually_and: forall (P Q: DS_set I -> Prop),
   eventually (fun i:DS_set I => P i /\ Q i).
 Proof.
 intros.
-destruct H.
-destruct H0.
+destruct H, H0.
 destruct (DS_join_cond x x0) as [? [? ?]].
 exists x1.
-intros; split.
-apply H.
-apply preord_trans with x1; trivial.
-apply DS_ord_cond.
-apply H0.
-apply preord_trans with x1; trivial.
-apply DS_ord_cond.
+intros; split;
+[ apply H | apply H0 ];
+  apply preord_trans with x1;
+  trivial;
+  apply DS_ord_cond.
 Qed.
 
 Lemma eventually_impl_base: forall (P Q: DS_set I -> Prop),
@@ -59,8 +56,8 @@ Proof.
 intros.
 apply eventually_impl_base with (P := fun (i:DS_set I) =>
   P i /\ (P i -> Q i)).
-tauto.
-apply eventually_and; assumption.
+- tauto.
+- now apply eventually_and.
 Qed.
 
 Definition exists_arbitrarily_large (P: DS_set I -> Prop) :=
@@ -93,7 +90,7 @@ exists i.
 intros.
 apply NNPP; intro.
 contradiction H0.
-exists j; split; trivial.
+now exists j.
 Qed.
 
 End for_large.
@@ -118,14 +115,14 @@ Section nat_DS.
 
 Definition nat_DS : DirectedSet.
 refine (Build_DirectedSet nat le _ _).
-constructor; red; intros; auto with arith.
-apply le_trans with y; assumption.
-intros.
-case (lt_eq_lt_dec i j).
-exists j.
-destruct s; auto with arith.
-destruct e; auto with arith.
-exists i; auto with arith.
+- constructor; red; intros; auto with arith.
+  now apply le_trans with y.
+- intros.
+  case (lt_eq_lt_dec i j).
+  + exists j.
+    destruct s; auto with arith.
+    destruct e; auto with arith.
+  + exists i; auto with arith.
 Defined.
 
 End nat_DS.
