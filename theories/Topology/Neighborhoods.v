@@ -42,3 +42,29 @@ repeat split; trivial.
 - apply interior_open.
 - apply interior_deflationary.
 Qed.
+
+Lemma open_char_neighborhood: forall {X:TopologicalSpace} (U : Ensemble (point_set X)),
+    open U <-> forall x, In U x -> neighborhood U x.
+Proof.
+  split.
+  - intros.
+    exists U. intuition. red. intuition.
+  - intros.
+    assert (U = FamilyUnion (fun V => open V /\ Included V U)).
+    2: {
+      rewrite H0.
+      apply open_family_union.
+      intuition.
+      destruct H1.
+      assumption.
+    }
+    apply Extensionality_Ensembles.
+    split; red; intros; intuition.
+    + specialize (H _ H0). destruct H.
+      destruct H as [[? ?] ?].
+      exists x0; auto.
+      constructor; auto.
+    + destruct H0.
+      destruct H0.
+      intuition.
+Qed.
