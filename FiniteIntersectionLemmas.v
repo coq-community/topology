@@ -206,7 +206,7 @@ apply countable_union.
                 (finite_intersections_len_0_full_set HV).
   + destruct (finite_intersections_len_S_choice F n) as [g Hg],
              IHn as [fn Hfn].
-    refine (inj_countable (fun U => 
+    refine (inj_countable (fun U =>
       (fn (fst (g U)),
        f (exist _ (proj1_sig (snd (g U))) _)))
       countable_nat_product _).
