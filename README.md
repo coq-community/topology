@@ -93,7 +93,9 @@ topological spaces
 - `WeakTopology.v` - weak topology induced by a family of maps to
 topological spaces
 - `ProductTopology.v`
+- `SumTopology.v` - also called "disjoint union" or "coproduct"
 - `SubspaceTopology.v`
+- `QuotientTopology.v`
 - `ContinuousFactorization.v` - a continuous map factors through its image
 
 ### Metric spaces
