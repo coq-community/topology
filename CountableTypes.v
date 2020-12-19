@@ -29,6 +29,12 @@ apply exclusive_dec.
     now apply CSB with f g.
 Qed.
 
+Lemma nat_countable : CountableT nat.
+Proof.
+apply intro_nat_injection with (fun n => n).
+now intros [|m] [|n].
+Qed.
+
 Lemma countable_nat_product: CountableT (nat * nat).
 Proof.
 pose (sum_1_to_n := fix sum_1_to_n n:nat := match n with
