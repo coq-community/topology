@@ -4,7 +4,6 @@ From ZornsLemma Require Export InverseImage.
 Require Export OpenBases.
 Require Export NeighborhoodBases.
 Require Export Subbases.
-Require Import InverseImageLemmas.
 
 Section continuity.
 

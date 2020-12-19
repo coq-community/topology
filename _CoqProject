@@ -8,14 +8,11 @@ Continuity.v
 ContinuousFactorization.v
 CountabilityAxioms.v
 DirectedSets.v
-EnsembleTactic.v
 FilterLimits.v
 FiltersAndNets.v
 Filters.v
-FiniteIntersectionLemmas.v
 Homeomorphisms.v
 InteriorsClosures.v
-InverseImageLemmas.v
 MetricSpaces.v
 NeighborhoodBases.v
 Neighborhoods.v

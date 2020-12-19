@@ -1,9 +1,9 @@
 Require Import FunctionalExtensionality.
 Require Import Lra.
-Require Import EnsembleTactic.
 Require Export RTopology.
 Require Export ProductTopology.
 From Coq Require ProofIrrelevance.
+From ZornsLemma Require Import EnsemblesTactics.
 
 Lemma continuous_at_iff_continuity_pt
   {f : R -> R} {x : R} :

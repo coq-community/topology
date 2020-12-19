@@ -1,5 +1,6 @@
+From ZornsLemma Require Import EnsemblesTactics.
 Require Export TopologicalSpaces Nets FilterLimits Homeomorphisms SeparatednessAxioms SubspaceTopology.
-Require Import InverseImageLemmas EnsembleTactic FiltersAndNets ClassicalChoice.
+Require Import FiltersAndNets ClassicalChoice.
 Set Asymmetric Patterns.
 
 Definition compact (X:TopologicalSpace) :=

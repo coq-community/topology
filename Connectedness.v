@@ -1,5 +1,5 @@
 Require Export TopologicalSpaces Homeomorphisms SubspaceTopology.
-Require Import InverseImageLemmas EnsembleTactic.
+From ZornsLemma Require Import EnsemblesTactics.
 
 Definition clopen {X:TopologicalSpace} (S:Ensemble (point_set X))
   : Prop :=

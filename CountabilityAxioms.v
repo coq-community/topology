@@ -1,7 +1,6 @@
 Require Export TopologicalSpaces NeighborhoodBases.
-Require Import EnsembleTactic.
 From ZornsLemma Require Export CountableTypes.
-From ZornsLemma Require Import EnsemblesSpec InfiniteTypes.
+From ZornsLemma Require Import EnsemblesSpec EnsemblesTactics InfiniteTypes.
 From Coq Require ProofIrrelevance ClassicalChoice.
 
 Global Set Asymmetric Patterns.

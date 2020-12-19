@@ -2,10 +2,9 @@ Require Export TopologicalSpaces.
 Require Export OrderTopology.
 Require Export Completeness.
 Require Import Lra.
-Require Import FiniteIntersectionLemmas.
 Require Export MetricSpaces.
+From ZornsLemma Require Import EnsemblesTactics FiniteIntersections.
 Require Import RationalsInReals.
-Require Import EnsembleTactic.
 Require Export Compactness.
 Require Export Connectedness.
 

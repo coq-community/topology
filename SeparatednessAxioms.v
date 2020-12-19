@@ -1,6 +1,5 @@
 Require Export TopologicalSpaces.
 Require Import InteriorsClosures.
-Require Import InverseImageLemmas.
 Require Import Homeomorphisms.
 
 Definition T0_sep (X:TopologicalSpace) : Prop :=
