@@ -18,6 +18,7 @@ IndexedFamilies.v
 InfiniteTypes.v
 InverseImage.v
 Ordinals.v
+Powerset_facts.v
 Proj1SigInjective.v
 Quotients.v
 Relation_Definitions_Implicit.v
