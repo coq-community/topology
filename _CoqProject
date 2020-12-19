@@ -31,6 +31,7 @@ SeparatednessAxioms.v
 StrongTopology.v
 Subbases.v
 SubspaceTopology.v
+SumTopology.v
 SupInf.v
 TietzeExtension.v
 TopologicalSpaces.v
