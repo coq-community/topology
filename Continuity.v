@@ -39,22 +39,21 @@ Lemma pointwise_continuity :
 Proof.
 intros.
 red; intros.
-assert (interior (inverse_image f V) = inverse_image f V).
+replace (inverse_image f V) with (interior (inverse_image f V)).
+{ apply interior_open. }
 apply Extensionality_Ensembles; split.
-apply interior_deflationary.
+{ apply interior_deflationary. }
 red; intros.
 destruct H1.
 assert (neighborhood V (f x)).
-exists V; repeat split; auto with sets.
+{ exists V; repeat split; auto with sets. }
 pose proof (H x V H2).
 destruct H3 as [U].
 destruct H3.
 destruct H3.
 assert (Included U (interior (inverse_image f V))).
-apply interior_maximal; trivial.
+{ apply interior_maximal; trivial. }
 auto.
-
-rewrite <- H1; apply interior_open.
 Qed.
 
 Lemma continuous_func_continuous_everywhere:
@@ -169,17 +168,17 @@ pose (f := fun _:point_set X => y0).
 fold f.
 red; intros.
 destruct (classic (In V y0)).
-replace (inverse_image f V) with (@Full_set (point_set X)).
-apply open_full.
-apply Extensionality_Ensembles; split; red; intros.
-constructor; trivial.
-constructor.
-replace (inverse_image f V) with (@Empty_set (point_set X)).
-apply open_empty.
-apply Extensionality_Ensembles; split; auto with sets;
-  red; intros.
-destruct H1.
-contradiction H0.
+- replace (inverse_image f V) with (@Full_set (point_set X)).
+  { apply open_full. }
+  apply Extensionality_Ensembles; split; red; intros.
+  + constructor; trivial.
+  + constructor.
+- replace (inverse_image f V) with (@Empty_set (point_set X)).
+  { apply open_empty. }
+  apply Extensionality_Ensembles; split; auto with sets;
+    red; intros.
+  destruct H1.
+  contradiction H0.
 Qed.
 
 Lemma continuous_at_is_local: forall (X Y:TopologicalSpace)
@@ -192,17 +191,17 @@ intros.
 red; intros.
 destruct H as [U1 [[]]].
 rewrite <- H0 in H2.
+2: { auto. }
 apply H1 in H2.
 destruct H2 as [U2 [[]]].
 exists (Intersection U1 U2).
 repeat split; trivial.
-apply open_intersection2; trivial.
-destruct H7.
-rewrite <- H0.
-apply H6 in H8.
-destruct H8; trivial.
-auto.
-auto.
+- apply open_intersection2; trivial.
+- destruct H7.
+  rewrite <- H0.
+  + apply H6 in H8.
+    destruct H8; trivial.
+  + auto.
 Qed.
 
 Lemma dense_image_surjective {X Y : TopologicalSpace} {f : point_set X -> point_set Y}
