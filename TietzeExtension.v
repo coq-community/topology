@@ -243,7 +243,7 @@ end); clear g; [ | | clearbody H ].
       apply pow1.
     }
     replace (-1) with ((3/2)^m * (- (2/3)^m)).
-    pattern 1 at 0, 1; replace 1 with ((3/2)^m * (2/3)^m).
+    replace 1 with ((3/2)^m * (2/3)^m).
     split; apply Rmult_le_compat_l; trivial.
     replace ((3/2)^m * -(2/3)^m) with (- ((3/2)^m * (2/3)^m)) by ring.
     rewrite H5. auto with real.
