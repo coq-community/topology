@@ -1,5 +1,6 @@
 Require Export TopologicalSpaces.
-Require Import StrongTopology EnsembleTactic Compactness InverseImageLemmas DependentTypeChoice.
+Require Import StrongTopology EnsembleTactic Compactness InverseImageLemmas.
+From ZornsLemma Require Import DependentTypeChoice.
 
 Section SumTopology.
 
