@@ -1,7 +1,7 @@
+Require Export FunctionProperties.
 Require Export Ensembles.
 Require Import EnsemblesImplicit.
 Require Export EnsemblesSpec.
-Require Export FunctionProperties.
 
 Definition inverse_image {X Y:Type} (f:X->Y) (T:Ensemble Y) : Ensemble X :=
   [ x:X | In T (f x) ].
