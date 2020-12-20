@@ -1,6 +1,5 @@
-Require Export TopologicalSpaces.
-Require Export Continuity.
-Require Export SubspaceTopology.
+Require Export TopologicalSpaces Continuity SubspaceTopology.
+Require Import EnsembleTactic.
 
 Section continuous_factorization.
 
@@ -19,16 +18,13 @@ Lemma factorization_is_continuous:
 Proof.
 red; intros.
 destruct (subspace_topology_topology _ _ V H) as [V' []].
-rewrite H1.
-rewrite <- inverse_image_composition.
+rewrite H1, <- inverse_image_composition.
 simpl.
 assert (inverse_image (fun x:point_set X => f x) V' =
         inverse_image f V').
-apply Extensionality_Ensembles; split; red; intros.
-destruct H2; constructor; trivial.
-destruct H2; constructor; trivial.
+{ extensionality_ensembles; now constructor. }
 rewrite H2.
-apply f_cont; trivial.
+now apply f_cont.
 Qed.
 
 End continuous_factorization.
@@ -46,8 +42,8 @@ Definition continuous_surj_factorization :
 apply continuous_factorization with f.
 intros.
 exists x.
-constructor.
-trivial.
+- constructor.
+- trivial.
 Defined.
 
 Lemma continuous_surj_factorization_is_surjective:
@@ -57,15 +53,12 @@ red; intros.
 destruct y.
 destruct i.
 exists x.
-unfold continuous_surj_factorization.
-unfold continuous_factorization.
+unfold continuous_surj_factorization, continuous_factorization.
 pose proof (e).
 symmetry in H.
 destruct H.
 f_equal.
-f_equal.
-apply proof_irrelevance.
-apply proof_irrelevance.
+f_equal; apply proof_irrelevance.
 Qed.
 
 Lemma continuous_surj_factorization_is_continuous:
