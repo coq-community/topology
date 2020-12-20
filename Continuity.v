@@ -115,21 +115,7 @@ intros.
 destruct H1.
 destruct H1 as [A [? [V' []]]].
 rewrite H3.
-assert (inverse_image f (IndexedIntersection V') =
-  IndexedIntersection (fun a:A => inverse_image f (V' a))).
-apply Extensionality_Ensembles; split; red; intros.
-destruct H4.
-inversion_clear H4.
-constructor; intros.
-constructor.
-apply H5.
-destruct H4.
-constructor.
-constructor; intros.
-destruct (H4 a).
-exact H5.
-
-rewrite H4.
+rewrite inverse_image_indexed_intersection.
 apply open_finite_indexed_intersection; trivial.
 intros.
 apply H0.

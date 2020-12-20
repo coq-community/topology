@@ -98,7 +98,7 @@ Proof.
     econstructor.
     + constructor.
       erewrite inverse_image_id.
-      * exact H0.  
+      * exact H0.
       * exact Hfg.
     + rewrite Hgf.
       constructor.
@@ -168,7 +168,7 @@ Proof.
     intros;
     inversion H;
     subst;
-    (left; 
+    (left;
      assumption) +
     (right;
      inversion H0;
