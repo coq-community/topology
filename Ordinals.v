@@ -9,7 +9,7 @@ Inductive Ordinal : Type :=
 (*
 Fixpoint ord_le (alpha beta:Ordinal) : Prop :=
   match alpha with
-  | ordS alpha => 
+  | ordS alpha =>
                   (fix gt_alpha (beta:Ordinal) : Prop :=
                   match beta with
                   | ordS beta => ord_le alpha beta

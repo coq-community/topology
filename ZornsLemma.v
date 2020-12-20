@@ -185,7 +185,7 @@ Qed.
 
 Definition chains_sup (F:Ensemble chains) (P:chain chains_ord F) :=
   let U := chains_sup_def F P in
-  exist (fun U:chains => 
+  exist (fun U:chains =>
     (forall S:chains, In F S -> chains_ord S U) /\
     (forall T:chains, (forall S:chains, In F S -> chains_ord S T) ->
       chains_ord U T))
