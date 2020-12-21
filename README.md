@@ -30,6 +30,7 @@ and results of general topology in Coq.
 - Coq-community maintainer(s):
   - Andrew Miloradovsky ([**@amiloradovsky**](https://github.com/amiloradovsky))
   - stop-cran ([**@stop-cran**](https://github.com/stop-cran))
+  - Columbus240 ([**@Columbus240**](https://github.com/Columbus240))
 - License: [GNU Lesser General Public License v2.1 or later](LICENSE)
 - Compatible Coq versions: Coq 8.11 or later (use the corresponding branch or release for other Coq versions)
 - Additional dependencies:
