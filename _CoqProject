@@ -1,4 +1,5 @@
 -R theories/Topology Topology
+-R theories/ZornsLemma ZornsLemma
 
 theories/Topology/Compactness.v
 theories/Topology/Completeness.v
@@ -35,3 +36,28 @@ theories/Topology/TopologicalSpaces.v
 theories/Topology/UniformTopology.v
 theories/Topology/UrysohnsLemma.v
 theories/Topology/WeakTopology.v
+theories/ZornsLemma/Cardinals.v
+theories/ZornsLemma/Classical_Wf.v
+theories/ZornsLemma/CountableTypes.v
+theories/ZornsLemma/CSB.v
+theories/ZornsLemma/DecidableDec.v
+theories/ZornsLemma/DependentTypeChoice.v
+theories/ZornsLemma/EnsemblesImplicit.v
+theories/ZornsLemma/EnsemblesSpec.v
+theories/ZornsLemma/EnsemblesTactics.v
+theories/ZornsLemma/EnsemblesUtf8.v
+theories/ZornsLemma/Families.v
+theories/ZornsLemma/FiniteIntersections.v
+theories/ZornsLemma/FiniteTypes.v
+theories/ZornsLemma/FunctionProperties.v
+theories/ZornsLemma/ImageImplicit.v
+theories/ZornsLemma/IndexedFamilies.v
+theories/ZornsLemma/InfiniteTypes.v
+theories/ZornsLemma/InverseImage.v
+theories/ZornsLemma/Ordinals.v
+theories/ZornsLemma/Powerset_facts.v
+theories/ZornsLemma/Proj1SigInjective.v
+theories/ZornsLemma/Quotients.v
+theories/ZornsLemma/Relation_Definitions_Implicit.v
+theories/ZornsLemma/WellOrders.v
+theories/ZornsLemma/ZornsLemma.v

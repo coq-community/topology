@@ -19,12 +19,16 @@ jobs:
           - 'coqorg/coq:8.13'
           - 'coqorg/coq:8.12'
           - 'coqorg/coq:8.11'
+          - 'coqorg/coq:8.10'
+        opam_file:
+          - 'coq-topology.opam'
+          - 'coq-zorns-lemma.opam'
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
       - uses: coq-community/docker-coq-action@v1
         with:
-          opam_file: 'coq-topology.opam'
+          opam_file: ${{ matrix.opam_file }}
           custom_image: ${{ matrix.image }}
           before_install: |
             startGroup "Setup and print opam config"
