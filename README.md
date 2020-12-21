@@ -30,6 +30,8 @@ was as support for the Topology library.
   - Daniel Schepler (initial)
 - Coq-community maintainer(s):
   - Andrew Miloradovsky ([**@amiloradovsky**](https://github.com/amiloradovsky))
+  - stop-cran ([**@stop-cran**](https://github.com/stop-cran))
+  - Columbus240 ([**@Columbus240**](https://github.com/Columbus240))
 - License: [GNU Lesser General Public License v2.1 or later](LICENSE)
 - Compatible Coq versions: Coq 8.10 or later
 - Additional dependencies: none
@@ -78,6 +80,8 @@ In alphabetical order, except where related files are grouped together:
 
 - `EnsemblesSpec.v` - defines a notation for e.g. `[ n: nat | n > 5 /\ even n ] : Ensemble nat.`
 
+- `EnsemblesTactics.v` - defines tactics that help in proofs about Ensembles
+
 - `EnsemblesUtf8.v` - optional UTF-8 notations for set operations
 
 - `Families.v` - operations on families of subsets of `X`, i.e. `Ensemble (Ensemble X)`
@@ -92,6 +96,8 @@ In alphabetical order, except where related files are grouped together:
 - `FunctionProperties.v` - injective, surjective, etc.
 
 - `InverseImage.v` - inverse images of subsets under functions
+
+- `Powerset_facts.v` - some lemmas about the operations on subsets that the stdlib is missing
 
 - `Proj1SigInjective.v` - inclusion of `{ x: X | P x }` into `X` is injective
 
