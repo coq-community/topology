@@ -16,7 +16,8 @@ Definition continuous_factorization :
 Lemma factorization_is_continuous:
   continuous continuous_factorization.
 Proof.
-red; intros.
+red.
+intros.
 destruct (subspace_topology_topology _ _ V H) as [V' []].
 rewrite H1, <- inverse_image_composition.
 simpl.
@@ -41,31 +42,27 @@ Definition continuous_surj_factorization :
   point_set X -> point_set (SubspaceTopology (Im Full_set f)).
 apply continuous_factorization with f.
 intros.
-exists x.
-- constructor.
-- trivial.
+exists x; constructor.
 Defined.
 
 Lemma continuous_surj_factorization_is_surjective:
   surjective continuous_surj_factorization.
 Proof.
-red; intros.
+intro.
 destruct y.
 destruct i.
 exists x.
 unfold continuous_surj_factorization, continuous_factorization.
-pose proof (e).
-symmetry in H.
-destruct H.
+subst.
 f_equal.
-f_equal; apply proof_irrelevance.
+f_equal.
+apply proof_irrelevance.
 Qed.
 
 Lemma continuous_surj_factorization_is_continuous:
   continuous continuous_surj_factorization.
 Proof.
-apply factorization_is_continuous.
-exact f_cont.
+now apply factorization_is_continuous.
 Qed.
 
 End continuous_surj_factorization.
