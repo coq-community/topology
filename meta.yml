@@ -9,7 +9,7 @@ synopsis: General topology in Coq
 
 description: |
   This library develops some of the basic concepts
-  and results of set theory and general topology in Coq.
+  and results of general topology in Coq.
 
 authors:
 - name: Daniel Schepler
@@ -48,23 +48,12 @@ tested_coq_opam_versions:
 dependencies:
 - opam:
     name: coq-zorns-lemma
-    version: '{(>= "8.10" & < "8.14~") | (= "dev")}'
-  nix: contribs.zorns-lemma
-  description: |-
-    [Zorn's lemma](https://github.com/coq-community/zorns-lemma)
+    version: '{= version}'
+  description: Zorn's Lemma (set library that is part of this repository)
 
 namespace: Topology
 
 keywords:
-- name: set theory
-- name: cardinals
-- name: ordinals
-- name: finite
-- name: countable
-- name: quotients
-- name: well-orders
-- name: Zorn's lemma
-
 - name: topology
 - name: filters
 - name: nets
@@ -75,7 +64,6 @@ keywords:
 
 categories:
 - name: Mathematics/Real Calculus and Topology
-- name: Mathematics/Logic/Set theory
 
 documentation: |-
   ## Contents of ZornsLemma

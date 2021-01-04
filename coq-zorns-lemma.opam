@@ -2,9 +2,9 @@ opam-version: "2.0"
 maintainer: "miloradovsky@gmail.com"
 version: "dev"
 
-homepage: "https://github.com/coq-community/zorns-lemma"
-dev-repo: "git+https://github.com/coq-community/zorns-lemma.git"
-bug-reports: "https://github.com/coq-community/zorns-lemma/issues"
+homepage: "https://github.com/coq-community/topology"
+dev-repo: "git+https://github.com/coq-community/topology.git"
+bug-reports: "https://github.com/coq-community/topology/issues"
 license: "LGPL-2.1-or-later"
 
 synopsis: "This library develops some basic set theory in Coq"

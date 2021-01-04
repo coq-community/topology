@@ -1,3 +1,6 @@
+# This file was generated from `meta.yml`, please do not edit manually.
+# Follow the instructions on https://github.com/coq-community/templates to regenerate.
+
 opam-version: "2.0"
 maintainer: "palmskog@gmail.com"
 version: "dev"
@@ -17,7 +20,7 @@ build: ["dune" "build" "-p" name "-j" jobs]
 depends: [
   "dune" {>= "2.5"}
   "coq" {(>= "8.10" & < "8.14~") | (= "dev")}
-  "coq-zorns-lemma" {= "dev"}
+  "coq-zorns-lemma" {= version}
 ]
 
 tags: [

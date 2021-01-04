@@ -24,7 +24,7 @@ Follow the instructions on https://github.com/coq-community/templates to regener
 
 
 This library develops some of the basic concepts
-and results of set theory and general topology in Coq.
+and results of general topology in Coq.
 
 
 ## Meta
@@ -36,9 +36,9 @@ and results of set theory and general topology in Coq.
   - stop-cran ([**@stop-cran**](https://github.com/stop-cran))
   - Columbus240 ([**@Columbus240**](https://github.com/Columbus240))
 - License: [GNU Lesser General Public License v2.1 or later](LICENSE)
-- Compatible Coq versions: Coq 8.11 or later (use the corresponding branch or release for other Coq versions)
+- Compatible Coq versions: Coq 8.10 or later (use the corresponding branch or release for other Coq versions)
 - Additional dependencies:
-  - [Zorn's lemma](https://github.com/coq-community/zorns-lemma)
+  - Zorn's Lemma (set library that is part of this repository)
 - Coq namespace: `Topology`
 - Related publication(s): none
 
@@ -146,7 +146,9 @@ topological spaces
 - `WeakTopology.v` - weak topology induced by a family of maps to
 topological spaces
 - `ProductTopology.v`
+- `SumTopology.v` - also called "disjoint union" or "coproduct"
 - `SubspaceTopology.v`
+- `QuotientTopology.v`
 - `ContinuousFactorization.v` - a continuous map factors through its image
 
 ### Metric spaces
