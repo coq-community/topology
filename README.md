@@ -52,15 +52,12 @@ opam repo add coq-released https://coq.inria.fr/opam/released
 opam install coq-topology
 ```
 
-To instead build and install manually, do:
-
+To instead build both Topology and Zorn's Lemma manually, do:
 ``` shell
 git clone https://github.com/coq-community/topology.git
 cd topology
-make   # or make -j <number-of-cores-on-your-machine> 
-make install
+make   # or make -j <number-of-cores-on-your-machine>
 ```
-
 
 ## Contents of Topology, roughly grouped in related categories:
 
@@ -122,7 +119,7 @@ topological spaces
 - `UrysohnsLemma.v`
 - `TietzeExtension.v`
 
-## Contents of ZornsLemma
+## Contents of Zorn's Lemma
 
 In alphabetical order, except where related files are grouped together:
 
