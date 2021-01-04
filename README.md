@@ -62,54 +62,6 @@ make install
 ```
 
 
-## Contents of ZornsLemma
-
-In alphabetical order, except where related files are grouped together:
-
-- `Cardinals.v` - cardinalities of sets
-- `Ordinals.v` - a construction of the ordinals without reference to well-orders
-
-- `Classical_Wf.v` - proofs of the classical equivalence of wellfoundedness, the minimal element property, and the descending sequence property
-
-- `CSB.v` - the Cantor-Schroeder-Bernstein theorem
-
-- `DecidableDec.v` - `classic_dec: forall P: Prop, {P} + {~P}.`
-
-- `DependentTypeChoice.v` - choice on a relation (`forall a: A, B a -> Prop`)
-
-- `EnsemblesImplicit.v` - settings for appropriate implicit parameters for the standard library's Ensembles functions
-- `ImageImplicit.v` - same for the standard library's Sets/Image
-- `Relation_Definitions_Implicit.v` - same for the standard library's Relation_Definitions
-
-- `EnsemblesSpec.v` - defines a notation for e.g. `[ n: nat | n > 5 /\ even n ] : Ensemble nat.`
-
-- `EnsemblesTactics.v` - defines tactics that help in proofs about Ensembles
-
-- `EnsemblesUtf8.v` - optional UTF-8 notations for set operations
-
-- `Families.v` - operations on families of subsets of `X`, i.e. `Ensemble (Ensemble X)`
-- `IndexedFamilies.v` - same for indexed families `A -> Ensemble X`
-
-- `FiniteIntersections.v` - defines the finite intersections of a family of subsets
-
-- `FiniteTypes.v` - definitions and results about finite types
-- `CountableTypes.v` - same for countable types
-- `InfiniteTypes.v` - same for infinite types
-
-- `FunctionProperties.v` - injective, surjective, etc.
-
-- `InverseImage.v` - inverse images of subsets under functions
-
-- `Powerset_facts.v` - some lemmas about the operations on subsets that the stdlib is missing
-
-- `Proj1SigInjective.v` - inclusion of `{ x: X | P x }` into `X` is injective
-
-- `Quotients.v` - quotients by equivalence relations, and induced functions on them
-
-- `WellOrders.v` - some basic properties of well-orders, including a proof that Zorn's Lemma implies the well-ordering principle
-
-- `ZornsLemma.v` - proof that choice implies Zorn's Lemma
-
 ## Contents of Topology, roughly grouped in related categories:
 
 ### Basic definitions
@@ -169,3 +121,51 @@ topological spaces
 
 - `UrysohnsLemma.v`
 - `TietzeExtension.v`
+
+## Contents of ZornsLemma
+
+In alphabetical order, except where related files are grouped together:
+
+- `Cardinals.v` - cardinalities of sets
+- `Ordinals.v` - a construction of the ordinals without reference to well-orders
+
+- `Classical_Wf.v` - proofs of the classical equivalence of wellfoundedness, the minimal element property, and the descending sequence property
+
+- `CSB.v` - the Cantor-Schroeder-Bernstein theorem
+
+- `DecidableDec.v` - `classic_dec: forall P: Prop, {P} + {~P}.`
+
+- `DependentTypeChoice.v` - choice on a relation (`forall a: A, B a -> Prop`)
+
+- `EnsemblesImplicit.v` - settings for appropriate implicit parameters for the standard library's Ensembles functions
+- `ImageImplicit.v` - same for the standard library's Sets/Image
+- `Relation_Definitions_Implicit.v` - same for the standard library's Relation_Definitions
+
+- `EnsemblesSpec.v` - defines a notation for e.g. `[ n: nat | n > 5 /\ even n ] : Ensemble nat.`
+
+- `EnsemblesTactics.v` - defines tactics that help in proofs about Ensembles
+
+- `EnsemblesUtf8.v` - optional UTF-8 notations for set operations
+
+- `Families.v` - operations on families of subsets of `X`, i.e. `Ensemble (Ensemble X)`
+- `IndexedFamilies.v` - same for indexed families `A -> Ensemble X`
+
+- `FiniteIntersections.v` - defines the finite intersections of a family of subsets
+
+- `FiniteTypes.v` - definitions and results about finite types
+- `CountableTypes.v` - same for countable types
+- `InfiniteTypes.v` - same for infinite types
+
+- `FunctionProperties.v` - injective, surjective, etc.
+
+- `InverseImage.v` - inverse images of subsets under functions
+
+- `Powerset_facts.v` - some lemmas about the operations on subsets that the stdlib is missing
+
+- `Proj1SigInjective.v` - inclusion of `{ x: X | P x }` into `X` is injective
+
+- `Quotients.v` - quotients by equivalence relations, and induced functions on them
+
+- `WellOrders.v` - some basic properties of well-orders, including a proof that Zorn's Lemma implies the well-ordering principle
+
+- `ZornsLemma.v` - proof that choice implies Zorn's Lemma
