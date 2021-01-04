@@ -1,4 +1,4 @@
 (coq.theory
  (name Topology)
  (package coq-topology)
- (synopsis "General Topology in Coq"))
+ (synopsis "General topology in Coq"))

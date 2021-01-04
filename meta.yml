@@ -5,7 +5,7 @@ organization: coq-community
 community: true
 action: true
 
-synopsis: General Topology in Coq
+synopsis: General topology in Coq
 
 description: |
   This library develops some of the basic concepts

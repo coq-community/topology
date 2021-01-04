@@ -1,4 +1,4 @@
 (coq.theory
  (name ZornsLemma)
  (package coq-zorns-lemma)
- (synopsis "This library develops some basic set theory"))
+ (synopsis "This library develops some basic set theory in Coq"))

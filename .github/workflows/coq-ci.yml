@@ -1,4 +1,4 @@
-name: CI
+name: Docker CI
 
 on:
   push:
@@ -20,20 +20,35 @@ jobs:
           - 'coqorg/coq:8.12'
           - 'coqorg/coq:8.11'
           - 'coqorg/coq:8.10'
-        opam_file:
-          - 'coq-topology.opam'
-          - 'coq-zorns-lemma.opam'
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
       - uses: coq-community/docker-coq-action@v1
         with:
-          opam_file: ${{ matrix.opam_file }}
           custom_image: ${{ matrix.image }}
-          before_install: |
-            startGroup "Setup and print opam config"
-              opam repo -a --set-default add coq-extra-dev https://coq.inria.fr/opam/extra-dev
-              opam config list; opam repo list; opam list
+          custom_script: |
+            {{before_install}}
+            startGroup "Build zorns-lemma dependencies"
+              opam pin add -n -y -k path coq-zorns-lemma .
+              opam update -y
+              opam install -y -j 2 coq-zorns-lemma --deps-only
+            endGroup
+            startGroup "Build zorns-lemma"
+              opam install -y -v -j 2 coq-zorns-lemma
+              opam list
+            endGroup
+            startGroup "Build topology dependencies"
+              opam pin add -n -y -k path coq-topology .
+              opam update -y
+              opam install -y -j 2 coq-topology --deps-only
+            endGroup
+            startGroup "Build topology"
+              opam install -y -v -j 2 coq-topology
+              opam list
+            endGroup
+            startGroup "Uninstallation test"
+              opam remove -y coq-topology
+              opam remove -y coq-zorns-lemma
             endGroup
 
 # See also:
