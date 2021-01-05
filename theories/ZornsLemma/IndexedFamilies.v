@@ -115,8 +115,8 @@ induction H;
 Qed.
 
 Lemma Complement_IndexedUnion {A T : Type} {F : IndexedFamily A T} :
-  Complement (IndexedUnion F) =
-  IndexedIntersection (fun a:A => Complement (F a)).
+  Ensembles.Complement (IndexedUnion F) =
+  IndexedIntersection (fun a:A => Ensembles.Complement (F a)).
 Proof.
 apply Extensionality_Ensembles; split; red; intros.
 - constructor. intros.
@@ -130,8 +130,8 @@ apply Extensionality_Ensembles; split; red; intros.
 Qed.
 
 Lemma Complement_IndexedIntersection {A T : Type} {F : IndexedFamily A T} :
-  Complement (IndexedIntersection F) =
-  IndexedUnion (fun a:A => Complement (F a)).
+  Ensembles.Complement (IndexedIntersection F) =
+  IndexedUnion (fun a:A => Ensembles.Complement (F a)).
 Proof.
 apply Extensionality_Ensembles; split; red; intros.
 - red in H; red in H.
