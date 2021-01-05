@@ -4,6 +4,7 @@ From ZornsLemma Require Export Families.
 From ZornsLemma Require Export IndexedFamilies.
 From ZornsLemma Require Export FiniteTypes.
 From ZornsLemma Require Import EnsemblesSpec.
+From ZornsLemma Require Import Powerset_facts.
 
 Record TopologicalSpace : Type := {
   point_set : Type;
@@ -35,15 +36,15 @@ Lemma open_union2: forall {X:TopologicalSpace}
 Proof.
 intros.
 assert (Union U V = FamilyUnion (Couple U V)).
-apply Extensionality_Ensembles; split; red; intros.
-destruct H1.
-exists U; auto with sets.
-exists V; auto with sets.
-destruct H1.
-destruct H1.
-left; trivial.
-right; trivial.
-
+{ apply Extensionality_Ensembles; split; red; intros.
+  - destruct H1.
+    + exists U; auto with sets.
+    + exists V; auto with sets.
+  - destruct H1.
+    destruct H1.
+    + left; trivial.
+    + right; trivial.
+}
 rewrite H1; apply open_family_union.
 intros.
 destruct H2; trivial.
@@ -69,44 +70,44 @@ Lemma open_finite_indexed_intersection:
 Proof.
 intros.
 induction H.
-rewrite empty_indexed_intersection.
-apply open_full.
-
-assert (IndexedIntersection F = Intersection
-  (IndexedIntersection (fun x:T => F (Some x)))
-  (F None)).
-apply Extensionality_Ensembles; split; red; intros.
-destruct H1.
-constructor.
-constructor.
-intros; apply H1.
-apply H1.
-destruct H1.
-destruct H1.
-constructor.
-destruct a.
-apply H1.
-apply H2.
-rewrite H1.
-apply open_intersection2.
-apply IHFiniteT.
-intros; apply H0.
-apply H0.
-
-destruct H1.
-assert (IndexedIntersection F =
-  IndexedIntersection (fun x:X0 => F (f x))).
-apply Extensionality_Ensembles; split; red; intros.
-constructor.
-destruct H3.
-intro; apply H3.
-constructor.
-destruct H3.
-intro; rewrite <- H2 with a.
-apply H3.
-rewrite H3.
-apply IHFiniteT.
-intro; apply H0.
+- rewrite empty_indexed_intersection.
+  apply open_full.
+- assert (IndexedIntersection F = Intersection
+    (IndexedIntersection (fun x:T => F (Some x)))
+    (F None)).
+  { apply Extensionality_Ensembles; split; red; intros.
+    - destruct H1.
+      constructor.
+      + constructor.
+        intros; apply H1.
+      + apply H1.
+    - destruct H1.
+      destruct H1.
+      constructor.
+      destruct a.
+      + apply H1.
+      + apply H2.
+  }
+  rewrite H1.
+  apply open_intersection2.
+  + apply IHFiniteT.
+    intros; apply H0.
+  + apply H0.
+- destruct H1.
+  assert (IndexedIntersection F =
+    IndexedIntersection (fun x:X0 => F (f x))).
+  { apply Extensionality_Ensembles; split; red; intros.
+    - constructor.
+      destruct H3.
+      intro; apply H3.
+    - constructor.
+      destruct H3.
+      intro; rewrite <- H2 with a.
+      apply H3.
+  }
+  rewrite H3.
+  apply IHFiniteT.
+  intro; apply H0.
 Qed.
 
 Definition closed {X:TopologicalSpace} (F:Ensemble (point_set X)) :=
@@ -129,21 +130,7 @@ Proof.
 intros.
 red in H, H0.
 red.
-assert (Ensembles.Complement (Union F G) =
-  Intersection (Ensembles.Complement F)
-               (Ensembles.Complement G)).
-unfold Ensembles.Complement.
-apply Extensionality_Ensembles; split; red; intros.
-constructor.
-auto with sets.
-auto with sets.
-destruct H1.
-red; red; intro.
-destruct H3.
-apply (H1 H3).
-apply (H2 H3).
-
-rewrite H1.
+rewrite Complement_Union.
 apply open_intersection2; assumption.
 Qed.
 
@@ -154,28 +141,8 @@ Proof.
 intros.
 red in H, H0.
 red.
-assert (Ensembles.Complement (Intersection F G) =
-  Union (Ensembles.Complement F)
-        (Ensembles.Complement G)).
-apply Extensionality_Ensembles; split; red; intros.
-apply NNPP.
-red; intro.
-unfold Ensembles.Complement in H1.
-unfold In in H1.
-contradict H1.
-constructor.
-apply NNPP.
-red; intro.
-auto with sets.
-apply NNPP.
-red; intro.
-auto with sets.
-
-red; red; intro.
-destruct H2.
-destruct H1; auto with sets.
-
-rewrite H1; apply open_union2; trivial.
+rewrite Complement_Intersection.
+apply open_union2; trivial.
 Qed.
 
 Lemma closed_family_intersection: forall {X:TopologicalSpace}
@@ -186,35 +153,12 @@ Proof.
 intros.
 unfold closed in H.
 red.
-assert (Ensembles.Complement (FamilyIntersection F) =
-  FamilyUnion [ S:Ensemble (point_set X) |
-                  In F (Ensembles.Complement S) ]).
-apply Extensionality_Ensembles; split; red; intros.
-apply NNPP.
-red; intro.
-red in H0; red in H0.
-contradict H0.
-constructor.
+rewrite Complement_FamilyIntersection.
+apply open_family_union.
 intros.
-apply NNPP.
-red; intro.
-contradict H1.
-exists (Ensembles.Complement S).
-constructor.
-rewrite Complement_Complement; assumption.
-assumption.
 destruct H0.
-red; red; intro.
-destruct H2.
-destruct H0.
-pose proof (H2 _ H0).
-contradiction H3.
-
-rewrite H0; apply open_family_union.
-intros.
-destruct H1.
-pose proof (H _ H1).
-rewrite Complement_Complement in H2; assumption.
+pose proof (H _ H0).
+rewrite Complement_Complement in H1; assumption.
 Qed.
 
 Lemma closed_indexed_intersection: forall {X:TopologicalSpace}
@@ -236,21 +180,8 @@ Lemma closed_finite_indexed_union: forall {X:TopologicalSpace}
 Proof.
 intros.
 red.
-assert (Ensembles.Complement (IndexedUnion F) =
-  IndexedIntersection (fun a:A => Ensembles.Complement (F a))).
-apply Extensionality_Ensembles; split; red; intros.
-constructor.
-intros.
-red; red; intro.
-contradiction H1.
-exists a.
-assumption.
-destruct H1.
-red; red; intro.
-destruct H2.
-contradiction (H1 a).
-
-rewrite H1; apply open_finite_indexed_intersection; trivial.
+rewrite Complement_IndexedUnion.
+apply open_finite_indexed_intersection; trivial.
 Qed.
 
 Hint Unfold closed : topology.
@@ -275,47 +206,18 @@ Hypothesis closedP_family_intersection: forall F:Family X,
 Definition Build_TopologicalSpace_from_closed_sets : TopologicalSpace.
 refine (Build_TopologicalSpace X
   (fun U:Ensemble X => closedP (Ensembles.Complement U)) _ _ _).
-intros.
-replace (Ensembles.Complement (FamilyUnion F)) with
-  (FamilyIntersection [ G:Ensemble X | In F (Ensembles.Complement G) ]).
-apply closedP_family_intersection.
-destruct 1.
-rewrite <- Complement_Complement.
-apply H; trivial.
-apply Extensionality_Ensembles; split; red; intros.
-intro.
-destruct H1.
-destruct H0.
-absurd (In (Ensembles.Complement S) x).
-intro.
-contradiction H3.
-apply H0.
-constructor.
-rewrite Complement_Complement; trivial.
-constructor.
-destruct 1.
-apply NNPP; intro.
-contradiction H0.
-exists (Ensembles.Complement S); trivial.
-
-intros.
-replace (Ensembles.Complement (Intersection U V)) with
-  (Union (Ensembles.Complement U) (Ensembles.Complement V)).
-apply closedP_union2; trivial.
-apply Extensionality_Ensembles; split; red; intros.
-intro.
-destruct H2.
-destruct H1; contradiction H1.
-apply NNPP; intro.
-contradiction H1.
-constructor; apply NNPP; intro; contradiction H2;
-  [ left | right ]; trivial.
-
-apply eq_ind with (1 := closedP_empty).
-apply Extensionality_Ensembles; split; auto with sets;
-  red; intros.
-contradiction H.
-constructor.
+- intros.
+  rewrite Complement_FamilyUnion.
+  apply closedP_family_intersection.
+  destruct 1.
+  rewrite <- Complement_Complement.
+  apply H; trivial.
+- intros.
+  rewrite Complement_Intersection.
+  apply closedP_union2; trivial.
+- apply eq_ind with (1 := closedP_empty).
+  rewrite Complement_Full_set.
+  reflexivity.
 Defined.
 
 Lemma Build_TopologicalSpace_from_closed_sets_closed:
