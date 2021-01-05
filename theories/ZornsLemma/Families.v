@@ -77,4 +77,55 @@ apply H.
 assumption.
 Qed.
 
+Require Export EnsemblesSpec.
+Require Import Classical_Prop.
+Require Import Classical_sets.
+
+Lemma Complement_FamilyIntersection: forall F:Family T,
+    Complement (FamilyIntersection F) =
+    FamilyUnion [ S:Ensemble T |
+                  In F (Complement S)].
+Proof.
+intros.
+apply Extensionality_Ensembles; split; red; intros.
+- apply NNPP.
+  red; intro.
+  red in H; red in H.
+  contradict H.
+  constructor. intros.
+  apply NNPP.
+  red; intro.
+  contradict H0.
+  exists (Complement S).
+  + constructor. rewrite Complement_Complement. assumption.
+  + assumption.
+- destruct H.
+  red; red; intro.
+  destruct H1.
+  destruct H.
+  pose proof (H1 _ H).
+  contradiction.
+Qed.
+
+Lemma Complement_FamilyUnion: forall F:Family T,
+    Complement (FamilyUnion F) =
+    FamilyIntersection [ S:Ensemble T |
+                         In F (Complement S) ].
+Proof.
+intros.
+apply Extensionality_Ensembles; split; red; intros.
+- constructor. intros.
+  destruct H0.
+  apply NNPP. red; intro.
+  red in H; red in H. contradict H.
+  exists (Complement S); assumption.
+- red; red. intro.
+  destruct H.
+  destruct H0.
+  specialize (H (Complement S)).
+  apply H.
+  2: { assumption. }
+  constructor. rewrite Complement_Complement.
+  assumption.
+Qed.
 End FamilyFacts.

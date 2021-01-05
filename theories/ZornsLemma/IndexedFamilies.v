@@ -114,6 +114,41 @@ induction H;
       eassumption.
 Qed.
 
+Lemma Complement_IndexedUnion {A T : Type} {F : IndexedFamily A T} :
+  Complement (IndexedUnion F) =
+  IndexedIntersection (fun a:A => Complement (F a)).
+Proof.
+apply Extensionality_Ensembles; split; red; intros.
+- constructor. intros.
+  red; red; intro.
+  contradiction H.
+  exists a. assumption.
+- destruct H.
+  red; red; intro.
+  destruct H0.
+  contradiction (H a).
+Qed.
+
+Lemma Complement_IndexedIntersection {A T : Type} {F : IndexedFamily A T} :
+  Complement (IndexedIntersection F) =
+  IndexedUnion (fun a:A => Complement (F a)).
+Proof.
+apply Extensionality_Ensembles; split; red; intros.
+- red in H; red in H.
+  apply NNPP. intro.
+  contradict H.
+  constructor. intros.
+  apply NNPP. intro.
+  contradict H0.
+  exists a.
+  assumption.
+- destruct H.
+  red; red; intro.
+  apply H.
+  destruct H0.
+  apply H0.
+Qed.
+
 End IndexedFamilyFacts.
 
 Section IndexedFamilyToFamily.
