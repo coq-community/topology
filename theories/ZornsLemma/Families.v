@@ -1,5 +1,8 @@
+Require Import Classical_Prop.
+Require Import Classical_sets.
 Require Export Ensembles.
 Require Import EnsemblesImplicit.
+Require Export EnsemblesSpec.
 
 Set Implicit Arguments.
 
@@ -76,10 +79,6 @@ apply H0.
 apply H.
 assumption.
 Qed.
-
-Require Export EnsemblesSpec.
-Require Import Classical_Prop.
-Require Import Classical_sets.
 
 Lemma Complement_FamilyIntersection: forall F:Family T,
     Complement (FamilyIntersection F) =
