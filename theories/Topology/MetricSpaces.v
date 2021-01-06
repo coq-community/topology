@@ -438,9 +438,7 @@ as [choice_fun].
          apply Rlt_trans with (/ INR (proj1_sig nsig) + / INR (proj1_sig nsig));
            auto with real.
          simpl.
-         assert (r = r/2 + r/2) by field.
-         rewrite H19.
-         auto with real.
+         lra.
       ** rewrite H17.
          now constructor.
   + apply countable_union.
@@ -492,8 +490,7 @@ apply Rle_lt_trans with (d y z).
 - eapply Rle_lt_trans.
   + now apply triangle_inequality.
   + rewrite (metric_sym _ _ d_is_metric y x).
-    replace (dSx + d x y + eps) with (d x y + (dSx + eps)) by ring.
-    auto with real.
+    lra.
 Qed.
 
 End dist_to_set.
@@ -574,11 +571,10 @@ apply Rle_antisym.
     rewrite interior_complement in H1.
     now contradiction H1. }
   destruct H1 as [y [? ?]].
-  apply Rle_lt_trans with (d x y); trivial.
   assert (d x y >= x0).
   { apply i.
     now exists y. }
-  auto with real.
+  lra.
 - apply r.
   red. intros.
   destruct H0.
@@ -593,46 +589,45 @@ Lemma closer_to_S_than_T_open: open
   [x:point_set X | dist_to_set d d_is_metric S S_nonempty x <
                    dist_to_set d d_is_metric T T_nonempty x].
 Proof.
-match goal with |- open ?U => assert (interior U = U) end.
-- apply Extensionality_Ensembles; split.
-  apply interior_deflationary.
-  red; intros.
-  destruct H.
-  match type of H with ?d1 < ?d2 => pose (eps := d2 - d1) end.
-  match goal with |- In (interior ?U) x =>
-    assert (Included (open_ball _ d x (eps/2)) (interior U)) end.
-  + apply interior_maximal.
-    * destruct (d_metrizes_X x).
-      destruct (open_neighborhood_basis_elements
-        (open_ball _ d x (eps/2))); trivial.
-      constructor.
-      assert (eps > 0).
-      { apply Rgt_minus. auto with real. }
-      lra.
-    * red. intros.
-      destruct H0.
-      constructor.
-      eapply Rle_lt_trans with
-        (dist_to_set d d_is_metric S S_nonempty x +
-         d x x0).
-      ** apply dist_to_set_triangle_inequality.
-      ** apply Rlt_le_trans with
-           (dist_to_set d d_is_metric T T_nonempty x - d x x0).
-         *** apply Rminus_lt.
-             match goal with |- ?LHS < 0 => replace LHS with (2 * d x x0 - eps) end;
-               [| unfold eps]; lra.
-         *** assert (dist_to_set d d_is_metric T T_nonempty x <=
-               dist_to_set d d_is_metric T T_nonempty x0 + d x x0).
-             { rewrite (metric_sym _ d d_is_metric x x0).
-               apply dist_to_set_triangle_inequality. }
-             lra.
-  + apply H0.
+match goal with |- open ?U => replace U with (interior U) end.
+{ apply interior_open. }
+apply Extensionality_Ensembles; split.
+{ apply interior_deflationary. }
+red. intros.
+destruct H.
+match type of H with ?d1 < ?d2 => pose (eps := d2 - d1) end.
+match goal with |- In (interior ?U) x =>
+  assert (Included (open_ball _ d x (eps/2)) (interior U)) end.
+{ apply interior_maximal.
+  * destruct (d_metrizes_X x).
+    destruct (open_neighborhood_basis_elements
+      (open_ball _ d x (eps/2))); trivial.
     constructor.
-    rewrite metric_zero; trivial.
-    apply Rmult_gt_0_compat; auto with real rorders.
-    now apply Rgt_minus.
-- rewrite <- H.
-  apply interior_open.
+    assert (eps > 0).
+    { apply Rgt_minus. auto with real. }
+    lra.
+  * red. intros.
+    destruct H0.
+    constructor.
+    eapply Rle_lt_trans with
+      (dist_to_set d d_is_metric S S_nonempty x +
+       d x x0).
+    ** apply dist_to_set_triangle_inequality.
+    ** apply Rlt_le_trans with
+         (dist_to_set d d_is_metric T T_nonempty x - d x x0).
+       *** apply Rminus_lt.
+           match goal with |- ?LHS < 0 => replace LHS with (2 * d x x0 - eps) end;
+             [| unfold eps]; lra.
+       *** assert (dist_to_set d d_is_metric T T_nonempty x <=
+             dist_to_set d d_is_metric T T_nonempty x0 + d x x0).
+           { rewrite (metric_sym _ d d_is_metric x x0).
+             apply dist_to_set_triangle_inequality. }
+           lra. }
+apply H0.
+constructor.
+rewrite metric_zero; trivial.
+apply Rmult_gt_0_compat; auto with real rorders.
+now apply Rgt_minus.
 Qed.
 
 End dist_to_set_and_topology.
@@ -701,7 +696,8 @@ split.
                     apply i1.
                     red. intros.
                     destruct H5.
-                    rewrite H6. now apply metric_nonneg. }
+                    rewrite H6.
+                    now apply metric_nonneg. }
                   lra.
          *** unfold dist_to_set. destruct inf.
              simpl.
@@ -709,36 +705,36 @@ split.
              **** apply i1.
                   red. intros.
                   destruct H5.
-                  rewrite H6. now apply metric_nonneg.
+                  rewrite H6.
+                  now apply metric_nonneg.
              **** destruct i1.
                   assert (0 >= x0); auto with real.
                   apply H5.
                   exists x; trivial.
-                  symmetry. now apply metric_zero.
+                  rewrite metric_zero; auto with real.
       ** replace (dist_to_set d H G i0 x) with 0.
          *** destruct (total_order_T 0 (dist_to_set d H F i x)) as [[?|?]|?]; trivial.
              **** symmetry in e.
                   apply dist_to_set_zero_impl_closure in e; trivial.
                   rewrite closure_fixes_closed in e; trivial.
-                  assert (In Empty_set x).
-                  { rewrite <- H3. now constructor. }
-                  destruct H5.
+                  now assert (In Empty_set x) by
+                    now rewrite <- H3.
              **** assert (0 < 0).
-                  { apply Rle_lt_trans with (dist_to_set d H F i x); auto with real.
+                  { apply Rle_lt_trans with (dist_to_set d H F i x);
+                      auto with real.
                     unfold dist_to_set. destruct inf.
                     simpl.
                     apply i1.
-                    red; intros.
+                    red. intros.
                     destruct H5.
-                    rewrite H6. now apply metric_nonneg. }
+                    rewrite H6.
+                    now apply metric_nonneg. }
                   lra.
          *** symmetry.
              apply closure_impl_dist_to_set_zero; trivial.
              now apply closure_inflationary.
-      ** apply Extensionality_Ensembles; split; auto with sets.
-         red. intros.
-         destruct H4 as [? [?] [?]].
-         lra.
+      ** extensionality_ensembles;
+           lra.
     * exists Full_set, Empty_set.
       repeat split; auto with sets topology.
       red. intros.
