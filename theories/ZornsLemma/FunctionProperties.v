@@ -82,3 +82,12 @@ red; intro.
 exists (g y).
 apply H0.
 Qed.
+
+Lemma id_bijective: forall {X:Type},
+    bijective (@id X).
+Proof.
+intros.
+red; split; red; intros.
+- assumption.
+- exists y. reflexivity.
+Qed.
