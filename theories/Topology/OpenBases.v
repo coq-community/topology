@@ -1,6 +1,6 @@
 Require Export TopologicalSpaces.
 Require Import ClassicalChoice.
-From ZornsLemma Require Import EnsemblesSpec.
+From ZornsLemma Require Import EnsemblesSpec EnsemblesTactics.
 
 Section OpenBasis.
 
@@ -24,24 +24,20 @@ Lemma coverable_by_open_basis_impl_open:
      In B V /\ Included V U /\ In V x) -> open U.
 Proof.
 intros.
-assert (U = FamilyUnion [ V:Ensemble (point_set X) |
+replace U with (FamilyUnion [ V:Ensemble (point_set X) |
                           In B V /\ Included V U ]).
-apply Extensionality_Ensembles; split; red; intros.
-destruct (H x H0) as [V].
-destruct H1 as [? [? ?]].
-exists V; auto.
-constructor; auto.
-destruct H0.
-destruct H0.
-destruct H0.
-auto with sets.
-
-rewrite H0.
-apply open_family_union.
-intros.
-destruct H1.
-destruct H1.
-apply open_basis_elements; trivial.
+- apply open_family_union.
+  intros.
+  destruct H0.
+  destruct H0.
+  now apply open_basis_elements.
+- extensionality_ensembles.
+  + destruct H0.
+    auto with sets.
+  + destruct (H x H0) as [V].
+    destruct H1 as [? [? ?]].
+    exists V; auto.
+    constructor; auto.
 Qed.
 
 End OpenBasis.
@@ -73,102 +69,76 @@ Inductive B_open : Ensemble X -> Prop :=
 
 Definition Build_TopologicalSpace_from_open_basis : TopologicalSpace.
 refine (Build_TopologicalSpace X B_open _ _ _).
-intros.
-pose proof (choice (fun (x:{S:Ensemble X | In F S}) (F:Family X) =>
-  Included F B /\ proj1_sig x = FamilyUnion F)).
-unshelve refine (let H1:=(H0 _) in _); [ | clearbody H1 ].
-intros.
-destruct x.
-pose proof (H x i).
-destruct H1.
-exists F0.
-split; simpl; trivial.
-clear H0.
-destruct H1.
-assert (FamilyUnion F = FamilyUnion (IndexedUnion x)).
-apply Extensionality_Ensembles; split; red; intros.
-destruct H1.
-pose proof (H0 (exist _ _ H1)).
-destruct H3.
-simpl in H4.
-rewrite H4 in H2.
-destruct H2.
-constructor 1 with S0.
-exists (exist _ _ H1).
-assumption.
-assumption.
-
-destruct H1.
-destruct H1.
-pose proof (H0 a).
-destruct H3.
-destruct a.
-simpl in H4.
-exists x2.
-assumption.
-rewrite H4.
-exists x1.
-assumption.
-assumption.
-
-rewrite H1.
-constructor.
-red; intros.
-destruct H2.
-pose proof (H0 a).
-destruct H3.
-auto with sets.
-
-intros.
-assert (Intersection U V = FamilyUnion
-  [ S:Ensemble X | In B S /\ Included S (Intersection U V) ]).
-apply Extensionality_Ensembles; split; red; intros.
-destruct H.
-destruct H0.
-destruct H1.
-destruct H1.
-destruct H2.
-pose proof (H _ H1).
-pose proof (H0 _ H2).
-pose proof (Hbasis _ _ H5 H6).
-assert (In (Intersection S S0) x). constructor; trivial.
-apply H7 in H8.
-clear H7.
-destruct H8.
-destruct H7 as [? [? ?]].
-exists x0; trivial.
-constructor.
-split; trivial.
-red; intros.
-constructor.
-exists S; trivial.
-pose proof (H9 x1 H10).
-destruct H11; trivial.
-exists S0; trivial.
-pose proof (H9 x1 H10).
-destruct H11; trivial.
-destruct H1.
-destruct H1.
-destruct H1.
-auto.
-
-rewrite H1.
-constructor.
-red; intros.
-destruct H2.
-destruct H2.
-auto.
-
-assert (Full_set = FamilyUnion B).
-apply Extensionality_Ensembles; split; red; intros.
-pose proof (Hbasis_cover x).
-destruct H0.
-destruct H0.
-exists x0; trivial.
-constructor.
-
-rewrite H; constructor.
-auto with sets.
+- intros.
+  pose proof (choice (fun (x:{S:Ensemble X | In F S}) (F:Family X) =>
+    Included F B /\ proj1_sig x = FamilyUnion F)).
+  unshelve refine (let H1:=(H0 _) in _); [ | clearbody H1 ].
+  + intros.
+    destruct x.
+    pose proof (H x i).
+    destruct H1.
+    exists F0.
+    now split.
+  + clear H0.
+    destruct H1.
+    replace (FamilyUnion F) with (FamilyUnion (IndexedUnion x)).
+    * constructor.
+      red. intros.
+      destruct H1.
+      pose proof (H0 a).
+      destruct H2.
+      auto with sets.
+    * extensionality_ensembles.
+      ** destruct (H0 a), a.
+         simpl in H4.
+         exists x2; trivial.
+         rewrite H4.
+         now exists x1.
+      ** destruct (H0 (exist _ _ H1)).
+         simpl in H4.
+         rewrite H4 in H2.
+         destruct H2.
+         constructor 1 with S0; trivial.
+         now exists (exist _ _ H1).
+- intros.
+  replace (Intersection U V) with (FamilyUnion
+    [ S:Ensemble X | In B S /\ Included S (Intersection U V) ]).
+  + constructor.
+    red. intros.
+    destruct H1.
+    destruct H1.
+    auto.
+  + extensionality_ensembles.
+    * destruct H1.
+      auto.
+    * destruct H.
+      destruct H0.
+      destruct H1.
+      destruct H2.
+      pose proof (H _ H1).
+      pose proof (H0 _ H2).
+      pose proof (Hbasis _ _ H5 H6).
+      assert (In (Intersection S S0) x) by
+        now constructor.
+      apply H7 in H8.
+      clear H7.
+      destruct H8, H7 as [? [? ?]].
+      exists x0; trivial.
+      constructor.
+      split; trivial.
+      red. intros.
+      constructor.
+      ** exists S; trivial.
+         now destruct (H9 x1 H10).
+      ** destruct (H9 x1 H10).
+         econstructor; eassumption.
+- replace Full_set with (FamilyUnion B).
+  + constructor.
+    auto with sets.
+  + extensionality_ensembles.
+    * constructor.
+    * destruct (Hbasis_cover x), H.
+      now exists x0.
 Defined.
 
 Lemma Build_TopologicalSpace_from_open_basis_point_set:
@@ -181,23 +151,21 @@ Lemma Build_TopologicalSpace_from_open_basis_basis:
   @open_basis Build_TopologicalSpace_from_open_basis B.
 Proof.
 constructor.
-intros.
-simpl.
-assert (V = FamilyUnion (Singleton V)).
-apply Extensionality_Ensembles; split; red; intros.
-exists V; auto with sets.
-destruct H0.
-destruct H0; trivial.
-rewrite H0; constructor.
-red; intros.
-destruct H1; trivial.
-simpl.
-intros.
-destruct H.
-destruct H0.
-exists S; repeat split; auto with sets.
-red; intros.
-exists S; trivial.
+- intros.
+  simpl.
+  replace V with (FamilyUnion (Singleton V)).
+  + constructor.
+    red. intros.
+    now destruct H0.
+  + extensionality_ensembles; trivial.
+    exists V; auto with sets.
+- simpl.
+  intros.
+  destruct H, H0.
+  exists S.
+  repeat split; auto with sets.
+  red. intros.
+  now exists S.
 Qed.
 
 End BuildFromOpenBasis.

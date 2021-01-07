@@ -1,7 +1,5 @@
-Require Export TopologicalSpaces.
-Require Export Ensembles.
+Require Export TopologicalSpaces Ensembles InteriorsClosures.
 From ZornsLemma Require Import EnsemblesImplicit.
-Require Export InteriorsClosures.
 
 Definition open_neighborhood {X:TopologicalSpace}
   (U:Ensemble (point_set X)) (x:point_set X) :=
@@ -17,7 +15,8 @@ Lemma open_neighborhood_is_neighborhood: forall {X:TopologicalSpace}
   open_neighborhood U x -> neighborhood U x.
 Proof.
 intros.
-exists U; auto with sets.
+exists U.
+auto with sets.
 Qed.
 
 Lemma neighborhood_interior: forall {X:TopologicalSpace}
@@ -28,8 +27,8 @@ intros.
 destruct H.
 destruct H.
 destruct H.
-assert (Included x0 (interior N)).
-apply interior_maximal; trivial.
+assert (Included x0 (interior N)) by
+  now apply interior_maximal.
 auto with sets.
 Qed.
 
@@ -39,8 +38,7 @@ Lemma interior_neighborhood: forall {X:TopologicalSpace}
 Proof.
 intros.
 exists (interior N).
-repeat split.
-apply interior_open.
-assumption.
-apply interior_deflationary.
+repeat split; trivial.
+- apply interior_open.
+- apply interior_deflationary.
 Qed.

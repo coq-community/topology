@@ -1,8 +1,5 @@
-Require Export TopologicalSpaces.
-Require Export Neighborhoods.
-Require Export OpenBases.
-From ZornsLemma Require Export IndexedFamilies.
-From ZornsLemma Require Export EnsemblesSpec.
+Require Export TopologicalSpaces Neighborhoods OpenBases.
+From ZornsLemma Require Export IndexedFamilies EnsemblesSpec.
 
 Record neighborhood_basis {X:TopologicalSpace}
   (NB:Family (point_set X)) (x:point_set X) : Prop := {
@@ -29,10 +26,12 @@ Proof.
 intros.
 destruct H.
 constructor; intros.
-apply open_neighborhood_is_neighborhood; auto.
-destruct H as [U [? ?]].
-destruct (open_neighborhood_basis_cond0 U H) as [V [? ?]].
-exists V; split; auto with sets.
+- apply open_neighborhood_is_neighborhood.
+  auto.
+- destruct H as [U [? ?]].
+  destruct (open_neighborhood_basis_cond0 U H) as [V [? ?]].
+  exists V.
+  split; auto with sets.
 Qed.
 
 Lemma open_basis_to_open_neighborhood_basis:
@@ -43,18 +42,16 @@ Lemma open_basis_to_open_neighborhood_basis:
 Proof.
 intros.
 destruct H.
-constructor.
-intros; split; trivial.
-destruct H as [[? ?]].
-apply open_basis_elements.
-assumption.
-destruct H as [[? ?]]; assumption.
-intros.
-destruct H.
-destruct (open_basis_cover x U H H0).
-destruct H1 as [? [? ?]].
-exists x0.
-repeat split; trivial.
+constructor;
+  intros.
+- now split;
+    destruct H as [[? ?]];
+    [ apply open_basis_elements | ].
+- destruct H.
+  destruct (open_basis_cover x U H H0).
+  destruct H1 as [? [? ?]].
+  exists x0.
+  now repeat split.
 Qed.
 
 Lemma open_neighborhood_bases_to_open_basis:
@@ -63,19 +60,19 @@ Lemma open_neighborhood_bases_to_open_basis:
     open_basis (IndexedUnion NB).
 Proof.
 intros.
-constructor; intros.
-destruct H0.
-destruct (H a).
-destruct (open_neighborhood_basis_elements0 x H0); trivial.
-
-destruct (H x).
-assert (open_neighborhood U x).
-split; trivial.
-destruct (open_neighborhood_basis_cond0 U H2) as [V [? ?]].
-exists V; repeat split; trivial.
-exists x; trivial.
-pose proof (open_neighborhood_basis_elements0 V H3).
-destruct H5; trivial.
+constructor;
+  intros.
+- destruct H0.
+  destruct (H a).
+  now destruct (open_neighborhood_basis_elements0 x H0).
+- destruct (H x).
+  assert (open_neighborhood U x) by
+    now constructor.
+  destruct (open_neighborhood_basis_cond0 U H2) as [V [? ?]].
+  exists V.
+  repeat split; trivial.
+  + now exists x.
+  + now destruct (open_neighborhood_basis_elements0 V H3).
 Qed.
 
 Section build_from_open_neighborhood_bases.
@@ -97,32 +94,29 @@ Hypothesis neighborhood_basis_system_cond :
 Definition Build_TopologicalSpace_from_open_neighborhood_bases :
   TopologicalSpace.
 refine (Build_TopologicalSpace_from_open_basis (IndexedUnion NB)
-  _ _).
-red; intros.
-destruct H as [y U'].
-destruct H0 as [z V'].
-destruct H1.
-destruct (neighborhood_basis_system_cond y x U' H H1) as
-  [U'' [? ?]].
-destruct (neighborhood_basis_system_cond z x V' H0 H2) as
-  [V'' [? ?]].
-destruct (neighborhood_basis_cond U'' V'' x H3 H5) as
-  [W [? ?]].
-exists W.
-repeat split.
-exists x; trivial.
-apply neighborhood_basis_cond2; trivial.
-apply H4.
-pose proof (H8 _ H9).
-destruct H10; assumption.
-apply H6.
-pose proof (H8 _ H9).
-destruct H10; assumption.
-
-red; intros.
-destruct (neighborhood_basis_inhabited_cond x) as [U].
-exists U; split; auto.
-exists x; trivial.
+  _ _);
+  red; intros.
+- destruct H as [y U'].
+  destruct H0 as [z V'].
+  destruct H1.
+  destruct (neighborhood_basis_system_cond y x U' H H1) as
+    [U'' [? ?]].
+  destruct (neighborhood_basis_system_cond z x V' H0 H2) as
+    [V'' [? ?]].
+  destruct (neighborhood_basis_cond U'' V'' x H3 H5) as
+    [W [? ?]].
+  exists W.
+  repeat split.
+  + now exists x.
+  + now apply neighborhood_basis_cond2.
+  + apply H4.
+    now destruct (H8 _ H9).
+  + apply H6.
+    now destruct (H8 _ H9).
+- destruct (neighborhood_basis_inhabited_cond x) as [U].
+  exists U.
+  split; auto.
+  now exists x.
 Defined.
 
 Lemma Build_TopologicalSpace_from_open_neighborhood_bases_basis:
@@ -135,19 +129,18 @@ assert (open_basis (IndexedUnion NB)
   by apply Build_TopologicalSpace_from_open_basis_basis.
 destruct H.
 intros.
-constructor.
-intros.
-constructor.
-apply open_basis_elements.
-exists x; trivial.
-apply neighborhood_basis_cond2; trivial.
-
-intros.
-destruct H.
-destruct (open_basis_cover x U H H0) as [V [? []]].
-destruct H1 as [y V].
-destruct (neighborhood_basis_system_cond y x V H1 H3) as [W []].
-exists W; auto with sets.
+constructor;
+  intros.
+- constructor.
+  + apply open_basis_elements.
+    now exists x.
+  + now apply neighborhood_basis_cond2.
+- destruct H.
+  destruct (open_basis_cover x U H H0) as [V [? []]].
+  destruct H1 as [y V].
+  destruct (neighborhood_basis_system_cond y x V H1 H3) as [W []].
+  exists W.
+  auto with sets.
 Qed.
 
 End build_from_open_neighborhood_bases.

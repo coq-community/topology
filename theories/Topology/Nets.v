@@ -1,7 +1,4 @@
-Require Export TopologicalSpaces.
-Require Export DirectedSets.
-Require Export InteriorsClosures.
-Require Export Continuity.
+Require Export TopologicalSpaces DirectedSets InteriorsClosures Continuity.
 
 Set Asymmetric Patterns.
 
@@ -24,14 +21,14 @@ Lemma net_limit_is_cluster_point: forall (x:Net) (x0:point_set X),
   net_limit x x0 -> net_cluster_point x x0.
 Proof.
 intros.
-red; intros.
-red; intros.
-pose proof (H U H0 H1).
-destruct H2.
+red. intros.
+red. intros.
+destruct (H U H0 H1).
 destruct (DS_join_cond i x1).
 destruct H3.
-exists x2; split; trivial.
-apply H2; trivial.
+exists x2.
+split; trivial.
+now apply H2.
 Qed.
 
 Lemma net_limit_in_closure: forall (S:Ensemble (point_set X))
@@ -41,18 +38,15 @@ Lemma net_limit_in_closure: forall (S:Ensemble (point_set X))
 Proof.
 intros.
 apply NNPP.
-red; intro.
+intro.
 pose proof (H0 (Complement (closure S))).
 match type of H2 with | ?A -> ?B -> ?C => assert (C) end.
-apply H2.
-apply closure_closed.
-assumption.
-destruct H3.
-pose proof (H x1).
-destruct H4.
-contradiction (H3 x2).
-tauto.
-apply closure_inflationary; tauto.
+{ apply H2; trivial.
+  apply closure_closed. }
+destruct H3, (H x1).
+contradiction (H3 x2);
+  [ | apply closure_inflationary ];
+  tauto.
 Qed.
 
 Lemma net_cluster_point_in_closure: forall (S:Ensemble (point_set X))
@@ -62,18 +56,15 @@ Lemma net_cluster_point_in_closure: forall (S:Ensemble (point_set X))
 Proof.
 intros.
 apply NNPP.
-red; intro.
+intro.
 pose proof (H0 (Complement (closure S))).
 match type of H2 with | ?A -> ?B -> ?C => assert (C) end.
-apply H2.
-apply closure_closed.
-assumption.
-destruct H.
-destruct (H3 x1).
-destruct H4.
+{ apply H2; trivial.
+  apply closure_closed. }
+destruct H, (H3 x1), H4.
 contradiction H5.
 apply closure_inflationary.
-apply H; trivial.
+now apply H.
 Qed.
 
 End Net.
@@ -105,24 +96,24 @@ Definition neighborhood_net_DS_ord
 Definition neighborhood_net_DS : DirectedSet.
 refine (Build_DirectedSet neighborhood_net_DS_set
   neighborhood_net_DS_ord _ _).
-constructor.
-red; intros.
-destruct x0.
-simpl; auto with sets.
-red; intros.
-destruct x0; destruct y; destruct z.
-simpl in H; simpl in H0; simpl.
-auto with sets.
-
-intros.
-destruct i; destruct j.
-assert (open (Intersection U U0)).
-apply open_intersection2; trivial.
-assert (In (Intersection U U0) x); auto with sets.
-
-exists (intro_neighborhood_net_DS (Intersection U U0) x
-  H H0 H0).
-simpl; auto with sets.
+- constructor;
+    red; intros;
+    destruct x0.
+  + simpl. auto with sets.
+  + destruct y, z.
+    simpl in H, H0.
+    simpl.
+    auto with sets.
+- intros.
+  destruct i, j.
+  assert (open (Intersection U U0)) by
+    now apply open_intersection2.
+  assert (In (Intersection U U0) x) by
+    auto with sets.
+  exists (intro_neighborhood_net_DS (Intersection U U0) x
+    H H0 H0).
+  simpl.
+  auto with sets.
 Defined.
 
 Definition neighborhood_net : Net neighborhood_net_DS X :=
@@ -132,7 +123,7 @@ Definition neighborhood_net : Net neighborhood_net_DS X :=
 
 Lemma neighborhood_net_limit: net_limit neighborhood_net x.
 Proof.
-red; intros.
+red. intros.
 exists (intro_neighborhood_net_DS U x H H0 H0).
 intros.
 destruct j.
@@ -152,18 +143,18 @@ Proof.
 intros.
 assert (forall U:Ensemble (point_set X), open U -> In U x0 ->
   Inhabited (Intersection S U)).
-intros.
-apply NNPP; red; intro.
-assert (Included (closure S) (Complement U)).
-apply closure_minimal.
-red; rewrite Complement_Complement; assumption.
-red; intros.
-red; red; red; intros.
-contradiction H2.
-exists x; auto with sets.
-contradict H1.
-apply H3.
-assumption.
+{ intros.
+  apply NNPP. intro.
+  assert (Included (closure S) (Complement U)).
+  { apply closure_minimal; red.
+    - now rewrite Complement_Complement.
+    - intros.
+      intro.
+      contradiction H2.
+      exists x.
+      auto with sets. }
+  contradict H1.
+  now apply H3. }
 pose (Ssel := fun n:neighborhood_net_DS_set X x0 =>
   match n with
   | intro_neighborhood_net_DS V y _ _ _ => (In S y)
@@ -172,63 +163,52 @@ pose (our_DS_set := {n:neighborhood_net_DS_set X x0 | Ssel n}).
 pose (our_DS_ord := fun (n1 n2:our_DS_set) =>
   neighborhood_net_DS_ord X x0 (proj1_sig n1) (proj1_sig n2)).
 assert (preorder our_DS_ord).
-constructor; red.
-intros; red.
-apply preord_refl.
-apply (@DS_ord_cond (neighborhood_net_DS X x0)).
-intros x y z.
-unfold our_DS_ord; apply preord_trans.
-apply (@DS_ord_cond (neighborhood_net_DS X x0)).
+{ constructor; red.
+  - intros. red.
+    apply preord_refl.
+    apply (@DS_ord_cond (neighborhood_net_DS X x0)).
+  - intros x y z.
+    unfold our_DS_ord. apply preord_trans.
+    apply (@DS_ord_cond (neighborhood_net_DS X x0)). }
 assert (forall i j:our_DS_set, exists k:our_DS_set,
   our_DS_ord i k /\ our_DS_ord j k).
-destruct i.
-destruct x.
-destruct j.
-destruct x.
-assert (open (Intersection U U0)).
-apply open_intersection2; trivial.
-assert (In (Intersection U U0) x0).
-auto with sets.
-assert (Inhabited (Intersection S (Intersection U U0))).
-apply H0; trivial.
-destruct H4.
-destruct H4.
-pose (k0 := intro_neighborhood_net_DS X x0
-  (Intersection U U0) x H2 H3 H5).
-assert (Ssel k0).
-red; unfold k0; simpl.
-assumption.
-exists (exist _ k0 H6).
-split; red; simpl; auto with sets.
-
+{ destruct i, x, j.
+  destruct x.
+  assert (open (Intersection U U0)) by
+    now apply open_intersection2.
+  assert (In (Intersection U U0) x0) by
+    auto with sets.
+  assert (Inhabited (Intersection S (Intersection U U0))) by
+    now apply H0.
+  destruct H4.
+  destruct H4.
+  pose (k0 := intro_neighborhood_net_DS X x0
+    (Intersection U U0) x H2 H3 H5).
+  assert (Ssel k0).
+  { red. now unfold k0. }
+  exists (exist _ k0 H6).
+  split; red; simpl; auto with sets. }
 pose (our_DS := Build_DirectedSet our_DS_set our_DS_ord H1 H2).
 exists our_DS.
 exists (fun i:our_DS_set => neighborhood_net X x0 (proj1_sig i)).
 split.
-intros.
-destruct i.
-destruct x.
-simpl.
-simpl in s.
-assumption.
-
-red; intros.
-assert (Inhabited (Intersection S U)).
-apply H0; trivial.
-destruct H5.
-destruct H5.
-pose (i0 := intro_neighborhood_net_DS X x0
-  U x H3 H4 H6).
-assert (Ssel i0).
-simpl; assumption.
-exists (exist _ i0 H7).
-intros.
-destruct j.
-destruct x1.
-simpl in H8.
-red in H8; simpl in H8.
-simpl.
-auto with sets.
+- intros.
+  now destruct i, x.
+- red. intros.
+  assert (Inhabited (Intersection S U)) by
+    now apply H0.
+  destruct H5.
+  destruct H5.
+  pose (i0 := intro_neighborhood_net_DS X x0
+    U x H3 H4 H6).
+  assert (Ssel i0) by trivial.
+  exists (exist _ i0 H7).
+  intros.
+  destruct j, x1.
+  simpl in H8.
+  red in H8. simpl in H8.
+  simpl.
+  auto with sets.
 Qed.
 
 Section Nets_and_continuity.
@@ -242,18 +222,18 @@ Lemma continuous_func_preserves_net_limits:
     net_limit (fun i:DS_set I => f (x i)) (f x0).
 Proof.
 intros.
-red; intros V ? ?.
+red. intros V ? ?.
 assert (neighborhood V (f x0)).
-apply open_neighborhood_is_neighborhood; split; trivial.
-pose proof (H0 V H3).
-destruct H4 as [U [? ?]].
+{ apply open_neighborhood_is_neighborhood.
+  now split. }
+destruct (H0 V H3) as [U [? ?]].
 destruct H4.
 pose proof (H U H4 H6).
 apply eventually_impl_base with (fun i:DS_set I => In U (x i));
   trivial.
 intros.
-assert (In (inverse_image f V) (x i)); auto with sets.
-destruct H9; trivial.
+assert (In (inverse_image f V) (x i)) by auto with sets.
+now destruct H9.
 Qed.
 
 Lemma func_preserving_net_limits_is_continuous:
@@ -266,15 +246,14 @@ intros.
 pose proof (H (neighborhood_net_DS X x0)
   (neighborhood_net X x0)
   (neighborhood_net_limit X x0)).
-apply continuous_at_open_neighborhoods; intros.
-destruct H1.
-pose proof (H0 V H1 H2).
-destruct H3.
+apply continuous_at_open_neighborhoods.
+intros.
+destruct H1, (H0 V H1 H2).
 destruct x as [U].
-exists U; repeat split; trivial.
-pose proof (H3 (intro_neighborhood_net_DS X x0 U x o i H4)).
-apply H5.
-simpl; auto with sets.
+exists U.
+repeat split; trivial.
+apply (H3 (intro_neighborhood_net_DS X x0 U x o i H4)).
+simpl. auto with sets.
 Qed.
 
 End Nets_and_continuity.
@@ -299,21 +278,17 @@ Lemma subnet_limit: forall (x0:point_set X) {J:DirectedSet}
 Proof.
 intros.
 destruct H0.
-red; intros.
-pose proof (H U H2 H3).
-destruct H4.
+red. intros.
+destruct (H U H2 H3).
 destruct (H1 x1).
-destruct H5.
-destruct H6.
+destruct H5, H6.
 exists x3.
 intros.
 apply H4.
-apply preord_trans with x2.
-apply DS_ord_cond.
-assumption.
-rewrite <- H6.
-apply H0.
-assumption.
+apply preord_trans with x2; trivial.
+- apply DS_ord_cond.
+- rewrite <- H6.
+  now apply H0.
 Qed.
 
 Lemma subnet_cluster_point: forall (x0:point_set X) {J:DirectedSet}
@@ -322,22 +297,18 @@ Lemma subnet_cluster_point: forall (x0:point_set X) {J:DirectedSet}
 Proof.
 intros.
 destruct H0 as [h h_increasing h_dominant].
-red; intros.
-red; intros.
-pose proof (h_dominant i).
-destruct H2.
-destruct H2.
-destruct H3.
-pose proof (H U H0 H1 x2).
-destruct H4.
+red. intros.
+red. intros.
+destruct (h_dominant i).
+destruct H2, H3.
+destruct (H U H0 H1 x2).
 destruct H4.
 exists (h x3).
 split; trivial.
-apply preord_trans with x1.
-apply DS_ord_cond.
-assumption.
-rewrite <- H3.
-apply h_increasing; assumption.
+apply preord_trans with x1; trivial.
+- apply DS_ord_cond.
+- rewrite <- H3.
+  now apply h_increasing.
 Qed.
 
 Section cluster_point_subnet.
@@ -363,56 +334,55 @@ refine (Build_DirectedSet
   cluster_point_subnet_DS_set
   cluster_point_subnet_DS_ord
   _ _).
-constructor.
-red; intros; split; auto with sets.
-apply preord_refl.
-apply DS_ord_cond.
-red; intros.
-destruct H; destruct H0.
-red; split; auto with sets.
-apply preord_trans with (cps_i y); trivial.
-apply DS_ord_cond.
-
-intros.
-destruct i as [i0 U0 ? ?]; destruct j as [i1 U1 ? ?].
-destruct (DS_join_cond i0 i1).
-destruct H.
-pose proof (x0_cluster_point
-  (Intersection U0 U1)).
-match type of H1 with | _ -> _ -> ?C =>
-  assert C end.
-apply H1.
-apply open_intersection2;
-  (apply cps_U_open_neigh0 ||
-   apply cps_U_open_neigh1).
-constructor;
-  (apply cps_U_open_neigh0 ||
-   apply cps_U_open_neigh1).
-destruct (H2 x1).
-destruct H3.
-pose (ki := x2).
-pose (kU := Intersection U0 U1).
-assert (open_neighborhood kU x0).
-split.
-apply open_intersection2.
-apply cps_U_open_neigh0.
-apply cps_U_open_neigh1.
-constructor; (apply cps_U_open_neigh0 ||
-              apply cps_U_open_neigh1).
-assert (In kU (x ki)).
-exact H4.
-
-exists (Build_cluster_point_subnet_DS_set
-  ki kU H5 H6).
-split; red; simpl; split.
-apply preord_trans with x1; trivial.
-apply DS_ord_cond.
-red; intros.
-destruct H7; trivial.
-apply preord_trans with x1; trivial.
-apply DS_ord_cond.
-red; intros.
-destruct H7; trivial.
+- constructor.
+  + red. intros.
+    split; auto with sets.
+    apply preord_refl.
+    apply DS_ord_cond.
+  + red. intros.
+    destruct H, H0.
+    red. split; auto with sets.
+    apply preord_trans with (cps_i y); trivial.
+    apply DS_ord_cond.
+- intros.
+  destruct i as [i0 U0 ? ?].
+  destruct j as [i1 U1 ? ?].
+  destruct (DS_join_cond i0 i1).
+  destruct H.
+  pose proof (x0_cluster_point
+    (Intersection U0 U1)).
+  match type of H1 with | _ -> _ -> ?C =>
+    assert C end.
+  { apply H1.
+    - apply open_intersection2;
+        (apply cps_U_open_neigh0 ||
+         apply cps_U_open_neigh1).
+    - constructor.
+      + apply cps_U_open_neigh0.
+      + apply cps_U_open_neigh1. }
+  destruct (H2 x1), H3.
+  pose (ki := x2).
+  pose (kU := Intersection U0 U1).
+  assert (open_neighborhood kU x0).
+  { split.
+    - apply open_intersection2.
+      apply cps_U_open_neigh0.
+      apply cps_U_open_neigh1.
+    - constructor.
+      + apply cps_U_open_neigh0.
+      + apply cps_U_open_neigh1. }
+  assert (In kU (x ki)) by trivial.
+  exists (Build_cluster_point_subnet_DS_set
+    ki kU H5 H6).
+  split; red; simpl; split.
+  + apply preord_trans with x1; trivial.
+    apply DS_ord_cond.
+  + red. intros.
+    now destruct H7.
+  + apply preord_trans with x1; trivial.
+    apply DS_ord_cond.
+  + red. intros.
+    now destruct H7.
 Defined.
 
 Definition cluster_point_subnet : Net
@@ -424,42 +394,39 @@ Lemma cluster_point_subnet_is_subnet:
   Subnet cluster_point_subnet.
 Proof.
 constructor.
-intros.
-destruct j1; destruct j2.
-simpl in H; simpl.
-red in H; tauto.
-
-red; intros.
-exists i; split.
-apply preord_refl; apply DS_ord_cond.
-assert (open_neighborhood Full_set x0).
-split.
-apply open_full.
-constructor.
-assert (In Full_set (x i)).
-constructor.
-exists (Build_cluster_point_subnet_DS_set
-  i Full_set H H0).
-trivial.
+- intros.
+  destruct j1, j2.
+  simpl in H. simpl.
+  red in H. tauto.
+- red. intros.
+  exists i. split.
+  + apply preord_refl, DS_ord_cond.
+  + assert (open_neighborhood Full_set x0).
+    { repeat constructor.
+      apply open_full. }
+    assert (In Full_set (x i)) by
+      constructor.
+    now exists (Build_cluster_point_subnet_DS_set
+      i Full_set H H0).
 Qed.
 
 Lemma cluster_point_subnet_converges:
   net_limit cluster_point_subnet x0.
 Proof.
-red; intros.
+red. intros.
 destruct I_nonempty as [i0].
 destruct (x0_cluster_point U H H0 i0).
 destruct H1.
-assert (open_neighborhood U x0).
-split; trivial.
+assert (open_neighborhood U x0) by
+  now split.
 exists (Build_cluster_point_subnet_DS_set
   x1 U H3 H2).
 intros.
 destruct j.
-red in H4; simpl in H4.
-red in H4; simpl in H4.
-unfold cluster_point_subnet; simpl.
-destruct H4; auto with sets.
+red in H4. simpl in H4.
+red in H4. simpl in H4.
+unfold cluster_point_subnet. simpl.
+destruct H4. auto with sets.
 Qed.
 
 Lemma net_cluster_point_impl_subnet_converges:
@@ -469,8 +436,8 @@ Proof.
 exists cluster_point_subnet_DS.
 exists cluster_point_subnet.
 split.
-exact cluster_point_subnet_is_subnet.
-exact cluster_point_subnet_converges.
+- exact cluster_point_subnet_is_subnet.
+- exact cluster_point_subnet_converges.
 Qed.
 
 End cluster_point_subnet.
