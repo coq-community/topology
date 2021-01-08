@@ -1,4 +1,5 @@
 Require Export Image.
+Require Export Coq.Program.Basics.
 
 Arguments injective {U} {V}.
 Definition surjective {X Y:Type} (f:X->Y) :=
@@ -90,4 +91,44 @@ intros.
 red; split; red; intros.
 - assumption.
 - exists y. reflexivity.
+Qed.
+
+Lemma injective_compose {X Y Z : Type} (f : X -> Y) (g : Y -> Z) :
+  injective f -> injective g -> injective (compose g f).
+Proof.
+intros.
+red; intros.
+apply H0 in H1.
+apply H in H1.
+assumption.
+Qed.
+
+Lemma surjective_compose {X Y Z : Type} (f : X -> Y) (g : Y -> Z) :
+  surjective f -> surjective g -> surjective (compose g f).
+Proof.
+intros.
+red; intros z.
+specialize (H0 z) as [y].
+specialize (H y) as [x].
+exists x. subst. reflexivity.
+Qed.
+
+Lemma bijective_compose {X Y Z : Type} (f : X -> Y) (g : Y -> Z) :
+  bijective f -> bijective g -> bijective (compose g f).
+Proof.
+intros.
+destruct H, H0.
+split.
+- apply injective_compose; assumption.
+- apply surjective_compose; assumption.
+Qed.
+
+Lemma invertible_compose {X Y Z : Type} (f : X -> Y) (g : Y -> Z) :
+  invertible f -> invertible g -> invertible (compose g f).
+Proof.
+intros.
+destruct H as [f'], H0 as [g'].
+exists (compose f' g'); intros; unfold compose.
+- rewrite H0. apply H.
+- rewrite H1. apply H2.
 Qed.
