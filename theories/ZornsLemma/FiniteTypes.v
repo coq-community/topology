@@ -10,6 +10,7 @@ From Coq Require Import Description.
 From ZornsLemma Require Import Powerset_facts.
 From Coq Require Import FunctionalExtensionality.
 From ZornsLemma Require Import FiniteImplicit.
+From Coq Require Import PeanoNat.
 
 Set Asymmetric Patterns.
 
@@ -880,4 +881,58 @@ split.
   + intro.
     destruct (proof_irrelevance _ (bij_finite _ _ f0 HFinite H) HFinite0).
     now rewrite Hbijection_f, Hbijection_g, IHHFinite.
+Qed.
+
+(* Finite types can’t map surjectively onto [nat]. *)
+Lemma FiniteT_nat_no_surj (X : Type) :
+  FiniteT X ->
+  ~ exists f : X -> nat, surjective f.
+Proof.
+intros.
+induction H.
+- intro. destruct H.
+  specialize (H O).
+  destruct H.
+  assumption.
+- intro. destruct H0 as [f].
+  apply IHFiniteT. clear IHFiniteT.
+  exists (fun x =>
+       if (f None) <? f (Some x) then
+         pred (f (Some x))
+       else
+         f (Some x)).
+  red; intros.
+  destruct (H0 y) as [[|]].
+  + destruct (f None <? y) eqn:E.
+    * destruct (H0 (S y)) as [[|]].
+      -- exists t0. subst. rewrite H2. simpl.
+         replace (f None <? S (f (Some t))) with true.
+         { reflexivity. }
+         symmetry.
+         rewrite Nat.ltb_lt.
+         rewrite Nat.ltb_lt in E.
+         apply Nat.lt_lt_succ_r.
+         assumption.
+      -- subst. rewrite H2 in E.
+         rewrite Nat.ltb_lt in E.
+         apply Nat.nlt_succ_diag_l in E.
+         contradiction.
+    * exists t. subst. rewrite E. reflexivity.
+  + destruct (H0 (S y)) as [[|]].
+    -- exists t. subst. rewrite H2.
+       replace (f None <? S (f None)) with true.
+       { reflexivity. }
+       symmetry.
+       rewrite Nat.ltb_lt.
+       constructor.
+    -- rewrite H1 in H2.
+       apply n_Sn in H2.
+       contradiction.
+- intro.
+  destruct H1.
+  apply IHFiniteT.
+  exists (compose x f).
+  apply invertible_impl_bijective in H0.
+  destruct H0.
+  apply surjective_compose; assumption.
 Qed.

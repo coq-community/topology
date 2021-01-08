@@ -570,3 +570,73 @@ case H.
   exists x.
   assumption.
 Qed.
+
+Require Import ZornsLemma.CountableTypes.
+
+Lemma CountableT_cardinality {X : Type} :
+  CountableT X <-> le_cardinal (cardinality X) aleph0.
+Proof.
+split; intros.
+- destruct H.
+  exists f. assumption.
+- inversion H; subst.
+  exists f. assumption.
+Qed.
+
+Require Import ZornsLemma.FiniteTypes.
+Require Import ZornsLemma.InfiniteTypes.
+
+Lemma FiniteT_nat_embeds {X : Type} :
+  FiniteT X -> exists f : X -> nat, injective f.
+Proof.
+intros.
+induction H.
+- exists (fun _ => O).
+  red; intros.
+  contradiction.
+- destruct IHFiniteT as [f].
+  exists (fun a => match a with
+           | None => O
+           | Some b => S (f b)
+           end).
+  red; intros.
+  destruct x, y; try discriminate.
+  + inversion H1; subst; clear H1.
+    apply H0 in H3.
+    rewrite H3. reflexivity.
+  + reflexivity.
+- destruct IHFiniteT as [g].
+  destruct H0 as [f'].
+  exists (fun y => g (f' y)).
+  apply injective_compose.
+  2: { assumption. }
+  destruct (invertible_impl_bijective f').
+  2: { assumption. }
+  exists f; assumption.
+Qed.
+
+Lemma FiniteT_cardinality {X : Type} :
+  FiniteT X <-> lt_cardinal (cardinality X) aleph0.
+Proof.
+split; intros.
+- constructor.
+  + destruct (FiniteT_nat_embeds H) as [f].
+    exists f. assumption.
+  + intro.
+    inversion H0; subst; clear H0.
+    destruct H3.
+    assert (FiniteT nat).
+    { apply surj_finite with X f; auto.
+      intros.
+      destruct (classic (y1 = y2)); tauto.
+    }
+    auto using nat_infinite.
+- inversion H; subst; clear H.
+  inversion H0; subst; clear H0.
+  apply NNPP. intro.
+  destruct (infinite_nat_inj _ H) as [g].
+  contradict H1.
+  pose (CSB X nat f g). intuition.
+  destruct H2 as [h].
+  exists h. assumption.
+Qed.
