@@ -8,6 +8,8 @@ Require Import ZornsLemma.
 Require Import ProofIrrelevance.
 Require Import EnsemblesSpec.
 
+Export Set Universe Polymorphism.
+
 Section WellOrder.
 
 (* this definition is for the strict order, e.g. the

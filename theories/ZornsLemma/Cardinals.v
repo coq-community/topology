@@ -4,6 +4,8 @@ Require Import Relation_Definitions_Implicit.
 Require Import CSB.
 Require Import EnsemblesSpec.
 
+Export Set Universe Polymorphism.
+
 Inductive Cardinal : Type :=
   | cardinality: Type -> Cardinal.
 
