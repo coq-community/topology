@@ -2,6 +2,9 @@ Require Export TopologicalSpaces.
 From ZornsLemma Require Export InverseImage.
 Require Export Continuity.
 
+(* Also called "final topology". Its construction is dual
+   (in the categorical sense) to the construction of the weak topology. *)
+
 Section StrongTopology.
 
 Variable A:Type.
@@ -68,6 +71,23 @@ intros.
 unfold continuous in H.
 simpl in H.
 red; intros; apply H; trivial.
+Qed.
+
+Lemma strong_topology_continuous_char (Z : TopologicalSpace)
+      (g : point_set StrongTopology -> point_set Z) :
+  continuous g <->
+  forall a, continuous (compose g (f a)).
+Proof.
+split.
+- intros. unfold compose.
+  apply continuous_composition; auto.
+  apply strong_topology_makes_continuous_funcs.
+- intros.
+  red; intros.
+  simpl. red. intros.
+  rewrite <- inverse_image_composition.
+  apply H.
+  assumption.
 Qed.
 
 End StrongTopology.

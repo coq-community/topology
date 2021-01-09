@@ -5,6 +5,9 @@ Require Export Nets.
 From ZornsLemma Require Export InverseImage.
 From ZornsLemma Require Import FiniteIntersections.
 
+(* Also called "initial topology". Its construction is dual
+   (in the categorical sense) to the construction of the strong topology. *)
+
 Section WeakTopology.
 
 Variable X:Type.
@@ -46,6 +49,23 @@ exact H3.
 destruct H4.
 apply H; trivial.
 apply H2; trivial.
+Qed.
+
+Lemma weak_topology_continuous_char (W : TopologicalSpace)
+      (g : (point_set W) -> (point_set (WeakTopology))) :
+      continuous g <-> (forall a, continuous (compose (f a) g)).
+Proof.
+  split.
+  - intros.
+    unfold compose. apply continuous_composition.
+    + apply weak_topology_makes_continuous_funcs.
+    + assumption.
+  - intros.
+    apply continuous_subbasis with weak_topology_subbasis.
+    { apply Build_TopologicalSpace_from_subbasis_subbasis. }
+    intros. induction H0.
+    rewrite <- inverse_image_composition.
+    apply H. assumption.
 Qed.
 
 Section WeakTopology_and_Nets.
