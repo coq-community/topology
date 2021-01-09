@@ -197,6 +197,23 @@ intros.
 apply ord_le_respects_succ; trivial.
 Qed.
 
+Require Import RelationClasses.
+
+Instance ord_le_PreOrder : PreOrder ord_le.
+Proof.
+  split; red; intros.
+  - apply ord_le_refl.
+  - apply ord_le_trans with y; assumption.
+Qed.
+
+Instance ord_eq_Equivalence : Equivalence ord_eq.
+Proof.
+  split; red; intros.
+  - split; reflexivity.
+  - destruct H; split; assumption.
+  - destruct H, H0. split; transitivity y; assumption.
+Qed.
+
 Lemma ord_total_order: forall alpha beta:Ordinal,
   alpha < beta \/ alpha == beta \/ alpha > beta.
 Proof.
