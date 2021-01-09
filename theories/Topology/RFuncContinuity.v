@@ -1,8 +1,6 @@
-Require Import FunctionalExtensionality.
-Require Import Lra.
-Require Export RTopology.
-Require Export ProductTopology.
-From Coq Require ProofIrrelevance.
+Require Export RTopology ProductTopology Homeomorphisms.
+Require Import ContinuousFactorization.
+From Coq Require Import FunctionalExtensionality Lra ProofIrrelevance.
 From ZornsLemma Require Import EnsemblesTactics.
 
 Lemma continuous_at_iff_continuity_pt
@@ -300,10 +298,6 @@ apply Rle_lt_trans with (2 := H0).
 apply Rabs_triang_inv2.
 Qed.
 
-(* a miscellaneous example which is used in the proof of the
-   Tietze extension theorem *)
-Require Export Homeomorphisms.
-
 Lemma open_interval_homeomorphic_to_real_line:
   let U:=characteristic_function_to_ensemble
       (fun x:point_set RTop => -1 < x < 1) in
@@ -311,111 +305,94 @@ Lemma open_interval_homeomorphic_to_real_line:
 Proof.
 intros.
 assert (forall x:R, -1 < x / (1 + Rabs x) < 1).
-intros.
-assert (0 < 1 + Rabs x).
-apply Rlt_le_trans with 1; auto with real.
-pattern 1 at 1; replace 1 with (1+0) by auto with real.
-apply Rplus_le_compat_l.
-apply Rabs_pos.
-apply and_comm; apply Rabs_def2.
-unfold Rdiv; rewrite Rabs_mult.
-rewrite Rabs_Rinv.
-rewrite (Rabs_right (1 + Rabs x)); try (left; trivial).
-pattern 1 at 2; replace 1 with ((1 + Rabs x) * / (1 + Rabs x)).
-apply Rmult_lt_compat_r.
-apply Rinv_0_lt_compat; trivial.
-pattern (Rabs x) at 1; replace (Rabs x) with (0 + Rabs x); auto with real.
-field.
-apply Rgt_not_eq; trivial.
-apply Rgt_not_eq; trivial.
-
+{ intros.
+  assert (0 < 1 + Rabs x).
+  { pose proof (Rabs_pos x). lra. }
+  apply and_comm, Rabs_def2.
+  unfold Rdiv.
+  rewrite Rabs_mult, Rabs_Rinv.
+  - rewrite (Rabs_right (1 + Rabs x)); [ | now left ].
+    pattern 1 at 2.
+    replace 1 with ((1 + Rabs x) * / (1 + Rabs x)) by (field; lra).
+    apply Rmult_lt_compat_r.
+    + now apply Rinv_0_lt_compat.
+    + lra.
+  - lra. }
 assert (forall x:point_set RTop, In U (x / (1 + Rabs x))).
-intros; constructor; apply H.
-Require Import ContinuousFactorization.
+{ intros.
+  now constructor. }
 exists (continuous_factorization _ _ H0).
-exists (fun x:point_set (SubspaceTopology U) =>
-  (subspace_inc U x) / (1 - Rabs (subspace_inc U x))).
-apply factorization_is_continuous.
-apply pointwise_continuity; intros.
-apply quotient_continuous.
-apply continuous_func_continuous_everywhere; apply continuous_identity.
-apply sum_continuous.
-apply continuous_func_continuous_everywhere; apply continuous_constant.
-apply continuous_func_continuous_everywhere; apply Rabs_continuous.
-apply Rgt_not_eq.
-apply Rlt_le_trans with 1; auto with real.
-pattern 1 at 1; replace 1 with (1+0) by auto with real.
-apply Rplus_le_compat_l.
-apply Rabs_pos.
-
-apply pointwise_continuity; intros.
-apply quotient_continuous.
-apply continuous_func_continuous_everywhere; apply subspace_inc_continuous.
-apply diff_continuous.
-apply continuous_func_continuous_everywhere; apply continuous_constant.
-apply continuous_composition_at.
-apply continuous_func_continuous_everywhere; apply Rabs_continuous.
-apply continuous_func_continuous_everywhere; apply subspace_inc_continuous.
-apply Rgt_not_eq.
-apply Rgt_minus.
-red.
-destruct x as [x [[]]]; simpl.
-apply Rabs_def1; trivial.
-
-simpl.
-intros.
-unfold Rabs at 1 3; destruct Rcase_abs.
-rewrite Rabs_left.
-field.
-split; intro; lra.
-assert (/ (1 + -x) > 0).
-apply Rinv_0_lt_compat.
-lra.
-replace 0 with (x*0) by auto with real.
-apply Rmult_lt_gt_compat_neg_l; trivial.
-
-rewrite Rabs_right.
-field.
-split; intro; lra.
-assert (/ (1+x) > 0).
-apply Rinv_0_lt_compat.
-lra.
-apply Rle_ge.
-apply Rge_le in r.
-red in H1.
-unfold Rdiv.
-replace 0 with (0 * / (1+x)); auto with real.
-
-intros.
-destruct y as [x].
-simpl.
-apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
-destruct i.
-destruct H1.
-assert (Rabs x < 1).
-apply Rabs_def1; trivial.
-
-unfold Rabs at 1 3; destruct Rcase_abs.
-rewrite Rabs_left.
-field.
-split; intro; lra.
-replace (1 - -x) with (1+x) by ring.
-assert (/ (1+x) > 0).
-apply Rinv_0_lt_compat.
-lra.
-unfold Rdiv.
-replace 0 with (x*0) by auto with real.
-apply Rmult_lt_gt_compat_neg_l; trivial.
-
-rewrite Rabs_right.
-field.
-split; intro; lra.
-assert (/ (1-x) > 0).
-apply Rinv_0_lt_compat.
-apply Rgt_minus; trivial.
-unfold Rdiv.
-red in H4.
-apply Rge_le in r.
-apply Rle_ge.
-replace 0 with (0 * / (1-x)); auto with real.
+exists (fun x => (subspace_inc U x) / (1 - Rabs (subspace_inc U x))).
+- apply factorization_is_continuous.
+  apply pointwise_continuity.
+  intros.
+  apply quotient_continuous.
+  + apply continuous_func_continuous_everywhere, continuous_identity.
+  + apply sum_continuous.
+    * apply continuous_func_continuous_everywhere, continuous_constant.
+    * apply continuous_func_continuous_everywhere, Rabs_continuous.
+  + pose proof (Rabs_pos x).
+    lra.
+- apply pointwise_continuity.
+  intros.
+  apply quotient_continuous.
+  + apply continuous_func_continuous_everywhere, subspace_inc_continuous.
+  + apply diff_continuous.
+    * apply continuous_func_continuous_everywhere, continuous_constant.
+    * apply continuous_composition_at.
+      apply continuous_func_continuous_everywhere, Rabs_continuous.
+      apply continuous_func_continuous_everywhere, subspace_inc_continuous.
+  + destruct x as [x [[]]]. simpl.
+    cut (Rabs x < 1).
+    * lra.
+    * apply Rabs_def1; lra.
+- simpl.
+  intros.
+  unfold Rabs at 1 3. destruct Rcase_abs.
+  + rewrite Rabs_left.
+    * field.
+      lra.
+    * assert (/ (1 + -x) > 0).
+      { apply Rinv_0_lt_compat.
+        lra. }
+      replace 0 with (x*0) by auto with real.
+      now apply Rmult_lt_gt_compat_neg_l.
+  + rewrite Rabs_right.
+    * field.
+      lra.
+    * assert (/ (1+x) > 0).
+      { apply Rinv_0_lt_compat.
+        lra. }
+      apply Rle_ge.
+      apply Rge_le in r.
+      red in H1.
+      unfold Rdiv.
+      replace 0 with (0 * / (1+x)); auto with real.
+- intros.
+  destruct y as [x].
+  simpl.
+  apply subset_eq_compat.
+  destruct i.
+  destruct H1.
+  assert (Rabs x < 1) by now apply Rabs_def1.
+  unfold Rabs at 1 3. destruct Rcase_abs.
+  + rewrite Rabs_left.
+    * field.
+      lra.
+    * replace (1 - -x) with (1+x) by ring.
+      assert (/ (1+x) > 0).
+      { apply Rinv_0_lt_compat. lra. }
+      unfold Rdiv.
+      replace 0 with (x*0) by auto with real.
+      now apply Rmult_lt_gt_compat_neg_l.
+  + rewrite Rabs_right.
+    * field.
+      lra.
+    * assert (/ (1-x) > 0) by
+        now apply Rinv_0_lt_compat, Rgt_minus.
+      unfold Rdiv.
+      red in H4.
+      apply Rge_le in r.
+      apply Rle_ge.
+      replace 0 with (0 * / (1-x)); auto with real.
 Qed.

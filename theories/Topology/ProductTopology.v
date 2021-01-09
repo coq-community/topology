@@ -1,8 +1,6 @@
-Require Export TopologicalSpaces.
-Require Export WeakTopology.
-From ZornsLemma Require Import DependentTypeChoice.
-Require Export FilterLimits.
-Require Export Compactness.
+Require Export TopologicalSpaces WeakTopology FilterLimits Compactness.
+Require Import FunctionalExtensionality.
+From ZornsLemma Require Import DependentTypeChoice FiniteIntersections.
 
 Section product_topology.
 
@@ -31,8 +29,7 @@ Lemma product_net_limit: forall (I:DirectedSet)
   net_limit x x0.
 Proof.
 intros.
-apply net_limit_in_projections_impl_net_limit_in_weak_topology;
-  trivial.
+now apply net_limit_in_projections_impl_net_limit_in_weak_topology.
 Qed.
 
 Lemma product_filter_limit:
@@ -45,55 +42,58 @@ Proof.
 intros.
 assert (subbasis
   (weak_topology_subbasis product_space_proj)
-  (X:=ProductTopology)).
-apply Build_TopologicalSpace_from_subbasis_subbasis.
-red; intros.
-red; intros U ?.
+  (X:=ProductTopology)) by
+  apply Build_TopologicalSpace_from_subbasis_subbasis.
+red. intros.
+red. intros U ?.
 destruct H1.
 destruct H1 as [U' []].
 cut (In (filter_family F) U').
-intro.
-apply filter_upward_closed with U'; trivial.
-destruct H1.
-destruct (subbasis_cover _ _ H0 _ _ H3 H1) as
-  [B [? [V [? []]]]].
-cut (In (filter_family F) (IndexedIntersection V)).
-intro.
-apply filter_upward_closed with (1:=H8); trivial.
-apply filter_finite_indexed_intersection; trivial.
-
-intro b.
-pose proof (H5 b).
-inversion H8.
-apply H.
-constructor.
-apply open_neighborhood_is_neighborhood.
-constructor; trivial.
-destruct H6.
-pose proof (H6 b).
-rewrite <- H9 in H11.
-destruct H11.
-exact H11.
+- intro.
+  apply filter_upward_closed with U'; trivial.
+- destruct H1.
+  destruct (subbasis_cover _ _ H0 _ _ H3 H1) as
+    [B [? [V [? []]]]].
+  cut (In (filter_family F) (IndexedIntersection V)).
+  + intro.
+    eapply filter_upward_closed;
+      eassumption.
+  + apply filter_finite_indexed_intersection;
+      trivial.
+    intro b.
+    pose proof (H5 b).
+    inversion H8.
+    apply H.
+    constructor.
+    apply open_neighborhood_is_neighborhood.
+    constructor; trivial.
+    destruct H6.
+    pose proof (H6 b).
+    rewrite <- H9 in H11.
+    now destruct H11.
 Qed.
 
 Theorem TychonoffProductTheorem:
   (forall a:A, compact (X a)) -> compact ProductTopology.
 Proof.
 intro.
-apply ultrafilter_limit_impl_compact; intros.
+apply ultrafilter_limit_impl_compact.
+intros.
 destruct (choice_on_dependent_type (fun (a:A) (x:point_set (X a)) =>
   filter_limit (filter_direct_image (product_space_proj a) U) x))
   as [choice_fun].
-intro.
-destruct (compact_impl_filter_cluster_point _ (H a)
-  (filter_direct_image (product_space_proj a) U)) as [xa].
-exists xa.
-apply ultrafilter_cluster_point_is_limit; trivial.
-red; intros.
-destruct (H0 (inverse_image (product_space_proj a) S));
-  [left | right]; constructor; try rewrite inverse_image_complement; trivial.
-exists choice_fun.
-apply product_filter_limit; trivial.
+- intro.
+  destruct (compact_impl_filter_cluster_point _ (H a)
+    (filter_direct_image (product_space_proj a) U)) as [xa].
+  exists xa.
+  apply ultrafilter_cluster_point_is_limit; trivial.
+  red. intros.
+  now destruct (H0 (inverse_image (product_space_proj a) S));
+    [left | right];
+    constructor;
+    [ | rewrite inverse_image_complement ].
+- exists choice_fun.
+  now apply product_filter_limit.
 Qed.
 
 End product_topology.
@@ -112,16 +112,13 @@ intros.
 apply func_preserving_net_limits_is_continuous.
 intros.
 apply product_net_limit.
-destruct (H0 Full_set) as [i].
-apply open_full.
-constructor.
-exists; exact i.
-intros.
-apply continuous_func_preserves_net_limits; trivial.
+- destruct (H0 Full_set) as [i].
+  + apply open_full.
+  + constructor.
+  + now exists.
+- intros.
+  now apply continuous_func_preserves_net_limits.
 Qed.
-
-Require Import FunctionalExtensionality.
-From ZornsLemma Require Import FiniteIntersections.
 
 Section product_topology2.
 
@@ -147,15 +144,13 @@ Lemma prod2_comp1: forall p:point_set prod2,
 Proof.
 intros.
 extensionality i.
-destruct i; trivial.
+now destruct i.
 Qed.
 
 Lemma prod2_comp2: forall p:point_set X * point_set Y,
   prod2_conv1 (prod2_conv2 p) = p.
 Proof.
-intros.
-destruct p as [x y].
-trivial.
+now intros [? ?].
 Qed.
 
 Let prod2_proj := fun i:twoT =>
@@ -175,19 +170,16 @@ intros p.
 apply func_preserving_net_limits_is_continuous.
 intros.
 apply net_limit_in_projections_impl_net_limit_in_weak_topology.
-destruct (H Full_set).
-apply open_full.
-constructor.
-exact (inhabits x0).
-destruct a.
-simpl.
-apply net_limit_in_weak_topology_impl_net_limit_in_projections
-  with (a:=twoT_1) in H.
-exact H.
-simpl.
-apply net_limit_in_weak_topology_impl_net_limit_in_projections
-  with (a:=twoT_2) in H.
-exact H.
+- destruct (H Full_set).
+  + apply open_full.
+  + constructor.
+  + exact (inhabits x0).
+- destruct a;
+    simpl.
+  + now apply net_limit_in_weak_topology_impl_net_limit_in_projections
+      with (a:=twoT_1) in H.
+  + now apply net_limit_in_weak_topology_impl_net_limit_in_projections
+      with (a:=twoT_2) in H.
 Qed.
 
 Lemma prod2_conv2_cont: continuous prod2_conv2 (X:=ProductTopology2).
@@ -197,33 +189,27 @@ destruct x as [x y].
 apply func_preserving_net_limits_is_continuous.
 intros.
 apply net_limit_in_projections_impl_net_limit_in_weak_topology.
-destruct (H Full_set).
-apply open_full.
-constructor.
-exact (inhabits x1).
-destruct a.
-unfold product_space_proj.
-simpl.
-replace (fun i:DS_set I => prod2_conv2 (x0 i) twoT_1) with
-  (fun i:DS_set I => fst (x0 i)).
-apply net_limit_in_weak_topology_impl_net_limit_in_projections
-  with (a:=twoT_1) in H.
-simpl in H.
-trivial.
-extensionality i.
-destruct (x0 i) as [xi yi].
-trivial.
-unfold product_space_proj.
-simpl.
-replace (fun i:DS_set I => prod2_conv2 (x0 i) twoT_2) with
-  (fun i:DS_set I => snd (x0 i)).
-apply net_limit_in_weak_topology_impl_net_limit_in_projections
-  with (a:=twoT_2) in H.
-simpl in H.
-trivial.
-extensionality i.
-destruct (x0 i) as [xi yi].
-trivial.
+- destruct (H Full_set).
+  + apply open_full.
+  + constructor.
+  + exact (inhabits x1).
+- destruct a.
+  + unfold product_space_proj.
+    simpl.
+    replace (fun i => prod2_conv2 (x0 i) twoT_1) with
+      (fun i => fst (x0 i)).
+    * now apply net_limit_in_weak_topology_impl_net_limit_in_projections
+        with (a:=twoT_1) in H.
+    * extensionality i.
+      now destruct (x0 i).
+  + unfold product_space_proj.
+    simpl.
+    replace (fun i:DS_set I => prod2_conv2 (x0 i) twoT_2) with
+      (fun i:DS_set I => snd (x0 i)).
+    * now apply net_limit_in_weak_topology_impl_net_limit_in_projections
+        with (a:=twoT_2) in H.
+    * extensionality i.
+      now destruct (x0 i).
 Qed.
 
 Lemma product2_fst_continuous:
@@ -255,17 +241,16 @@ replace (fun w:point_set W => (f w, g w)) with
               (fun i:twoT => match i with
                 | twoT_1 => f w
                 | twoT_2 => g w end)).
-apply (@continuous_composition_at W prod2 ProductTopology2
-  prod2_conv1
-  (fun w:point_set W =>
-     fun i:twoT => match i with
-         | twoT_1 => f w | twoT_2 => g w end)).
-apply continuous_func_continuous_everywhere.
-apply prod2_conv1_cont.
-apply product_map_continuous.
-destruct a; trivial.
-extensionality w0.
-trivial.
+- apply (@continuous_composition_at W prod2 ProductTopology2
+    prod2_conv1
+    (fun w:point_set W =>
+       fun i:twoT => match i with
+           | twoT_1 => f w | twoT_2 => g w end)).
+  + apply continuous_func_continuous_everywhere.
+    apply prod2_conv1_cont.
+  + apply product_map_continuous.
+    now destruct a.
+- now extensionality w0.
 Qed.
 
 Inductive ProductTopology2_basis :
@@ -286,101 +271,66 @@ assert (open_basis (finite_intersections (weak_topology_subbasis prod2_proj))
   Build_TopologicalSpace_from_open_basis_basis.
 apply eq_ind with (1:=H).
 apply Extensionality_Ensembles; split; red; intros U ?.
-induction H0.
-replace (@Full_set (point_set X * point_set Y)) with
-  [ p:point_set ProductTopology2 |
-    let (x,y):=p in (In Full_set x /\ In Full_set y) ].
-constructor; try apply open_full.
-apply Extensionality_Ensembles; split; red; intros.
-constructor.
-destruct x.
-constructor; split; constructor.
-destruct H0.
-destruct a.
-replace (inverse_image (prod2_proj twoT_1) V) with
-  [ p:point_set ProductTopology2 |
-    let (x,y):=p in (In V x /\ In Full_set y) ].
-constructor; trivial.
-apply open_full.
-apply Extensionality_Ensembles; split; red; intros.
-destruct H1.
-destruct x.
-destruct H1.
-constructor.
-trivial.
-destruct H1.
-destruct x.
-constructor.
-split; trivial.
-constructor.
-replace (inverse_image (prod2_proj twoT_2) V) with
-  [ p:point_set ProductTopology2 |
-    let (x,y):=p in (In Full_set x /\ In V y) ].
-constructor; trivial.
-apply open_full.
-apply Extensionality_Ensembles; split; red; intros.
-destruct H1.
-destruct x.
-destruct H1.
-constructor.
-trivial.
-destruct H1.
-destruct x.
-constructor.
-split.
-constructor.
-trivial.
-
-destruct IHfinite_intersections as [U1 V1].
-destruct IHfinite_intersections0 as [U2 V2].
-replace (@Intersection (point_set X * point_set Y)
-  [p:point_set ProductTopology2 | let (x,y):=p in In U1 x /\ In V1 y]
-  [p:point_set ProductTopology2 | let (x,y):=p in In U2 x /\ In V2 y])
-with
-  [p:point_set ProductTopology2 | let (x,y):=p in
-   (In (Intersection U1 U2) x /\ In (Intersection V1 V2) y)].
-constructor; apply open_intersection2; trivial.
-apply Extensionality_Ensembles; split; red; intros.
-destruct H6.
-destruct x.
-destruct H6.
-destruct H6.
-destruct H7.
-constructor.
-constructor.
-split; trivial.
-constructor.
-split; trivial.
-destruct H6.
-destruct H6.
-destruct H7.
-destruct x.
-destruct H6.
-destruct H7.
-constructor.
-split; constructor; trivial.
-
-destruct H0.
-replace [p:point_set ProductTopology2 | let (x,y):=p in
-         In U x /\ In V y] with
-  (Intersection (inverse_image (prod2_proj twoT_1) U)
-                (inverse_image (prod2_proj twoT_2) V)).
-constructor 3.
-constructor.
-constructor; trivial.
-constructor.
-constructor; trivial.
-apply Extensionality_Ensembles; split; red; intros.
-destruct H2.
-destruct H2.
-destruct H3.
-constructor.
-destruct x.
-split; trivial.
-destruct H2.
-destruct x.
-destruct H2.
-constructor; constructor; trivial.
+- induction H0.
+  + replace (@Full_set (point_set X * point_set Y)) with
+      [ p:point_set ProductTopology2 |
+        let (x,y):=p in (In Full_set x /\ In Full_set y) ].
+    * constructor;
+        apply open_full.
+    * extensionality_ensembles;
+        constructor.
+      destruct x.
+      repeat constructor.
+  + destruct H0.
+    destruct a.
+    * replace (inverse_image (prod2_proj twoT_1) V) with
+        [ p:point_set ProductTopology2 |
+          let (x,y):=p in (In V x /\ In Full_set y) ].
+      ** constructor; trivial.
+         apply open_full.
+      ** extensionality_ensembles;
+           destruct x.
+         *** destruct H1.
+             now constructor.
+         *** now constructor; constructor.
+    * replace (inverse_image (prod2_proj twoT_2) V) with
+        [ p:point_set ProductTopology2 |
+          let (x,y):=p in (In Full_set x /\ In V y) ].
+      ** constructor; trivial.
+         apply open_full.
+      ** extensionality_ensembles;
+           destruct x.
+         *** destruct H1.
+             now constructor.
+         *** now constructor; constructor.
+  + destruct IHfinite_intersections as [U1 V1].
+    destruct IHfinite_intersections0 as [U2 V2].
+    replace (@Intersection (point_set X * point_set Y)
+      [p:point_set ProductTopology2 | let (x,y):=p in In U1 x /\ In V1 y]
+      [p:point_set ProductTopology2 | let (x,y):=p in In U2 x /\ In V2 y])
+    with
+      [p:point_set ProductTopology2 | let (x,y):=p in
+       (In (Intersection U1 U2) x /\ In (Intersection V1 V2) y)].
+    * constructor;
+        now apply open_intersection2.
+    * apply Extensionality_Ensembles; split; red; intros;
+        destruct H6, x;
+        destruct H6, H7;
+        destruct H6;
+        [ | destruct H7 ];
+        now repeat constructor.
+- destruct H0.
+  replace [p:point_set ProductTopology2 | let (x,y):=p in
+           In U x /\ In V y] with
+    (Intersection (inverse_image (prod2_proj twoT_1) U)
+                  (inverse_image (prod2_proj twoT_2) V)).
+  + constructor 3;
+      now do 2 constructor.
+  + extensionality_ensembles;
+      destruct x;
+      [ | destruct H2 ];
+    constructor;
+    now constructor.
 Qed.
 
 End product_topology2.
@@ -404,7 +354,7 @@ Lemma continuous_2arg_func_continuous_everywhere:
                        continuous_at_2arg x y.
 Proof.
 intros.
-apply continuous_func_continuous_everywhere; trivial.
+now apply continuous_func_continuous_everywhere.
 Qed.
 
 Lemma pointwise_continuity_2arg:
@@ -413,8 +363,7 @@ Lemma pointwise_continuity_2arg:
 Proof.
 intros.
 apply pointwise_continuity.
-intros.
-destruct x as [x y].
+intros [? ?].
 apply H.
 Qed.
 
@@ -436,7 +385,6 @@ intros.
 apply (continuous_composition_at
   (fun p:point_set (ProductTopology2 X Y) =>
       let (x,y):=p in f x y)
-  (fun w:point_set W => (g w, h w))).
-exact H.
-apply product2_map_continuous; trivial.
+  (fun w:point_set W => (g w, h w))); trivial.
+now apply product2_map_continuous.
 Qed.
