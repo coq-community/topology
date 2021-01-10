@@ -396,7 +396,6 @@ Axiom WO_lt_tso : forall W V : WO,
 Program Definition WO_reprs_WO : WO :=
   {| WO_T := WO_reprs;
      WO_R := WO_reprs_lt; |}.
-Proof.
 Next Obligation.
 split.
 - red. intros [x' [x ?]]. subst.
