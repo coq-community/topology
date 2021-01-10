@@ -99,6 +99,20 @@ intros.
 apply Build_TopologicalSpace_from_open_neighborhood_bases_basis.
 Qed.
 
+Lemma metric_space_open_ball_open :
+  forall (X:TopologicalSpace) (d:point_set X -> point_set X -> R),
+    metrizes X d -> metric d ->
+    forall x r, r > 0 -> open (open_ball _ d x r).
+Proof.
+  intros.
+  specialize (H x).
+  assert (In (metric_topology_neighborhood_basis d x) (open_ball _ d x r)).
+  { constructor. assumption. }
+  apply H in H2.
+  destruct H2.
+  assumption.
+Qed.
+
 Require Export Nets.
 
 Lemma metric_space_net_limit: forall (X:TopologicalSpace)
@@ -447,6 +461,46 @@ as [choice_fun].
       now red.
     * intro.
       now destruct (H2 a) as [? [? ?]].
+Qed.
+
+Lemma metrizable_Hausdorff :
+  forall X, metrizable X -> Hausdorff X.
+Proof.
+  intros. red; intros.
+  destruct H.
+  exists (open_ball _ d x ((d x y)/2)).
+  exists (open_ball _ d y ((d x y)/2)).
+  assert (0 < d x y).
+  { apply NNPP. intro.
+    contradict H0.
+    apply not_Rlt in H2.
+    apply metric_strict with (d := d).
+    { assumption. }
+    apply Rle_antisym.
+    + apply Rge_le. assumption.
+    + apply Rge_le. apply metric_nonneg. assumption.
+  }
+  assert (d x y / 2 > 0). {
+    apply Rdiv_lt_0_compat; try assumption.
+    apply Rlt_0_2.
+  }
+  repeat split.
+  - apply metric_space_open_ball_open; assumption.
+  - apply metric_space_open_ball_open; assumption.
+  - rewrite metric_zero; assumption.
+  - rewrite metric_zero; assumption.
+  - apply Extensionality_Ensembles; split; red; intros.
+    2: { destruct H4. }
+    destruct H4. destruct H4, H5.
+    assert (d x x0 + d x0 y < d x y).
+    { rewrite double_var.
+      apply Rplus_lt_compat; try assumption.
+      rewrite metric_sym; assumption.
+    }
+    pose proof (triangle_inequality _ _ H x x0 y).
+    pose proof (Rle_lt_trans _ _ _ H7 H6).
+    apply Rlt_irrefl in H8.
+    contradiction.
 Qed.
 
 Section dist_to_set.
