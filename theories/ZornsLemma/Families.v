@@ -46,10 +46,9 @@ apply Extensionality_Ensembles.
 unfold Same_set.
 unfold Included.
 intuition.
-- constructor.
-- constructor.
-  intros.
-  contradiction H0.
+constructor.
+intros.
+contradiction H0.
 Qed.
 
 (* unions and intersections of subfamilies *)

@@ -312,8 +312,6 @@ exists Full_set.
 apply filter_full.
 apply Extensionality_Ensembles; split; auto with sets.
 red; intros.
-constructor; trivial; constructor.
-red; intro.
 inversion_clear H3 as [S'].
 destruct (H1 S' H4) as [x].
 rewrite <- H5 in H3.
@@ -365,8 +363,6 @@ apply filter_basis_elements0.
 exists Full_set.
 apply filter_full.
 apply Extensionality_Ensembles; split; auto with sets.
-red; intros.
-constructor; trivial; constructor.
 Qed.
 
 From ZornsLemma Require Export InverseImage.

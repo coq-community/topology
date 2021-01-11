@@ -58,7 +58,6 @@ intros.
 apply Extensionality_Ensembles; red; split; red; intros;
   auto with sets.
 constructor.
-constructor.
 destruct a.
 Qed.
 

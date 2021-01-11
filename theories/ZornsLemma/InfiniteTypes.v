@@ -63,7 +63,6 @@ pose proof (not_ex_not_all _ _ H1); clear H1.
 destruct x.
 assert (x = Full_set).
 apply Extensionality_Ensembles; red; split; auto with sets.
-intro x0; constructor.
 symmetry in H1; destruct H1.
 contradiction H.
 clear H2.

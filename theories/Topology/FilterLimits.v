@@ -165,9 +165,8 @@ constructor.
 split; trivial.
 constructor.
 exists S; split; auto with sets.
-red; intros; constructor.
 apply Extensionality_Ensembles; split; red; intros.
-constructor; trivial; constructor.
+constructor; trivial with sets.
 destruct H6; trivial.
 Qed.
 

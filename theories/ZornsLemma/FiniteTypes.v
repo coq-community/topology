@@ -345,7 +345,6 @@ apply bij_finite with {y:Y | In (Im Full_set f) y}
   { intro.
     destruct (H0 y).
     exists x; auto with sets.
-    constructor.
   }
   pose (proj1_sig_inv := fun y:Y =>
     exist (fun y0:Y => In (Im Full_set f) y0) y (H2 y)).
