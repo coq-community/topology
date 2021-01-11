@@ -152,7 +152,7 @@ cut (exists Y:Type, exists i:X->Y, exists d':Y->Y->R,
   + exists False, (fun x:X => H (inhabits x)), (False_rect _).
     assert (metric (False_rect (False->R))).
   { constructor; intros; destruct x. }
-    exists H0. 
+    exists H0.
     repeat split.
     * red; intros x y H1.
       contradiction (H (inhabits x)).

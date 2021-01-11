@@ -622,7 +622,7 @@ Lemma bounded_Tietze_extension_theorem: forall (X:TopologicalSpace)
 Proof.
 intros.
 destruct (classic (inhabited (point_set X))) as [Hinh|Hempty].
-destruct (choice (fun 
+destruct (choice (fun
   (FG:{FG:Ensemble (point_set X) * Ensemble (point_set X) | let (F,G):=FG in
                     closed F /\ closed G /\ Intersection F G = Empty_set})
   (phi:point_set X -> point_set RTop) =>
