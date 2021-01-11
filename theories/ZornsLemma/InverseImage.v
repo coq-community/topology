@@ -23,8 +23,8 @@ Lemma inverse_image_empty: forall {X Y:Type} (f:X->Y),
 Proof.
 intros.
 apply Extensionality_Ensembles; split; red; intros.
-destruct H as [[]].
-destruct H.
+- destruct H as [[]].
+- destruct H.
 Qed.
 
 Lemma inverse_image_full: forall {X Y:Type} (f:X->Y),
@@ -41,12 +41,11 @@ Lemma inverse_image_intersection: forall {X Y:Type} (f:X->Y)
 Proof.
 intros.
 apply Extensionality_Ensembles; split; red; intros.
-destruct H.
-inversion H.
-constructor; constructor; trivial.
-
-destruct H as [? [] []].
-constructor; constructor; trivial.
+- destruct H.
+  inversion H.
+  constructor; constructor; trivial.
+- destruct H as [? [] []].
+  constructor; constructor; trivial.
 Qed.
 
 Lemma inverse_image_union: forall {X Y:Type} (f:X->Y)
@@ -55,15 +54,14 @@ Lemma inverse_image_union: forall {X Y:Type} (f:X->Y)
 Proof.
 intros.
 apply Extensionality_Ensembles; split; red; intros.
-destruct H.
-inversion H.
-left; constructor; trivial.
-right; constructor; trivial.
-
-constructor.
-destruct H as [? []|? []].
-left; trivial.
-right; trivial.
+- destruct H.
+  inversion H.
+  + left; constructor; trivial.
+  + right; constructor; trivial.
+- constructor.
+  destruct H as [? []|? []].
+  + left; trivial.
+  + right; trivial.
 Qed.
 
 Lemma inverse_image_complement: forall {X Y:Type} (f:X->Y)
@@ -72,15 +70,14 @@ Lemma inverse_image_complement: forall {X Y:Type} (f:X->Y)
 Proof.
 intros.
 apply Extensionality_Ensembles; split; red; intros.
-red; intro.
-destruct H.
-destruct H0.
-contradiction H.
-
-constructor.
-intro.
-contradiction H.
-constructor; trivial.
+- red; intro.
+  destruct H.
+  destruct H0.
+  contradiction H.
+- constructor.
+  intro.
+  contradiction H.
+  constructor; trivial.
 Qed.
 
 Lemma inverse_image_composition: forall {X Y Z:Type} (f:Y->Z) (g:X->Y)
@@ -89,12 +86,11 @@ Lemma inverse_image_composition: forall {X Y Z:Type} (f:Y->Z) (g:X->Y)
 Proof.
 intros.
 apply Extensionality_Ensembles; split; red; intros.
-constructor; constructor.
-destruct H.
-assumption.
-
-destruct H; inversion H.
-constructor; trivial.
+- constructor; constructor.
+  destruct H.
+  assumption.
+- destruct H; inversion H.
+  constructor; trivial.
 Qed.
 
 Hint Resolve @inverse_image_increasing : sets.

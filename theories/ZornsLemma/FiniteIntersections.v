@@ -26,53 +26,51 @@ Lemma finite_intersection_is_finite_indexed_intersection:
 Proof.
 intros.
 induction H.
-exists False.
-split.
-constructor.
-exists (False_rect _).
-split.
-destruct j.
-symmetry; apply empty_indexed_intersection.
-
-exists True.
-split.
-exact True_finite.
-exists (True_rect U).
-split.
-destruct j.
-simpl.
-trivial.
-apply Extensionality_Ensembles; split; red; intros.
-constructor.
-destruct a; simpl.
-trivial.
-destruct H0.
-exact (H0 I).
-destruct IHfinite_intersections as [J0 [? [W []]]].
-destruct IHfinite_intersections0 as [J1 [? [W' []]]].
-exists ((J0+J1)%type).
-split.
-apply finite_sum; trivial.
-exists (fun s:J0+J1 => match s with
-  | inl j => W j
-  | inr j => W' j
-end).
-split.
-destruct j; auto.
-apply Extensionality_Ensembles; split; red; intros.
-destruct H7.
-rewrite H3 in H7; destruct H7.
-rewrite H6 in H8; destruct H8.
-constructor.
-destruct a as [j|j]; auto.
-destruct H7.
-constructor.
-rewrite H3; constructor.
-intro j.
-exact (H7 (inl _ j)).
-rewrite H6; constructor.
-intro j.
-exact (H7 (inr _ j)).
+- exists False.
+  split.
+  + constructor.
+  + exists (False_rect _).
+    split.
+    * destruct j.
+    * symmetry; apply empty_indexed_intersection.
+- exists True.
+  split.
+  + exact True_finite.
+  + exists (True_rect U).
+    split.
+    * destruct j.
+      simpl. assumption.
+    * apply Extensionality_Ensembles; split; red; intros.
+      -- constructor.
+         destruct a; simpl.
+         assumption.
+      -- destruct H0.
+         exact (H0 I).
+- destruct IHfinite_intersections as [J0 [? [W []]]].
+  destruct IHfinite_intersections0 as [J1 [? [W' []]]].
+  exists ((J0+J1)%type).
+  split.
+  + apply finite_sum; trivial.
+  + exists (fun s:J0+J1 => match s with
+    | inl j => W j
+    | inr j => W' j
+    end).
+    split.
+    * destruct j; auto.
+    * apply Extensionality_Ensembles; split; red; intros.
+      -- destruct H7.
+         rewrite H3 in H7; destruct H7.
+         rewrite H6 in H8; destruct H8.
+         constructor.
+         destruct a as [j|j]; auto.
+      -- destruct H7.
+         constructor.
+         ++ rewrite H3; constructor.
+            intro j.
+            exact (H7 (inl _ j)).
+         ++ rewrite H6; constructor.
+            intro j.
+            exact (H7 (inr _ j)).
 Qed.
 
 Lemma finite_indexed_intersection_is_finite_intersection:
