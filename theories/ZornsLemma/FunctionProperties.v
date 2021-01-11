@@ -1,4 +1,4 @@
-Require Export Image.
+Require Export Coq.Sets.Image.
 Require Export Coq.Program.Basics.
 
 Arguments injective {U} {V}.

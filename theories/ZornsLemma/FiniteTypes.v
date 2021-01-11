@@ -7,6 +7,7 @@ Require Export FunctionProperties.
 Require Import DecidableDec.
 Require Import ProofIrrelevance.
 Require Import Description.
+Require Import Powerset_facts.
 
 Set Asymmetric Patterns.
 
@@ -751,23 +752,14 @@ induction H.
     rewrite H2; reflexivity.
 Qed.
 
-Lemma Im_id_Full_set (X : Type) :
-  Im Full_set (@id X) = Full_set.
-Proof.
-  apply Extensionality_Ensembles; split; red; intros.
-  - constructor.
-  - exists x.
-    + constructor.
-    + reflexivity.
-Qed.
-
 Lemma FiniteT_has_nat_cardinal: forall X:Type, FiniteT X ->
   exists! n:nat, cardinal _ (@Full_set X) n.
 Proof.
 intros.
 apply -> unique_existence; split.
 - apply finite_cardinal.
-  rewrite <- Im_id_Full_set.
+  rewrite Im_Full_set_surj with id.
+  2: { apply id_bijective. }
   apply FiniteT_img with (f:=fun x:X => x).
   + assumption.
   + intros.
@@ -802,18 +794,11 @@ transitivity x.
 - apply H2; trivial.
 Qed.
 
-(* This fact was used earlier already and was proven using an [assert]...*)
-Lemma False_Ensembles (U V : Ensemble False) : U = V.
-Proof.
-  apply Extensionality_Ensembles; split; red;
-    intros; contradiction.
-Qed.
-
 Lemma FiniteT_nat_cardinal_False:
   FiniteT_nat_cardinal False empty_finite = 0.
 Proof.
 apply FiniteT_nat_cardinal_cond.
-rewrite (False_Ensembles _ Empty_set).
+rewrite (False_Ensembles_eq _ Empty_set).
 constructor.
 Qed.
 
@@ -832,16 +817,6 @@ induction H.
   contradiction.
 Qed.
 
-Lemma option_Full_set_Im (X : Type) :
-  Full_set = Add (Im Full_set (@Some X)) None.
-Proof.
-apply Extensionality_Ensembles; split; red; intros.
-2: { constructor. }
-destruct x.
-- left. exists x; constructor.
-- right. constructor.
-Qed.
-
 Lemma FiniteT_nat_cardinal_option:
   forall (X:Type) (H:FiniteT X),
   FiniteT_nat_cardinal (option X) (add_finite X H) =
@@ -857,17 +832,6 @@ constructor.
 - red; intro.
   inversion H0.
   discriminate H2.
-Qed.
-
-Lemma Im_Full_set_surj {X Y : Type} (f : X -> Y) :
-  surjective f ->
-  Full_set = Im Full_set f.
-Proof.
-  intros. apply Extensionality_Ensembles; split; red; intros.
-  2: { constructor. }
-  destruct (H x) as [y].
-  subst. apply Im_def.
-  constructor.
 Qed.
 
 Lemma FiniteT_nat_cardinal_bijection:

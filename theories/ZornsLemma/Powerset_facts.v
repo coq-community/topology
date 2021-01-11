@@ -64,3 +64,9 @@ apply Extensionality_Ensembles; split; red; intros.
 - constructor.
 - intro. destruct H0.
 Qed.
+
+Lemma False_Ensembles_eq (U V : Ensemble False) : U = V.
+Proof.
+  apply Extensionality_Ensembles; split; red;
+    intros; contradiction.
+Qed.

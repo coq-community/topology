@@ -50,6 +50,7 @@ theories/ZornsLemma/Families.v
 theories/ZornsLemma/FiniteIntersections.v
 theories/ZornsLemma/FiniteTypes.v
 theories/ZornsLemma/FunctionProperties.v
+theories/ZornsLemma/Image.v
 theories/ZornsLemma/ImageImplicit.v
 theories/ZornsLemma/IndexedFamilies.v
 theories/ZornsLemma/InfiniteTypes.v
