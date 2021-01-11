@@ -18,10 +18,10 @@ Lemma characteristic_function_to_ensemble_is_identity:
 Proof.
 intros.
 apply Extensionality_Ensembles; split; red; intros.
-destruct H.
-exact H.
-constructor.
-exact H.
+- destruct H.
+  exact H.
+- constructor.
+  exact H.
 Qed.
 
 (*

@@ -23,13 +23,19 @@ Proof.
 destruct equivR.
 intros.
 apply Extensionality_Ensembles; split; red; intros z ?.
-constructor.
-destruct H0.
-apply equiv_trans with x; trivial.
-apply equiv_sym; trivial.
-destruct H0.
-constructor.
-apply equiv_trans with y; trivial.
+- constructor.
+  destruct H0.
+  apply equiv_trans with x; trivial.
+  apply equiv_sym; trivial.
+- destruct H0.
+  constructor.
+  apply equiv_trans with y; trivial.
+Qed.
+
+Lemma equiv_class_self x :
+  In (equiv_class x) x.
+Proof.
+  constructor. apply equiv_refl. assumption.
 Qed.
 
 Lemma equality_of_equiv_class_impl_R:
@@ -37,9 +43,7 @@ Lemma equality_of_equiv_class_impl_R:
 Proof.
 destruct equivR.
 intros.
-assert (In (equiv_class x) x).
-constructor.
-apply equiv_refl.
+pose proof (equiv_class_self x).
 rewrite H in H0.
 destruct H0.
 apply equiv_sym.
@@ -123,8 +127,7 @@ destruct H.
 exists (f x).
 unfold unique.
 split.
-exists x.
-tauto.
+{ exists x. tauto. }
 intros.
 destruct H0.
 destruct H0.
@@ -132,7 +135,7 @@ rewrite <- H1.
 apply well_defined.
 apply equality_of_equiv_class_impl_R; trivial.
 transitivity (proj1_sig (quotient_projection R x)).
-trivial.
+{ trivial. }
 rewrite H.
 rewrite <- H0.
 trivial.
@@ -228,8 +231,8 @@ Lemma slices_well_defined: forall (a:A) (b1 b2:B),
 Proof.
 intros.
 apply well_defined_2arg.
-apply (equiv_refl equivR).
-assumption.
+- apply (equiv_refl equivR).
+- assumption.
 Qed.
 
 Definition induced1 (a:A) : quotient S -> C :=
@@ -240,19 +243,19 @@ Definition eq_fn (f g:quotient S->C) :=
 Lemma eq_fn_equiv: equivalence eq_fn.
 Proof.
 constructor.
-unfold reflexive.
-unfold eq_fn.
-reflexivity.
-unfold transitive.
-unfold eq_fn.
-intros.
-transitivity (y b).
-apply H.
-apply H0.
-unfold symmetric.
-unfold eq_fn.
-symmetry.
-apply H.
+- unfold reflexive.
+  unfold eq_fn.
+  reflexivity.
+- unfold transitive.
+  unfold eq_fn.
+  intros.
+  transitivity (y b).
+  + apply H.
+  + apply H0.
+- unfold symmetric.
+  unfold eq_fn.
+  symmetry.
+  apply H.
 Qed.
 
 Lemma well_defined_induced1: forall a1 a2:A, R a1 a2 ->
@@ -267,8 +270,8 @@ unfold induced1.
 rewrite induced_function_correct.
 rewrite induced_function_correct.
 apply well_defined_2arg.
-assumption.
-apply (equiv_refl equivS).
+- assumption.
+- apply (equiv_refl equivS).
 Qed.
 
 Definition induced2 :=
@@ -332,8 +335,8 @@ Proof.
 intros.
 apply quotient_projection_collapses_R; trivial.
 apply well_defined3.
-assumption.
-assumption.
+- assumption.
+- assumption.
 Qed.
 
 Definition induced_function3 : quotient R -> quotient S -> quotient T :=

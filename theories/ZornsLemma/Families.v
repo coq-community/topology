@@ -34,10 +34,9 @@ apply Extensionality_Ensembles.
 unfold Same_set.
 unfold Included.
 intuition.
-destruct H.
-contradiction H.
-
-contradiction H.
+- destruct H.
+  contradiction H.
+- contradiction H.
 Qed.
 
 Lemma empty_family_intersection:
@@ -47,10 +46,10 @@ apply Extensionality_Ensembles.
 unfold Same_set.
 unfold Included.
 intuition.
-constructor.
-constructor.
-intros.
-contradiction H0.
+- constructor.
+- constructor.
+  intros.
+  contradiction H0.
 Qed.
 
 (* unions and intersections of subfamilies *)
@@ -62,9 +61,9 @@ unfold Included.
 intros.
 destruct H0.
 apply family_union_intro with S.
-apply H.
-assumption.
-assumption.
+- apply H.
+  assumption.
+- assumption.
 Qed.
 
 Lemma subfamily_intersection: forall F G:Family T, Included F G ->
