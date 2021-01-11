@@ -210,9 +210,9 @@ apply Extensionality_Ensembles; split.
     apply complement_inclusion.
     apply interior_deflationary.
 - apply interior_maximal.
-  apply closure_closed.
-  apply complement_inclusion.
-  apply closure_inflationary.
+  + apply closure_closed.
+  + apply complement_inclusion.
+    apply closure_inflationary.
 Qed.
 
 Lemma closure_increasing: forall S T:Ensemble (point_set X),
@@ -415,7 +415,7 @@ Qed.
 Definition Build_TopologicalSpace_from_closure_operator : TopologicalSpace.
 refine (Build_TopologicalSpace_from_closed_sets
   (fun F => cl F = F) _ _ _).
-apply cl_empty.
+- apply cl_empty.
 - intros.
   rewrite cl_respects_union; congruence.
 - intros.
@@ -437,9 +437,9 @@ Proof.
 intros.
 apply Extensionality_Ensembles; split.
 - apply closure_minimal.
-  apply <- Build_TopologicalSpace_from_closed_sets_closed.
-  apply cl_idempotent.
-  trivial.
+  + apply <- Build_TopologicalSpace_from_closed_sets_closed.
+    apply cl_idempotent.
+  + trivial.
 - replace (closure S) with (cl (closure S)).
   + apply cl_increasing.
     apply (closure_inflationary S).
@@ -469,9 +469,9 @@ Lemma int_increasing: forall S1 S2:Ensemble X,
 Proof.
 intros.
 replace S1 with (Intersection S1 S2).
-rewrite int_respects_intersection.
-auto with sets.
-extensionality_ensembles; auto with sets.
+- rewrite int_respects_intersection.
+  auto with sets.
+- extensionality_ensembles; auto with sets.
 Qed.
 
 Lemma intersection_family_union : forall (S:Ensemble X) (F:Ensemble (Ensemble X)),

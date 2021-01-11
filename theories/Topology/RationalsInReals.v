@@ -14,8 +14,8 @@ Proof.
     - assert (IZR (up (/ eps)) > 0).
       {
         apply Rgt_trans with (/ eps).
-        apply archimed.
-        auto with *.
+        - apply archimed.
+        - auto with *.
       }
       apply lt_0_IZR in H0.
       apply Z.lt_gt.
@@ -23,12 +23,12 @@ Proof.
     - auto with zarith.
       pattern eps at 2.
       rewrite <- Rinv_involutive.
-      apply Rinv_lt_contravar.
-      apply Rmult_lt_0_compat; auto with *.
-      apply Rlt_trans with (/ eps); auto with *.
-      apply archimed.
-      apply archimed.
-      auto with *.
+      + apply Rinv_lt_contravar.
+        * apply Rmult_lt_0_compat; auto with *.
+          apply Rlt_trans with (/ eps); auto with *.
+          apply archimed.
+        * apply archimed.
+      + auto with *.
   }
   destruct H0 as [[ | p | p]].
   - destruct H0.
@@ -52,14 +52,14 @@ Proof.
 intros.
 exists (up x).
 split.
-apply archimed.
+{ apply archimed. }
 apply Rle_lt_trans with (x+1).
+2: { assumption. }
 pose proof (archimed x).
 destruct H0.
 assert (x + (IZR (up x) - x) <= x + 1).
-auto with real.
+{ auto with real. }
 ring_simplify in H2.
-assumption.
 assumption.
 Qed.
 
@@ -71,34 +71,29 @@ Lemma rational_interpolation: forall (x y:R) (n:positive),
 Proof.
 intros.
 assert (0 < / IZR (' n)).
-cut (0 < IZR (' n)); auto with real.
+{ cut (0 < IZR (' n)); auto with real. }
 destruct (Z_interpolation (IZR (' n) * x)
   (IZR (' n) * y)) as [m].
-apply Rgt_minus in H.
-assert (IZR (' n) * (y - x) > 1).
-replace 1 with ((1 / (y-x)) * (y-x)); try field.
-apply Rmult_gt_compat_r; trivial.
-auto with real.
-apply Rgt_minus in H2.
-apply Rminus_gt.
-match goal with H2: ?a > 0 |- ?b > 0 => replace b with a end.
-trivial.
-ring.
-
-exists m.
-unfold Q2R.
-simpl.
-replace x with ((IZR (' n) * x) / IZR (' n)).
-replace y with ((IZR (' n) * y) / IZR (' n)).
-
-destruct H2.
-split.
-apply Rmult_lt_compat_r; trivial.
-apply Rmult_lt_compat_r; trivial.
-field.
-auto with *.
-field.
-auto with *.
+- apply Rgt_minus in H.
+  assert (IZR (' n) * (y - x) > 1).
+  { replace 1 with ((1 / (y-x)) * (y-x)); try field.
+    - apply Rmult_gt_compat_r; trivial.
+    - auto with real.
+  }
+  apply Rgt_minus in H2.
+  apply Rminus_gt.
+  match goal with H2: ?a > 0 |- ?b > 0 => replace b with a end.
+  + trivial.
+  + ring.
+- exists m.
+  unfold Q2R.
+  simpl.
+  replace x with ((IZR (' n) * x) / IZR (' n)).
+  + replace y with ((IZR (' n) * y) / IZR (' n)).
+    * destruct H2.
+      split; apply Rmult_lt_compat_r; trivial.
+    * field. auto with *.
+  + field. auto with *.
 Qed.
 
 Lemma rationals_dense_in_reals: forall x y:R, x<y ->
@@ -107,21 +102,21 @@ Proof.
 intros.
 pose (d := up (/ (y - x))).
 assert ((0 < d)%Z).
-apply lt_IZR.
-simpl.
-apply Rlt_trans with (/ (y - x)).
-apply Rgt_minus in H.
-auto with *.
-apply archimed.
+{ apply lt_IZR.
+  simpl.
+  apply Rlt_trans with (/ (y - x)).
+  - apply Rgt_minus in H.
+    auto with *.
+  - apply archimed.
+}
 assert (/ (y - x) < IZR d) by apply archimed.
 destruct d as [|d|]; try discriminate H0.
 
 destruct (rational_interpolation x y d) as [n]; trivial.
-replace (1 / (y-x)) with (/(y-x)).
-trivial.
-field.
-apply Rgt_minus in H.
-auto with real.
-
-exists (n # d); trivial.
+- replace (1 / (y-x)) with (/(y-x)).
+  + trivial.
+  + field.
+    apply Rgt_minus in H.
+    auto with real.
+- exists (n # d); trivial.
 Qed.

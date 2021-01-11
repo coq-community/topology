@@ -67,9 +67,9 @@ Lemma empty_indexed_union: forall {T:Type}
 Proof.
 intros.
 apply Extensionality_Ensembles; red; split; red; intros.
-destruct H.
-destruct a.
-destruct H.
+- destruct H.
+  destruct a.
+- destruct H.
 Qed.
 
 Lemma finite_indexed_union {A T : Type} {F : IndexedFamily A T} :
@@ -85,11 +85,11 @@ induction H;
   + extensionality_ensembles.
     destruct a.
 - replace (IndexedUnion F) with (Union (IndexedUnion (fun t => In (F (Some t)))) (F None)).
-  apply Union_preserves_Finite.
-  + apply IHFiniteT.
-    intro.
-    apply H0.
-  + apply H0.
+  + apply Union_preserves_Finite.
+    * apply IHFiniteT.
+      intro.
+      apply H0.
+    * apply H0.
   + extensionality_ensembles.
     * econstructor.
       eassumption.
@@ -166,18 +166,15 @@ apply Extensionality_Ensembles.
 unfold Same_set.
 unfold Included.
 intuition.
-destruct H.
-apply family_union_intro with (F a).
-apply Im_intro with a.
-constructor.
-reflexivity.
-assumption.
-
-destruct H.
-destruct H.
-apply indexed_union_intro with x0.
-rewrite <- H1.
-assumption.
+- destruct H.
+  apply family_union_intro with (F a).
+  + apply Im_intro with a; auto with sets.
+  + assumption.
+- destruct H.
+  destruct H.
+  apply indexed_union_intro with x0.
+  rewrite <- H1.
+  assumption.
 Qed.
 
 Lemma indexed_to_family_intersection:
@@ -187,20 +184,18 @@ apply Extensionality_Ensembles.
 unfold Same_set.
 unfold Included.
 intuition.
-constructor.
-intros.
-destruct H.
-destruct H0.
-rewrite H1.
-apply H.
-
-constructor.
-intro.
-destruct H.
-apply H.
-apply Im_intro with a.
-constructor.
-reflexivity.
+- constructor.
+  intros.
+  destruct H.
+  destruct H0.
+  rewrite H1.
+  apply H.
+- constructor.
+  intro.
+  destruct H.
+  apply H.
+  apply Im_intro with a;
+    auto with sets.
 Qed.
 
 End IndexedFamilyToFamily.
