@@ -59,8 +59,9 @@ induction H0.
   + intros.
     induction H3.
     * case (classic (forall x0:T, In S x0 -> R x0 x)); trivial.
-      left.
-      now apply (proj2_sig (chain_sup S c)).
+      { left.
+         now apply (proj2_sig (chain_sup S c)).
+      }
       right.
       apply not_all_ex_not in H5.
       destruct H5.
@@ -71,8 +72,9 @@ induction H0.
          tauto.
       ** now apply (proj2_sig (chain_sup S c)).
     * assert (In tower x').
-      rewrite Heqx'.
-      now apply inflation_intro.
+      { rewrite Heqx'.
+        now apply inflation_intro.
+      }
       destruct IHtower0.
       ** assert (In tower (proj1_sig (inflation x0))) by now apply inflation_intro.
          case (IHtower (proj1_sig (inflation x0)) H6);
@@ -104,9 +106,10 @@ pose proof (proj2_sig (chain_sup tower tower_is_chain)).
 simpl in H.
 remember (proj1_sig (chain_sup tower tower_is_chain)) as x0.
 assert (In tower x0).
-rewrite Heqx0.
-constructor 1.
-auto with sets.
+{ rewrite Heqx0.
+  constructor 1.
+  auto with sets.
+}
 
 pose (x' := proj1_sig (inflation x0)).
 assert (In tower x') by now constructor 2.
@@ -330,19 +333,19 @@ let Hnew:=fresh"_H" in
   fold inducedR in inducedR_prop.
   assert (exists x:Rquo, maximal inducedR x).
   + apply ZornsLemma.
-    * constructor.
-      red; intros xbar.
-      ** destruct (quotient_projection_surjective xbar) as [x []].
+    * constructor; red.
+      ** intros xbar.
+         destruct (quotient_projection_surjective xbar) as [x []].
          rewrite inducedR_prop.
          now apply preord_refl.
-      ** red; intros xbar ybar zbar ? ?.
+      ** intros xbar ybar zbar ? ?.
          destruct (quotient_projection_surjective xbar) as [x].
          destruct (quotient_projection_surjective ybar) as [y].
          destruct (quotient_projection_surjective zbar) as [z].
          subst.
          rewrite inducedR_prop in *.
          now apply preord_trans with y.
-      ** red; intros xbar ybar ? ?.
+      ** intros xbar ybar ? ?.
          destruct (quotient_projection_surjective xbar) as [x].
          destruct (quotient_projection_surjective ybar) as [y].
          subst.

@@ -80,39 +80,18 @@ Lemma finite_indexed_intersection_is_finite_intersection:
 Proof.
 intros.
 induction H.
-rewrite empty_indexed_intersection.
-constructor.
-
-assert (IndexedIntersection V = Intersection
-  (IndexedIntersection (fun j:T => V (Some j)))
-  (V None)).
-apply Extensionality_Ensembles; split; red; intros.
-destruct H1.
-constructor.
-constructor.
-trivial.
-trivial.
-destruct H1.
-constructor.
-destruct H1.
-destruct a as [j|]; trivial.
-rewrite H1.
-constructor 3; auto.
-constructor 2; trivial.
-
-destruct H1 as [g].
-assert (IndexedIntersection V =
-  IndexedIntersection (fun x:X0 => V (f x))).
-apply Extensionality_Ensembles; split; red; intros.
-destruct H3.
-constructor.
-trivial.
-destruct H3.
-constructor.
-intro.
-rewrite <- (H2 a).
-trivial.
-rewrite H3; auto.
+- rewrite empty_indexed_intersection.
+  constructor.
+- rewrite IndexedIntersection_option_Intersection.
+  constructor 3; auto.
+  constructor 2; trivial.
+- rewrite IndexedIntersection_surj_fn with V f.
+  2: {
+    apply invertible_impl_bijective in H1.
+    destruct H1. assumption.
+  }
+  apply IHFiniteT.
+  auto.
 Qed.
 
 Section Lemmas.
@@ -274,8 +253,8 @@ split.
   + constructor.
   + now apply intro_fi_len_S.
   + apply intro_fi_len_intersection.
-    exact H1.
-    exact H2.
+    * exact H1.
+    * exact H2.
 Qed.
 
 Lemma finite_intersections_countable
