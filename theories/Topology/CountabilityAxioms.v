@@ -172,8 +172,8 @@ destruct (ClassicalChoice.choice (fun (U:{U:Ensemble (point_set X) | In B U /\ I
          simpl in H7.
          (* assumption. *)
          exists (exist (fun U0:Ensemble (point_set X) => In B U0 /\ Inhabited U0) V H6).
-         constructor.
-         reflexivity.
+         *** constructor.
+         *** reflexivity.
       ** apply H4.
          now pose proof (H1 (exist _ V H6)).
 Qed.
@@ -218,9 +218,7 @@ destruct (ClassicalChoice.choice (fun (U:{U | In basis_elts_contained_in_cover_e
          - now exists x.
          - exists S; now split. }
          exists (choice_fun (exist _ V H8)).
-         *** exists (exist _ V H8).
-             constructor.
-             reflexivity.
+         *** exists (exist _ V H8); auto with sets.
          *** pose proof (H3 (exist _ V H8)).
              destruct H9.
              now apply H10.

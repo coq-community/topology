@@ -167,12 +167,12 @@ cut (Included (closure F (X:=MetricTopology d d_metric)) F).
     now apply H7. }
     now rewrite H7.
   + apply metric_space_net_limit with d.
-    apply MetricTopology_metrizable.
-    exact (metric_space_net_limit_converse
-      (MetricTopology d_restriction d_restriction_metric)
-      d_restriction (MetricTopology_metrizable _ d_restriction
-                           d_restriction_metric)
-      nat_DS y' (exist _ x0 i) H5).
+    * apply MetricTopology_metrizable.
+    * exact (metric_space_net_limit_converse
+        (MetricTopology d_restriction d_restriction_metric)
+        d_restriction (MetricTopology_metrizable _ d_restriction
+                             d_restriction_metric)
+        nat_DS y' (exist _ x0 i) H5).
 Qed.
 
 End closed_subset_of_complete.

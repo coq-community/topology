@@ -1,4 +1,4 @@
-From ZornsLemma Require Import EnsemblesTactics.
+From ZornsLemma Require Import EnsemblesTactics Powerset_facts.
 Require Export TopologicalSpaces Nets FilterLimits Homeomorphisms SeparatednessAxioms SubspaceTopology.
 Require Import FiltersAndNets ClassicalChoice.
 Set Asymmetric Patterns.
@@ -137,8 +137,8 @@ unshelve refine (let H3 := (H F _ _) in _).
       Im F' Complement).
     * extensionality_ensembles.
       ** econstructor.
-         eassumption.
-         now rewrite Complement_Complement.
+         *** eassumption.
+         *** now rewrite Complement_Complement.
       ** constructor.
          now rewrite H7, Complement_Complement.
     *  rewrite H6.
@@ -158,9 +158,9 @@ unshelve refine (let H3 := (H F _ _) in _).
       apply NNPP; red; intro.
       contradiction H6.
       exists (Complement S).
-      constructor.
-      rewrite Complement_Complement; trivial.
-      exact H8.
+      ** constructor.
+         rewrite Complement_Complement; trivial.
+      ** exact H8.
 - destruct H3.
   assert (In (FamilyUnion C) x).
 { rewrite H1. constructor. }
@@ -324,51 +324,46 @@ Lemma compact_closed: forall (X:TopologicalSpace)
 Proof.
 intros.
 destruct (classic (Inhabited S)).
-- assert (closure S = S).
+- replace S with (closure S).
+  { apply closure_closed. }
   apply Extensionality_Ensembles; split; red; intros.
-  + destruct (net_limits_determine_topology _ _ H2) as [I0 [y []]].
-    pose (yS (i:DS_set I0) := exist (fun x:point_set X => In S x) (y i) (H3 i)).
-    assert (inhabited (point_set (SubspaceTopology S))).
-  { destruct H1.
-    constructor.
-    now exists x0. }
-    assert (inhabited (DS_set I0)) as HinhI0.
-  { red in H4.
-    destruct (H4 Full_set) as [i0]; auto with topology.
-    constructor. }
-    pose proof (compact_impl_net_cluster_point
-      (SubspaceTopology S) H0 _ yS HinhI0).
-    destruct H6 as [[x0]].
-    apply net_cluster_point_impl_subnet_converges in H6.
-    * destruct H6 as [J [y' []]].
-      destruct H6.
-      assert (net_limit (fun j:DS_set J => y (h j)) x0).
-    { apply continuous_func_preserves_net_limits with
-      (f:=subspace_inc S) (Y:=X) in H7.
-      - assumption.
-      - apply continuous_func_continuous_everywhere, subspace_inc_continuous. }
-      assert (net_limit (fun j:DS_set J => y (h j)) x).
-    { apply subnet_limit with I0 y; trivial.
-      now constructor. }
-      assert (x = x0).
-    { eapply Hausdorff_impl_net_limit_unique; eassumption. }
-      now subst.
-    * destruct (H4 Full_set).
-      ** apply open_full.
-      ** constructor.
-      ** now constructor.
-  + destruct H1.
-    now apply closure_inflationary.
-  + rewrite <- H2.
-    apply closure_closed.
+  2: {
+    apply closure_inflationary. assumption.
+  }
+  destruct (net_limits_determine_topology _ _ H2) as [I0 [y []]].
+  pose (yS (i:DS_set I0) := exist (fun x:point_set X => In S x) (y i) (H3 i)).
+  assert (inhabited (point_set (SubspaceTopology S))).
+{ destruct H1.
+  constructor.
+  now exists x0. }
+  assert (inhabited (DS_set I0)) as HinhI0.
+{ red in H4.
+  destruct (H4 Full_set) as [i0]; auto with topology.
+  constructor. }
+  pose proof (compact_impl_net_cluster_point
+    (SubspaceTopology S) H0 _ yS HinhI0).
+  destruct H6 as [[x0]].
+  apply net_cluster_point_impl_subnet_converges in H6.
+  + destruct H6 as [J [y' []]].
+    destruct H6.
+    assert (net_limit (fun j:DS_set J => y (h j)) x0).
+  { apply continuous_func_preserves_net_limits with
+    (f:=subspace_inc S) (Y:=X) in H7.
+    - assumption.
+    - apply continuous_func_continuous_everywhere, subspace_inc_continuous. }
+    assert (net_limit (fun j:DS_set J => y (h j)) x).
+  { apply subnet_limit with I0 y; trivial.
+    now constructor. }
+    assert (x = x0).
+  { eapply Hausdorff_impl_net_limit_unique; eassumption. }
+    now subst.
+  + destruct (H4 Full_set).
+    * apply open_full.
+    * constructor.
+    * now constructor.
 - red.
-  assert (Complement S = Full_set).
-{ apply Extensionality_Ensembles; split; red; intros.
-  - constructor.
-  - intro.
-    contradiction H1.
-    now exists x. }
-  rewrite H2.
+  rewrite (not_inhabited_empty _ H1).
+  rewrite Complement_Empty_set.
   apply open_full.
 Qed.
 
@@ -427,7 +422,7 @@ destruct (compactness_on_indexed_covers _ _ B H) as [subcover].
     destruct H6 as [[U]].
     now subst.
   + apply Extensionality_Ensembles; split; red; intros y ?.
-    constructor.
+  { constructor. }
     destruct (H1 y) as [x].
     assert (In (IndexedUnion
       (fun a':{a' | In subcover a'} => B (proj1_sig a'))) x).

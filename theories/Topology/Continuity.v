@@ -153,10 +153,8 @@ Lemma continuous_identity: forall (X:TopologicalSpace),
 Proof.
 intros.
 red; intros.
-apply eq_ind with (1:=H).
-apply Extensionality_Ensembles; split; red; intros.
-constructor; trivial.
-destruct H0; trivial.
+rewrite inverse_image_id.
+assumption.
 Qed.
 
 Lemma continuous_constant: forall (X Y:TopologicalSpace)

@@ -18,10 +18,10 @@ red.
 intros.
 destruct (H (inverse_image f S)).
 - split.
-  apply H0, H2.
-  red.
-  rewrite <- inverse_image_complement.
-  apply H0, H2.
+  + apply H0, H2.
+  + red.
+    rewrite <- inverse_image_complement.
+    apply H0, H2.
 - left.
   extensionality_ensembles.
   destruct (H1 x).
@@ -52,10 +52,10 @@ red; intros.
 assert (forall a:A, clopen (inverse_image (inc a) S0)).
 { intro.
   split.
-  apply subspace_inc_continuous, H2.
-  red.
-  rewrite <- inverse_image_complement.
-  apply subspace_inc_continuous, H2. }
+  - apply subspace_inc_continuous, H2.
+  - red.
+    rewrite <- inverse_image_complement.
+    apply subspace_inc_continuous, H2. }
 
 destruct (classic (In S0 x)).
 - right.
@@ -108,10 +108,10 @@ intros X Y f [g Hcont_f Hcont_g Hgf Hfg] Hconn S [Hopen Hclose].
 destruct (Hconn (inverse_image f S));
 [ | left | right ];
   try extensionality_ensembles.
-  split; red.
-- now apply Hcont_f.
-- rewrite <- inverse_image_complement.
-  now apply Hcont_f.
+- split; red.
+  + now apply Hcont_f.
+  + rewrite <- inverse_image_complement.
+    now apply Hcont_f.
 - rewrite <- Hfg.
   apply in_inverse_image.
   rewrite inverse_image_empty, <- H.
