@@ -637,14 +637,14 @@ Proof.
   intros X Y f [g Hcont_f Hcont_g Hgf Hfg] Hcomp F H eq.
   destruct (Hcomp (inverse_image (inverse_image g) F)) as [F' [H1 [H2 H3]]].
   - intros.
-    rewrite <- (inverse_image_id Hgf).
+    rewrite <- (inverse_image_id_comp Hgf).
     apply Hcont_f, H.
     now destruct H0.
   - erewrite <- inverse_image_full,
-             <- (inverse_image_id Hgf (FamilyUnion _)).
+             <- (inverse_image_id_comp Hgf (FamilyUnion _)).
     f_equal.
     now rewrite <- (inverse_image_family_union F Hgf),
-               inverse_image_id.
+               inverse_image_id_comp.
   - exists (inverse_image (inverse_image f) F').
     split; [|split].
     + apply inverse_image_finite; trivial.
@@ -653,7 +653,7 @@ Proof.
       now rewrite Hfg.
     + intros S [Hin].
       destruct (H2 _ Hin) as [H0].
-      now rewrite inverse_image_id in H0.
+      now rewrite inverse_image_id_comp in H0.
     + rewrite <- (inverse_image_family_union _ Hfg Hgf), H3.
       apply inverse_image_full.
 Qed.

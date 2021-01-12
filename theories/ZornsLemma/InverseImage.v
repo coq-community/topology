@@ -163,7 +163,15 @@ Proof.
   split; auto.
 Qed.
 
-Lemma inverse_image_id
+Lemma inverse_image_id {X : Type} (U : Ensemble X) :
+  inverse_image (@id X) U = U.
+Proof.
+apply Extensionality_Ensembles; split; red; intros.
+- apply H.
+- constructor. apply H.
+Qed.
+
+Lemma inverse_image_id_comp
   {X Y : Type}
   {f : X -> Y}
   {g : Y -> X} :
@@ -234,7 +242,7 @@ Proof.
     rewrite <- Hgf.
     econstructor.
     + constructor.
-      erewrite inverse_image_id.
+      erewrite inverse_image_id_comp.
       * exact H0.
       * exact Hfg.
     + rewrite Hgf.
@@ -283,7 +291,7 @@ Proof.
     inversion H;
     subst;
     red;
-    rewrite inverse_image_id;
+    rewrite inverse_image_id_comp;
     constructor + assumption.
 Qed.
 
@@ -309,7 +317,7 @@ Proof.
      assumption) +
     (right;
      inversion H0;
-     rewrite inverse_image_id;
+     rewrite inverse_image_id_comp;
      constructor + assumption).
 Qed.
 
