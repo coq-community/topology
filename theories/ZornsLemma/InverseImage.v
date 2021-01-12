@@ -240,9 +240,9 @@ Proof.
     inversion H.
     subst.
     rewrite <- Hgf.
-    econstructor.
+    exists (inverse_image f S).
     + constructor.
-      erewrite inverse_image_id_comp.
+      rewrite inverse_image_id_comp.
       * exact H0.
       * exact Hfg.
     + rewrite Hgf.
@@ -251,7 +251,7 @@ Proof.
   - destruct H.
     apply in_inverse_image in H.
     constructor.
-    econstructor.
+    exists (inverse_image g S).
     + exact H.
     + constructor.
       rewrite Hgf.
