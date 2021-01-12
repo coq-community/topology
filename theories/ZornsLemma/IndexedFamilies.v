@@ -148,6 +148,33 @@ apply Extensionality_Ensembles; split; red; intros.
   apply H0.
 Qed.
 
+Lemma IndexedIntersection_option_Intersection
+      {X A : Type} (V : IndexedFamily (option X) A) :
+  IndexedIntersection V =
+  Intersection (IndexedIntersection (fun a => V (Some a))) (V None).
+Proof.
+apply Extensionality_Ensembles; split; red; intros.
+- destruct H.
+  constructor.
+  + constructor. intros. apply H.
+  + apply H.
+- destruct H. destruct H.
+  constructor. intros.
+  destruct a; auto.
+Qed.
+
+Lemma IndexedIntersection_surj_fn
+      {X A B : Type} (V : IndexedFamily A X) (f : B -> A) :
+  surjective f ->
+  IndexedIntersection V = IndexedIntersection (fun x => V (f x)).
+Proof.
+intros.
+apply Extensionality_Ensembles; split; red; intros.
+- destruct H0. constructor. intros. apply H0.
+- destruct H0. constructor. intros. destruct (H a).
+  subst. apply H0.
+Qed.
+
 End IndexedFamilyFacts.
 
 Section IndexedFamilyToFamily.
