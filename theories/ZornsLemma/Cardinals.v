@@ -608,3 +608,37 @@ split; intros.
   destruct H2 as [h].
   exists h. assumption.
 Qed.
+
+Lemma cardinal_no_inj_equiv_lt_cardinal (A B : Type) :
+  (forall f : A -> B, ~ injective f) <->
+  lt_cardinal (cardinality B) (cardinality A).
+Proof.
+split.
+- intros.
+  split.
+  + (* |B| ≤ |A| *)
+    destruct (le_cardinal_total (cardinality B) (cardinality A)).
+    { assumption. }
+    exfalso.
+    inversion H0; subst; clear H0.
+    apply (H f).
+    assumption.
+  + (* |B| ≠ |A| *)
+    intro.
+    inversion H0; subst; clear H0.
+    apply bijective_impl_invertible in H3.
+    destruct H3.
+    pose proof (invertible_impl_bijective g).
+    destruct H2.
+    { exists f; assumption. }
+    apply (H g).
+    assumption.
+- intros.
+  intro H0.
+  inversion H; clear H.
+  contradict H2.
+  inversion H1; subst; clear H1.
+  destruct (CSB _ _ f f0) as [f1]; auto.
+  apply eq_cardinal_equiv.
+  exists f1. assumption.
+Qed.
