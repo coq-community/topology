@@ -70,3 +70,12 @@ Proof.
 apply Extensionality_Ensembles; split; red;
   intros; contradiction.
 Qed.
+
+Lemma not_inhabited_empty {X : Type} (U : Ensemble X) :
+  ~ Inhabited U -> U = Empty_set.
+Proof.
+intros.
+apply Extensionality_Ensembles; split; red; intros.
+- contradict H. exists x. assumption.
+- destruct H0.
+Qed.
