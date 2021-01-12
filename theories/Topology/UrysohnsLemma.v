@@ -239,10 +239,10 @@ Lemma Un_incr: forall n:nat, Included (closure (Un n))
                                     (Un (S n)).
 Proof.
 destruct n as [|].
-simpl.
-trivial.
-simpl.
-red; intros; constructor.
+- simpl.
+  trivial.
+- simpl.
+  red; intros; constructor.
 Qed.
 
 Definition expand_U_dyadic (f:nat->Ensemble (point_set X))
@@ -260,10 +260,10 @@ Proof.
 intros.
 unfold expand_U_dyadic.
 destruct even_odd_dec.
-apply Hopen.
-destruct normal_sep_fun.
-simpl.
-apply a.
+- apply Hopen.
+- destruct normal_sep_fun.
+  simpl.
+  apply a.
 Qed.
 
 Lemma expand_U_dyadic_incr: forall f Hopen Hincr n,
@@ -274,22 +274,21 @@ intros.
 unfold expand_U_dyadic.
 simpl.
 destruct even_odd_dec.
-destruct normal_sep_fun.
-simpl.
-destruct n.
-simpl.
-apply a.
-rewrite <- odd_div2.
-apply a.
-now inversion e.
-
-simpl.
-destruct normal_sep_fun.
-simpl.
-destruct o.
-rewrite even_div2.
-now apply a.
-trivial.
+- destruct normal_sep_fun.
+  simpl.
+  destruct n.
+  + simpl.
+    apply a.
+  + rewrite <- odd_div2.
+    * apply a.
+    * now inversion e.
+- simpl.
+  destruct normal_sep_fun.
+  simpl.
+  destruct o.
+  rewrite even_div2.
+  + now apply a.
+  + trivial.
 Qed.
 
 Definition packaged_expand_U_dyadic :
@@ -304,8 +303,8 @@ refine (fun fsig => match fsig with
   end).
 destruct a.
 split.
-apply expand_U_dyadic_open.
-apply expand_U_dyadic_incr.
+- apply expand_U_dyadic_open.
+- apply expand_U_dyadic_incr.
 Defined.
 
 Definition U_dyadic_level_n (n:nat) :
@@ -321,8 +320,8 @@ refine (let lev_n := fix lev_n (n:nat) :
   | S n' => packaged_expand_U_dyadic (lev_n n')
   end in lev_n n).
 split.
-apply Un_open.
-apply Un_incr.
+- apply Un_open.
+- apply Un_incr.
 Defined.
 
 Definition U_dyadic (x:dyadic_rational) :

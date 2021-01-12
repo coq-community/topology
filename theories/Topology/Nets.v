@@ -366,8 +366,8 @@ refine (Build_DirectedSet
   assert (open_neighborhood kU x0).
   { split.
     - apply open_intersection2.
-      apply cps_U_open_neigh0.
-      apply cps_U_open_neigh1.
+      + apply cps_U_open_neigh0.
+      + apply cps_U_open_neigh1.
     - constructor.
       + apply cps_U_open_neigh0.
       + apply cps_U_open_neigh1. }

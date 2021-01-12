@@ -1,41 +1,37 @@
 Require Export TopologicalSpaces.
 Require Export Filters.
 Require Export Neighborhoods.
+Require Export Continuity.
+Require Import Powerset_facts.
 
-Definition neighborhood_filter {X:TopologicalSpace} (x0:point_set X) :
-  Filter (point_set X).
-refine (Build_Filter _
-  [ N:Ensemble (point_set X) | neighborhood N x0 ]
-  _ _ _ _).
+Program Definition neighborhood_filter {X:TopologicalSpace} (x0:point_set X) :
+  Filter (point_set X) :=
+  {| filter_family := [N : _ | neighborhood N x0 ] |}.
+Next Obligation.
 intros.
-destruct H; destruct H0; constructor.
-destruct H as [U []].
-destruct H0 as [V []].
-destruct H.
-destruct H0.
-exists (Intersection U V); split.
-split.
-apply open_intersection2; trivial.
-constructor; trivial.
-red; intros.
-destruct H5; constructor; auto.
-
-intros.
-destruct H.
-destruct H as [U [[]]].
+destruct H as [[U [[]]]], H0 as [[V [[]]]].
 constructor.
+exists (Intersection U V); split.
+- constructor; auto with topology sets.
+- red; intros. destruct H5; constructor; auto.
+Qed.
+Next Obligation.
+intros.
+destruct H as [[U [[]]]].
+red. constructor.
 exists U; repeat split; trivial.
 auto with sets.
-
+Qed.
+Next Obligation.
 constructor.
 exists Full_set; repeat split; auto with sets topology.
-
+Qed.
+Next Obligation.
 red; intro.
-destruct H.
-destruct H as [U [[]]].
+destruct H as [[U [[]]]].
 apply H1 in H0.
 destruct H0.
-Defined.
+Qed.
 
 Definition filter_limit {X:TopologicalSpace} (F:Filter (point_set X))
   (x0:point_set X) : Prop :=
@@ -56,18 +52,20 @@ red; intros.
 apply meets_every_open_neighborhood_impl_closure.
 intros.
 assert (In (filter_family F) U).
-apply H.
-simpl.
-constructor.
-exists U; repeat split; auto with sets.
+{ apply H.
+  simpl.
+  constructor.
+  exists U; repeat split; auto with sets.
+}
 assert (In (filter_family F) (Intersection S U)).
-apply filter_intersection; trivial.
+{ apply filter_intersection; trivial. }
 apply NNPP; red; intro.
 assert (Intersection S U = Empty_set).
-apply Extensionality_Ensembles; split; red; intros.
-contradiction H5.
-exists x; trivial.
-destruct H6.
+{ apply Extensionality_Ensembles; split; red; intros.
+  - contradiction H5.
+    exists x; trivial.
+  - destruct H6.
+}
 rewrite H6 in H4.
 contradiction (filter_empty _ F).
 Qed.
@@ -83,16 +81,17 @@ red; intros N ?.
 destruct H1.
 destruct H1 as [U [[]]].
 cut (In (filter_family F) U).
-intros; apply filter_upward_closed with U; trivial.
+{ intros; apply filter_upward_closed with U; trivial. }
 clear N H3.
 apply NNPP; intro.
 assert (In (filter_family F) (Complement U)).
-pose proof (H0 U).
-tauto.
+{ pose proof (H0 U).
+  tauto.
+}
 pose proof (H _ H4).
 rewrite closure_fixes_closed in H5.
-contradiction H5; trivial.
-red; rewrite Complement_Complement; trivial.
+- contradiction H5; trivial.
+- red; rewrite Complement_Complement; trivial.
 Qed.
 
 Lemma closure_impl_filter_limit: forall {X:TopologicalSpace}
@@ -103,74 +102,62 @@ Lemma closure_impl_filter_limit: forall {X:TopologicalSpace}
 Proof.
 intros.
 assert (Inhabited S).
-destruct (closure_impl_meets_every_open_neighborhood _ _ _ H
-  Full_set).
-apply open_full.
-constructor.
-destruct H0.
-exists x; trivial.
-
+{ destruct (closure_impl_meets_every_open_neighborhood _ _ _ H
+    Full_set).
+  - apply open_full.
+  - constructor.
+  - destruct H0.
+    exists x; trivial.
+}
 unshelve refine (let H1:=_ in let H2:=_ in let H3:=_ in
   let Sfilt := Build_Filter_from_basis (Singleton S)
   H1 H2 H3 in _).
-exists S; constructor.
-red; intro.
-inversion H2.
-rewrite H3 in H0.
-destruct H0.
-destruct H0.
-
-intros.
-destruct H3.
-destruct H4.
-exists S; split; auto with sets.
-
-unshelve refine (let H4:=_ in
-  ex_intro _ (filter_sum (neighborhood_filter x0) Sfilt H4) _).
-intros.
-simpl in H4.
-destruct H4.
-destruct H4 as [U [[]]].
-simpl in H5.
-destruct H5.
-destruct H5 as [T0 []].
-destruct H5.
-destruct (closure_impl_meets_every_open_neighborhood
-  _ _ _ H U); trivial.
-destruct H5.
-exists x; constructor; auto.
-
-split.
-simpl.
-constructor.
-exists S.
-split; auto with sets.
-exists ( (Full_set, S) ).
-constructor; split.
-constructor.
-exists Full_set; repeat split.
-apply open_full.
-constructor.
-exists S; split; auto with sets.
-apply Extensionality_Ensembles; split; red; intros.
-constructor; trivial; constructor.
-destruct H5; trivial.
-
-red; red; intros U ?.
-constructor.
-exists U.
-split; auto with sets.
-exists ( (U, Full_set) ).
-constructor.
-split; trivial.
-constructor.
-exists S; split; auto with sets.
-apply Extensionality_Ensembles; split; red; intros.
-constructor; trivial with sets.
-destruct H6; trivial.
+- exists S; constructor.
+- red; intro.
+  inversion H2.
+  rewrite H3 in H0.
+  destruct H0.
+  destruct H0.
+- intros.
+  destruct H3.
+  destruct H4.
+  exists S; split; auto with sets.
+- unshelve refine (let H4:=_ in
+    ex_intro _ (filter_sum (neighborhood_filter x0) Sfilt H4) _).
+  + intros.
+    simpl in H4.
+    destruct H4 as [[U [[]]]].
+    simpl in H5.
+    destruct H5 as [[T0 [[]]]].
+    destruct (closure_impl_meets_every_open_neighborhood
+      _ _ _ H U); trivial.
+    destruct H8.
+    exists x; constructor; auto.
+  + split.
+    * simpl.
+      constructor.
+      exists S.
+      split; auto with sets.
+      exists ( (Full_set, S) ).
+      -- constructor; split.
+         ++ constructor.
+            exists Full_set; repeat split.
+            apply open_full.
+         ++ constructor.
+            exists S; split; auto with sets.
+      -- symmetry. apply Intersection_Full_set.
+    * red; red; intros U ?.
+      constructor.
+      exists U.
+      split; auto with sets.
+      exists ( (U, Full_set) ).
+      -- constructor.
+         split; trivial.
+         constructor.
+         exists S; split; auto with sets.
+      -- rewrite Intersection_commutative. symmetry.
+         apply Intersection_Full_set.
 Qed.
-
-Require Export Continuity.
 
 Lemma continuous_function_preserves_filter_limits:
   forall (X Y:TopologicalSpace) (f:point_set X -> point_set Y)
@@ -185,7 +172,7 @@ destruct H1.
 constructor.
 cut (In (filter_family (neighborhood_filter x))
   (inverse_image f V)).
-apply H.
+{ apply H. }
 constructor.
 apply H0; trivial.
 Qed.
@@ -200,14 +187,16 @@ Proof.
 intros.
 assert (filter_limit (filter_direct_image f (neighborhood_filter x))
   (f x)).
-apply H.
-red; auto with sets.
+{ apply H.
+  red; auto with sets.
+}
 red; intros V ?.
 assert (In (filter_family (filter_direct_image f (neighborhood_filter x)))
   V).
-apply H0.
-constructor.
-trivial.
+{ apply H0.
+  constructor.
+  trivial.
+}
 destruct H2.
 destruct H2.
 trivial.

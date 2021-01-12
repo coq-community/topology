@@ -102,33 +102,35 @@ Proof.
 intros HA HC F HF eq.
 
 assert (forall a U, In (Im F (inverse_image (sum_space_point_set_intro X a))) U -> open U).
-intros.
-inversion H.
-subst.
-now apply strong_topology_makes_continuous_funcs, HF.
+{ intros.
+  inversion H.
+  subst.
+  now apply strong_topology_makes_continuous_funcs, HF.
+}
 
 assert (forall a, FamilyUnion (Im F (inverse_image (sum_space_point_set_intro X a))) = Full_set).
-intro.
-extensionality_ensembles_inv;
-  [constructor |].
-subst.
-assert (In (@Full_set (point_set (SumTopology A X))) (sum_space_point_set_intro X a x)) by constructor.
-rewrite <- eq in H0.
-inversion H0.
-subst.
-repeat econstructor;
-  eassumption.
-
+{ intro.
+  extensionality_ensembles_inv;
+    [constructor |].
+  subst.
+  assert (In (@Full_set (point_set (SumTopology A X))) (sum_space_point_set_intro X a x)) by constructor.
+  rewrite <- eq in H0.
+  inversion H0.
+  subst.
+  repeat econstructor;
+    eassumption.
+}
 destruct (choice_on_dependent_type _ (fun a => (HC a _ (H a) (H0 a)))) as [fa Hfa].
 
 assert (forall a (U : {U : _ | In (fa a) U}), exists S, In F S /\ inverse_image (sum_space_point_set_intro X a) S = proj1_sig U).
-intros a [U HU].
-destruct (Hfa a) as [H1 [H2 H3]].
-pose proof (H2 _ HU).
-inversion H4.
-subst.
-exists x.
-now repeat constructor.
+{ intros a [U HU].
+  destruct (Hfa a) as [H1 [H2 H3]].
+  pose proof (H2 _ HU).
+  inversion H4.
+  subst.
+  exists x.
+  now repeat constructor.
+}
 
 destruct (choice_on_dependent_type _ (fun a => (choice_on_dependent_type _ (H1 a)))) as [f Hf].
 
@@ -156,8 +158,7 @@ repeat split.
   destruct H2, (Hf a (exist _ S H2)).
   assert (In (Im Full_set (f a)) (f a (exist _ S H2))) by now econstructor.
   econstructor.
-  econstructor.
-  * eassumption.
+  * econstructor. eassumption.
   * apply in_inverse_image.
     now rewrite (H8 : (@inverse_image _ (point_set (SumTopology A X)) _ _) = _).
 Qed.

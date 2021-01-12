@@ -45,10 +45,10 @@ apply H1.
 intros.
 apply H0 in H4.
 induction H4.
-exact H3.
-destruct H4.
-apply H; trivial.
-apply H2; trivial.
+- exact H3.
+- destruct H4.
+  apply H; trivial.
+- apply H2; trivial.
 Qed.
 
 Lemma weak_topology_continuous_char (W : TopologicalSpace)
@@ -94,31 +94,29 @@ intros.
 red; intros.
 assert (@open_basis WeakTopology
         (finite_intersections weak_topology_subbasis)).
-apply Build_TopologicalSpace_from_open_basis_basis.
+{ apply Build_TopologicalSpace_from_open_basis_basis. }
 destruct (open_basis_cover _ H2 x0 U) as [V [? [? ?]]]; trivial.
 assert (for large i:DS_set I, In V (x i)).
-clear H4.
-induction H3.
-destruct I_nonempty.
-exists X0; constructor.
-
-destruct H3.
-destruct H5.
-apply eventually_impl_base with (fun i:DS_set I => In V (f a (x i))).
-intros.
-constructor; trivial.
-apply H; trivial.
-
-apply eventually_impl_base with
-  (fun i:DS_set I => In U0 (x i) /\ In V (x i)).
-intros.
-destruct H6.
-constructor; trivial.
-destruct H5.
-apply eventually_and;
-  (apply IHfinite_intersections || apply IHfinite_intersections0);
-  trivial.
-
+{ clear H4.
+  induction H3.
+  - destruct I_nonempty.
+    exists X0; constructor.
+  - destruct H3.
+    destruct H5.
+    apply eventually_impl_base with (fun i:DS_set I => In V (f a (x i))).
+    + intros.
+      constructor; trivial.
+    + apply H; trivial.
+  - apply eventually_impl_base with
+        (fun i:DS_set I => In U0 (x i) /\ In V (x i)).
+    + intros.
+      destruct H6.
+      constructor; trivial.
+    + destruct H5.
+      apply eventually_and;
+        (apply IHfinite_intersections || apply IHfinite_intersections0);
+        trivial.
+}
 refine (eventually_impl_base _ _ _ H6).
 intro; apply H4.
 Qed.
@@ -151,59 +149,56 @@ destruct H.
 assert (forall U:Ensemble X,
   In (finite_intersections (weak_topology_subbasis (True_rect f))) U ->
   exists V:Ensemble (point_set Y), open V /\ U = inverse_image f V).
-intros.
-induction H0.
-exists Full_set.
-split.
-apply open_full.
-rewrite inverse_image_full.
-trivial.
-destruct H0.
-destruct a.
-simpl.
-exists V.
-split; trivial.
-
-destruct IHfinite_intersections as [V1 [? ?]].
-destruct IHfinite_intersections0 as [V2 [? ?]].
-exists (Intersection V1 V2).
-split.
-auto with topology.
-rewrite H3; rewrite H5.
-rewrite inverse_image_intersection.
-trivial.
-
+{ intros.
+  induction H0.
+  - exists Full_set.
+    split.
+    + apply open_full.
+    + symmetry. apply inverse_image_full.
+  - destruct H0.
+    destruct a.
+    simpl.
+    exists V.
+    split; trivial.
+  - destruct IHfinite_intersections as [V1 [? ?]].
+    destruct IHfinite_intersections0 as [V2 [? ?]].
+    exists (Intersection V1 V2).
+    split.
+    + auto with topology.
+    + rewrite H3; rewrite H5.
+      rewrite inverse_image_intersection.
+      trivial.
+}
 destruct (choice (fun (U:{U:Ensemble X | In F U}) (V:Ensemble (point_set Y))
   => open V /\ proj1_sig U = inverse_image f V)) as [choice_fun].
-intros.
-destruct x as [U].
-simpl.
-apply H0; auto with sets.
-exists (IndexedUnion choice_fun).
-split.
-apply open_indexed_union.
-apply H1.
-apply Extensionality_Ensembles; split; red; intros.
-destruct H2.
-constructor.
-exists (exist _ S H2).
-pose proof (H1 (exist _ S H2)).
-destruct H4.
-simpl in H5.
-rewrite H5 in H3.
-destruct H3.
-exact H3.
-
-destruct H2.
-inversion H2.
-pose proof (H1 a).
-destruct H5.
-destruct a as [U].
-exists U; trivial.
-simpl in H6.
-rewrite H6.
-constructor.
-exact H3.
+- intros.
+  destruct x as [U].
+  simpl.
+  apply H0; auto with sets.
+- exists (IndexedUnion choice_fun).
+  split.
+  + apply open_indexed_union.
+    apply H1.
+  + apply Extensionality_Ensembles; split; red; intros.
+    * destruct H2.
+      constructor.
+      exists (exist _ S H2).
+      pose proof (H1 (exist _ S H2)).
+      destruct H4.
+      simpl in H5.
+      rewrite H5 in H3.
+      destruct H3.
+      exact H3.
+    * destruct H2.
+      inversion H2.
+      pose proof (H1 a).
+      destruct H5.
+      destruct a as [U].
+      exists U; trivial.
+      simpl in H6.
+      rewrite H6.
+      constructor.
+      exact H3.
 Qed.
 
 Lemma weak_topology1_makes_continuous_func:

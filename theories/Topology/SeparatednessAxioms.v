@@ -130,12 +130,12 @@ intros.
 red; intros.
 left.
 exists (Complement (Singleton y)); repeat split.
-apply H.
-repeat red; intro.
-destruct H1; contradiction H0; trivial.
-red; intro.
-repeat red in H1.
-apply H1; constructor.
+- apply H.
+- repeat red; intro.
+  destruct H1; contradiction H0; trivial.
+- red; intro.
+  repeat red in H1.
+  apply H1; constructor.
 Qed.
 
 Lemma Hausdorff_impl_T1_sep: forall X:TopologicalSpace,
@@ -144,30 +144,33 @@ Proof.
 intros.
 red; intros.
 assert (closure (Singleton x) = Singleton x).
-apply Extensionality_Ensembles; split.
-red; intros.
-assert (x = x0).
-apply NNPP.
-red; intro.
-pose proof (H x x0 H1).
-destruct H2 as [U [V ?]].
-intuition.
-assert (In (interior (Complement (Singleton x))) x0).
-exists V.
-constructor; split; trivial.
-red; intros.
-red; red; intro.
-destruct H8.
-assert (In Empty_set x).
-rewrite <- H7.
-constructor; trivial.
-destruct H8.
-assumption.
-rewrite interior_complement in H6.
-contradiction H6; exact H0.
-destruct H1; constructor.
-apply closure_inflationary.
-
+{ apply Extensionality_Ensembles; split.
+  2: { apply closure_inflationary. }
+  red; intros.
+  assert (x = x0).
+  { apply NNPP.
+    red; intro.
+    pose proof (H x x0 H1).
+    destruct H2 as [U [V ?]].
+    intuition.
+    assert (In (interior (Complement (Singleton x))) x0).
+    { exists V.
+      2: { assumption. }
+      constructor; split; trivial.
+      red; intros.
+      red; red; intro.
+      destruct H8.
+      assert (In Empty_set x).
+      { rewrite <- H7.
+        constructor; trivial.
+      }
+      destruct H8.
+    }
+    rewrite interior_complement in H6.
+    contradiction H6; exact H0.
+  }
+  destruct H1; constructor.
+}
 rewrite <- H0; apply closure_closed.
 Qed.
 
@@ -179,11 +182,12 @@ destruct H.
 red; intros.
 pose proof (H0 x (Singleton y)).
 match type of H2 with | ?A -> ?B -> ?C => assert C end.
-apply H2.
-apply H.
-red; intro.
-destruct H3.
-contradiction H1; trivial.
+{ apply H2.
+  - apply H.
+  - red; intro.
+    destruct H3.
+    contradiction H1; trivial.
+}
 destruct H3 as [U [V [? [? [? [? ?]]]]]].
 exists U; exists V; repeat split; auto with sets.
 Qed.
@@ -197,11 +201,12 @@ split; trivial.
 intros.
 pose proof (H0 (Singleton x) F).
 match type of H3 with | ?A -> ?B -> ?C -> ?D => assert D end.
-apply H3; trivial.
-apply Extensionality_Ensembles; split; auto with sets.
-red; intros.
-destruct H4 as [? []].
-contradiction H2.
+{ apply H3; trivial.
+  apply Extensionality_Ensembles; split; auto with sets.
+  red; intros.
+  destruct H4 as [? []].
+  contradiction H2.
+}
 destruct H4 as [U [V [? [? [? [? ?]]]]]].
 exists U; exists V; repeat split; auto with sets.
 Qed.
@@ -222,7 +227,7 @@ destruct (H0 U H3 H5) as [i].
 destruct (H1 V H4 H6) as [j].
 destruct (DS_join_cond i j) as [k [? ?]].
 assert (In (Intersection U V) (x k)).
-constructor; (apply H8 || apply H9); trivial.
+{ constructor; (apply H8 || apply H9); trivial. }
 rewrite H7 in H12.
 destruct H12.
 Qed.
@@ -235,13 +240,13 @@ Proof.
 intros.
 destruct (net_cluster_point_impl_subnet_converges _ _ x y H1) as
   [J [x' [? ?]]].
-destruct (H0 Full_set).
-apply open_full.
-constructor.
-exists; exact x1.
-assert (net_limit x' x0).
-apply subnet_limit with _ x; trivial.
-apply Hausdorff_impl_net_limit_unique with x'; trivial.
+- destruct (H0 Full_set).
+  + apply open_full.
+  + constructor.
+  + exists; exact x1.
+- assert (net_limit x' x0).
+  { apply subnet_limit with _ x; trivial. }
+  apply Hausdorff_impl_net_limit_unique with x'; trivial.
 Qed.
 
 Lemma net_limit_is_unique_cluster_point_impl_Hausdorff:
@@ -253,13 +258,13 @@ Proof.
 intros.
 red; intros.
 assert (~ net_cluster_point (neighborhood_net _ x) y).
-red; intro.
-contradiction H0.
-symmetry.
-apply H with _ (neighborhood_net _ x).
-apply neighborhood_net_limit.
-assumption.
-
+{ red; intro.
+  contradiction H0.
+  symmetry.
+  apply H with _ (neighborhood_net _ x).
+  - apply neighborhood_net_limit.
+  - assumption.
+}
 apply not_all_ex_not in H1.
 destruct H1 as [V].
 apply imply_to_and in H1.
@@ -274,10 +279,7 @@ red; intros.
 destruct H4.
 contradiction H3.
 exists (intro_neighborhood_net_DS X x U x0 o i H4).
-split.
-simpl; auto with sets.
-simpl.
-trivial.
+split; simpl; auto with sets.
 Qed.
 
 Lemma net_limit_uniqueness_impl_Hausdorff:
@@ -290,14 +292,14 @@ apply net_limit_is_unique_cluster_point_impl_Hausdorff.
 intros.
 pose proof (net_cluster_point_impl_subnet_converges _ _ _ _ H1).
 destruct H2 as [J [x' [? ?]]].
-destruct (H0 Full_set).
-apply open_full.
-constructor.
-exists; exact x1.
-assert (net_limit x' x0).
-apply subnet_limit with _ x; trivial.
-unfold uniqueness in H.
-apply H with _ x'; trivial.
+- destruct (H0 Full_set).
+  + apply open_full.
+  + constructor.
+  + exists; exact x1.
+- assert (net_limit x' x0).
+  { apply subnet_limit with _ x; trivial. }
+  unfold uniqueness in H.
+  apply H with _ x'; trivial.
 Qed.
 
 End Hausdorff_and_nets.

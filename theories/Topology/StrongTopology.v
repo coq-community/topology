@@ -17,39 +17,35 @@ Definition strong_open (S:Ensemble Y) : Prop :=
 
 Definition StrongTopology : TopologicalSpace.
 refine (Build_TopologicalSpace Y strong_open _ _ _).
-intros.
-red; intro.
-assert (inverse_image (f a) (FamilyUnion F) =
-  IndexedUnion (fun U:{ U:Ensemble Y | In F U } =>
-                 inverse_image (f a) (proj1_sig U))).
-apply Extensionality_Ensembles; red; split; red; intros.
-destruct H0.
-inversion H0.
-exists (exist _ S H1).
-constructor.
-exact H2.
-
-destruct H0.
-destruct H0.
-destruct a0 as [U].
-constructor.
-exists U; trivial.
-
-rewrite H0.
-apply open_indexed_union.
-intros.
-destruct a0 as [U].
-simpl.
-apply H; trivial.
-
-intros.
-red; intro.
-rewrite inverse_image_intersection.
-apply open_intersection2; (apply H || apply H0).
-
-red; intro.
-rewrite inverse_image_full.
-apply open_full.
+- intros.
+  red; intro.
+  assert (inverse_image (f a) (FamilyUnion F) =
+    IndexedUnion (fun U:{ U:Ensemble Y | In F U } =>
+                   inverse_image (f a) (proj1_sig U))).
+  { apply Extensionality_Ensembles; red; split; red; intros.
+    - destruct H0.
+      inversion H0.
+      exists (exist _ S H1).
+      constructor.
+      exact H2.
+    - destruct H0. destruct H0.
+      destruct a0 as [U].
+      constructor.
+      exists U; trivial.
+  }
+  rewrite H0.
+  apply open_indexed_union.
+  intros.
+  destruct a0 as [U].
+  simpl.
+  apply H; trivial.
+- intros.
+  red; intro.
+  rewrite inverse_image_intersection.
+  apply open_intersection2; (apply H || apply H0).
+- red; intro.
+  rewrite inverse_image_full.
+  apply open_full.
 Defined.
 
 Lemma strong_topology_makes_continuous_funcs:
