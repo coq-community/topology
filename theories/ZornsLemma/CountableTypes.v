@@ -1,8 +1,9 @@
-Require Export FiniteTypes Relation_Definitions ZArith QArith IndexedFamilies.
-Require Import InfiniteTypes CSB DecidableDec
-               FunctionalExtensionality ProofIrrelevance
-               DependentTypeChoice ClassicalChoice
-               Arith ArithRing.
+From Coq Require Export Relation_Definitions QArith ZArith.
+From Coq Require Import Arith ArithRing FunctionalExtensionality
+    ProofIrrelevance ClassicalChoice.
+From ZornsLemma Require Import InfiniteTypes CSB DecidableDec
+    DependentTypeChoice.
+From ZornsLemma Require Export FiniteTypes IndexedFamilies.
 
 Local Close Scope Q_scope.
 

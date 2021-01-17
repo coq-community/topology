@@ -1,4 +1,4 @@
-Require Export Relation_Definitions.
+From Coq Require Export Relation_Definitions.
 
 Arguments reflexive {A}.
 Arguments transitive {A}.

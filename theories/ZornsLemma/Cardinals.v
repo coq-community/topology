@@ -1,8 +1,8 @@
-Require Export FunctionProperties.
-Require Export Relation_Definitions.
-Require Import Relation_Definitions_Implicit.
-Require Import CSB.
-Require Import EnsemblesSpec.
+From ZornsLemma Require Export FunctionProperties.
+From Coq Require Export Relation_Definitions.
+From ZornsLemma Require Import Relation_Definitions_Implicit.
+From ZornsLemma Require Import CSB.
+From ZornsLemma Require Import EnsemblesSpec.
 
 Inductive Cardinal : Type :=
   | cardinality: Type -> Cardinal.

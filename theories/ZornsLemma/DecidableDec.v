@@ -1,4 +1,4 @@
-Require Import Description.
+From Coq Require Import Description.
 
 Lemma exclusive_dec: forall P Q:Prop, ~(P /\ Q) ->
   (P \/ Q) -> {P} + {Q}.
@@ -36,7 +36,7 @@ tauto.
 assumption.
 Qed.
 
-Require Import Classical.
+From Coq Require Import Classical.
 
 Lemma classic_dec: forall P:Prop, {P} + {~P}.
 Proof.

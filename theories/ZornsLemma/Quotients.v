@@ -1,12 +1,12 @@
-Require Export Ensembles.
-Require Import EnsemblesImplicit.
-Require Export Image.
-Require Import ImageImplicit.
-Require Export Relation_Definitions.
-Require Import Relation_Definitions_Implicit.
-Require Import Description.
-Require Import ProofIrrelevance.
-Require Export EnsemblesSpec.
+From Coq Require Export Ensembles.
+From ZornsLemma Require Import EnsemblesImplicit.
+From ZornsLemma Require Export Image.
+From ZornsLemma Require Import ImageImplicit.
+From Coq Require Export Relation_Definitions.
+From ZornsLemma Require Import Relation_Definitions_Implicit.
+From Coq Require Import Description.
+From Coq Require Import ProofIrrelevance.
+From ZornsLemma Require Export EnsemblesSpec.
 
 Set Implicit Arguments.
 Section Quotient.

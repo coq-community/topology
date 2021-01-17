@@ -1,4 +1,4 @@
-Require Export Ensembles.
+From Coq Require Export Ensembles.
 
 Arguments In {U}.
 Arguments Included {U}.

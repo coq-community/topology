@@ -1,8 +1,8 @@
-Require Import Classical_Prop.
-Require Import Classical_sets.
-Require Export Ensembles.
-Require Import EnsemblesImplicit.
-Require Export EnsemblesSpec.
+From Coq Require Import Classical_Prop.
+From Coq Require Import Classical_sets.
+From Coq Require Export Ensembles.
+From ZornsLemma Require Import EnsemblesImplicit.
+From ZornsLemma Require Export EnsemblesSpec.
 
 Set Implicit Arguments.
 

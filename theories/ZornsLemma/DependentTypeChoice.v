@@ -1,4 +1,4 @@
-Require Import ClassicalChoice.
+From Coq Require Import ClassicalChoice.
 
 Set Asymmetric Patterns.
 

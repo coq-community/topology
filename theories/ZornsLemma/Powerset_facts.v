@@ -4,8 +4,8 @@
 *)
 
 From Coq.Sets Require Export Powerset_facts.
-Require Export EnsemblesImplicit EnsemblesTactics.
-Require Import Classical_Prop.
+From ZornsLemma Require Export EnsemblesImplicit EnsemblesTactics.
+From Coq Require Import Classical_Prop.
 
 Lemma Intersection_Full_set
   {X : Type}

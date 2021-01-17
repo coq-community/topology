@@ -1,12 +1,12 @@
-Require Export Relation_Definitions.
-Require Import Relation_Definitions_Implicit.
-Require Import Classical_Wf.
-Require Import Description.
-Require Import FunctionalExtensionality.
-Require Import Classical.
-Require Import ZornsLemma.
-Require Import ProofIrrelevance.
-Require Import EnsemblesSpec.
+From Coq Require Export Relation_Definitions.
+From ZornsLemma Require Import Relation_Definitions_Implicit.
+From ZornsLemma Require Import Classical_Wf.
+From Coq Require Import Description.
+From Coq Require Import FunctionalExtensionality.
+From Coq Require Import Classical.
+From ZornsLemma Require Import ZornsLemma.
+From Coq Require Import ProofIrrelevance.
+From ZornsLemma Require Import EnsemblesSpec.
 
 Section WellOrder.
 

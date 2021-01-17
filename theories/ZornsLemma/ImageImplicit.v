@@ -1,4 +1,4 @@
-Require Export Coq.Sets.Image.
+From Coq Require Export Sets.Image.
 
 Arguments Im {U} {V}.
 Arguments Im_def {U} {V}.

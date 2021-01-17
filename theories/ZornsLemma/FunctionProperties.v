@@ -1,5 +1,7 @@
-Require Export Coq.Sets.Image.
-Require Export Coq.Program.Basics.
+From Coq Require Export Image.
+From Coq Require Export Program.Basics.
+From Coq Require Import Description.
+From Coq Require Import FunctionalExtensionality.
 
 Arguments injective {U} {V}.
 Definition surjective {X Y:Type} (f:X->Y) :=
@@ -11,9 +13,6 @@ Inductive invertible {X Y:Type} (f:X->Y) : Prop :=
   | intro_invertible: forall g:Y->X,
   (forall x:X, g (f x) = x) -> (forall y:Y, f (g y) = y) ->
   invertible f.
-
-Require Import Description.
-Require Import FunctionalExtensionality.
 
 Lemma unique_inverse: forall {X Y:Type} (f:X->Y), invertible f ->
   exists! g:Y->X, (forall x:X, g (f x) = x) /\

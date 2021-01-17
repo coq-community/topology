@@ -1,9 +1,9 @@
-Require Export EnsemblesImplicit.
-Require Export Utf8.
-Require Export Families.
-Require Export IndexedFamilies.
+From ZornsLemma Require Export EnsemblesImplicit.
+From Coq Require Export Utf8.
+From ZornsLemma Require Export Families.
+From ZornsLemma Require Export IndexedFamilies.
+From ZornsLemma Require Import EnsemblesSpec.
 
-Require Import EnsemblesSpec.
 Notation "x ∈ S" := (In S x) (at level 75).
 Notation "S ∩ T" := (Intersection S T)
   (right associativity, at level 55).
@@ -42,7 +42,6 @@ Notation "//\\ [ x : X ] S" :=
 
 (* test *)
 (*
-Require Import EnsemblesSpec.
 Check ([[ 2+3, 4*5 ]]).
 Check (forall (X:Type) (A B:Ensemble X) (x:X),
   In (Intersection A B) x <-> In A x /\ In B x).

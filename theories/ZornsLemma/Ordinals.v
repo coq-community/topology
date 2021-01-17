@@ -1,5 +1,5 @@
-Require Import Classical.
-Require Import Eqdep.
+From Coq Require Import Classical.
+From Coq Require Import Eqdep.
 
 Declare Scope ordinal_scope.
 

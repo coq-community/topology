@@ -1,9 +1,9 @@
-Require Import Classical.
-Require Export Ensembles.
-Require Import EnsemblesImplicit.
-Require Export Relation_Definitions.
-Require Import Relation_Definitions_Implicit.
-Require Import EnsemblesSpec.
+From Coq Require Import Classical.
+From Coq Require Export Ensembles.
+From ZornsLemma Require Import EnsemblesImplicit.
+From Coq Require Export Relation_Definitions.
+From ZornsLemma Require Import Relation_Definitions_Implicit.
+From ZornsLemma Require Import EnsemblesSpec.
 
 Section MinimalElements.
 

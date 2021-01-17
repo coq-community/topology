@@ -1,10 +1,10 @@
-Require Export FiniteTypes.
-Require Import EnsemblesImplicit.
-Require Import ClassicalChoice.
-Require Import Arith.
-Require Import FunctionalExtensionality.
-Require Import EnsemblesSpec.
-Require Import FunctionalExtensionality.
+From ZornsLemma Require Export FiniteTypes.
+From ZornsLemma Require Import EnsemblesImplicit.
+From Coq Require Import ClassicalChoice.
+From Coq Require Import Arith.
+From Coq Require Import FunctionalExtensionality.
+From ZornsLemma Require Import EnsemblesSpec.
+From Coq Require Import FunctionalExtensionality.
 
 Lemma finite_nat_initial_segment: forall n:nat,
   FiniteT { m:nat | m < n }.

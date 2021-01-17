@@ -1,7 +1,8 @@
-Require Export FunctionProperties.
-Require Export Ensembles.
-Require Import EnsemblesImplicit.
-Require Export EnsemblesSpec.
+From ZornsLemma Require Export FunctionProperties.
+From Coq Require Export Ensembles.
+From ZornsLemma Require Import EnsemblesImplicit.
+From ZornsLemma Require Export EnsemblesSpec.
+From ZornsLemma Require Import IndexedFamilies.
 
 Definition inverse_image {X Y:Type} (f:X->Y) (T:Ensemble Y) : Ensemble X :=
   [ x:X | In T (f x) ].
@@ -97,8 +98,6 @@ Hint Resolve @inverse_image_increasing : sets.
 Hint Rewrite @inverse_image_empty @inverse_image_full
   @inverse_image_intersection @inverse_image_union
   @inverse_image_complement @inverse_image_composition : sets.
-
-Require Import IndexedFamilies.
 
 Lemma inverse_image_indexed_intersection :
   forall {A X Y:Type} (f:X->Y) (F:IndexedFamily A Y),

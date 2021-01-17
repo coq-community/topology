@@ -1,4 +1,4 @@
-Require Import EnsemblesImplicit.
+From ZornsLemma Require Import EnsemblesImplicit.
 
 Ltac destruct_ensembles_in :=
  match goal with

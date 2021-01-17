@@ -1,8 +1,8 @@
-Require Export Families.
-Require Export Image.
-Require Import ImageImplicit.
-Require Import FiniteTypes.
-Require Export EnsemblesTactics.
+From ZornsLemma Require Export Families.
+From ZornsLemma Require Export Image.
+From ZornsLemma Require Import ImageImplicit.
+From ZornsLemma Require Import FiniteTypes.
+From ZornsLemma Require Export EnsemblesTactics.
 
 Set Implicit Arguments.
 

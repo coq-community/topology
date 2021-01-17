@@ -1,13 +1,14 @@
-Require Export Ensembles.
-Require Import EnsemblesImplicit.
-Require Export Image.
-Require Import ImageImplicit.
-Require Export Finite_sets.
-Require Export FunctionProperties.
-Require Import DecidableDec.
-Require Import ProofIrrelevance.
-Require Import Description.
-Require Import Powerset_facts.
+From Coq Require Export Ensembles.
+From ZornsLemma Require Import EnsemblesImplicit.
+From ZornsLemma Require Export Image.
+From ZornsLemma Require Import ImageImplicit.
+From Coq Require Export Finite_sets.
+From ZornsLemma Require Export FunctionProperties.
+From ZornsLemma Require Import DecidableDec.
+From Coq Require Import ProofIrrelevance.
+From Coq Require Import Description.
+From ZornsLemma Require Import Powerset_facts.
+From Coq Require Import FunctionalExtensionality.
 
 Set Asymmetric Patterns.
 
@@ -706,8 +707,6 @@ induction H0.
   + destruct x as [x x0]; unfold ginv, g; try rewrite H1; trivial.
   + destruct y as [x y]; unfold ginv, g; try rewrite H2; trivial.
 Qed.
-
-Require Import FunctionalExtensionality.
 
 Lemma finite_exp: forall X Y:Type, FiniteT X -> FiniteT Y ->
   FiniteT (X->Y).

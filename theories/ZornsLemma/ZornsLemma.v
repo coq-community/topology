@@ -1,13 +1,13 @@
-Require Export Classical.
-Require Import ClassicalChoice.
-Require Export Relation_Definitions.
-Require Import Relation_Definitions_Implicit.
-Require Export Ensembles.
-Require Import EnsemblesImplicit.
-Require Import ProofIrrelevance.
-Require Import InverseImage.
-Require Export EnsemblesSpec.
-Require Import Quotients.
+From Coq Require Export Classical.
+From Coq Require Import ClassicalChoice.
+From Coq Require Export Relation_Definitions.
+From ZornsLemma Require Import Relation_Definitions_Implicit.
+From Coq Require Export Ensembles.
+From ZornsLemma Require Import EnsemblesImplicit.
+From Coq Require Import ProofIrrelevance.
+From ZornsLemma Require Import InverseImage.
+From ZornsLemma Require Export EnsemblesSpec.
+From ZornsLemma Require Import Quotients.
 
 Section ZL'.
 

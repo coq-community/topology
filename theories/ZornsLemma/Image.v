@@ -1,6 +1,6 @@
-Require Export ImageImplicit.
-Require Import EnsemblesImplicit.
-Require Import FunctionProperties.
+From ZornsLemma Require Export ImageImplicit.
+From ZornsLemma Require Import EnsemblesImplicit.
+From ZornsLemma Require Import FunctionProperties.
 
 Lemma option_Full_set_Im (X : Type) :
   Full_set = Add (Im Full_set (@Some X)) None.

@@ -1,5 +1,5 @@
-Require Export Ensembles.
-Require Import EnsemblesImplicit.
+From Coq Require Export Ensembles.
+From ZornsLemma Require Import EnsemblesImplicit.
 
 Inductive characteristic_function_abstraction {X:Type} (P:X->Prop) (x:X) : Prop :=
   | intro_characteristic_sat: P x ->
@@ -37,7 +37,7 @@ constructor.
 destruct H as [m].
 exists (m + 1).
 rewrite H.
-Require Import Arith.
+From Coq Require Import Arith.
 ring.
 Qed.
 *)
