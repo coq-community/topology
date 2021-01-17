@@ -8,14 +8,14 @@ Definition compact (X:TopologicalSpace) :=
     (forall U:Ensemble (point_set X), In C U -> open U) ->
     FamilyUnion C = Full_set ->
     exists C':Family (point_set X),
-      Finite _ C' /\ Included C' C /\
+      Finite C' /\ Included C' C /\
       FamilyUnion C' = Full_set.
 
 Lemma compactness_on_indexed_covers:
   forall (X:TopologicalSpace) (A:Type) (C:IndexedFamily A (point_set X)),
     compact X ->
     (forall a:A, open (C a)) -> IndexedUnion C = Full_set ->
-  exists A':Ensemble A, Finite _ A' /\
+  exists A':Ensemble A, Finite A' /\
     IndexedUnion (fun a':{a':A | In A' a'} => C (proj1_sig a')) = Full_set.
 Proof.
 intros.
@@ -57,7 +57,7 @@ Lemma compact_finite_nonempty_closed_intersection:
   forall X:TopologicalSpace, compact X ->
   forall F:Family (point_set X),
     (forall G:Ensemble (point_set X), In F G -> closed G) ->
-    (forall F':Family (point_set X), Finite _ F' -> Included F' F ->
+    (forall F':Family (point_set X), Finite F' -> Included F' F ->
      Inhabited (FamilyIntersection F')) ->
     Inhabited (FamilyIntersection F).
 Proof.
@@ -115,7 +115,7 @@ Lemma finite_nonempty_closed_intersection_impl_compact:
   forall X:TopologicalSpace,
   (forall F:Family (point_set X),
     (forall G:Ensemble (point_set X), In F G -> closed G) ->
-    (forall F':Family (point_set X), Finite _ F' -> Included F' F ->
+    (forall F':Family (point_set X), Finite F' -> Included F' F ->
      Inhabited (FamilyIntersection F')) ->
     Inhabited (FamilyIntersection F)) ->
   compact X.

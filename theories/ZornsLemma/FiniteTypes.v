@@ -9,6 +9,7 @@ From Coq Require Import ProofIrrelevance.
 From Coq Require Import Description.
 From ZornsLemma Require Import Powerset_facts.
 From Coq Require Import FunctionalExtensionality.
+From ZornsLemma Require Import FiniteImplicit.
 
 Set Asymmetric Patterns.
 
@@ -190,7 +191,7 @@ intros. apply finite_dep_choice; assumption.
 Qed.
 
 Lemma Finite_ens_type: forall {X:Type} (S:Ensemble X),
-  Finite _ S -> FiniteT { x:X | In S x }.
+  Finite S -> FiniteT { x:X | In S x }.
 Proof.
 intros.
 induction H.
@@ -262,7 +263,7 @@ Qed.
 
 Lemma FiniteT_img: forall (X Y:Type) (f:X->Y),
   FiniteT X -> (forall y1 y2:Y, y1=y2 \/ y1<>y2) ->
-  Finite _ (Im Full_set f).
+  Finite (Im Full_set f).
 Proof.
 intros.
 induction H.

@@ -356,8 +356,8 @@ Qed.
 
 Lemma inverse_image_finite {X Y : Type} (f : X -> Y) (F : Family X) :
   surjective f ->
-  Finite _ F ->
-  Finite _ (inverse_image (inverse_image f) F).
+  Finite F ->
+  Finite (inverse_image (inverse_image f) F).
 Proof.
 intros Hf H.
 induction H.

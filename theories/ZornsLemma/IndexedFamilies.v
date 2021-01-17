@@ -74,8 +74,8 @@ Qed.
 
 Lemma finite_indexed_union {A T : Type} {F : IndexedFamily A T} :
   FiniteT A ->
-  (forall a, Finite _ (F a)) ->
-  Finite _ (IndexedUnion F).
+  (forall a, Finite (F a)) ->
+  Finite (IndexedUnion F).
 Proof.
 intro H.
 induction H;

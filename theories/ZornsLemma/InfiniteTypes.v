@@ -47,9 +47,9 @@ Lemma infinite_nat_inj: forall X:Type, ~ FiniteT X ->
   exists f:nat->X, injective f.
 Proof.
 intros.
-assert (inhabited (forall S:Ensemble X, Finite _ S ->
+assert (inhabited (forall S:Ensemble X, Finite S ->
   { x:X | ~ In S x})).
-{ pose proof (choice (fun (x:{S:Ensemble X | Finite _ S}) (y:X) =>
+{ pose proof (choice (fun (x:{S:Ensemble X | Finite S}) (y:X) =>
     ~ In (proj1_sig x) y)).
   simpl in H0.
   match type of H0 with | ?A -> ?B => assert B end.
@@ -83,12 +83,12 @@ destruct H0.
 assert (forall (n:nat) (g:forall m:nat, m<n -> X),
   { x:X | forall (m:nat) (Hlt:m<n), g m Hlt <> x }).
 { intros.
-  assert (Finite _ (fun x:X => exists m:nat, exists Hlt:m<n,
+  assert (Finite (fun x:X => exists m:nat, exists Hlt:m<n,
              g m Hlt = x)).
   { pose (h := fun x:{m:nat | m<n} =>
       g (proj1_sig x) (proj2_sig x)).
 
-    match goal with |- Finite X ?S => assert (S =
+    match goal with |- @Finite X ?S => assert (S =
       Im Full_set h) end.
     - apply Extensionality_Ensembles; red; split; red; intros.
       + destruct H0.

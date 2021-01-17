@@ -47,6 +47,7 @@ theories/ZornsLemma/EnsemblesTactics.v
 theories/ZornsLemma/EnsemblesUtf8.v
 theories/ZornsLemma/Families.v
 theories/ZornsLemma/Filters.v
+theories/ZornsLemma/FiniteImplicit.v
 theories/ZornsLemma/FiniteIntersections.v
 theories/ZornsLemma/FiniteTypes.v
 theories/ZornsLemma/FunctionProperties.v

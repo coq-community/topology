@@ -232,7 +232,7 @@ induction H.
 Qed.
 
 Lemma Finite_impl_Countable: forall {X : Type} (S : Ensemble X),
-  Finite _ S -> Countable S.
+  Finite S -> Countable S.
 Proof.
 intros.
 now apply FiniteT_impl_CountableT, Finite_ens_type.
