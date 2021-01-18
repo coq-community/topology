@@ -24,10 +24,10 @@ Lemma neighborhood_interior: forall {X:TopologicalSpace}
   neighborhood N x -> In (interior N) x.
 Proof.
 intros.
+destruct H as [U].
 destruct H.
 destruct H.
-destruct H.
-assert (Included x0 (interior N)) by
+assert (Included U (interior N)) by
   now apply interior_maximal.
 auto with sets.
 Qed.
