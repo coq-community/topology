@@ -5,6 +5,8 @@ Definition open_neighborhood {X:TopologicalSpace}
   (U:Ensemble X) (x:X) :=
   open U /\ In U x.
 
+Hint Unfold open_neighborhood : topology.
+
 Definition neighborhood {X:TopologicalSpace}
   (N:Ensemble X) (x:X) :=
   exists U:Ensemble X,
