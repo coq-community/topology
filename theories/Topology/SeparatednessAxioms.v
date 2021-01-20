@@ -1,6 +1,6 @@
-Require Export TopologicalSpaces.
-Require Import InteriorsClosures.
+Require Export Nets.
 Require Import Homeomorphisms.
+From ZornsLemma Require Import EnsemblesTactics.
 
 Definition T0_sep (X:TopologicalSpace) : Prop :=
   forall x y:point_set X, x <> y ->
@@ -65,15 +65,13 @@ Proof.
   destruct (Hhaus (g x) (g y)) as [U [V [HopenU [HopenV [HinU [HinV eq]]]]]].
   - intro contra.
     eapply f_equal in contra.
-    rewrite Hfg, Hfg in contra.
-    contradiction.
+    now rewrite Hfg, Hfg in contra.
   - exists (inverse_image g U), (inverse_image g V).
     repeat split;
       try apply Hcont_g;
-      try assumption.
+      trivial.
     erewrite <- inverse_image_intersection, <- inverse_image_empty.
-    f_equal.
-    assumption.
+    now f_equal.
 Qed.
 
 Definition T3_sep (X:TopologicalSpace) : Prop :=
@@ -96,22 +94,18 @@ Proof.
     destruct (H (g y) (inverse_image f F)) as [U [V [HopenU [HopenV [HinU [Hincl eq]]]]]].
     + red.
       rewrite <- inverse_image_complement.
-      apply Hcont_f.
-      assumption.
+      now apply Hcont_f.
     + intros [contra].
-      rewrite Hfg in contra.
-      contradiction.
+      now rewrite Hfg in contra.
     + exists (inverse_image g U), (inverse_image g V).
       repeat split;
         try apply Hcont_g;
-        try assumption.
+        trivial.
      * apply Hincl.
        constructor.
-       rewrite Hfg.
-       assumption.
+       now rewrite Hfg.
      * erewrite <- inverse_image_intersection, <- inverse_image_empty.
-       f_equal.
-       assumption.
+       now f_equal.
 Qed.
 
 Definition normal_sep (X:TopologicalSpace) : Prop :=
@@ -127,51 +121,45 @@ Lemma T1_sep_impl_T0_sep: forall X:TopologicalSpace,
   T1_sep X -> T0_sep X.
 Proof.
 intros.
-red; intros.
+red. intros.
 left.
-exists (Complement (Singleton y)); repeat split.
+exists (Complement (Singleton y)).
+repeat split.
 - apply H.
-- repeat red; intro.
-  destruct H1; contradiction H0; trivial.
-- red; intro.
-  repeat red in H1.
-  apply H1; constructor.
+- intro.
+  destruct H1.
+  now contradiction H0.
+- intro.
+  apply H1.
+  constructor.
 Qed.
 
 Lemma Hausdorff_impl_T1_sep: forall X:TopologicalSpace,
   Hausdorff X -> T1_sep X.
 Proof.
-intros.
-red; intros.
-assert (closure (Singleton x) = Singleton x).
-{ apply Extensionality_Ensembles; split.
-  2: { apply closure_inflationary. }
+intros X H x.
+replace (Singleton x) with (closure (Singleton x)).
+{ apply closure_closed. }
+extensionality_ensembles;
+  [ | now apply closure_inflationary ].
+replace x0 with x.
+{ constructor. }
+apply NNPP.
+intro.
+pose proof (H x x0 H1).
+destruct H2 as [U [V [? [? [? [? ?]]]]]].
+assert (In (interior (Complement (Singleton x))) x0).
+{ exists V; trivial.
+  constructor; split; trivial.
   red; intros.
-  assert (x = x0).
-  { apply NNPP.
-    red; intro.
-    pose proof (H x x0 H1).
-    destruct H2 as [U [V ?]].
-    intuition.
-    assert (In (interior (Complement (Singleton x))) x0).
-    { exists V.
-      2: { assumption. }
-      constructor; split; trivial.
-      red; intros.
-      red; red; intro.
-      destruct H8.
-      assert (In Empty_set x).
-      { rewrite <- H7.
-        constructor; trivial.
-      }
-      destruct H8.
-    }
-    rewrite interior_complement in H6.
-    contradiction H6; exact H0.
-  }
-  destruct H1; constructor.
-}
-rewrite <- H0; apply closure_closed.
+  intro.
+  destruct H8.
+  eapply Noone_in_empty.
+  erewrite <- H6.
+  econstructor;
+    eassumption. }
+rewrite interior_complement in H7.
+now contradiction H7.
 Qed.
 
 Lemma T3_sep_impl_Hausdorff: forall X:TopologicalSpace,
@@ -182,14 +170,13 @@ destruct H.
 red; intros.
 pose proof (H0 x (Singleton y)).
 match type of H2 with | ?A -> ?B -> ?C => assert C end.
-{ apply H2.
-  - apply H.
-  - red; intro.
-    destruct H3.
-    contradiction H1; trivial.
-}
-destruct H3 as [U [V [? [? [? [? ?]]]]]].
-exists U; exists V; repeat split; auto with sets.
+- apply H2.
+  + apply H.
+  + intro.
+    now destruct H3.
+- destruct H3 as [U [V [? [? [? [? ?]]]]]].
+  exists U, V.
+  auto 6 with sets.
 Qed.
 
 Lemma normal_sep_impl_T3_sep: forall X:TopologicalSpace,
@@ -201,17 +188,12 @@ split; trivial.
 intros.
 pose proof (H0 (Singleton x) F).
 match type of H3 with | ?A -> ?B -> ?C -> ?D => assert D end.
-{ apply H3; trivial.
-  apply Extensionality_Ensembles; split; auto with sets.
-  red; intros.
-  destruct H4 as [? []].
-  contradiction H2.
-}
-destruct H4 as [U [V [? [? [? [? ?]]]]]].
-exists U; exists V; repeat split; auto with sets.
+- apply H3; trivial.
+  now extensionality_ensembles.
+- destruct H4 as [U [V [? [? [? [? ?]]]]]].
+  exists U, V.
+  auto with sets.
 Qed.
-
-Require Export Nets.
 
 Section Hausdorff_and_nets.
 
@@ -221,13 +203,16 @@ Lemma Hausdorff_impl_net_limit_unique:
 Proof.
 intros.
 red; intros x1 x2 ? ?.
-apply NNPP; intro.
+apply NNPP.
+intro.
 destruct (H x1 x2) as [U [V [? [? [? [? ?]]]]]]; trivial.
 destruct (H0 U H3 H5) as [i].
 destruct (H1 V H4 H6) as [j].
 destruct (DS_join_cond i j) as [k [? ?]].
 assert (In (Intersection U V) (x k)).
-{ constructor; (apply H8 || apply H9); trivial. }
+{ constructor.
+  - now apply H8.
+  - now apply H9. }
 rewrite H7 in H12.
 destruct H12.
 Qed.
@@ -243,10 +228,10 @@ destruct (net_cluster_point_impl_subnet_converges _ _ x y H1) as
 - destruct (H0 Full_set).
   + apply open_full.
   + constructor.
-  + exists; exact x1.
-- assert (net_limit x' x0).
-  { apply subnet_limit with _ x; trivial. }
-  apply Hausdorff_impl_net_limit_unique with x'; trivial.
+  + now exists.
+- assert (net_limit x' x0) by
+    now apply subnet_limit with _ x.
+  now apply Hausdorff_impl_net_limit_unique with x'.
 Qed.
 
 Lemma net_limit_is_unique_cluster_point_impl_Hausdorff:
@@ -258,13 +243,11 @@ Proof.
 intros.
 red; intros.
 assert (~ net_cluster_point (neighborhood_net _ x) y).
-{ red; intro.
+{ intro.
   contradiction H0.
   symmetry.
-  apply H with _ (neighborhood_net _ x).
-  - apply neighborhood_net_limit.
-  - assumption.
-}
+  apply H with _ (neighborhood_net _ x); trivial.
+  apply neighborhood_net_limit. }
 apply not_all_ex_not in H1.
 destruct H1 as [V].
 apply imply_to_and in H1.
@@ -273,13 +256,14 @@ apply imply_to_and in H2.
 destruct H2.
 apply not_all_ex_not in H3.
 destruct H3 as [[U]].
-exists U; exists V; repeat split; trivial.
-apply Extensionality_Ensembles; split; auto with sets.
-red; intros.
-destruct H4.
+exists U, V.
+repeat split; trivial.
+extensionality_ensembles.
 contradiction H3.
 exists (intro_neighborhood_net_DS X x U x0 o i H4).
-split; simpl; auto with sets.
+split; trivial.
+simpl.
+auto with sets.
 Qed.
 
 Lemma net_limit_uniqueness_impl_Hausdorff:
@@ -295,11 +279,10 @@ destruct H2 as [J [x' [? ?]]].
 - destruct (H0 Full_set).
   + apply open_full.
   + constructor.
-  + exists; exact x1.
-- assert (net_limit x' x0).
-  { apply subnet_limit with _ x; trivial. }
-  unfold uniqueness in H.
-  apply H with _ x'; trivial.
+  + now exists.
+- assert (net_limit x' x0) by
+    now apply subnet_limit with _ x.
+  now apply H with _ x'.
 Qed.
 
 End Hausdorff_and_nets.
