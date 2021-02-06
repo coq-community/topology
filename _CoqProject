@@ -11,7 +11,6 @@ theories/Topology/CountabilityAxioms.v
 theories/Topology/DirectedSets.v
 theories/Topology/FilterLimits.v
 theories/Topology/FiltersAndNets.v
-theories/Topology/Filters.v
 theories/Topology/Homeomorphisms.v
 theories/Topology/InteriorsClosures.v
 theories/Topology/MetricSpaces.v
@@ -47,6 +46,7 @@ theories/ZornsLemma/EnsemblesSpec.v
 theories/ZornsLemma/EnsemblesTactics.v
 theories/ZornsLemma/EnsemblesUtf8.v
 theories/ZornsLemma/Families.v
+theories/ZornsLemma/Filters.v
 theories/ZornsLemma/FiniteIntersections.v
 theories/ZornsLemma/FiniteTypes.v
 theories/ZornsLemma/FunctionProperties.v
