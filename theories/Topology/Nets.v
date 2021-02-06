@@ -1,4 +1,5 @@
-Require Export TopologicalSpaces DirectedSets InteriorsClosures Continuity.
+From Topology Require Export TopologicalSpaces DirectedSets InteriorsClosures
+                             Continuity.
 
 Set Asymmetric Patterns.
 
