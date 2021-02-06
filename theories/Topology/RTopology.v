@@ -116,7 +116,7 @@ split.
       destruct H;
       repeat constructor; lra.
       Unshelve.
-      lra. lra.
+      all: lra.
   + destruct H5 as [x H2 H3],
              (IHfinite_intersections H2) as [[p Hp] H4],
              (IHfinite_intersections0 H3) as [[q Hq] H5],
@@ -155,10 +155,10 @@ constructor;
           (Intersection
             [ y:R | x-r <= y /\ y <> x-r ]
             [ y:R | y <= x+r /\ y <> x+r ]).
-  constructor.
-  + apply (@open_intersection2 RTop);
-      apply Hsubbasis; constructor.
-  + repeat constructor; lra.
+  + constructor.
+    * apply (@open_intersection2 RTop);
+        apply Hsubbasis; constructor.
+    * repeat constructor; lra.
   + extensionality_ensembles;
       repeat constructor;
       try apply Rabs_def2 in H0;

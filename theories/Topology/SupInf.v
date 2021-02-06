@@ -88,9 +88,9 @@ assert (exists x:R, In S x /\ x < m + eps).
       now split. }
     destruct (total_order_T x (m+eps)) as [[?|?]|?];
       auto with real.
-    now contradiction H3.
-    destruct H.
-    lra. }
+    - now contradiction H3.
+    - destruct H.
+      lra. }
   destruct H.
   pose proof (H3 _ H1).
   lra. }
