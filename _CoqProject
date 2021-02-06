@@ -8,7 +8,6 @@ theories/Topology/Connectedness.v
 theories/Topology/Continuity.v
 theories/Topology/ContinuousFactorization.v
 theories/Topology/CountabilityAxioms.v
-theories/Topology/DirectedSets.v
 theories/Topology/FilterLimits.v
 theories/Topology/FiltersAndNets.v
 theories/Topology/Homeomorphisms.v
@@ -41,6 +40,7 @@ theories/ZornsLemma/CountableTypes.v
 theories/ZornsLemma/CSB.v
 theories/ZornsLemma/DecidableDec.v
 theories/ZornsLemma/DependentTypeChoice.v
+theories/ZornsLemma/DirectedSets.v
 theories/ZornsLemma/EnsemblesImplicit.v
 theories/ZornsLemma/EnsemblesSpec.v
 theories/ZornsLemma/EnsemblesTactics.v
