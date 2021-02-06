@@ -7,7 +7,7 @@ From ZornsLemma Require Import EnsemblesSpec.
 From ZornsLemma Require Import Powerset_facts.
 
 Record TopologicalSpace : Type := {
-  point_set : Type;
+  point_set :> Type;
   open : Ensemble point_set -> Prop;
   open_family_union : forall F : Family point_set,
     (forall S : Ensemble point_set, In F S -> open S) ->
