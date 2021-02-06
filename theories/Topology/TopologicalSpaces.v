@@ -22,7 +22,7 @@ Arguments open_family_union {t}.
 Arguments open_intersection2 {t}.
 
 Lemma open_empty: forall X:TopologicalSpace,
-  open (@Empty_set (point_set X)).
+  open (@Empty_set X).
 Proof.
 intros.
 rewrite <- empty_family_union.
@@ -32,7 +32,7 @@ destruct H.
 Qed.
 
 Lemma open_union2: forall {X:TopologicalSpace}
-  (U V:Ensemble (point_set X)), open U -> open V -> open (Union U V).
+  (U V:Ensemble X), open U -> open V -> open (Union U V).
 Proof.
 intros.
 assert (Union U V = FamilyUnion (Couple U V)).
@@ -51,7 +51,7 @@ destruct H2; trivial.
 Qed.
 
 Lemma open_indexed_union: forall {X:TopologicalSpace} {A:Type}
-  (F:IndexedFamily A (point_set X)),
+  (F:IndexedFamily A X),
   (forall a:A, open (F a)) -> open (IndexedUnion F).
 Proof.
 intros.
@@ -64,7 +64,7 @@ Qed.
 
 Lemma open_finite_indexed_intersection:
   forall {X:TopologicalSpace} {A:Type}
-    (F:IndexedFamily A (point_set X)),
+    (F:IndexedFamily A X),
     FiniteT A -> (forall a:A, open (F a)) ->
     open (IndexedIntersection F).
 Proof.
@@ -110,11 +110,11 @@ induction H.
   intro; apply H0.
 Qed.
 
-Definition closed {X:TopologicalSpace} (F:Ensemble (point_set X)) :=
+Definition closed {X:TopologicalSpace} (F:Ensemble X) :=
   open (Ensembles.Complement F).
 
 Lemma closed_complement_open: forall {X:TopologicalSpace}
-  (U:Ensemble (point_set X)), closed (Ensembles.Complement U) ->
+  (U:Ensemble X), closed (Ensembles.Complement U) ->
   open U.
 Proof.
 intros.
@@ -124,7 +124,7 @@ assumption.
 Qed.
 
 Lemma closed_union2: forall {X:TopologicalSpace}
-  (F G:Ensemble (point_set X)),
+  (F G:Ensemble X),
   closed F -> closed G -> closed (Union F G).
 Proof.
 intros.
@@ -135,7 +135,7 @@ apply open_intersection2; assumption.
 Qed.
 
 Lemma closed_intersection2: forall {X:TopologicalSpace}
-  (F G:Ensemble (point_set X)),
+  (F G:Ensemble X),
   closed F -> closed G -> closed (Intersection F G).
 Proof.
 intros.
@@ -146,8 +146,8 @@ apply open_union2; trivial.
 Qed.
 
 Lemma closed_family_intersection: forall {X:TopologicalSpace}
-  (F:Family (point_set X)),
-  (forall S:Ensemble (point_set X), In F S -> closed S) ->
+  (F:Family X),
+  (forall S:Ensemble X, In F S -> closed S) ->
   closed (FamilyIntersection F).
 Proof.
 intros.
@@ -162,7 +162,7 @@ rewrite Complement_Complement in H1; assumption.
 Qed.
 
 Lemma closed_indexed_intersection: forall {X:TopologicalSpace}
-  {A:Type} (F:IndexedFamily A (point_set X)),
+  {A:Type} (F:IndexedFamily A X),
   (forall a:A, closed (F a)) -> closed (IndexedIntersection F).
 Proof.
 intros.
@@ -174,7 +174,7 @@ rewrite H1; trivial.
 Qed.
 
 Lemma closed_finite_indexed_union: forall {X:TopologicalSpace}
-  {A:Type} (F:IndexedFamily A (point_set X)),
+  {A:Type} (F:IndexedFamily A X),
   FiniteT A -> (forall a:A, closed (F a)) ->
   closed (IndexedUnion F).
 Proof.
