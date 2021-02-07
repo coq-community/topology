@@ -1,8 +1,17 @@
-From ZornsLemma Require Export FunctionProperties.
 From Coq Require Export Relation_Definitions.
+From Coq Require Import ClassicalChoice.
+From Coq Require Import ProofIrrelevance.
+From Coq Require Import FunctionalExtensionality.
+From Coq Require Import Description.
+From ZornsLemma Require Export FunctionProperties.
 From ZornsLemma Require Import Relation_Definitions_Implicit.
 From ZornsLemma Require Import CSB.
 From ZornsLemma Require Import EnsemblesSpec.
+From ZornsLemma Require Import ZornsLemma.
+From ZornsLemma Require Import EnsemblesImplicit.
+From ZornsLemma Require Import CountableTypes.
+From ZornsLemma Require Import FiniteTypes.
+From ZornsLemma Require Import InfiniteTypes.
 
 Inductive Cardinal : Type :=
   | cardinality: Type -> Cardinal.
@@ -179,7 +188,6 @@ red; red; split.
 Qed.
 
 (* The results below require Axiom of Choice *)
-Require Import ClassicalChoice.
 
 Lemma surj_le_cardinal: forall {X Y:Type} (f:X->Y),
   surjective f -> le_cardinal (cardinality Y) (cardinality X).
@@ -192,12 +200,6 @@ exists g.
 red; intros.
 congruence.
 Qed.
-
-Require Import ZornsLemma.
-Require Import EnsemblesImplicit.
-Require Import ProofIrrelevance.
-Require Import FunctionalExtensionality.
-Require Import Description.
 
 Section le_cardinal_total.
 
@@ -571,8 +573,6 @@ case H.
   assumption.
 Qed.
 
-Require Import ZornsLemma.CountableTypes.
-
 Lemma CountableT_cardinality {X : Type} :
   CountableT X <-> le_cardinal (cardinality X) aleph0.
 Proof.
@@ -582,9 +582,6 @@ split; intros.
 - inversion H; subst.
   exists f. assumption.
 Qed.
-
-Require Import ZornsLemma.FiniteTypes.
-Require Import ZornsLemma.InfiniteTypes.
 
 Lemma FiniteT_nat_embeds {X : Type} :
   FiniteT X -> exists f : X -> nat, injective f.
