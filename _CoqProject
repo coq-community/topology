@@ -71,6 +71,8 @@ theories/ZornsLemma/Powerset_facts.v
 theories/ZornsLemma/Proj1SigInjective.v
 theories/ZornsLemma/Quotients.v
 theories/ZornsLemma/Relation_Definitions_Implicit.v
+theories/ZornsLemma/ReverseCSB.v
 theories/ZornsLemma/WellOrders.v
 theories/ZornsLemma/ZornsLemma.v
 theories/ZornsLemma/ReverseMath/AddSubtract.v
+theories/ZornsLemma/ReverseMath/ReverseCSB.v
