@@ -203,80 +203,82 @@ destruct (classic (inhabited (DS_set I))) as [Hinh|Hempty].
       constructor.
       apply preord_refl, DS_ord_cond. }
   assert ({ x0:R | is_lub (Im Full_set (fun i => proj1_sig (X i))) x0 }).
-  apply sup.
-  + exists b.
-    red. intros.
-    destruct H0 as [i].
-    destruct (X i).
-    simpl in H1.
-    rewrite H1.
-    destruct i0.
-    cut (b >= x0); auto with real.
-    apply Rge_trans with (x i).
-    * destruct (H i). lra.
-    * apply H2.
-      exists i; trivial.
-      constructor.
-      apply preord_refl, DS_ord_cond.
-  + destruct Hinh as [i0].
-    exists (proj1_sig (X i0)).
-    exists i0; trivial.
-    constructor.
-  + destruct H0 as [x0].
-    exists x0.
-    assert (forall i j:DS_set I, DS_ord i j ->
-      proj1_sig (X i) <= proj1_sig (X j)).
-    * intros.
-      destruct (X i0), (X j).
-      simpl.
-      destruct i1, i2.
-      apply H4.
+  { apply sup.
+    - exists b.
       red. intros.
-      destruct H5.
-      destruct H5.
-      apply H1.
-      exists x3; trivial.
+      destruct H0 as [i].
+      destruct (X i).
+      simpl in H1.
+      rewrite H1.
+      destruct i0.
+      cut (b >= x0); auto with real.
+      apply Rge_trans with (x i).
+      + destruct (H i). lra.
+      + apply H2.
+        exists i; trivial.
+        constructor.
+        apply preord_refl, DS_ord_cond.
+    - destruct Hinh as [i0].
+      exists (proj1_sig (X i0)).
+      exists i0; trivial.
       constructor.
-      apply preord_trans with j; trivial.
-      apply DS_ord_cond.
-  * red. intros.
-    destruct (RTop_metrization x0).
-    destruct (open_neighborhood_basis_cond U).
-    { now split. }
-    destruct H3.
-    destruct H3.
-    destruct (lub_approx _ _ r i); trivial.
+  }
+  destruct H0 as [x0].
+  exists x0.
+  assert (forall i j:DS_set I,
+             DS_ord i j -> proj1_sig (X i) <= proj1_sig (X j)).
+  { intros.
+    destruct (X i0), (X j).
+    simpl.
+    destruct i1, i2.
+    apply H4.
+    red. intros.
     destruct H5.
     destruct H5.
-    destruct H6.
-    red; intros.
-    destruct (DS_join_cond x1 i0).
-    destruct H9.
-    remember (X x2) as y2.
-    destruct y2.
-    destruct (glb_approx _ _ r i1); trivial.
-    destruct H11.
-    destruct H11.
-    destruct H11.
-    destruct H12.
-    exists x4.
-    split.
-    ** apply preord_trans with x2; trivial.
-       apply DS_ord_cond.
-    ** apply H4.
-       constructor.
-       assert (y <= proj1_sig (X x2)).
-       { rewrite H7.
-         now apply H0. }
-       rewrite <- Heqy2 in H15.
-       simpl in H15.
-       assert (proj1_sig (X x2) <= x0).
-       { apply i.
-         exists x2; trivial.
-         constructor. }
-       rewrite <- Heqy2 in H16.
-       simpl in H16.
-       apply Rabs_def1; lra.
+    apply H1.
+    exists x3; trivial.
+    constructor.
+    apply preord_trans with j; trivial.
+    apply DS_ord_cond.
+  }
+  red. intros.
+  destruct (RTop_metrization x0).
+  destruct (open_neighborhood_basis_cond U).
+  { now split. }
+  destruct H3.
+  destruct H3.
+  destruct (lub_approx _ _ r i); trivial.
+  destruct H5.
+  destruct H5.
+  destruct H6.
+  red; intros.
+  destruct (DS_join_cond x1 i0).
+  destruct H9.
+  remember (X x2) as y2.
+  destruct y2.
+  destruct (glb_approx _ _ r i1); trivial.
+  destruct H11.
+  destruct H11.
+  destruct H11.
+  destruct H12.
+  exists x4.
+  split.
+  + apply preord_trans with x2; trivial.
+    apply DS_ord_cond.
+  + apply H4.
+    constructor.
+    assert (y <= proj1_sig (X x2)).
+    { rewrite H7.
+      now apply H0. }
+    rewrite <- Heqy2 in H15.
+    simpl in H15.
+    assert (proj1_sig (X x2) <= x0).
+    { apply i.
+      exists x2; trivial.
+      constructor. }
+    rewrite <- Heqy2 in H16.
+    simpl in H16.
+    apply Rabs_def1; lra.
 - exists a.
   red. intros.
   red. intros.
@@ -640,8 +642,8 @@ apply intro_ctbl_basis with
     * apply open_full.
     * destruct H as [S [[q Hq] H]| S [[q Hq] H]];
         subst.
-      apply R_lower_beam_open.
-      apply R_upper_beam_open.
+      -- apply R_lower_beam_open.
+      -- apply R_upper_beam_open.
     * now apply (@open_intersection2 RTop).
   + intros r U H1 H2.
     assert (neighborhood U r) as H by now exists U.
