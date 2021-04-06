@@ -10,21 +10,22 @@ Proof.
 split.
 - intros H eps H0.
   assert (neighbourhood (inverse_image f [r : R | Rabs (r - f x) < eps]) x) as H1.
-  apply RTop_neighborhood_is_neighbourhood, H, open_neighborhood_is_neighborhood.
-  split.
-  + replace [r : R | Rabs (r - f x) < eps] with [r : R | f x - eps < r < f x + eps]
-      by (extensionality_ensembles;
-          constructor;
-          apply Rabs_def1 + apply Rabs_def2 in H1;
-          lra).
-    apply R_interval_open.
-  + constructor.
-    apply Rabs_def1; lra.
-  + destruct H1 as [[alp H1] H2].
-    exists alp.
-    split; trivial.
-    intros x0 [? H3].
-    now destruct (H2 _ H3) as [[?]].
+  { apply RTop_neighborhood_is_neighbourhood, H, open_neighborhood_is_neighborhood.
+    split.
+    - replace [r : R | Rabs (r - f x) < eps] with [r : R | f x - eps < r < f x + eps]
+        by (extensionality_ensembles;
+            constructor;
+            apply Rabs_def1 + apply Rabs_def2 in H1;
+            lra).
+      apply R_interval_open.
+    - constructor.
+      apply Rabs_def1; lra.
+  }
+  destruct H1 as [[alp H1] H2].
+  exists alp.
+  split; trivial.
+  intros x0 [? H3].
+  now destruct (H2 _ H3) as [[?]].
 - intros H U HU.
   apply RTop_neighborhood_is_neighbourhood.
   pose HU as H0.
@@ -340,8 +341,8 @@ exists (fun x => (subspace_inc U x) / (1 - Rabs (subspace_inc U x))).
   + apply diff_continuous.
     * apply continuous_func_continuous_everywhere, continuous_constant.
     * apply continuous_composition_at.
-      apply continuous_func_continuous_everywhere, Rabs_continuous.
-      apply continuous_func_continuous_everywhere, subspace_inc_continuous.
+      -- apply continuous_func_continuous_everywhere, Rabs_continuous.
+      -- apply continuous_func_continuous_everywhere, subspace_inc_continuous.
   + destruct x as [x [[]]]. simpl.
     cut (Rabs x < 1).
     * lra.

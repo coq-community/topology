@@ -537,7 +537,7 @@ apply Rplus_lt_compat.
   unfold uniform_metric; simpl; destruct sup; simpl.
   apply i.
   exists (subspace_inc F x).
-  constructor.
+  { constructor. }
   apply R_metric_is_metric.
 - assert ((N >= N2)%nat) by apply le_max_r.
   apply Rle_lt_trans with (2:=H3 N H4).
@@ -615,7 +615,7 @@ Lemma bounded_Tietze_extension_theorem: forall (X:TopologicalSpace)
 Proof.
 intros.
 destruct (classic (inhabited (point_set X))) as [Hinh|Hempty].
-- destruct (choice (fun 
+- destruct (choice (fun
     (FG:{FG:Ensemble (point_set X) * Ensemble (point_set X) | let (F,G):=FG in
                       closed F /\ closed G /\ Intersection F G = Empty_set})
     (phi:point_set X -> point_set RTop) =>

@@ -1,6 +1,6 @@
-Require Export Completeness.
-Require Import UniformTopology RTopology Psatz.
-From Coq Require Import ProofIrrelevance.
+From Coq Require Import Description ProofIrrelevance Psatz.
+From Topology Require Export Completeness.
+From Topology Require Import UniformTopology RTopology.
 
 Lemma completion_exists: forall (X:Type) (d:X->X->R) (d_metric:metric d),
   exists Y:Type, exists i:X->Y, exists d':Y->Y->R,
@@ -22,19 +22,21 @@ cut (exists Y:Type, exists i:X->Y, exists d':Y->Y->R,
   pose (F := closure (Im Full_set i) (X:=MetricTopology d' d'_metric)).
   exists {y:Y | In F y}.
   assert (forall x:X, In F (i x)).
-{ intros.
-  apply closure_inflationary.
-  exists x; trivial.
-  constructor. }
+  { intros.
+    apply closure_inflationary.
+    exists x; trivial.
+    constructor.
+  }
   exists (fun x:X => exist _ (i x) (H2 x)).
   exists (fun y1 y2 => d' (proj1_sig y1) (proj1_sig y2)).
   assert (d'_metric0 : metric (fun (y1 y2:{y:Y | In F y}) =>
                          d' (proj1_sig y1) (proj1_sig y2))).
-{ constructor; try destruct x; try destruct y; try destruct z; simpl;
-    try apply d'_metric.
-  intros.
-  apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
-  now apply d'_metric. }
+  { constructor; try destruct x; try destruct y; try destruct z; simpl;
+      try apply d'_metric.
+    intros.
+    apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
+    now apply d'_metric.
+  }
   exists d'_metric0.
   repeat split.
   + red; intros.
@@ -42,7 +44,7 @@ cut (exists Y:Type, exists i:X->Y, exists d':Y->Y->R,
     apply H; trivial.
   + red.
     apply Extensionality_Ensembles; split; red; intros.
-  { constructor. }
+    { constructor. }
     simpl in x.
     destruct x.
     clear H3.
@@ -50,30 +52,30 @@ cut (exists Y:Type, exists i:X->Y, exists d':Y->Y->R,
     apply first_countable_sequence_closure in i0.
     * destruct i0, H3.
       assert (forall n:nat, { x:X | x0 n = i x }).
-    { intros.
-      Require Import Description.
-      apply constructive_definite_description.
-      apply -> unique_existence.
-      split.
-      - destruct (H3 n).
-        now exists x1.
-      - red; intros.
-        apply H.
-        now rewrite H5 in H6. }
+      { intros.
+        apply constructive_definite_description.
+        apply -> unique_existence.
+        split.
+        - destruct (H3 n).
+          now exists x1.
+        - red; intros.
+          apply H.
+          now rewrite H5 in H6.
+      }
       assert (forall n:nat, In F (i (proj1_sig (X0 n)))).
-    { intros. apply H2. }
+      { intros. apply H2. }
       intros.
       apply (@net_limit_in_closure nat_DS
         (MetricTopology _ d'_metric0)
         _ (fun n:nat => exist _ (i (proj1_sig (X0 n))) (H5 n))).
-      ** red; intros.
+      -- red; intros.
          exists i1.
          split.
-         *** simpl; auto with arith.
-         *** exists (proj1_sig (X0 i1)).
-             **** constructor.
-             **** now apply subset_eq_compat.
-      ** pose proof (metric_space_net_limit_converse (MetricTopology d' d'_metric) d'
+         ++ simpl; auto with arith.
+         ++ exists (proj1_sig (X0 i1)).
+            ** constructor.
+            ** now apply subset_eq_compat.
+      -- pose proof (metric_space_net_limit_converse (MetricTopology d' d'_metric) d'
            (MetricTopology_metrizable _ d' d'_metric) nat_DS x0 x H4).
          apply metric_space_net_limit with (1:=MetricTopology_metrizable _ _ d'_metric0).
          (*
@@ -141,7 +143,7 @@ cut (exists Y:Type, exists i:X->Y, exists d':Y->Y->R,
              destruct H1.
              rewrite H2; apply H.
          *** exists x1.
-             constructor.
+             { constructor. }
              rewrite metric_zero; trivial.
              unfold R_metric.
              rewrite (metric_sym _ _ d_metric x2 x1).

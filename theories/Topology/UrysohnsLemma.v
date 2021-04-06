@@ -325,7 +325,7 @@ change ((m + (m + 0))%nat) with ((2*m)%nat).
 rewrite div2_double.
 assert (forall m:nat, even (2*m)).
 { induction m0.
-  constructor.
+  { constructor. }
   replace ((2 * S m0)%nat) with ((S (S (2 * m0)))%nat) by ring.
   constructor.
   now constructor. }
@@ -540,7 +540,7 @@ destruct H.
       ** destruct H1.
          assert (Urysohns_Lemma_function x0 < x).
          { destruct H1.
-           destruct (Rdichotomy _ _ H2); trivial.
+           { destruct (Rdichotomy _ _ H2); trivial. }
            contradict H2.
            auto with real. }
          clear H1.
@@ -655,9 +655,9 @@ destruct H.
          pose proof (U_dyadic_incr _ _ H8).
          assert (x < Q2R (dr2Q beta) < 1).
          { split.
-           apply H7.
+           { apply H7. }
            apply Rlt_trans with (Q2R (dr2Q alpha)).
-           apply H7.
+           { apply H7. }
            apply Rlt_le_trans with y; trivial.
            apply H5. }
          exists (exist (fun alpha0:dyadic_rational =>
