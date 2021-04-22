@@ -328,16 +328,16 @@ destruct (bounded_real_net_has_cluster_point _ y a b).
     now destruct i. }
   exists (exist _ x0 H2).
   red. intros.
-  destruct (subspace_topology_topology _ _ _ H3) as [V].
-  destruct H5.
+  rewrite subspace_topology_topology in H3.
+  destruct H3 as [V []].
+  subst U.
+  destruct H4.
   red. intros.
   assert (Ensembles.In V x0).
-  { rewrite H6 in H4.
-    now destruct H4. }
-  destruct (H0 V H5 H7 i) as [j []].
+  { assumption. }
+  destruct (H0 V H3 H4 i) as [j []].
   exists j.
   split; trivial.
-  rewrite H6.
   now constructor.
 Qed.
 

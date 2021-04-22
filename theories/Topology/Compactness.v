@@ -386,13 +386,14 @@ assert (In S x0).
 exists (exist _ x0 H3).
 red; intros.
 red; intros.
-destruct (subspace_topology_topology _ _ _ H4) as [V []].
-rewrite H7 in H5.
+rewrite subspace_topology_topology in H4.
+destruct H4 as [V []].
+rewrite H6 in H5.
 destruct H5.
 simpl in H5.
-destruct (H2 V H6 H5 i) as [j []]; trivial.
+destruct (H2 V H4 H5 i) as [j []]; trivial.
 exists j; split; trivial.
-rewrite H7.
+rewrite H6.
 now constructor.
 Qed.
 
