@@ -18,14 +18,15 @@ Lemma factorization_is_continuous:
 Proof.
 red.
 intros.
-destruct (subspace_topology_topology _ _ V H) as [V' []].
-rewrite H1, <- inverse_image_composition.
+rewrite subspace_topology_topology in H.
+destruct H as [V' []].
+subst V.
+rewrite <- inverse_image_composition.
 simpl.
-assert (inverse_image (fun x:point_set X => f x) V' =
-        inverse_image f V').
-{ extensionality_ensembles; now constructor. }
-rewrite H2.
-now apply f_cont.
+replace (inverse_image (fun x:point_set X => f x) V')
+        with (inverse_image f V').
+- now apply f_cont.
+- extensionality_ensembles; now constructor.
 Qed.
 
 End continuous_factorization.

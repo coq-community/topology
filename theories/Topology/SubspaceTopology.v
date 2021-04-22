@@ -13,17 +13,20 @@ Definition subspace_inc : point_set SubspaceTopology ->
   point_set X :=
   proj1_sig (P:=fun x:point_set X => In A x).
 
-Lemma subspace_topology_topology: forall U:Ensemble {x:point_set X | In A x},
-  @open SubspaceTopology U -> exists V:Ensemble (point_set X),
-  open V /\ U = inverse_image subspace_inc V.
-Proof.
-apply weak_topology1_topology.
-Qed.
-
 Lemma subspace_inc_continuous:
   continuous subspace_inc.
 Proof.
 apply weak_topology1_makes_continuous_func.
+Qed.
+
+Lemma subspace_topology_topology: forall U:Ensemble {x:point_set X | In A x},
+  @open SubspaceTopology U <-> exists V:Ensemble (point_set X),
+  open V /\ U = inverse_image subspace_inc V.
+Proof.
+split.
+- apply weak_topology1_topology.
+- intros. destruct H as [V []].
+  subst. apply subspace_inc_continuous. assumption.
 Qed.
 
 End Subspace.
@@ -41,7 +44,7 @@ Lemma subspace_inc_takes_closed_to_closed
 Proof.
 intros.
 red in H0.
-apply subspace_topology_topology in H0.
+rewrite subspace_topology_topology in H0.
 destruct H0 as [U []].
 replace (Im G (subspace_inc F)) with
   (Intersection F (Complement U)).
