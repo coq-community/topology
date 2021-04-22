@@ -54,7 +54,7 @@ Lemma quotient_compact {X : TopologicalSpace} (R : Relation (point_set X)) :
 Proof.
 intros H F HF eqF.
 apply (f_equal (inverse_image (quotient_projection R))) in eqF.
-rewrite inverse_image_full_set,
+rewrite inverse_image_full,
         inverse_image_family_union_image in eqF.
 apply H in eqF.
 - destruct eqF as [F' [H1 [H2 H3]]].

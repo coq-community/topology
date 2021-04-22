@@ -190,22 +190,6 @@ Proof.
     assumption.
 Qed.
 
-Lemma inverse_image_empty_set {X Y : Type} (f : X -> Y) :
-  inverse_image f Empty_set = Empty_set.
-Proof.
-apply Extensionality_Ensembles.
-split; red; intros;
-  repeat destruct H.
-Qed.
-
-Lemma inverse_image_full_set {X Y : Type} (f : X -> Y) :
-  inverse_image f Full_set = Full_set.
-Proof.
-apply Extensionality_Ensembles.
-split; red; intros;
-  repeat constructor.
-Qed.
-
 Lemma inverse_image_union2 {X Y : Type} (f : X -> Y) (U V : Ensemble Y) :
   inverse_image f (Union U V) = Union (inverse_image f U) (inverse_image f V).
 Proof.
@@ -361,7 +345,7 @@ Lemma inverse_image_finite {X Y : Type} (f : X -> Y) (F : Family X) :
 Proof.
 intros Hf H.
 induction H.
-- rewrite inverse_image_empty_set.
+- rewrite inverse_image_empty.
   constructor.
 - unfold Add.
   rewrite inverse_image_union2.
