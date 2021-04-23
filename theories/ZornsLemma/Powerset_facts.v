@@ -79,3 +79,11 @@ apply Extensionality_Ensembles; split; red; intros.
 - contradict H. exists x. assumption.
 - destruct H0.
 Qed.
+
+Lemma Setminus_Intersection {X : Type} (U V : Ensemble X) :
+  Setminus U V = Intersection U (Complement V).
+Proof.
+apply Extensionality_Ensembles; split; red; intros.
+- destruct H. split; assumption.
+- destruct H. split; assumption.
+Qed.
