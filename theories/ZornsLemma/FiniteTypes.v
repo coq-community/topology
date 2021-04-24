@@ -36,99 +36,94 @@ exists (True_rect None).
 Qed.
 
 Lemma finite_dec_exists: forall (X:Type) (P:X->Prop),
-  FiniteT X -> (forall x:X, {P x} + {~ P x}) ->
-  { exists x:X, P x } + { forall x:X, ~ P x }.
+  FiniteT X -> (forall x:X, P x \/ ~ P x) ->
+  (exists x:X, P x) \/ (forall x:X, ~ P x).
 Proof.
 intros.
-apply exclusive_dec.
-- red; intro.
-  destruct H0 as [[?] ?].
-  contradiction (H1 x).
-- revert P X0.
-  induction H.
-  + right.
-    destruct x.
-  + intros.
-    case (IHFiniteT (fun x:T => P (Some x))
-                    (fun x:T => X0 (Some x))).
+revert P H0.
+induction H.
+- right.
+  destruct x.
+- intros.
+  case (IHFiniteT (fun x:T => P (Some x))
+                  (fun x:T => H0 (Some x))).
+  + left.
+    destruct H1 as [x].
+    exists (Some x).
+    assumption.
+  + intro.
+    specialize (H0 None) as [|].
     * left.
-      destruct H0.
-      exists (Some x).
-      assumption.
-    * intro.
-      case (X0 None).
-      -- left.
-         exists None.
-         assumption.
-      -- right.
-         destruct x.
-         ++ apply H0.
-         ++ assumption.
-  + destruct H0.
-    intros.
-    case (IHFiniteT (fun x:X => P (f x))
-                    (fun x:X => X0 (f x))).
-    * left.
-      destruct H2.
-      exists (f x).
+      exists None.
       assumption.
     * right.
-      intro.
-      rewrite <- H1 with x.
-      apply H2.
+      destruct x.
+      -- apply H1.
+      -- assumption.
+- destruct H0.
+  intros.
+  specialize  (IHFiniteT (fun x:X => P (f x))
+                         (fun x:X => H2 (f x))) as [|].
+  * left.
+    destruct H3 as [x].
+    exists (f x).
+    assumption.
+  * right.
+    intro.
+    rewrite <- H1 with x.
+    apply H3.
 Qed.
 
 Lemma finite_dec_forall: forall (X:Type) (P:X->Prop),
-  FiniteT X -> (forall x:X, { P x } + { ~ P x }) ->
-  { forall x:X, P x } + { exists x:X, ~ P x }.
+  FiniteT X -> (forall x:X, P x \/ ~ P x) ->
+  (forall x:X, P x) \/ (exists x:X, ~ P x).
 Proof.
 intros.
-apply exclusive_dec.
-{ intuition.
-  destruct H2.
-  contradiction (H1 x).
-}
-revert P X0.
+revert P H0.
 induction H.
 - left.
   destruct x.
 - intros.
   case (IHFiniteT (fun x:T => P (Some x))
-                  (fun x:T => X0 (Some x))).
+                  (fun x:T => H0 (Some x))).
   + intro.
-    case (X0 None).
+    case (H0 None).
     * left. destruct x; auto.
     * right.
       exists None.
       assumption.
   + right.
-    destruct H0.
+    destruct H1 as [x].
     exists (Some x).
     assumption.
 - intros.
   destruct H0.
   case (IHFiniteT (fun x:X => P (f x))
-                  (fun x:X => X0 (f x))).
+                  (fun x:X => H1 (f x))).
   + left.
     intro y.
-    rewrite <- H1.
-    apply H2.
+    rewrite <- H2.
+    apply H3.
   + right.
-    destruct H2.
+    destruct H3 as [x].
     exists (f x).
     assumption.
 Qed.
 
 Lemma finite_eq_dec: forall X:Type, FiniteT X ->
-  forall x y:X, {x=y} + {x<>y}.
+  forall x y:X, x = y \/ x <> y.
 Proof.
 intros.
-apply decidable_dec.
 induction H.
 { destruct x. }
-{ decide equality. }
+{ destruct x, y.
+  4: left; reflexivity.
+  2, 3: right; congruence.
+  specialize (IHFiniteT t t0) as [|];
+    [left|right]; congruence.
+}
 destruct H0.
-case (IHFiniteT (g x) (g y)).
+specialize (IHFiniteT (g x) (g y)) as [|].
 - left.
   rewrite <- H1.
   rewrite <- H1 with x.
@@ -170,18 +165,10 @@ induction H.
                         (fun x:X => R (f x))
                         (fun x:X => H1 (f x))).
   destruct H3.
-  pose (f0 := fun y:Y => x (g y)).
-  pose (conv := fun (y:Y) (a:B (f (g y))) =>
-                  eq_rect (f (g y)) B a y (H2 y)).
-  exists (fun y:Y => conv y (x (g y))).
-  intro.
-  unfold conv; simpl.
-  generalize (H2 x0).
-  pattern x0 at 2 3 6.
-  rewrite <- H2.
-  intro.
-  rewrite <- eq_rect_eq.
-  apply H3.
+  unshelve eexists.
+  + intros. rewrite <- H2. apply x.
+  + intros. simpl. rewrite <- (H2 x0). simpl.
+    apply H3.
 Qed.
 
 Lemma finite_choice : forall (A B:Type) (R:A->B->Prop),
@@ -273,54 +260,54 @@ induction H.
   apply Extensionality_Ensembles; split; red; intros.
   + destruct H.
   + destruct H. destruct x.
-- assert ({exists x:T, f (Some x) = f None} +
-           {forall x:T, f (Some x) <> f None}).
-  + apply finite_dec_exists.
+- assert ((exists x:T, f (Some x) = f None) \/
+           (forall x:T, f (Some x) <> f None)).
+  { apply finite_dec_exists.
     { assumption. }
     intro.
-    apply decidable_dec.
     apply H0.
-  + case H1.
-    * intro.
-      pose (g := fun (x:T) => f (Some x)).
-      replace (Im Full_set f) with (Im Full_set g).
-      { apply IHFiniteT. }
-      apply Extensionality_Ensembles; split; red; intros.
-      -- destruct H2. subst. exists (Some x).
+  }
+  case H1.
+  + intro.
+    pose (g := fun (x:T) => f (Some x)).
+    replace (Im Full_set f) with (Im Full_set g).
+    { apply IHFiniteT. }
+    apply Extensionality_Ensembles; split; red; intros.
+    * destruct H3. subst. exists (Some x).
+      -- constructor.
+      -- reflexivity.
+    * destruct H3. subst. destruct x.
+      -- exists t.
          ++ constructor.
          ++ reflexivity.
-      -- destruct H2. subst. destruct x.
-         ++ exists t.
-            ** constructor.
-            ** reflexivity.
-         ++ destruct e. exists x.
-            ** constructor.
-            ** destruct H2. subst. symmetry. assumption.
-    * intros.
-      pose (g := fun x:T => f (Some x)).
-      replace (Im Full_set f) with (Add (Im Full_set g) (f None)).
-      { constructor.
-        - apply IHFiniteT.
-        - red; intro. destruct H2.
-          contradiction (n x).
-          symmetry; assumption.
-      }
-      apply Extensionality_Ensembles; split; red; intros.
-      -- red; intros.
-         destruct H2, H2.
-         ++ exists (Some x).
-            ** constructor.
-            ** assumption.
-         ++ exists None.
-            ** constructor.
-            ** reflexivity.
-      -- red; intros.
-         destruct H2.
-         destruct x.
-         ++ left. exists t.
-            ** constructor.
-            ** assumption.
-         ++ right. auto with sets.
+      -- destruct H2. exists x.
+         ++ constructor.
+         ++ destruct H3. subst. symmetry. assumption.
+  + intros.
+    pose (g := fun x:T => f (Some x)).
+    replace (Im Full_set f) with (Add (Im Full_set g) (f None)).
+    { constructor.
+      - apply IHFiniteT.
+      - red; intro. destruct H3.
+        contradiction (H2 x).
+        symmetry; assumption.
+    }
+    apply Extensionality_Ensembles; split; red; intros.
+    * red; intros.
+      destruct H3, H3.
+      -- exists (Some x).
+         ++ constructor.
+         ++ assumption.
+      -- exists None.
+         ++ constructor.
+         ++ reflexivity.
+    * red; intros.
+      destruct H3.
+      destruct x.
+      -- left. exists t.
+         ++ constructor.
+         ++ assumption.
+      -- right. auto with sets.
 - pose (g := fun (x:X) => f (f0 x)).
   replace (Im Full_set f) with (Im Full_set g).
   { apply IHFiniteT. }
@@ -537,17 +524,14 @@ induction H.
       -- destruct (H2 t).
          exists (Some x).
          unfold g in H3.
-         destruct (f (Some x)).
-         ++ congruence.
-         ++ contradiction n.
-            symmetry; assumption.
+         destruct (f (Some x));
+           congruence.
     * destruct (H2 a).
       exists (Some x).
       unfold g in H3.
       remember (f (Some x)) as fx; destruct fx.
-      -- destruct H3.
-         contradiction (H1 x).
-         symmetry; assumption.
+      -- subst. rewrite Heqf0 in Heqfx.
+         apply H0 in Heqfx. discriminate Heqfx.
       -- reflexivity.
   + assert (forall x:T, { y:T | f (Some x) = Some y }).
     { intros.
