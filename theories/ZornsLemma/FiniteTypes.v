@@ -816,6 +816,28 @@ Proof.
         assumption.
 Qed.
 
+Corollary FiniteT_dec_Finite X (U : Ensemble X) :
+  FiniteT X ->
+  (forall x : X, In U x \/ ~ In U x) ->
+  Finite U.
+Proof.
+  intros.
+  apply FiniteT_dec_Ensemble_has_cardinal in H0;
+    try assumption.
+  destruct H0 as [n].
+  apply cardinal_finite with (n := n).
+  assumption.
+Qed.
+
+Corollary FiniteT_Finite X (U : Ensemble X) :
+  FiniteT X -> Finite U.
+Proof.
+  intros.
+  apply FiniteT_dec_Finite;
+    try assumption.
+  intros. apply classic.
+Qed.
+
 Corollary FiniteT_has_nat_cardinal' (X : Type) :
   FiniteT X ->
   exists n, cardinal X Full_set n.
