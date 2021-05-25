@@ -11,18 +11,14 @@ exists (f (proj1_sig x)).
 now apply (Im_intro _ _ _ _ _ (proj2_sig x)).
 Defined.
 
-Inductive local_homeomorphism {X Y : TopologicalSpace}
-                              (f : point_set X -> point_set Y) : Prop :=
-| intro_local_homeomorphism:
+Inductive locally_homeomorphic (X Y : TopologicalSpace) : Prop :=
+| intro_locally_homeomorphic:
   (forall (x: point_set X),
-    exists U:Ensemble (point_set X),
+    exists (f : point_set X -> point_set Y) (U:Ensemble (point_set X)),
       open_neighborhood U x /\
       open (Im U f) /\
       @homeomorphism (SubspaceTopology U) (SubspaceTopology (Im U f)) (restriction f U)) ->
-    local_homeomorphism f.
-
-Definition locally_homeomorphic (X Y:TopologicalSpace) : Prop :=
-  exists (f : point_set X -> point_set Y), local_homeomorphism f.
+  locally_homeomorphic X Y.
 
 Lemma homeomorphism_refl (X : TopologicalSpace) : @homeomorphism X X id.
 Proof.
@@ -91,9 +87,9 @@ Qed.
 
 Lemma locally_homeomorphic_refl (X : TopologicalSpace) : locally_homeomorphic X X.
 Proof.
+  apply intro_locally_homeomorphic.
+  intros x.
   exists id.
-  constructor.
-  intro.
   exists Full_set.
   repeat split.
   - apply X.
