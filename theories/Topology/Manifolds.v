@@ -1,15 +1,14 @@
-Require Import Homeomorphisms.
-Require Import SubspaceTopology.
-Require Import EuclideanSpaces.
-Require Import CountabilityAxioms.
-Require Import SeparatednessAxioms.
-Require Export Ensembles.
+From Topology Require Import Homeomorphisms.
+From Topology Require Import SubspaceTopology.
+From Topology Require Import EuclideanSpaces.
+From Topology Require Import CountabilityAxioms.
+From Topology Require Import SeparatednessAxioms.
+From Coq Require Import Image.
 
 Definition restriction {X Y: Type} (f : X -> Y) (U : Ensemble X): {x | U x} -> {y | Im U f y}.
 intro x.
-apply (exist _ (f (proj1_sig x))).
-apply (Im_intro _ _ _ _ _ (proj2_sig x)).
-reflexivity.
+exists (f (proj1_sig x)).
+now apply (Im_intro _ _ _ _ _ (proj2_sig x)).
 Defined.
 
 Inductive local_homeomorphism {X Y : TopologicalSpace}
@@ -22,43 +21,111 @@ Inductive local_homeomorphism {X Y : TopologicalSpace}
       @homeomorphism (SubspaceTopology U) (SubspaceTopology (Im U f)) (restriction f U)) ->
     local_homeomorphism f.
 
-Inductive locally_homeomorphic (X Y:TopologicalSpace) : Prop :=
-| intro_locally_homeomorphic: forall f:point_set X -> point_set Y,
-    local_homeomorphism f -> locally_homeomorphic X Y.
+Definition locally_homeomorphic (X Y:TopologicalSpace) : Prop :=
+  exists (f : point_set X -> point_set Y), local_homeomorphism f.
 
+Lemma homeomorphism_refl (X : TopologicalSpace) : @homeomorphism X X id.
+Proof.
+econstructor;
+  (apply continuous_identity || now intros).
+Qed.
+
+Lemma restriction_continuous {X Y: TopologicalSpace} (f : point_set X -> point_set Y) (U : Ensemble X):
+  continuous f -> @continuous (SubspaceTopology U) (SubspaceTopology (Im U f)) (restriction f U).
+Proof.
+  intros Hcont V [F H].
+  rewrite inverse_image_family_union_image.
+  apply open_family_union.
+  intros.
+  destruct H0.
+  subst.
+  apply H in H0.
+  clear H F V.
+  induction H0.
+  - match goal with
+     | [ |- open ?S ] => replace S with (@Full_set (SubspaceTopology U))
+    end.
+    + apply open_full.
+    + extensionality_ensembles;
+        repeat constructor.
+  - destruct H, a.
+    match goal with
+     | [ |- open ?S ] => replace S with (inverse_image (subspace_inc U) (inverse_image f V))
+    end.
+    + now apply subspace_inc_continuous, Hcont.
+    + extensionality_ensembles;
+        now repeat constructor.
+  - rewrite inverse_image_intersection.
+    now apply open_intersection2.
+Qed.
+
+Definition full_set_unrestriction (X : TopologicalSpace):
+  @SubspaceTopology X (@Im X X (@Full_set X) (@id X)) -> @SubspaceTopology X (@Full_set X).
+intro x.
+now exists (proj1_sig x).
+Defined.
+
+Lemma full_set_unrestriction_continuous (X : TopologicalSpace): continuous (full_set_unrestriction X).
+Proof.
+  intros V [F H].
+  rewrite inverse_image_family_union_image.
+  apply open_family_union.
+  intros.
+  destruct H0.
+  subst.
+  apply H in H0.
+  induction H0.
+  - rewrite inverse_image_full.
+    apply open_full.
+  - destruct H0, a.
+    unfold full_set_unrestriction.
+    match goal with
+     | [ |- open ?S ] => replace S with (inverse_image (subspace_inc (Im (@Full_set X) id)) V0)
+    end.
+    + now apply subspace_inc_continuous.
+    + extensionality_ensembles;
+        now repeat constructor.
+  - rewrite inverse_image_intersection.
+    now apply open_intersection2.
+Qed.
 
 Lemma locally_homeomorphic_refl (X : TopologicalSpace) : locally_homeomorphic X X.
 Proof.
-  apply intro_locally_homeomorphic with (f := (fun x => x)).
+  exists id.
   constructor.
-  intros x.
+  intro.
   exists Full_set.
-  split.
-  - repeat constructor. apply open_full.
+  repeat split.
+  - apply X.
+  - replace (Im Full_set id) with (@Full_set X).
+    + apply X.
+    + extensionality_ensembles;
+        repeat econstructor.
+  - econstructor.
+    + apply restriction_continuous, continuous_identity.
+    + apply full_set_unrestriction_continuous.
+    + now intros [x0 []].
+    + intros [x0 [x1 [] ?]].
+      now subst.
+Qed.
+
+(* Definition of n-dimensional manifold *)
+Definition Manifold (X:TopologicalSpace) (n : nat) : Prop :=
+  second_countable X /\ Hausdorff X /\ locally_homeomorphic X (EuclideanSpace n).
+
+From Topology Require Import RTopology.
+Theorem RManifold : Manifold RTop 1.
+Proof.
+  constructor.
+  - apply RTop_second_countable.
   - split.
-    + assert (surjective (fun x : X => x)).
-      {
-        econstructor.
-        reflexivity.
-      }
-      rewrite <- Im_Full_set_surj.
-      * apply open_full.
-      * assumption.
-    + econstructor.
-      * admit.
-      * admit.
-      * admit.
-      * admit.
+    + apply metrizable_Hausdorff.
+      apply RTop_metrizable.
+    + (* locally_homeomorphic RTop (EuclideanSpace 1) *)
+      admit.
 Admitted.
 
-Definition Manifold (X:TopologicalSpace) (n : nat) : Prop :=
-  second_countable X /\ Hausdorff X
-  /\ locally_homeomorphic X (EuclideanSpace n).
-
 (* R^n is a manifold *)
-
-Require Import MetricSpaces.
-
 Theorem EuclideanManifold (n : nat) : Manifold (EuclideanSpace n) n.
 Proof.
   constructor.
