@@ -57,6 +57,11 @@ rewrite H4.
 auto.
 Qed.
 
+Lemma homeomorphism_id (X : TopologicalSpace) : homeomorphism (@id X).
+Proof.
+  exists id; auto using continuous_identity.
+Qed.
+
 Inductive homeomorphic (X Y:TopologicalSpace) : Prop :=
 | intro_homeomorphic: forall f:point_set X -> point_set Y,
     homeomorphism f -> homeomorphic X Y.
@@ -67,9 +72,7 @@ From ZornsLemma Require Import Relation_Definitions_Implicit.
 Lemma homeomorphic_equiv: equivalence homeomorphic.
 Proof.
 constructor.
-- intro X.
-  exists id, id; trivial;
-    apply continuous_identity.
+- eexists; eapply homeomorphism_id.
 - intros X Y Z ? ?.
   destruct H as [f [finv]].
   destruct H0 as [g [ginv]].
