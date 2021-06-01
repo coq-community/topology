@@ -11,15 +11,6 @@ exists (f (proj1_sig x)).
 now apply (Im_intro _ _ _ _ _ (proj2_sig x)).
 Defined.
 
-Inductive locally_homeomorphic (X Y : TopologicalSpace) : Prop :=
-| intro_locally_homeomorphic:
-  (forall (x: point_set X),
-    exists (f : point_set X -> point_set Y) (U:Ensemble (point_set X)),
-      open_neighborhood U x /\
-      open (Im U f) /\
-      @homeomorphism (SubspaceTopology U) (SubspaceTopology (Im U f)) (restriction f U)) ->
-  locally_homeomorphic X Y.
-
 Lemma restriction_continuous {X Y: TopologicalSpace} (f : point_set X -> point_set Y) (U : Ensemble X):
   continuous f -> @continuous (SubspaceTopology U) (SubspaceTopology (Im U f)) (restriction f U).
 Proof.
@@ -47,6 +38,61 @@ Proof.
         now repeat constructor.
   - rewrite inverse_image_intersection.
     now apply open_intersection2.
+Qed.
+
+(* No matter onto which subset [U] some homeomorphism [f] is
+   restricted, it stays a homeomorphism. *)
+Lemma homeomorphism_restriction (X Y : TopologicalSpace) (f : X -> Y) (U : Ensemble X) :
+  homeomorphism f ->
+  @homeomorphism (SubspaceTopology U) (SubspaceTopology (Im U f)) (restriction f U).
+Proof.
+  intros.
+  destruct H.
+  unshelve eexists.
+  - (* define [g] *)
+    intros.
+    destruct X0 as [y].
+    eexists (g y).
+    destruct i.
+    subst.
+    rewrite H1.
+    assumption.
+  - apply restriction_continuous.
+    assumption.
+  - simpl. red. intros ?.
+    rewrite ?subspace_open_char.
+    intros [V' []].
+    exists (Im V' f).
+    split.
+    + apply homeomorphism_is_open_map.
+      * exists g; assumption.
+      * assumption.
+    + subst.
+      apply Extensionality_Ensembles; split; red; intros.
+      * red; red.
+        destruct H4.
+        destruct x.
+        red in H4. red in H4.
+        simpl in *.
+        exists (g x); auto.
+      * destruct x.
+        constructor.
+        red in H4. red in H4.
+        simpl in H4.
+        red. red. simpl.
+        inversion H4; subst; clear H4.
+        rewrite H1. assumption.
+  - intros.
+    destruct x.
+    simpl.
+    apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
+    auto.
+  - intros.
+    destruct y.
+    unfold restriction.
+    simpl.
+    apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
+    auto.
 Qed.
 
 Definition full_set_unrestriction (X : TopologicalSpace):
@@ -79,24 +125,31 @@ Proof.
     now apply open_intersection2.
 Qed.
 
-Lemma locally_homeomorphic_refl (X : TopologicalSpace) : locally_homeomorphic X X.
+Inductive locally_homeomorphic (X Y : TopologicalSpace) : Prop :=
+| intro_locally_homeomorphic:
+  (forall (x: point_set X),
+    exists (f : point_set X -> point_set Y) (U:Ensemble (point_set X)),
+      open_neighborhood U x /\
+      open (Im U f) /\
+      @homeomorphism (SubspaceTopology U) (SubspaceTopology (Im U f)) (restriction f U)) ->
+  locally_homeomorphic X Y.
+
+Lemma homeomorphic_locally_homeomorphic (X Y : TopologicalSpace) :
+  homeomorphic X Y -> locally_homeomorphic X Y.
 Proof.
-  apply intro_locally_homeomorphic.
-  intros x.
-  exists id.
-  exists Full_set.
-  repeat split.
-  - apply X.
-  - replace (Im Full_set id) with (@Full_set X).
-    + apply X.
-    + extensionality_ensembles;
-        repeat econstructor.
-  - econstructor.
-    + apply restriction_continuous, continuous_identity.
-    + apply full_set_unrestriction_continuous.
-    + now intros [x0 []].
-    + intros [x0 [x1 [] ?]].
-      now subst.
+  intros.
+  destruct H.
+  constructor.
+  intros.
+  exists f, Full_set.
+  repeat split; auto using open_full, homeomorphism_restriction.
+  apply homeomorphism_is_open_map; auto using open_full.
+Qed.
+
+Corollary locally_homeomorphic_refl (X : TopologicalSpace) : locally_homeomorphic X X.
+Proof.
+  apply homeomorphic_locally_homeomorphic.
+  apply homeomorphic_equiv.
 Qed.
 
 (* Definition of n-dimensional manifold *)
