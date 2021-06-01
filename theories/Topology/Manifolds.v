@@ -158,8 +158,35 @@ Definition Manifold (X:TopologicalSpace) (n : nat) : Prop :=
 
 From Topology Require Import RTopology.
 
-Lemma RTop_lhom_R1 : locally_homeomorphic RTop (EuclideanSpace 1).
-Proof. Admitted.
+Lemma RTop_homeo_R1 : homeomorphic RTop (EuclideanSpace 1).
+Proof.
+  unshelve eexists.
+  2: unshelve eexists.
+  - (* define [f] *)
+    intros.
+    red.
+    red in X.
+    simpl in *.
+    constructor; [assumption|constructor].
+  - (* define [g] *)
+    intros.
+    red. red in X.
+    simpl in *.
+    inversion X; subst; clear X.
+    assumption.
+  - (* continuity of [f] *)
+    admit.
+  - (* continuity of [g] *)
+    admit.
+  - intros. simpl. reflexivity.
+  - intros. simpl. admit.
+Admitted.
+
+Corollary RTop_lhom_R1 : locally_homeomorphic RTop (EuclideanSpace 1).
+Proof.
+  apply homeomorphic_locally_homeomorphic.
+  apply RTop_homeo_R1.
+Qed.
 
 Lemma RManifold : Manifold RTop 1.
 Proof.
