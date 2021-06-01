@@ -110,37 +110,52 @@ Definition Manifold (X:TopologicalSpace) (n : nat) : Prop :=
   second_countable X /\ Hausdorff X /\ locally_homeomorphic X (EuclideanSpace n).
 
 From Topology Require Import RTopology.
-Theorem RManifold : Manifold RTop 1.
+
+Lemma RTop_lhom_R1 : locally_homeomorphic RTop (EuclideanSpace 1).
+Proof. Admitted.
+
+Lemma RManifold : Manifold RTop 1.
 Proof.
   constructor.
   - apply RTop_second_countable.
   - split.
     + apply metrizable_Hausdorff.
       apply RTop_metrizable.
-    + (* locally_homeomorphic RTop (EuclideanSpace 1) *)
-      admit.
-Admitted.
+    + apply RTop_lhom_R1.
+Qed.
+
+Lemma Euclidean_second_countable (n : nat) : second_countable (EuclideanSpace n).
+Proof. Admitted.
+
+
+Lemma EuclideanHausdorff (n : nat) : Hausdorff (EuclideanSpace n).
+Proof. Admitted.
+
 
 (* R^n is a manifold *)
-Theorem EuclideanManifold (n : nat) : Manifold (EuclideanSpace n) n.
+Lemma EuclideanManifold (n : nat) : Manifold (EuclideanSpace n) n.
 Proof.
   constructor.
-  - (* need proof that second_countable (EuclideanSpace n) *)
-    admit.
+  - apply Euclidean_second_countable.
   - split.
-    + (* need proof that R^n is Hausdorff *)
-      admit.
+    + apply EuclideanHausdorff.
     + apply locally_homeomorphic_refl.
-Admitted.
+Qed.
 
-Theorem SphereManifold (n : nat) : Manifold (Sphere (S n)) n.
+Lemma Sphere_second_countable (n : nat) : second_countable (Sphere n).
+Proof. Admitted.
+
+Lemma Sphere_hausdorff (n : nat) : Hausdorff (Sphere n).
+Proof. Admitted.
+
+Lemma Sphere_lhom_Rn (n : nat) : locally_homeomorphic (Sphere (S n)) (EuclideanSpace n).
+Proof. Admitted.
+
+Lemma SphereManifold (n : nat) : Manifold (Sphere (S n)) n.
 Proof.
   constructor.
-  - (* provide an atlas for the sphere *)
-    admit.
+  - apply Sphere_second_countable.
   - split.
-    + (* sphere is Hausdorff *)
-      admit.
-    + (* sphere is locally homeomorphic to R^n *)
-      admit.
-Admitted.
+    + apply Sphere_hausdorff.
+    + apply Sphere_lhom_Rn.
+Qed.
