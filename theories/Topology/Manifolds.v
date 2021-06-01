@@ -20,12 +20,6 @@ Inductive locally_homeomorphic (X Y : TopologicalSpace) : Prop :=
       @homeomorphism (SubspaceTopology U) (SubspaceTopology (Im U f)) (restriction f U)) ->
   locally_homeomorphic X Y.
 
-Lemma homeomorphism_refl (X : TopologicalSpace) : @homeomorphism X X id.
-Proof.
-econstructor;
-  (apply continuous_identity || now intros).
-Qed.
-
 Lemma restriction_continuous {X Y: TopologicalSpace} (f : point_set X -> point_set Y) (U : Ensemble X):
   continuous f -> @continuous (SubspaceTopology U) (SubspaceTopology (Im U f)) (restriction f U).
 Proof.
