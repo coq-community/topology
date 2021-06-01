@@ -1,9 +1,9 @@
+From Coq Require Import Image.
 From Topology Require Import Homeomorphisms.
 From Topology Require Import SubspaceTopology.
-From Topology Require Import EuclideanSpaces.
 From Topology Require Import CountabilityAxioms.
 From Topology Require Import SeparatednessAxioms.
-From Coq Require Import Image.
+From Topology Require Import EuclideanSpaces.
 
 Definition restriction {X Y: Type} (f : X -> Y) (U : Ensemble X): {x | U x} -> {y | Im U f y}.
 intro x.
