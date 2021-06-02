@@ -26,32 +26,6 @@ Variable Urysohns_lemma_function:
   (forall x:point_set X, In F x -> f x = 0) /\
   (forall x:point_set X, In G x -> f x = 1) }.
 
-Lemma subspace_inc_takes_closed_to_closed:
-  forall G:Ensemble (point_set (SubspaceTopology F)),
-  closed G -> closed (Im G (subspace_inc F)).
-Proof.
-intros.
-destruct (subspace_topology_topology _ _ _ H) as [U []].
-replace (Im G (subspace_inc F)) with
-  (Intersection F (Complement U)).
-{ apply closed_intersection2; trivial.
-  red. now rewrite Complement_Complement. }
-apply Extensionality_Ensembles; split; red; intros.
-- destruct H2.
-  exists (exist _ x H2); trivial.
-  apply NNPP. intro.
-  change (In (Complement G) (exist (In F) x H2)) in H4.
-  rewrite H1 in H4.
-  now destruct H4.
-- destruct H2 as [[y]].
-  rewrite H3. clear y0 H3.
-  constructor; trivial.
-  intro.
-  absurd (In (Complement G) (exist _ y i)).
-  + now intro.
-  + now rewrite H1.
-Qed.
-
 Lemma Rle_order: order Rle.
 Proof.
 constructor;
@@ -77,7 +51,7 @@ refine (
              (subspace_inc F) in
   let g:=proj1_sig (Urysohns_lemma_function F0 G0 _ _ _) in
   fun x:point_set X => -1/3 + 2/3 * g x).
-- apply subspace_inc_takes_closed_to_closed.
+- apply subspace_inc_takes_closed_to_closed; [assumption|].
   replace ([ x:point_set (SubspaceTopology F) | f0 x <= -1/3 ]) with
     (inverse_image f0 [ y:point_set RTop | y <= -1/3 ]).
   + red.
@@ -92,7 +66,7 @@ refine (
     * now constructor.
     * constructor.
       now constructor.
-- apply subspace_inc_takes_closed_to_closed.
+- apply subspace_inc_takes_closed_to_closed; [assumption|].
   replace ([ x:point_set (SubspaceTopology F) | f0 x >= 1/3 ]) with
     (inverse_image f0 [ y:point_set RTop | 1/3 <= y ]).
   + red.

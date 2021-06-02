@@ -30,3 +30,35 @@ End Subspace.
 
 Arguments SubspaceTopology {X}.
 Arguments subspace_inc {X}.
+
+(* If the subspace [F] is closed in [X], then its [subspace_inc] is a
+   closed map. *)
+Lemma subspace_inc_takes_closed_to_closed
+  (X : TopologicalSpace) (F:Ensemble (point_set X)) :
+  closed F ->
+  forall G:Ensemble (point_set (SubspaceTopology F)),
+  closed G -> closed (Im G (subspace_inc F)).
+Proof.
+intros.
+red in H0.
+apply subspace_topology_topology in H0.
+destruct H0 as [U []].
+replace (Im G (subspace_inc F)) with
+  (Intersection F (Complement U)).
+{ apply closed_intersection2; trivial.
+  red. now rewrite Complement_Complement. }
+apply Extensionality_Ensembles; split; red; intros.
+- destruct H2.
+  exists (exist _ x H2); trivial.
+  apply NNPP. intro.
+  change (In (Complement G) (exist (In F) x H2)) in H4.
+  rewrite H1 in H4.
+  now destruct H4.
+- destruct H2 as [[y]].
+  subst y0.
+  constructor; trivial.
+  intro.
+  absurd (In (Complement G) (exist _ y i)).
+  + now intro.
+  + now rewrite H1.
+Qed.
