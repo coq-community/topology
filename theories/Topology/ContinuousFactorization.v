@@ -18,7 +18,7 @@ Lemma factorization_is_continuous:
 Proof.
 red.
 intros.
-rewrite subspace_topology_topology in H.
+rewrite subspace_open_char in H.
 destruct H as [V' []].
 subst V.
 rewrite <- inverse_image_composition.

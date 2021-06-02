@@ -328,7 +328,7 @@ destruct (bounded_real_net_has_cluster_point _ y a b).
     now destruct i. }
   exists (exist _ x0 H2).
   red. intros.
-  rewrite subspace_topology_topology in H3.
+  rewrite subspace_open_char in H3.
   destruct H3 as [V []].
   subst U.
   destruct H4.
