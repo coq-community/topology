@@ -386,7 +386,7 @@ assert (In S x0).
 exists (exist _ x0 H3).
 red; intros.
 red; intros.
-rewrite subspace_topology_topology in H4.
+rewrite subspace_open_char in H4.
 destruct H4 as [V []].
 rewrite H6 in H5.
 destruct H5.

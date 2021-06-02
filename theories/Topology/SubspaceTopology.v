@@ -19,7 +19,7 @@ Proof.
 apply weak_topology1_makes_continuous_func.
 Qed.
 
-Lemma subspace_topology_topology: forall U:Ensemble {x:point_set X | In A x},
+Lemma subspace_open_char: forall U:Ensemble {x:point_set X | In A x},
   @open SubspaceTopology U <-> exists V:Ensemble (point_set X),
   open V /\ U = inverse_image subspace_inc V.
 Proof.
@@ -44,7 +44,7 @@ Lemma subspace_inc_takes_closed_to_closed
 Proof.
 intros.
 red in H0.
-rewrite subspace_topology_topology in H0.
+rewrite subspace_open_char in H0.
 destruct H0 as [U []].
 replace (Im G (subspace_inc F)) with
   (Intersection F (Complement U)).
