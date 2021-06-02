@@ -8,6 +8,7 @@
 *.vos
 .Makefile.coq.d
 .coqdeps.d
+.coq-native
 Makefile.conf
 Makefile.coq
 Makefile.coq.conf
