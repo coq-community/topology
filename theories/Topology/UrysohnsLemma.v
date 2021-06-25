@@ -46,39 +46,39 @@ destruct y as [m' n'].
 destruct (le_or_lt n n').
 - destruct (dr_incr_denom m n n') as [m0]; trivial.
   destruct (le_or_lt m0 m').
-  destruct (le_lt_or_eq _ _ H1).
-  left.
-  apply dr_lt_wd with
-    (m_over_2_to_n m0 n') (m_over_2_to_n m' n'); trivial.
-  apply intro_dr_lt; trivial.
-  apply dr_eq_refl.
-  right; left.
-  apply dr_eq_trans with (m_over_2_to_n m0 n').
-  apply dr_eq_sym; trivial.
-  rewrite H2; apply dr_eq_refl.
-  right; right.
-  apply dr_lt_wd with
-    (m_over_2_to_n m' n') (m_over_2_to_n m0 n'); trivial.
-  apply intro_dr_lt; trivial.
-  apply dr_eq_refl.
+  + destruct (le_lt_or_eq _ _ H1).
+    * left.
+      apply dr_lt_wd with
+          (m_over_2_to_n m0 n') (m_over_2_to_n m' n'); trivial.
+      -- apply intro_dr_lt; trivial.
+      -- apply dr_eq_refl.
+    * right; left.
+      apply dr_eq_trans with (m_over_2_to_n m0 n').
+      -- apply dr_eq_sym; trivial.
+      -- rewrite H2; apply dr_eq_refl.
+  + right; right.
+    apply dr_lt_wd with
+        (m_over_2_to_n m' n') (m_over_2_to_n m0 n'); trivial.
+    * apply intro_dr_lt; trivial.
+    * apply dr_eq_refl.
 - assert (n' <= n) by auto with arith.
   destruct (dr_incr_denom m' n' n) as [m0]; trivial.
   destruct (le_or_lt m m0).
-  destruct (le_lt_or_eq _ _ H2).
-  left.
-  apply dr_lt_wd with
-    (m_over_2_to_n m n) (m_over_2_to_n m0 n).
-  apply intro_dr_lt; trivial.
-  apply dr_eq_refl.
-  trivial.
-  right; left.
-  apply dr_eq_trans with (m_over_2_to_n m0 n); trivial.
-  rewrite H3; apply dr_eq_refl.
-  right; right.
-  apply dr_lt_wd with
-    (m_over_2_to_n m0 n) (m_over_2_to_n m n); trivial.
-  apply intro_dr_lt; trivial.
-  apply dr_eq_refl.
+  + destruct (le_lt_or_eq _ _ H2).
+    * left.
+      apply dr_lt_wd with
+          (m_over_2_to_n m n) (m_over_2_to_n m0 n).
+      -- apply intro_dr_lt; trivial.
+      -- apply dr_eq_refl.
+      -- trivial.
+    * right; left.
+      apply dr_eq_trans with (m_over_2_to_n m0 n); trivial.
+      rewrite H3; apply dr_eq_refl.
+  + right; right.
+    apply dr_lt_wd with
+        (m_over_2_to_n m0 n) (m_over_2_to_n m n); trivial.
+    * apply intro_dr_lt; trivial.
+    * apply dr_eq_refl.
 Qed.
 
 Local Notation " ' x " := (Zpos x) (at level 20, no associativity) : Z_scope.

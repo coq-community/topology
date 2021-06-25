@@ -5,35 +5,29 @@ Lemma exclusive_dec: forall P Q:Prop, ~(P /\ Q) ->
 Proof.
 intros.
 assert ({x:bool | if x then P else Q}).
-apply constructive_definite_description.
-case H0.
-exists true.
-red; split.
-assumption.
-destruct x'.
-reflexivity.
-tauto.
-exists false.
-red; split.
-assumption.
-destruct x'.
-tauto.
-reflexivity.
-
+{ apply constructive_definite_description.
+  case H0.
+  - exists true.
+    red; split.
+    + assumption.
+    + destruct x'.
+      * reflexivity.
+      * tauto.
+  - exists false.
+    red; split.
+    + assumption.
+    + destruct x'.
+      * tauto.
+      * reflexivity.
+}
 destruct H1.
-destruct x.
-left.
-assumption.
-right.
-assumption.
+destruct x; [left|right]; assumption.
 Qed.
 
 Lemma decidable_dec: forall P:Prop, P \/ ~P -> {P} + {~P}.
 Proof.
 intros.
-apply exclusive_dec.
-tauto.
-assumption.
+apply exclusive_dec; tauto.
 Qed.
 
 From Coq Require Import Classical.

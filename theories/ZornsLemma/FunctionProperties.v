@@ -22,15 +22,13 @@ intros.
 destruct H.
 exists g.
 red; split.
-tauto.
+{ tauto. }
 intros.
 destruct H1.
 extensionality y.
 transitivity (g (f (x' y))).
-rewrite H2.
-reflexivity.
-rewrite H.
-reflexivity.
+- rewrite H2. reflexivity.
+- rewrite H. reflexivity.
 Qed.
 
 Definition function_inverse {X Y:Type} (f:X->Y)
@@ -46,28 +44,28 @@ Proof.
 intros.
 destruct H.
 assert (forall y:Y, {x:X | f x = y}).
-intro.
-apply constructive_definite_description.
-pose proof (H0 y).
-destruct H1.
-exists x.
-red; split.
-assumption.
-intros.
-apply H.
-transitivity y.
-auto with *.
-auto with *.
+{ intro.
+  apply constructive_definite_description.
+  pose proof (H0 y).
+  destruct H1.
+  exists x.
+  red; split.
+  - assumption.
+  - intros.
+    apply H.
+    transitivity y;
+      auto with *.
+}
 pose (g := fun y:Y => proj1_sig (X0 y)).
 pose proof (fun y:Y => proj2_sig (X0 y)).
 simpl in H1.
 exists g.
-intro.
-apply H.
-unfold g; rewrite H1.
-reflexivity.
-intro.
-unfold g; apply H1.
+- intro.
+  apply H.
+  unfold g; rewrite H1.
+  reflexivity.
+- intro.
+  unfold g; apply H1.
 Qed.
 
 Lemma invertible_impl_bijective: forall {X Y:Type} (f:X->Y),
@@ -76,11 +74,11 @@ Proof.
 intros.
 destruct H.
 split.
-red; intros.
-congruence.
-red; intro.
-exists (g y).
-apply H0.
+- red; intros.
+  congruence.
+- red; intro.
+  exists (g y).
+  apply H0.
 Qed.
 
 Lemma id_bijective: forall {X:Type},

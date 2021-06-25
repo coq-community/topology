@@ -35,24 +35,24 @@ assert (X_even x -> ~ X_odd x).
 2:tauto.
 pose proof (X_even_coind (fun x:X => ~ X_odd x) (fun y:Y => ~ Y_even y)).
 apply H.
-intuition.
-destruct H1.
-apply H0 with y.
-reflexivity.
-intuition.
-inversion H2.
-apply g_inj in H3.
-apply H1.
-rewrite <- H3.
-assumption.
-intuition.
-inversion H2.
-apply H3 with x0.
-reflexivity.
-apply f_inj in H3.
-apply H1.
-rewrite <- H3.
-assumption.
+- intuition.
+  destruct H1.
+  apply H0 with y.
+  reflexivity.
+- intuition.
+  inversion H2.
+  apply g_inj in H3.
+  apply H1.
+  rewrite <- H3.
+  assumption.
+- intuition.
+  inversion H2.
+  + apply H3 with x0.
+    reflexivity.
+  + apply f_inj in H3.
+    apply H1.
+    rewrite <- H3.
+    assumption.
 Qed.
 
 Lemma even_odd_excl2: forall y:Y, ~(Y_even y /\ Y_odd y).
@@ -61,25 +61,22 @@ intro.
 assert (Y_odd y -> ~ Y_even y).
 2:tauto.
 pose proof (Y_odd_coind (fun x:X => ~ X_odd x) (fun y:Y => ~ Y_even y)).
-apply H.
-intuition.
-destruct H1.
-apply H0 with y0.
-reflexivity.
-intuition.
-inversion H2.
-apply g_inj in H3.
-apply H1.
-rewrite <- H3.
-assumption.
-intuition.
-inversion H2.
-apply H3 with x.
-reflexivity.
-apply f_inj in H3.
-apply H1.
-rewrite <- H3.
-assumption.
+apply H; intuition.
+- destruct H1.
+  apply H0 with y0.
+  reflexivity.
+- inversion H2.
+  apply g_inj in H3.
+  apply H1.
+  rewrite <- H3.
+  assumption.
+- inversion H2.
+  + apply H3 with x.
+    reflexivity.
+  + apply f_inj in H3.
+    apply H1.
+    rewrite <- H3.
+    assumption.
 Qed.
 
 Definition finv: forall y:Y, (exists x:X, f x = y) ->
@@ -89,7 +86,7 @@ apply constructive_definite_description.
 destruct H.
 exists x.
 red; split.
-assumption.
+{ assumption. }
 intros.
 apply f_inj.
 transitivity y; trivial.
@@ -103,7 +100,7 @@ apply constructive_definite_description.
 destruct H.
 exists x0.
 red; split.
-assumption.
+{ assumption. }
 intros.
 apply g_inj.
 transitivity x; trivial; symmetry; trivial.
@@ -147,60 +144,60 @@ Lemma CSB_comp1: forall x:X, CSB_bijection2 (CSB_bijection x) = x.
 Proof.
 intro.
 unfold CSB_bijection; case (classic_dec (X_odd x)).
-intro.
-destruct ginv_odd.
-simpl.
-unfold CSB_bijection2; case (classic_dec (Y_even x1)).
-intro.
-assumption.
-intro.
-destruct x0.
-contradict n.
-apply g_inj in e.
-rewrite e.
-assumption.
-intro.
-unfold CSB_bijection2; case (classic_dec (Y_even (f x))).
-intro.
-contradict n.
-inversion y.
-pose proof (H x).
-contradict H1; reflexivity.
-apply f_inj in H.
-rewrite <- H.
-assumption.
-intro.
-destruct finv_noteven.
-simpl.
-apply f_inj.
-assumption.
+- intro.
+  destruct ginv_odd.
+  simpl.
+  unfold CSB_bijection2;
+    case (classic_dec (Y_even x1));
+    auto.
+  intro.
+  destruct x0.
+  contradict n.
+  apply g_inj in e.
+  rewrite e.
+  assumption.
+- intro.
+  unfold CSB_bijection2; case (classic_dec (Y_even (f x))).
+  + intro.
+    contradict n.
+    inversion y.
+    * pose proof (H x).
+      contradict H1; reflexivity.
+    * apply f_inj in H.
+      rewrite <- H.
+      assumption.
+  + intro.
+    destruct finv_noteven.
+    simpl.
+    apply f_inj.
+    assumption.
 Qed.
 
 Lemma CSB_comp2: forall y:Y, CSB_bijection (CSB_bijection2 y) = y.
 Proof.
 intro.
 unfold CSB_bijection2; case (classic_dec (Y_even y)).
-intro.
-unfold CSB_bijection; case (classic_dec (X_odd (g y))).
-intro.
-destruct ginv_odd.
-simpl.
-apply g_inj.
-assumption.
-intro.
-contradict n.
-constructor.
-assumption.
-intro.
-destruct finv_noteven.
-simpl.
-unfold CSB_bijection; case (classic_dec (X_odd x)).
-intro.
-contradict n.
-rewrite <- e.
-constructor 2.
-assumption.
-trivial.
+- intro.
+  unfold CSB_bijection; case (classic_dec (X_odd (g y))).
+  + intro.
+    destruct ginv_odd.
+    simpl.
+    apply g_inj.
+    assumption.
+  + intro.
+    contradict n.
+    constructor.
+    assumption.
+- intro.
+  destruct finv_noteven.
+  simpl.
+  unfold CSB_bijection; case (classic_dec (X_odd x)).
+  + intro.
+    contradict n.
+    rewrite <- e.
+    constructor 2.
+    assumption.
+  + trivial.
 Qed.
 
 Theorem CSB: exists h:X->Y, bijective h.
@@ -208,8 +205,8 @@ Proof.
 exists CSB_bijection.
 apply invertible_impl_bijective.
 exists CSB_bijection2.
-exact CSB_comp1.
-exact CSB_comp2.
+- exact CSB_comp1.
+- exact CSB_comp2.
 Qed.
 
 End CSB.

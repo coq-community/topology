@@ -1,5 +1,6 @@
 -R theories/Topology Topology
 -R theories/ZornsLemma ZornsLemma
+-arg -set -arg "'Default Goal Selector=!'"
 
 theories/Topology/Compactness.v
 theories/Topology/Completeness.v
