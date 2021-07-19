@@ -19,4 +19,4 @@ Arguments Extensionality_Ensembles {U}.
 Arguments Empty_set {U}.
 Arguments Full_set {U}.
 
-Hint Constructors Full_set : sets.
+Global Hint Constructors Full_set : sets.
