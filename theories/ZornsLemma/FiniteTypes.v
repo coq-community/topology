@@ -949,3 +949,33 @@ induction H.
   2: { assumption. }
   exists f; assumption.
 Qed.
+
+Lemma FiniteT_unit : FiniteT unit.
+Proof.
+  unshelve eapply bij_finite with (X := option False).
+  - intros. constructor.
+  - repeat constructor.
+  - unshelve econstructor.
+    + intros. exact None.
+    + intros. destruct x; intuition.
+    + intros. destruct y; intuition.
+Qed.
+
+Lemma FiniteT_bool : FiniteT bool.
+Proof.
+  unshelve eapply bij_finite with (X := option (option False)).
+  - intros.
+    refine (match H with
+            | None => true
+            | Some _ => false
+            end).
+  - repeat constructor.
+  - unshelve econstructor.
+    + intros.
+      apply (match H with
+             | true => None
+             | false => Some None
+             end).
+    + intros. destruct x as [[]|]; intuition.
+    + intros. destruct y as [|]; intuition.
+Qed.
