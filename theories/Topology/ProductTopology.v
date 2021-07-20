@@ -228,7 +228,7 @@ exact (weak_topology_makes_continuous_funcs
   _ _ _ prod2_proj twoT_2).
 Qed.
 
-Lemma product2_map_continuous: forall (W:TopologicalSpace)
+Lemma product2_map_continuous_at: forall (W:TopologicalSpace)
   (f:point_set W -> point_set X) (g:point_set W -> point_set Y)
   (w:point_set W),
   continuous_at f w -> continuous_at g w ->
@@ -251,6 +251,22 @@ replace (fun w:point_set W => (f w, g w)) with
   + apply product_map_continuous.
     now destruct a.
 - now extensionality w0.
+Qed.
+
+Corollary product2_map_continuous: forall (W:TopologicalSpace)
+  (f:point_set W -> point_set X) (g:point_set W -> point_set Y),
+  continuous f -> continuous g ->
+  continuous (fun w:point_set W => (f w, g w))
+  (Y:=ProductTopology2).
+Proof.
+  intros.
+  apply pointwise_continuity.
+  intros.
+  apply product2_map_continuous_at.
+  - apply continuous_func_continuous_everywhere.
+    assumption.
+  - apply continuous_func_continuous_everywhere.
+    assumption.
 Qed.
 
 Inductive ProductTopology2_basis :
@@ -386,5 +402,5 @@ apply (continuous_composition_at
   (fun p:point_set (ProductTopology2 X Y) =>
       let (x,y):=p in f x y)
   (fun w:point_set W => (g w, h w))); trivial.
-now apply product2_map_continuous.
+now apply product2_map_continuous_at.
 Qed.
