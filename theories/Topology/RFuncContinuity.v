@@ -397,3 +397,103 @@ exists (fun x => (subspace_inc U x) / (1 - Rabs (subspace_inc U x))).
       apply Rle_ge.
       replace 0 with (0 * / (1-x)); auto with real.
 Qed.
+
+Lemma Rmin_using_Rabs x y :
+  Rmin x y = (x + y - Rabs (x-y))*(1/2).
+Proof.
+  destruct (classic (x <= y)).
+  - rewrite Rmin_left; try assumption.
+    rewrite Rabs_minus_sym.
+    rewrite Rabs_pos_eq.
+    2: { lra. }
+    lra.
+  - rewrite Rmin_right; try lra.
+    rewrite Rabs_pos_eq.
+    2: { lra. }
+    lra.
+Qed.
+
+Lemma Rmax_using_Rabs x y :
+  Rmax x y = (x + y + Rabs (x-y))*(1/2).
+Proof.
+  destruct (classic (x <= y)).
+  - rewrite Rmax_right; try assumption.
+    rewrite Rabs_minus_sym.
+    rewrite Rabs_pos_eq.
+    2: { lra. }
+    lra.
+  - rewrite Rmax_left; try lra.
+    rewrite Rabs_pos_eq.
+    2: { lra. }
+    lra.
+Qed.
+
+Lemma continuous_2arg_compose : forall {U X Y Z : TopologicalSpace} (f : U -> X) (g : U -> Y) (h : X -> Y -> Z),
+    continuous f -> continuous g -> continuous_2arg h ->
+    continuous (fun p => h (f p) (g p)).
+Proof.
+  intros.
+  apply pointwise_continuity.
+  intros.
+  apply continuous_composition_at_2arg.
+  - apply continuous_2arg_func_continuous_everywhere.
+    assumption.
+  - apply continuous_func_continuous_everywhere.
+    assumption.
+  - apply continuous_func_continuous_everywhere.
+    assumption.
+Qed.
+
+Lemma Rmin_continuous : continuous_2arg Rmin (X:=RTop) (Y:=RTop) (Z:=RTop).
+Proof.
+  red.
+  replace (fun p : RTop * RTop => _) with
+      (fun p : RTop * RTop => ((fst p) + (snd p) - Rabs (fst p - snd p))*(1/2)).
+  2: {
+    apply functional_extensionality.
+    intros []. simpl.
+    symmetry. apply Rmin_using_Rabs.
+  }
+  apply @continuous_2arg_compose with (X := RTop) (Y := RTop).
+  2: { apply continuous_constant. }
+  2: { apply Rmult_continuous. }
+  apply @continuous_2arg_compose with (X := RTop) (Y := RTop).
+  3: { apply Rminus_continuous. }
+  - apply @continuous_2arg_compose with (X := RTop) (Y := RTop).
+    + apply product2_fst_continuous.
+    + apply product2_snd_continuous.
+    + apply Rplus_continuous.
+  - apply @continuous_composition with (Y := RTop).
+    { apply Rabs_continuous. }
+    apply @continuous_2arg_compose with (X := RTop) (Y := RTop).
+    + apply product2_fst_continuous.
+    + apply product2_snd_continuous.
+    + apply Rminus_continuous.
+Qed.
+
+Lemma Rmax_continuous : continuous_2arg Rmax (X:=RTop) (Y:=RTop) (Z:=RTop).
+Proof.
+  red.
+  replace (fun p : RTop * RTop => _) with
+      (fun p : RTop * RTop => ((fst p) + (snd p) + Rabs (fst p - snd p))*(1/2)).
+  2: {
+    apply functional_extensionality.
+    intros []. simpl.
+    symmetry. apply Rmax_using_Rabs.
+  }
+  apply @continuous_2arg_compose with (X := RTop) (Y := RTop).
+  2: { apply continuous_constant. }
+  2: { apply Rmult_continuous. }
+  apply @continuous_2arg_compose with (X := RTop) (Y := RTop).
+  3: { apply Rplus_continuous. }
+  - apply @continuous_2arg_compose with (X := RTop) (Y := RTop).
+    + apply product2_fst_continuous.
+    + apply product2_snd_continuous.
+    + apply Rplus_continuous.
+  - apply @continuous_composition with (Y := RTop).
+    { apply Rabs_continuous. }
+    apply @continuous_2arg_compose with (X := RTop) (Y := RTop).
+    + apply product2_fst_continuous.
+    + apply product2_snd_continuous.
+    + apply Rminus_continuous.
+Qed.

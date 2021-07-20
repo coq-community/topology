@@ -404,3 +404,20 @@ apply (continuous_composition_at
   (fun w:point_set W => (g w, h w))); trivial.
 now apply product2_map_continuous_at.
 Qed.
+
+Corollary continuous_composition_2arg:
+  forall {U X Y Z : TopologicalSpace} (f : U -> X) (g : U -> Y) (h : X -> Y -> Z),
+    continuous f -> continuous g -> continuous_2arg h ->
+    continuous (fun p => h (f p) (g p)).
+Proof.
+  intros.
+  apply pointwise_continuity.
+  intros.
+  apply continuous_composition_at_2arg.
+  - apply continuous_2arg_func_continuous_everywhere.
+    assumption.
+  - apply continuous_func_continuous_everywhere.
+    assumption.
+  - apply continuous_func_continuous_everywhere.
+    assumption.
+Qed.
