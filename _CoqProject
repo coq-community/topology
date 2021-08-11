@@ -42,6 +42,7 @@ theories/ZornsLemma/CSB.v
 theories/ZornsLemma/DecidableDec.v
 theories/ZornsLemma/DependentTypeChoice.v
 theories/ZornsLemma/DirectedSets.v
+theories/ZornsLemma/EnsembleProduct.v
 theories/ZornsLemma/EnsemblesImplicit.v
 theories/ZornsLemma/EnsemblesSpec.v
 theories/ZornsLemma/EnsemblesTactics.v
