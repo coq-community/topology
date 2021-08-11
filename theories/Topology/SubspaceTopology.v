@@ -1,5 +1,6 @@
-Require Export TopologicalSpaces.
-Require Import WeakTopology.
+From ZornsLemma Require Import DecidableDec Proj1SigInjective.
+From Topology Require Export TopologicalSpaces.
+From Topology Require Import WeakTopology.
 
 Section Subspace.
 
@@ -114,3 +115,99 @@ apply Extensionality_Ensembles; split; red; intros.
   + now intro.
   + now rewrite H1.
 Qed.
+
+Section PastingLemma.
+  Context {X Y : TopologicalSpace} {A B : Ensemble X}
+    (f : SubspaceTopology A -> Y) (g : SubspaceTopology B -> Y)
+    (HAB : Union A B = Full_set).
+
+  Let Union_Full_set (x : X) (HA : ~ In A x) : In B x.
+    assert (In Full_set x) as Hx by auto with sets.
+    rewrite <- HAB in Hx.
+    destruct Hx; intuition.
+  Qed.
+
+  Definition pasting_lemma_fn (x : X) : Y :=
+    match classic_dec (In A x) with
+    | left Hx => f (exist A x Hx)
+    | right HA =>
+        g (exist B x (Union_Full_set x HA))
+    end.
+
+  Lemma pasting_lemma_fn_left (x : X) (Hx : In A x) :
+    pasting_lemma_fn x = f (exist A x Hx).
+  Proof using Type.
+    unfold pasting_lemma_fn.
+    destruct (classic_dec _); try contradiction.
+    destruct (proof_irrelevance _ Hx i); reflexivity.
+  Qed.
+
+  Lemma pasting_lemma_fn_right (x : X) (Hx0 : ~ In A x) (Hx1 : In B x) :
+    pasting_lemma_fn x = g (exist B x Hx1).
+  Proof using Type.
+    unfold pasting_lemma_fn.
+    destruct (classic_dec _); try contradiction.
+    destruct (proof_irrelevance _ (Union_Full_set _ n) Hx1); reflexivity.
+  Qed.
+
+  Lemma pasting_lemma_fn_eq_inverse_image
+    (Hfg : forall (x : X) H0 H1, f (exist _ x H0) = g (exist _ x H1))
+    (U : Ensemble Y) :
+    inverse_image pasting_lemma_fn U =
+      Union (Im (inverse_image f U) (subspace_inc _))
+            (Im (inverse_image g U) (subspace_inc _)).
+  Proof using Type.
+   apply Extensionality_Ensembles; split; red.
+   - intros x Hx.
+     inversion Hx; subst; clear Hx.
+     unfold pasting_lemma_fn in H.
+     destruct (classic_dec _).
+     + left.
+       exists (exist _ x i).
+       * constructor. assumption.
+       * reflexivity.
+     + right.
+       eexists (exist _ x _).
+       * constructor. eassumption.
+       * reflexivity.
+   - intros x Hx. constructor.
+     destruct Hx as [x Hx|x Hx].
+     + inversion Hx; subst; clear Hx.
+       destruct H.
+       destruct x0 as [x Hx].
+       simpl.
+       erewrite pasting_lemma_fn_left; eauto.
+     + inversion Hx; subst; clear Hx.
+       destruct H.
+       destruct x0 as [x Hx].
+       simpl.
+       destruct (classic (In A x)).
+       { unshelve erewrite pasting_lemma_fn_left; eauto.
+         erewrite Hfg; eauto.
+       }
+       erewrite pasting_lemma_fn_right; eauto.
+  Qed.
+
+  (* Corresponds to 18.3 in Munkres. Two continuous functions [f], [g], defined on
+     closed subspaces [A], [B] of a space [X] which cover [X], can be combined to
+     a continuous function [pasting_lemma_fn] defined on the whole space [X].
+   *)
+  Lemma pasting_lemma_cts  :
+    (forall x : X, forall H0 H1, f (exist _ x H0) = g (exist _ x H1)) ->
+    closed A -> closed B ->
+    continuous f -> continuous g ->
+    continuous pasting_lemma_fn.
+  Proof using Type.
+   intros Hfg HA HB Hf Hg.
+   apply continuous_closed.
+   intros U HU.
+   rewrite pasting_lemma_fn_eq_inverse_image; auto.
+   apply closed_union2.
+   - apply subspace_inc_takes_closed_to_closed.
+     + assumption.
+     + apply continuous_closed; assumption.
+   - apply subspace_inc_takes_closed_to_closed.
+     + assumption.
+     + apply continuous_closed; assumption.
+  Qed.
+End PastingLemma.
