@@ -120,6 +120,21 @@ apply H0.
 apply H2.
 Qed.
 
+Lemma continuous_closed :
+  continuous <-> forall U, closed U -> closed (inverse_image f U).
+Proof.
+  split.
+  - intros. red.
+    rewrite <- inverse_image_complement.
+    apply H. assumption.
+  - intros.
+    red. intros.
+    apply closed_complement_open.
+    rewrite <- inverse_image_complement.
+    apply H. red. rewrite Complement_Complement.
+    assumption.
+Qed.
+
 End continuity.
 
 Arguments continuous {X} {Y}.
