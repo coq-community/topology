@@ -1,4 +1,5 @@
-Require Export MetricSpaces.
+From Topology Require Export MetricSpaces.
+From Topology Require Import SubspaceTopology.
 Require Import Psatz.
 From Coq Require Import ProofIrrelevance.
 
@@ -132,12 +133,8 @@ Variable F:Ensemble X.
 
 Let FT := { x:X | In F x }.
 Let d_restriction := fun x y:FT => d (proj1_sig x) (proj1_sig y).
-
-Lemma d_restriction_metric: metric d_restriction.
-Proof.
-constructor; intros; try destruct x; try destruct y; try destruct z;
-  try apply subset_eq_compat; apply d_metric; trivial.
-Qed.
+Let d_restriction_metric :=
+      MetricSpaces.d_restriction_metric d d_metric F.
 
 Lemma closed_subset_of_complete_is_complete:
   complete d d_metric ->

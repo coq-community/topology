@@ -1,5 +1,5 @@
 From Topology Require Export TopologicalSpaces NeighborhoodBases Nets Continuity CountabilityAxioms SupInf SeparatednessAxioms.
-From Topology Require Import RationalsInReals.
+From Topology Require Import RationalsInReals SubspaceTopology.
 From ZornsLemma Require Export EnsemblesSpec.
 From ZornsLemma Require Import EnsemblesTactics DecidableDec.
 From Coq Require Import Reals ClassicalChoice Program.Subset.
@@ -125,9 +125,7 @@ Lemma MetricTopology_metrized: forall (X:Type) (d:X->X->R)
   (d_metric: metric d),
   metrizes (MetricTopology d d_metric) d.
 Proof.
-intros.
-red.
-intros.
+intros. red.
 apply Build_TopologicalSpace_from_open_neighborhood_bases_basis.
 Qed.
 
@@ -958,4 +956,98 @@ exists U, V; repeat split.
     now apply closure_inflationary.
 - extensionality_ensembles;
     lra.
+Qed.
+
+Section SubspaceMetric.
+
+Context {X:Type}.
+Variable d:X->X->R.
+Hypothesis d_metric:metric d.
+Variable F:Ensemble X.
+
+Let FT := { x:X | In F x }.
+Let d_restriction := fun x y:FT => d (proj1_sig x) (proj1_sig y).
+
+Lemma d_restriction_metric: metric d_restriction.
+Proof.
+constructor; intros; try destruct x; try destruct y; try destruct z;
+  try apply subset_eq_compat; apply d_metric; trivial.
+Qed.
+
+Lemma d_restriction_metric_open_ball (p : FT) (r : R) :
+  open_ball d_restriction p r =
+    inverse_image (@proj1_sig X F) (open_ball d (proj1_sig p) r).
+Proof.
+  apply Extensionality_Ensembles; split; red; intros.
+  - destruct H.
+    constructor. constructor.
+    assumption.
+  - destruct H. destruct H.
+    constructor.
+    assumption.
+Qed.
+
+End SubspaceMetric.
+
+Section SubspaceMetric.
+
+Context {X:TopologicalSpace}.
+Variable d:X->X->R.
+Hypothesis d_metric:metric d.
+Variable F:Ensemble X.
+
+Let FT := { x:X | In F x }.
+Let d_restriction := fun x y:FT => d (proj1_sig x) (proj1_sig y).
+
+Lemma metric_space_subspace_topology_metrizes :
+  metrizes X d ->
+  metrizes (SubspaceTopology F) d_restriction.
+Proof.
+  intros HX.
+  red. intros p.
+  split.
+  - intros U HU.
+    destruct HU.
+    split.
+    + apply subspace_open_char.
+      exists (open_ball d (proj1_sig p) r).
+      split.
+      * apply metric_space_open_ball_open; auto.
+      * apply d_restriction_metric_open_ball.
+    + constructor.
+      rewrite metric_zero; auto.
+      apply d_restriction_metric; assumption.
+  - intros U [HU HUp].
+    rewrite subspace_open_char in HU.
+    destruct HU as [V [HV HUV]].
+    subst.
+    destruct HUp as [HVp].
+    pose proof (open_neighborhood_basis_cond _ _ (HX (proj1_sig p)) V)
+      as [VV [HVV0 HrV]].
+    { split; auto. }
+    destruct HVV0 as [r Hr].
+    exists (open_ball d_restriction p r).
+    split.
+    { constructor. assumption. }
+    red; intros.
+    destruct H.
+    constructor.
+    apply HrV.
+    constructor.
+    assumption.
+Qed.
+
+End SubspaceMetric.
+
+Corollary metrizable_SubspaceTopology
+  {X : TopologicalSpace} (F : Ensemble X) :
+  metrizable X ->
+  metrizable (SubspaceTopology F).
+Proof.
+  intros [d Hd HXd].
+  eexists.
+  - eapply d_restriction_metric.
+    eassumption.
+  - apply metric_space_subspace_topology_metrizes;
+      auto.
 Qed.
