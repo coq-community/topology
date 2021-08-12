@@ -41,15 +41,6 @@ Lemma uniform_metric_is_metric: metric uniform_metric.
 Proof.
 constructor; intros.
 - unfold uniform_metric.
-  destruct x as [f0 Hf]; destruct y as [g0 Hg]; destruct sup.
-  simpl.
-  destruct X_inhabited as [x0].
-  apply Rge_trans with (d (f0 x0) (g0 x0)).
-  + cut (d (f0 x0) (g0 x0) <= x); auto with real.
-    apply i.
-    exists x0; auto with sets.
-  + apply d_metric.
-- unfold uniform_metric.
   destruct x as [f0 Hf]; destruct y as [g0 Hg].
   destruct sup.
   destruct sup.
@@ -113,7 +104,8 @@ constructor; intros.
   + apply i; exists x; trivial.
     constructor.
   + cut (d (f0 x) (g0 x) >= 0); auto with real.
-    apply d_metric.
+    apply metric_nonneg.
+    assumption.
 Qed.
 
 Definition UniformTopology : TopologicalSpace :=

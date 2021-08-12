@@ -13,12 +13,22 @@ Variable X:Type.
 Variable d:X->X->R.
 
 Record metric : Prop := {
-  metric_nonneg: forall x y:X, d x y >= 0;
   metric_sym: forall x y:X, d x y = d y x;
   triangle_inequality: forall x y z:X, d x z <= d x y + d y z;
   metric_zero: forall x:X, d x x = 0;
   metric_strict: forall x y:X, d x y = 0 -> x = y
 }.
+
+Lemma metric_nonneg :
+  metric ->
+  forall x y : X, d x y >= 0.
+Proof.
+  intros.
+  pose proof (triangle_inequality H x y x).
+  rewrite (metric_sym H y x) in H0.
+  rewrite (metric_zero H) in H0.
+  lra.
+Qed.
 
 End metric.
 

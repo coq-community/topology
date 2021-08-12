@@ -12,8 +12,6 @@ Proof.
 constructor;
   intros;
   unfold R_metric in *.
-- pose proof (Rabs_pos (y-x)).
-  auto with real.
 - replace (y-x) with (-(x-y)) by ring.
   apply Rabs_Ropp.
 - replace (z-x) with ((y-x) + (z-y)) by ring.

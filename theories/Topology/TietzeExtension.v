@@ -485,7 +485,10 @@ Lemma Tietze_extension_func_is_extension:
 Proof.
 intros.
 apply R_metric_is_metric.
-apply Rle_antisym; try (apply Rge_le; apply R_metric_is_metric).
+apply Rle_antisym.
+2: {
+  apply Rge_le, metric_nonneg, R_metric_is_metric.
+}
 apply lt_plus_epsilon_le; intros.
 unfold Tietze_extension_func;
   destruct constructive_definite_description as [[g]]; simpl.

@@ -148,7 +148,7 @@ cut (exists Y:Type, exists i:X->Y, exists d':Y->Y->R,
              unfold R_metric.
              rewrite (metric_sym _ _ d_metric x2 x1).
              rewrite Rminus_0_r.
-             symmetry; apply Rabs_right, d_metric.
+             symmetry; apply Rabs_right, metric_nonneg, d_metric.
       ** apply uniform_metric_complete.
          exact R_metric_complete.
   + exists False, (fun x:X => H (inhabits x)), (False_rect _).
