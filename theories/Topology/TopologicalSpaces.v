@@ -123,6 +123,22 @@ rewrite Complement_Complement in H.
 assumption.
 Qed.
 
+Lemma closed_empty : forall {X : TopologicalSpace},
+    closed (@Empty_set X).
+Proof.
+  intros. red.
+  rewrite Complement_Empty_set.
+  apply open_full.
+Qed.
+
+Lemma closed_full : forall {X : TopologicalSpace},
+    closed (@Full_set X).
+Proof.
+  intros. red.
+  rewrite Complement_Full_set.
+  apply open_empty.
+Qed.
+
 Lemma closed_union2: forall {X:TopologicalSpace}
   (F G:Ensemble X),
   closed F -> closed G -> closed (Union F G).
