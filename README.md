@@ -163,6 +163,8 @@ In alphabetical order, except where related files are grouped together:
 
 - `Quotients.v` - quotients by equivalence relations, and induced functions on them
 
+- `ReverseMath` - a folder with some results in constructive reverse mathematics
+
 - `WellOrders.v` - some basic properties of well-orders, including a proof that Zorn's Lemma implies the well-ordering principle
 
 - `ZornsLemma.v` - proof that choice implies Zorn's Lemma
