@@ -3,6 +3,7 @@ From Coq Require Import Classical_sets.
 From Coq Require Export Ensembles.
 From ZornsLemma Require Import EnsemblesImplicit.
 From ZornsLemma Require Export EnsemblesSpec.
+From ZornsLemma Require Import Image ImageImplicit.
 
 Set Implicit Arguments.
 
@@ -126,3 +127,22 @@ apply Extensionality_Ensembles; split; red; intros.
   assumption.
 Qed.
 End FamilyFacts.
+
+Lemma image_family_union (X Y : Type) (F : Family X) (f : X -> Y) :
+  Im (FamilyUnion F) f = FamilyUnion (Im F (fun U => Im U f)).
+Proof.
+apply Extensionality_Ensembles; split; red; intros.
+- inversion_clear H. subst.
+  inversion_clear H0.
+  exists (Im S f).
+  { exists S; auto. }
+  apply Im_def.
+  assumption.
+- inversion_clear H.
+  inversion_clear H0.
+  subst.
+  inversion_clear H1.
+  subst.
+  apply Im_def.
+  exists x0; auto.
+Qed.

@@ -22,8 +22,6 @@ Inductive IndexedIntersection : Ensemble T :=
 
 End IndexedFamilies.
 
-Section IndexedFamilyFacts.
-
 (* unions and intersections over subsets of the index set *)
 Lemma sub_indexed_union: forall {A B T:Type} (f:A->B)
   (F:IndexedFamily B T),
@@ -175,7 +173,20 @@ apply Extensionality_Ensembles; split; red; intros.
   subst. apply H0.
 Qed.
 
-End IndexedFamilyFacts.
+Lemma image_indexed_union (X Y I : Type) (F : IndexedFamily I X) (f : X -> Y) :
+  Im (IndexedUnion F) f = IndexedUnion (fun i => Im (F i) f).
+Proof.
+apply Extensionality_Ensembles; split; red; intros.
+- inversion H; subst; clear H.
+  inversion H0; subst; clear H0.
+  exists a.
+  exists x0.
+  all: auto.
+- inversion H; subst; clear H.
+  inversion H0; subst; clear H0.
+  exists x0; [|reflexivity].
+  exists a. assumption.
+Qed.
 
 Section IndexedFamilyToFamily.
 
