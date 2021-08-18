@@ -87,3 +87,33 @@ apply Extensionality_Ensembles; split; red; intros.
 - destruct H. split; assumption.
 - destruct H. split; assumption.
 Qed.
+
+Lemma Disjoint_Complement_r {X} (U : Ensemble X) :
+  Disjoint U (Complement U).
+Proof.
+  constructor. intros.
+  intros ?. destruct H. intuition.
+Qed.
+
+Lemma Disjoint_Complement_l {X} (U : Ensemble X) :
+  Disjoint (Complement U) U.
+Proof.
+  constructor. intros.
+  intros ?. destruct H. intuition.
+Qed.
+
+Lemma Union_Complement_r {X} (U : Ensemble X) :
+  Union U (Complement U) = Full_set.
+Proof.
+  apply Extensionality_Ensembles; split; red; intros.
+  - constructor.
+  - destruct (classic (In U x)); [left|right]; assumption.
+Qed.
+
+Lemma Union_Complement_l {X} (U : Ensemble X) :
+  Union (Complement U) U = Full_set.
+Proof.
+  apply Extensionality_Ensembles; split; red; intros.
+  { constructor. }
+  destruct (classic (In U x)); [right|left]; assumption.
+Qed.
