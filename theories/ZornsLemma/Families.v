@@ -2,7 +2,7 @@ From Coq Require Import Classical_Prop.
 From Coq Require Import Classical_sets.
 From Coq Require Export Ensembles.
 From ZornsLemma Require Import EnsemblesImplicit.
-From ZornsLemma Require Export EnsemblesSpec.
+From ZornsLemma Require Export EnsemblesSpec EnsemblesTactics.
 From ZornsLemma Require Import Image ImageImplicit.
 
 Set Implicit Arguments.
@@ -145,4 +145,13 @@ apply Extensionality_Ensembles; split; red; intros.
   subst.
   apply Im_def.
   exists x0; auto.
+Qed.
+
+Lemma family_union_singleton
+  {X : Type}
+  (S : Ensemble X) :
+  FamilyUnion (Singleton S) = S.
+Proof.
+now extensionality_ensembles;
+  try econstructor.
 Qed.

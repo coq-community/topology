@@ -46,15 +46,6 @@ cut (y - z <= R_metric y z).
   apply Rle_abs.
 Qed.
 
-Lemma family_union_singleton
-  {X : Type}
-  (S : Ensemble X) :
-  FamilyUnion (Singleton S) = S.
-Proof.
-now extensionality_ensembles;
-  try econstructor.
-Qed.
-
 Lemma R_lower_beam_open : forall p,
   @open RTop [r : R | r < p].
 Proof.
