@@ -3,6 +3,7 @@
 *.aux
 *.glob
 *.v.d
+*.v.timing
 *.vo
 *.vok
 *.vos
