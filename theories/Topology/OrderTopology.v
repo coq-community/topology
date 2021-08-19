@@ -87,9 +87,9 @@ exists ([z:X | R z x /\ z <> x]);
   now subst.
 Qed.
 
-Lemma order_topology_Hausdorff: Hausdorff OrderTopology.
+Instance order_topology_Hausdorff: Hausdorff OrderTopology.
 Proof.
-red.
+constructor.
 match goal with |- forall x y:point_set OrderTopology, ?P =>
   cut (forall x y:point_set OrderTopology, R x y -> P)
   end;

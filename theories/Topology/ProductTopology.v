@@ -390,20 +390,22 @@ apply ProductTopology2_basis_is_basis.
 constructor; assumption.
 Qed.
 
-Lemma Hausdorff_ProductTopology2 {X Y : TopologicalSpace} :
+Instance Hausdorff_ProductTopology2 {X Y : TopologicalSpace} :
   Hausdorff X -> Hausdorff Y ->
   Hausdorff (ProductTopology2 X Y).
 Proof.
-  intros HX HY [x0 y0] [x1 y1] Hxy.
-  specialize (HX x0 x1).
-  specialize (HY y0 y1).
+  intros HX HY.
+  constructor.
+  intros [x0 y0] [x1 y1] Hxy.
+  pose proof (hausdorff x0 x1) as Hxx.
+  pose proof (hausdorff y0 y1) as Hyy.
   (* Is there some "symmetry" that can be used, so the proof doesn't
      contain redundant parts? *)
   destruct (classic (x0 = x1)) as [|Hx].
   { subst.
     assert (y0 <> y1) as Hy by congruence.
     clear Hxy.
-    specialize (HY Hy) as [U [V [HU [HV [HU0 [HV0 HUV]]]]]].
+    specialize (Hyy Hy) as [U [V [HU [HV [HU0 [HV0 HUV]]]]]].
     exists (EnsembleProduct Full_set U), (EnsembleProduct Full_set V).
     repeat split; auto using EnsembleProduct_open, open_full.
     simpl.
@@ -413,7 +415,7 @@ Proof.
     apply EnsembleProduct_Empty_r.
   }
   clear Hxy.
-  specialize (HX Hx) as [U [V [HU [HV [HU0 [HV0 HUV]]]]]].
+  specialize (Hxx Hx) as [U [V [HU [HV [HU0 [HV0 HUV]]]]]].
   exists (EnsembleProduct U Full_set), (EnsembleProduct V Full_set).
   repeat split; auto using EnsembleProduct_open, open_full.
   simpl.

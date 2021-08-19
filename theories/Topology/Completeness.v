@@ -159,11 +159,8 @@ cut (Included (closure F (X:=MetricTopology d d_metric)) F).
   { assert (uniqueness (net_limit y (I:=nat_DS)
                             (X:=MetricTopology d d_metric))).
   { apply Hausdorff_impl_net_limit_unique.
-    apply T3_sep_impl_Hausdorff.
-    apply normal_sep_impl_T3_sep.
-    apply metrizable_impl_normal_sep.
-    exists d; trivial.
-    apply MetricTopology_metrized. }
+    apply metrizable_Hausdorff.
+    apply MetricTopology_metrizable. }
     now apply H7. }
     now rewrite H7.
   + apply metric_space_net_limit with d.

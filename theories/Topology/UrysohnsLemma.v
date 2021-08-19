@@ -711,17 +711,34 @@ Qed.
 
 End Urysohns_Lemma_construction.
 
-Theorem UrysohnsLemma: forall X:TopologicalSpace, normal_sep X ->
-  forall F G:Ensemble X,
+Theorem UrysohnsLemma: forall X:TopologicalSpace, normal_space X ->
+  forall F G:Ensemble (point_set X),
   closed F -> closed G -> Intersection F G = Empty_set ->
   exists f:X -> RTop,
   continuous f /\ (forall x:X, 0 <= f x <= 1) /\
   (forall x:X, In F x -> f x = 0) /\
   (forall x:X, In G x -> f x = 1).
 Proof.
-intros X [_ HX_normal] F G HF HG HFG.
-destruct (HX_normal F G HF HG HFG) as [U [V [HU [HV [HFU [HGV HUV]]]]]].
-assert (inhabited (forall F U:Ensemble X, closed F ->
+intros.
+destruct H.
+destruct (normal_sep F G H0 H1 H2) as [U [V [? [? [? [? ?]]]]]].
+assert (Included (closure U) (Complement G)).
+{ assert (Included (closure U) (Complement V)).
+  { apply closure_minimal.
+    - red. now rewrite Complement_Complement.
+    - red. intros.
+      intro.
+      eapply Noone_in_empty.
+      rewrite <- H6.
+      econstructor;
+        eassumption. }
+  assert (Included (Complement V) (Complement G)).
+  { red. intros.
+    intro.
+    contradiction H8.
+    now apply H5. }
+  auto with sets. }
+assert (inhabited (forall F U:Ensemble (point_set X), closed F ->
   open U -> Included F U ->
   { V:Ensemble X | open V /\ Included F V /\
                                Included (closure V) U }))
@@ -732,60 +749,46 @@ assert (inhabited (forall F U:Ensemble X, closed F ->
     (V0:Ensemble X) =>
      open V0 /\ Included (fst (proj1_sig FU_pair)) V0 /\
      Included (closure V0) (snd (proj1_sig FU_pair)))) as
-    [pre_choice_fun Hpre_choice_fun].
-  2: {
-    exists.
-    intros F0 U0 HF0 HU0 HF0U0.
+    [pre_choice_fun].
+  - intro p.
+    destruct p as [[F0 U0]].
+    simpl in a.
+    simpl.
+    destruct a as [? []].
+    destruct (normal_sep F0 (Complement U0)) as [U1 [V1 []]]; trivial.
+    + red. now rewrite Complement_Complement.
+    + extensionality_ensembles_inv.
+      contradiction H13.
+      now apply H10.
+    + destruct H12 as [? [? []]].
+      exists U1.
+      repeat split; trivial.
+      assert (Included (closure U1) (Complement V1)).
+      { apply closure_minimal.
+        - red. now rewrite Complement_Complement.
+        - red. intros.
+          intro.
+          eapply Noone_in_empty.
+          rewrite <- H15.
+          constructor;
+            eassumption. }
+      assert (Included (Complement V1) U0).
+      { red. intros.
+        apply NNPP. intro.
+        contradiction H17.
+        now apply H14. }
+      auto with sets.
+  - exists.
+    intros.
     exists (pre_choice_fun (exist _ (F0,U0)
-      (conj HF0 (conj HU0 HF0U0)))).
-    apply Hpre_choice_fun. }
-  intros [[F0 U0] [HF0 [HU0 HF0U0]]].
-  simpl in *.
-  destruct (HX_normal F0 (Complement U0))
-    as [U1 [V1 [? [? [? [H_CU0_V1 HU1V1]]]]]]; trivial.
-  { red. now rewrite Complement_Complement. }
-  { extensionality_ensembles_inv.
-    subst.
-    match goal with
-    | H : In F0 _ |- _ =>
-      apply HF0U0 in H
-    end.
-    contradiction. }
-  exists U1.
-  repeat split; trivial.
-  transitivity (Complement V1).
-  - apply closure_minimal.
-    + red. now rewrite Complement_Complement.
-    + red. intros.
-      intro.
-      eapply Noone_in_empty.
-      rewrite <- HU1V1.
-      constructor;
-        eassumption.
-  - red. intros.
-    apply NNPP. intros Hx.
-    apply H_CU0_V1 in Hx.
-    contradiction. }
+      (conj H9 (conj H10 H11)))).
+    apply H8. }
 unshelve eexists (Urysohns_Lemma_function _ normal_sep_fun
-  U (Complement G) HU HG _).
-{ transitivity (Complement V).
-  - apply closure_minimal.
-    + red. now rewrite Complement_Complement.
-    + red. intros.
-      intro.
-      eapply Noone_in_empty.
-      rewrite <- HUV.
-      econstructor;
-        eassumption.
-  - red. intros x Hx ?.
-    contradiction Hx.
-    now apply HGV. }
-split.
-{ apply Urysohns_Lemma_function_continuous. }
-split.
-{ apply Urysohns_Lemma_function_range. }
-split;
-  intros.
-- apply Urysohns_Lemma_function_0; auto.
-- apply Urysohns_Lemma_function_1; auto.
+  U (Complement G) _ _ _); try assumption.
+repeat split.
+- apply Urysohns_Lemma_function_continuous.
+- apply Urysohns_Lemma_function_range.
+- apply Urysohns_Lemma_function_range.
+- intros. apply Urysohns_Lemma_function_0; auto.
+- intros. apply Urysohns_Lemma_function_1; auto.
 Qed.

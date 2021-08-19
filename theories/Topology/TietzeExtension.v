@@ -409,9 +409,7 @@ split.
   apply H.
   exact extension_approximation_seq_cauchy.
 - apply Hausdorff_impl_net_limit_unique.
-  apply T3_sep_impl_Hausdorff.
-  apply normal_sep_impl_T3_sep.
-  apply metrizable_impl_normal_sep.
+  apply metrizable_Hausdorff.
   exists (uniform_metric R_metric (fun _:X => 0)
             R_metric_is_metric X_nonempty).
   + apply (uniform_metric_is_metric _ _ R_metric (fun _:X => 0)
@@ -582,7 +580,7 @@ End Tietze_extension_construction.
 
 Lemma bounded_Tietze_extension_theorem: forall (X:TopologicalSpace)
   (F:Ensemble X) (f:SubspaceTopology F -> RTop),
-  normal_sep X -> closed F -> continuous f ->
+  normal_space X -> closed F -> continuous f ->
   (forall x:SubspaceTopology F, -1 <= f x <= 1) ->
   exists g:X -> RTop,
     continuous g /\ (forall x:SubspaceTopology F,
@@ -632,7 +630,7 @@ Qed.
 
 Lemma open_bounded_Tietze_extension_theorem: forall (X:TopologicalSpace)
   (F:Ensemble X) (f:SubspaceTopology F -> RTop),
-  normal_sep X -> closed F -> continuous f ->
+  normal_space X -> closed F -> continuous f ->
   (forall x:SubspaceTopology F, -1 < f x < 1) ->
   exists g:X -> RTop,
     continuous g /\ (forall x:SubspaceTopology F,
@@ -648,10 +646,12 @@ destruct (UrysohnsLemma _ H G F) as [phi [? [? []]]]; trivial.
 - replace G with (inverse_image g0 (Union (Singleton 1) (Singleton (-1)))).
   + red. rewrite <- inverse_image_complement.
     apply H3.
-    apply (closed_union2 (X:=RTop)); apply Hausdorff_impl_T1_sep;
-      apply T3_sep_impl_Hausdorff; apply normal_sep_impl_T3_sep;
-      apply metrizable_impl_normal_sep; exists R_metric;
-      (apply R_metric_is_metric || apply RTop_metrization).
+    assert (T1_space RTop) as HRT1.
+    { apply Hausdorff_is_T1_space.
+      apply metrizable_Hausdorff.
+      apply RTop_metrizable.
+    }
+    apply (closed_union2 (X:=RTop)); apply HRT1.
   + extensionality_ensembles_inv;
       constructor.
     * now left.
@@ -708,7 +708,7 @@ Qed.
 
 Theorem Tietze_extension_theorem: forall (X:TopologicalSpace)
   (F:Ensemble X) (f:SubspaceTopology F -> RTop),
-  normal_sep X -> closed F -> continuous f ->
+  normal_space X -> closed F -> continuous f ->
   exists g:X -> RTop,
     continuous g /\ (forall x:SubspaceTopology F,
                      g (subspace_inc F x) = f x).

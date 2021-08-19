@@ -493,12 +493,12 @@ repeat split.
     now subst.
 Qed.
 
-Lemma compact_Hausdorff_impl_T3_sep: forall X:TopologicalSpace,
-  compact X -> Hausdorff X -> T3_sep X.
+Instance compact_Hausdorff_impl_T3_sep: forall X:TopologicalSpace,
+  compact X -> Hausdorff X -> T3_space X.
 Proof.
 intros X HX_compact HX_Hausdorff.
 split.
-{ now apply Hausdorff_impl_T1_sep. }
+{ typeclasses eauto. }
 intros x F HF HFx.
 pose (P := fun y => (fun p : Ensemble X * Ensemble X =>
                     open (fst p) /\ open (snd p) /\
@@ -514,7 +514,7 @@ assert (forall V, In cover_of_F V -> open V) as Hcover_open.
 destruct (closed_compact_ens X F HX_compact HF cover_of_F) as
   [fincover [Hfincover0 [Hfincover1 Hfincover2]]]; auto.
 { intros y Hy.
-  specialize (HX_Hausdorff x y) as [U [V [HU [HV [HUx [HVx0]]]]]].
+  specialize (hausdorff x y) as [U [V [HU [HV [HUx [HVx0]]]]]].
   { intros ?. subst. contradiction. }
   exists V; auto.
   exists U, y.
@@ -546,12 +546,11 @@ rewrite <- H3.
 split; assumption.
 Qed.
 
-Lemma compact_Hausdorff_impl_normal_sep: forall X:TopologicalSpace,
-  compact X -> Hausdorff X -> normal_sep X.
+Instance compact_T1_T3_space_is_normal_space
+  {X:TopologicalSpace} (HX_compact : compact X) `(HX_T1 : T1_space X)
+  `(HX_T3 : T3_space X) :
+  normal_space X.
 Proof.
-intros X HX_compact HX_Hausdorff.
-apply compact_Hausdorff_impl_T3_sep in HX_Hausdorff as [HX_T1 HX_regular];
-  try assumption.
 split; try assumption.
 intros F G HF_closed HG_closed HFG_disjoint.
 pose (P := fun y => (fun p : Ensemble X * Ensemble X =>
@@ -568,7 +567,7 @@ assert (forall U, In cover_of_F U -> open U) as Hcover_open.
 destruct (closed_compact_ens X F HX_compact HF_closed cover_of_F) as
   [fincover [Hfincover0 [Hfincover1 Hfincover2]]]; auto.
 { intros y Hy.
-  specialize (HX_regular y G) as [U [V [HU [HV [HUx [HVx0]]]]]];
+  specialize (T3_sep y G) as [U [V [HU [HV [HUx [HVx0]]]]]];
     auto.
   { intros ?.
     assert (In Empty_set y); try contradiction.

@@ -123,10 +123,8 @@ assert (forall y:Net nat_DS (MetricTopology d d_metric), cauchy d y ->
   apply -> unique_existence; split.
   - apply H; trivial.
   - apply (Hausdorff_impl_net_limit_unique y).
-    apply T3_sep_impl_Hausdorff.
-    apply normal_sep_impl_T3_sep.
-    apply metrizable_impl_normal_sep.
-    exists d; trivial; apply MetricTopology_metrized.
+    apply metrizable_Hausdorff.
+    apply MetricTopology_metrizable.
 }
 red; intros f ?.
 unshelve refine (let H1 := _ in let H2 := _ in ex_intro _
