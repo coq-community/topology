@@ -117,3 +117,9 @@ Proof.
   { constructor. }
   destruct (classic (In U x)); [right|left]; assumption.
 Qed.
+
+Lemma Couple_swap X (x y : X) :
+  Couple x y = Couple y x.
+Proof.
+  extensionality_ensembles_inv; constructor.
+Qed.
