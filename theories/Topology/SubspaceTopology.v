@@ -23,10 +23,7 @@ Lemma subspace_open_char: forall U:Ensemble {x:point_set X | In A x},
   @open SubspaceTopology U <-> exists V:Ensemble (point_set X),
   open V /\ U = inverse_image subspace_inc V.
 Proof.
-split.
-- apply weak_topology1_topology.
-- intros. destruct H as [V []].
-  subst. apply subspace_inc_continuous. assumption.
+apply weak_topology1_topology.
 Qed.
 
 End Subspace.

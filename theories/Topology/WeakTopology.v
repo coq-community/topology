@@ -138,10 +138,24 @@ Variable f:X->point_set Y.
 
 Definition WeakTopology1 := WeakTopology (True_rect f).
 
+Lemma weak_topology1_makes_continuous_func:
+  continuous f (X:=WeakTopology1).
+Proof.
+exact (weak_topology_makes_continuous_funcs _ _ _ (True_rect f) I).
+Qed.
+
 Lemma weak_topology1_topology:
-  forall U:Ensemble X, @open WeakTopology1 U ->
+  forall U:Ensemble X, @open WeakTopology1 U <->
   exists V:Ensemble (point_set Y), open V /\ U = inverse_image f V.
 Proof.
+split.
+2: {
+  intros.
+  destruct H as [V []].
+  subst.
+  apply weak_topology1_makes_continuous_func.
+  assumption.
+}
 intros.
 red in H.
 simpl in H.
@@ -171,40 +185,36 @@ assert (forall U:Ensemble X,
 }
 destruct (choice (fun (U:{U:Ensemble X | In F U}) (V:Ensemble (point_set Y))
   => open V /\ proj1_sig U = inverse_image f V)) as [choice_fun].
-- intros.
+{ intros.
   destruct x as [U].
   simpl.
   apply H0; auto with sets.
-- exists (IndexedUnion choice_fun).
-  split.
-  + apply open_indexed_union.
-    apply H1.
-  + apply Extensionality_Ensembles; split; red; intros.
-    * destruct H2.
-      constructor.
-      exists (exist _ S H2).
-      pose proof (H1 (exist _ S H2)).
-      destruct H4.
-      simpl in H5.
-      rewrite H5 in H3.
-      destruct H3.
-      exact H3.
-    * destruct H2.
-      inversion H2.
-      pose proof (H1 a).
-      destruct H5.
-      destruct a as [U].
-      exists U; trivial.
-      simpl in H6.
-      rewrite H6.
-      constructor.
-      exact H3.
-Qed.
-
-Lemma weak_topology1_makes_continuous_func:
-  continuous f (X:=WeakTopology1).
-Proof.
-exact (weak_topology_makes_continuous_funcs _ _ _ (True_rect f) I).
+}
+exists (IndexedUnion choice_fun).
+split.
+{ apply open_indexed_union.
+  apply H1.
+}
+apply Extensionality_Ensembles; split; red; intros.
+- destruct H2.
+  constructor.
+  exists (exist _ S H2).
+  pose proof (H1 (exist _ S H2)).
+  destruct H4.
+  simpl in H5.
+  rewrite H5 in H3.
+  destruct H3.
+  exact H3.
+- destruct H2.
+  inversion H2.
+  pose proof (H1 a).
+  destruct H5.
+  destruct a as [U].
+  exists U; trivial.
+  simpl in H6.
+  rewrite H6.
+  constructor.
+  exact H3.
 Qed.
 
 End WeakTopology1.
