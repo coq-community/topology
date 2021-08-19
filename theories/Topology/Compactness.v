@@ -653,3 +653,12 @@ Proof.
     + rewrite <- (inverse_image_family_union _ Hfg Hgf), H3.
       apply inverse_image_full.
 Qed.
+
+Lemma finite_topology_compact (X : TopologicalSpace) :
+  Finite (@open X) -> compact X.
+Proof.
+  intros.
+  red. intros.
+  exists C. repeat split; auto with sets.
+  apply Finite_downward_closed with (A := open); assumption.
+Qed.
