@@ -55,17 +55,17 @@ Lemma weak_topology_continuous_char (W : TopologicalSpace)
       (g : (point_set W) -> (point_set (WeakTopology))) :
       continuous g <-> (forall a, continuous (compose (f a) g)).
 Proof.
-  split.
-  - intros.
-    unfold compose. apply continuous_composition.
-    + apply weak_topology_makes_continuous_funcs.
-    + assumption.
-  - intros.
-    apply continuous_subbasis with weak_topology_subbasis.
-    { apply Build_TopologicalSpace_from_subbasis_subbasis. }
-    intros. induction H0.
-    rewrite <- inverse_image_composition.
-    apply H. assumption.
+split.
+- intros.
+  unfold compose. apply continuous_composition.
+  + apply weak_topology_makes_continuous_funcs.
+  + assumption.
+- intros.
+  apply continuous_subbasis with weak_topology_subbasis.
+  { apply Build_TopologicalSpace_from_subbasis_subbasis. }
+  intros. induction H0.
+  rewrite <- inverse_image_composition.
+  apply H. assumption.
 Qed.
 
 Section WeakTopology_and_Nets.
@@ -215,6 +215,25 @@ apply Extensionality_Ensembles; split; red; intros.
   rewrite H6.
   constructor.
   exact H3.
+Qed.
+
+Lemma weak_topology1_topology_closed:
+  forall U:Ensemble X, @closed WeakTopology1 U <->
+  exists V:Ensemble (point_set Y), closed V /\ U = inverse_image f V.
+Proof.
+unfold closed.
+split.
+- intros. unfold closed in *.
+  rewrite weak_topology1_topology in H.
+  destruct H as [V []].
+  exists (Complement V).
+  rewrite inverse_image_complement.
+  rewrite <- H0.
+  rewrite !Complement_Complement.
+  auto.
+- intros. destruct H as [V []].
+  subst. apply continuous_closed; try assumption.
+  apply weak_topology1_makes_continuous_func.
 Qed.
 
 End WeakTopology1.

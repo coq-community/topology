@@ -26,6 +26,13 @@ Proof.
 apply weak_topology1_topology.
 Qed.
 
+Lemma subspace_closed_char: forall U:Ensemble {x:point_set X | In A x},
+  @closed SubspaceTopology U <-> exists V:Ensemble (point_set X),
+  closed V /\ U = inverse_image subspace_inc V.
+Proof.
+apply weak_topology1_topology_closed.
+Qed.
+
 End Subspace.
 
 Arguments SubspaceTopology {X}.
