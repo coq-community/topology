@@ -406,111 +406,109 @@ Qed.
 
 Lemma R_connected: connected RTop.
 Proof.
-cut (forall S:Ensemble (point_set RTop),
-  clopen S -> Ensembles.In S 0 -> S = Full_set).
-- intro.
-  red; intros.
-  destruct (classic (Ensembles.In S 0)).
-  + right.
-    now apply H.
-  + left.
-    assert (Complement S = Full_set).
-    { apply H; trivial.
-      destruct H0.
-      split; trivial.
-      red. now rewrite Complement_Complement. }
-    rewrite <- (Complement_Complement _ S), H2.
-    now extensionality_ensembles.
-- cut (forall S:Ensemble (point_set RTop),
-    clopen S -> Ensembles.In S 0 -> forall x:R, x > 0 ->
+apply connected_iff_inh_clopen_is_full with (x := 0).
+cut (forall S:Ensemble RTop,
+  clopen S -> In S 0 -> forall x:R, x > 0 -> In S x).
+{ intro.
+  assert (forall S:Ensemble RTop,
+    clopen S -> In S 0 -> forall x:R, x < 0 ->
                                     Ensembles.In S x).
-  + intro.
-    assert (forall S:Ensemble (point_set RTop),
-      clopen S -> Ensembles.In S 0 -> forall x:R, x < 0 ->
-                                      Ensembles.In S x).
-    { intros.
-      pose (T := inverse_image Ropp S).
-      assert (Ensembles.In T (-x)).
-      { apply H.
-        - destruct H0.
-          split.
-          + now apply Ropp_continuous.
-          + red.
-            subst T.
-            rewrite <- inverse_image_complement.
-            now apply Ropp_continuous.
-        - constructor.
-          replace (-0) with 0; trivial; ring.
-        - cut (0 < -x); auto with real. }
-      destruct H3.
-      now rewrite Ropp_involutive in H3. }
+  { (* this sub-proof uses the fact,
+       that [Ropp] has been shown to be continuous,
+       that it is involutive, order-reversing and has [0] as fixed point.
+     *)
     intros.
-    extensionality_ensembles.
-    * constructor.
-    * destruct (total_order_T x 0) as [[|]|].
-      ** now apply H0.
-      ** congruence.
-      ** now apply H.
-  + intros.
-    apply NNPP.
-    intro.
-    pose (T := [ y:R | forall z:R, 0 <= z <= y -> Ensembles.In S z ]).
-    assert (Ensembles.In T 0).
-    { constructor.
-      intros.
-      now replace z with 0 by lra. }
-    destruct (sup T).
-    * exists x.
-      red. intros.
-      cut (~ x0>x).
-      ** lra.
-      ** intro.
-         destruct H4.
-         apply H2, H4.
-         lra.
-    * now exists 0.
-    * assert (0 <= x0) by now apply i.
-      destruct (RTop_metrization x0).
-      assert (Ensembles.In S x0).
-      { rewrite <- (closure_fixes_closed S); [ | apply H ].
-        apply meets_every_open_neighborhood_impl_closure.
-        intros.
-        destruct (open_neighborhood_basis_cond U).
-        { now split. }
-        destruct H7.
-        destruct H7.
-        destruct (lub_approx _ _ r i); trivial.
-        destruct H9.
-        exists (Rmax x1 0).
-        constructor.
-        - unfold Rmax.
-          destruct Rle_dec; trivial.
-          apply H9.
-          auto with real.
-        - apply H8.
-          constructor.
-          unfold Rmax.
-          destruct Rle_dec;
-            apply Rabs_def1; lra. }
-      destruct (open_neighborhood_basis_cond S).
-      ** split; trivial.
-         apply H.
-      ** destruct H6.
-         destruct H6.
-         destruct (lub_approx _ _ r i); trivial.
-         destruct H8.
-         assert (Ensembles.In T (x0+r/2)).
-         { constructor.
-           intros.
-           destruct H10.
-           destruct (total_order_T z x1) as [[|]|].
-           - apply H8. lra.
-           - apply H8. lra.
-           - apply H7.
-             constructor.
-             apply Rabs_def1; lra. }
-         assert (x0 + r/2 <= x0) by now apply i.
-         lra.
+    pose (T := inverse_image Ropp S).
+    assert (Ensembles.In T (-x)).
+    { apply H.
+      - destruct H0.
+        split.
+        + now apply Ropp_continuous.
+        + red.
+          subst T.
+          rewrite <- inverse_image_complement.
+          now apply Ropp_continuous.
+      - constructor.
+        replace (-0) with 0; trivial; ring.
+      - cut (0 < -x); auto with real. }
+    destruct H3.
+    now rewrite Ropp_involutive in H3.
+  }
+  intros.
+  (* since the order on [R] is trichotomous, [Full_set] splits into
+     the two open rays and the singleton of [0]. *)
+  extensionality_ensembles.
+  { constructor. }
+  destruct (total_order_T x 0) as [[|]|].
+  - now apply H0.
+  - congruence.
+  - now apply H.
+}
+intros.
+apply NNPP.
+intro.
+pose (T := [ y:R | forall z:R, 0 <= z <= y -> Ensembles.In S z ]).
+assert (Ensembles.In T 0).
+{ constructor.
+  intros.
+  now replace z with 0 by lra.
+}
+destruct (sup T).
+{ exists x.
+  red. intros.
+  cut (~ x0>x).
+  { lra. }
+  intro.
+  destruct H4.
+  apply H2, H4.
+  lra.
+}
+{ now exists 0. }
+assert (0 <= x0) by now apply i.
+destruct (RTop_metrization x0).
+assert (Ensembles.In S x0).
+{ rewrite <- (closure_fixes_closed S); [ | apply H ].
+  apply meets_every_open_neighborhood_impl_closure.
+  intros.
+  destruct (open_neighborhood_basis_cond U).
+  { now split. }
+  destruct H7.
+  destruct H7.
+  destruct (lub_approx _ _ r i); trivial.
+  destruct H9.
+  exists (Rmax x1 0).
+  constructor.
+  - unfold Rmax.
+    destruct Rle_dec; trivial.
+    apply H9.
+    auto with real.
+  - apply H8.
+    constructor.
+    unfold Rmax.
+    destruct Rle_dec;
+      apply Rabs_def1; lra.
+}
+destruct (open_neighborhood_basis_cond S).
+{ split; trivial.
+   apply H.
+}
+destruct H6.
+destruct H6.
+destruct (lub_approx _ _ r i); trivial.
+destruct H8.
+assert (Ensembles.In T (x0+r/2)).
+{ constructor.
+  intros.
+  destruct H10.
+  destruct (total_order_T z x1) as [[|]|].
+  - apply H8. lra.
+  - apply H8. lra.
+  - apply H7.
+    constructor.
+    apply Rabs_def1; lra.
+}
+assert (x0 + r/2 <= x0) by now apply i.
+lra.
 Qed.
 
 Lemma R_cauchy_sequence_bounded: forall x:nat->R,

@@ -143,3 +143,27 @@ destruct (Hconn (inverse_image f S));
   rewrite H.
   constructor.
 Qed.
+
+(* A space is connected iff every clopen set (inhabited by a fixed
+   point) is the whole space. *)
+Lemma connected_iff_inh_clopen_is_full (X:TopologicalSpace) (x : X) :
+  (forall S : Ensemble X,
+      clopen S -> In S x -> S = Full_set) <->
+  connected X.
+Proof.
+split.
+- intro.
+  red; intros.
+  destruct (classic (In S x)).
+  { right. now apply H. }
+  left.
+  rewrite <- Complement_Complement, <- (Complement_Complement _ S).
+  apply f_equal.
+  rewrite Complement_Empty_set.
+  apply H.
+  + apply clopen_Complement. assumption.
+  + auto.
+- intros.
+  specialize (H S H0) as [|]; auto.
+  subst. destruct H1.
+Qed.
