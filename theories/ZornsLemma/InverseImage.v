@@ -304,6 +304,19 @@ Proof.
      constructor + assumption).
 Qed.
 
+Lemma inverse_image_image_surjective_locally {X Y} (f : X -> Y) (T : Ensemble Y) :
+  (forall y, In T y -> exists x, f x = y) ->
+  Im (inverse_image f T) f = T.
+Proof.
+intros.
+extensionality_ensembles_inv.
+- subst. assumption.
+- specialize (H _ H0) as [x0].
+  subst.
+  apply Im_def.
+  constructor. assumption.
+Qed.
+
 Lemma inverse_image_image_surjective
   {X Y : Type}
   (f : X -> Y)
@@ -311,17 +324,9 @@ Lemma inverse_image_image_surjective
   surjective f ->
   Im (inverse_image f T) f = T.
 Proof.
-intro.
-apply Extensionality_Ensembles.
-split;
-  red;
   intros.
-- inversion H0.
-  subst.
-  now destruct H1.
-- destruct (H x).
-  subst.
-  now repeat econstructor.
+  apply inverse_image_image_surjective_locally.
+  intros. apply H.
 Qed.
 
 Lemma inverse_image_surjective_singleton

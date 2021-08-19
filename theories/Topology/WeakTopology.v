@@ -236,6 +236,19 @@ split.
   apply weak_topology1_makes_continuous_func.
 Qed.
 
+Lemma weak_topology1_continuous_char (Z : TopologicalSpace)
+      (g : Z -> WeakTopology1) :
+  continuous g <->
+  continuous (compose f g).
+Proof.
+  replace f with (True_rect f I).
+  2: { reflexivity. }
+  unfold WeakTopology1.
+  rewrite weak_topology_continuous_char.
+  split; intros; auto.
+  destruct a. assumption.
+Qed.
+
 End WeakTopology1.
 
 Arguments WeakTopology1 {X} {Y}.
