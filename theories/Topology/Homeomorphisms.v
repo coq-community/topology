@@ -3,14 +3,14 @@ Require Export TopologicalSpaces.
 Require Export Continuity.
 
 Inductive homeomorphism {X Y:TopologicalSpace}
-  (f:point_set X -> point_set Y) : Prop :=
-| intro_homeomorphism: forall g:point_set Y -> point_set X,
+  (f:X -> Y) : Prop :=
+| intro_homeomorphism: forall g:Y -> point_set X,
   continuous f -> continuous g ->
   (forall x:point_set X, g (f x) = x) ->
   (forall y:point_set Y, f (g y) = y) -> homeomorphism f.
 
 Lemma homeomorphism_is_invertible: forall {X Y:TopologicalSpace}
-  (f:point_set X -> point_set Y),
+  (f:X -> Y),
   homeomorphism f -> invertible f.
 Proof.
 intros.
@@ -19,11 +19,11 @@ exists g; trivial.
 Qed.
 
 Definition open_map {X Y:TopologicalSpace}
-  (f:point_set X -> point_set Y) : Prop :=
-forall U:Ensemble (point_set X), open U -> open (Im U f).
+  (f:X -> Y) : Prop :=
+forall U:Ensemble X, open U -> open (Im U f).
 
 Lemma homeomorphism_is_open_map: forall {X Y:TopologicalSpace}
-  (f:point_set X -> point_set Y),
+  (f:X -> Y),
   homeomorphism f -> open_map f.
 Proof.
 intros.
@@ -40,7 +40,7 @@ auto.
 Qed.
 
 Lemma invertible_open_map_is_homeomorphism: forall {X Y:TopologicalSpace}
-  (f:point_set X -> point_set Y),
+  (f:X -> Y),
   invertible f -> continuous f -> open_map f -> homeomorphism f.
 Proof.
 intros.
@@ -63,7 +63,7 @@ Proof.
 Qed.
 
 Inductive homeomorphic (X Y:TopologicalSpace) : Prop :=
-| intro_homeomorphic: forall f:point_set X -> point_set Y,
+| intro_homeomorphic: forall f:X -> point_set Y,
     homeomorphism f -> homeomorphic X Y.
 
 Require Export Relation_Definitions.
@@ -84,7 +84,7 @@ constructor.
 Qed.
 
 Definition topological_property (P : TopologicalSpace -> Prop) :=
-  forall X Y (f : point_set X -> point_set Y),
+  forall (X Y : TopologicalSpace) (f : X -> Y),
     homeomorphism f -> P X -> P Y.
 
 Global Hint Unfold topological_property : homeo.

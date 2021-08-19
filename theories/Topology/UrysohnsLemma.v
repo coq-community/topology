@@ -191,16 +191,16 @@ Require Export RTopology.
 Section Urysohns_Lemma_construction.
 
 Variable X:TopologicalSpace.
-Variable normal_sep_fun: forall F U:Ensemble (point_set X),
+Variable normal_sep_fun: forall F U:Ensemble X,
   closed F -> open U -> Included F U ->
-  { V:Ensemble (point_set X) | open V /\ Included F V /\
+  { V:Ensemble X | open V /\ Included F V /\
     Included (closure V) U }.
-Variable U0 U1:Ensemble (point_set X).
+Variable U0 U1:Ensemble X.
 Hypothesis U0_open: open U0.
 Hypothesis U1_open: open U1.
 Hypothesis U0_in_U1: Included (closure U0) U1.
 
-Definition Un (n:nat) : Ensemble (point_set X) :=
+Definition Un (n:nat) : Ensemble X :=
   match n with
   | O => U0
   | S O => U1
@@ -224,10 +224,10 @@ destruct n as [|].
   red; intros; constructor.
 Qed.
 
-Definition expand_U_dyadic (f:nat->Ensemble (point_set X))
+Definition expand_U_dyadic (f:nat->Ensemble X)
   (Hopen: forall n:nat, open (f n))
   (Hincr: forall n:nat, Included (closure (f n)) (f (S n)))
-  (n:nat) : Ensemble (point_set X) :=
+  (n:nat) : Ensemble X :=
 if (even_odd_dec n) then f (div2 n) else
 let m := div2 n in proj1_sig
   (normal_sep_fun (closure (f m)) (f (S m))
@@ -271,10 +271,10 @@ destruct even_odd_dec.
 Qed.
 
 Definition packaged_expand_U_dyadic :
-  { f:nat->Ensemble (point_set X) |
+  { f:nat->Ensemble X |
     (forall m:nat, open (f m)) /\
     (forall m:nat, Included (closure (f m)) (f (S m))) } ->
-  { f:nat->Ensemble (point_set X) |
+  { f:nat->Ensemble X |
     (forall m:nat, open (f m)) /\
     (forall m:nat, Included (closure (f m)) (f (S m))) }.
 refine (fun fsig => match fsig with
@@ -287,11 +287,11 @@ split.
 Defined.
 
 Definition U_dyadic_level_n (n:nat) :
-  { f:nat->Ensemble (point_set X) |
+  { f:nat->Ensemble X |
     (forall m:nat, open (f m)) /\
     (forall m:nat, Included (closure (f m)) (f (S m))) }.
 refine (let lev_n := fix lev_n (n:nat) :
-  { f:nat->Ensemble (point_set X) |
+  { f:nat->Ensemble X |
     (forall m:nat, open (f m)) /\
     (forall m:nat, Included (closure (f m)) (f (S m))) } :=
   match n with
@@ -304,7 +304,7 @@ split.
 Defined.
 
 Definition U_dyadic (x:dyadic_rational) :
-  Ensemble (point_set X) :=
+  Ensemble X :=
 match x with
 | m_over_2_to_n m n => (proj1_sig (U_dyadic_level_n n)) m
 end.
@@ -710,7 +710,7 @@ Qed.
 End Urysohns_Lemma_construction.
 
 Theorem UrysohnsLemma: forall X:TopologicalSpace, normal_sep X ->
-  forall F G:Ensemble (point_set X),
+  forall F G:Ensemble X,
   closed F -> closed G -> Intersection F G = Empty_set ->
   exists f:point_set X -> point_set RTop,
   continuous f /\ (forall x:point_set X, 0 <= f x <= 1) /\
@@ -736,14 +736,14 @@ assert (Included (closure U) (Complement G)).
     contradiction H10.
     now apply H7. }
   auto with sets. }
-assert (inhabited (forall F U:Ensemble (point_set X), closed F ->
+assert (inhabited (forall F U:Ensemble X, closed F ->
   open U -> Included F U ->
-  { V:Ensemble (point_set X) | open V /\ Included F V /\
+  { V:Ensemble X | open V /\ Included F V /\
                                Included (closure V) U })).
 { destruct (choice (fun (FU_pair:
-    {p:Ensemble (point_set X) * Ensemble (point_set X) |
+    {p:Ensemble X * Ensemble X |
      closed (fst p) /\ open (snd p) /\ Included (fst p) (snd p)})
-    (V0:Ensemble (point_set X)) =>
+    (V0:Ensemble X) =>
      open V0 /\ Included (fst (proj1_sig FU_pair)) V0 /\
      Included (closure V0) (snd (proj1_sig FU_pair)))) as
     [pre_choice_fun].

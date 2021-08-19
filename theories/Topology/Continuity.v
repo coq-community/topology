@@ -8,19 +8,19 @@ Require Export Subbases.
 Section continuity.
 
 Variable X Y:TopologicalSpace.
-Variable f:point_set X -> point_set Y.
+Variable f:X -> Y.
 
 Definition continuous : Prop :=
-  forall V:Ensemble (point_set Y), open V ->
+  forall V:Ensemble Y, open V ->
   open (inverse_image f V).
 
-Definition continuous_at (x:point_set X) : Prop :=
-  forall V:Ensemble (point_set Y),
+Definition continuous_at (x:X) : Prop :=
+  forall V:Ensemble Y,
   neighborhood V (f x) -> neighborhood (inverse_image f V) x.
 
 Lemma continuous_at_open_neighborhoods:
-  forall x:point_set X,
-  (forall V:Ensemble (point_set Y),
+  forall x:X,
+  (forall V:Ensemble Y,
   open_neighborhood V (f x) -> neighborhood (inverse_image f V) x) ->
   continuous_at x.
 Proof.
@@ -66,9 +66,9 @@ destruct H0; split; try constructor; auto.
 Qed.
 
 Lemma continuous_at_neighborhood_basis:
-  forall (x:point_set X) (NB:Family (point_set Y)),
+  forall (x:X) (NB:Family Y),
   neighborhood_basis NB (f x) ->
-  (forall V:Ensemble (point_set Y),
+  (forall V:Ensemble Y,
   In NB V -> neighborhood (inverse_image f V) x) ->
   continuous_at x.
 Proof.
@@ -85,8 +85,8 @@ assert (Included (inverse_image f N) (inverse_image f V));
 Qed.
 
 Lemma continuous_open_basis:
-  forall (B:Family (point_set Y)), open_basis B ->
-  (forall V:Ensemble (point_set Y),
+  forall (B:Family Y), open_basis B ->
+  (forall V:Ensemble Y,
     In B V -> open (inverse_image f V)) -> continuous.
 Proof.
 intros.
@@ -102,8 +102,8 @@ split; try constructor; auto.
 Qed.
 
 Lemma continuous_subbasis:
-  forall (SB:Family (point_set Y)), subbasis SB ->
-  (forall V:Ensemble (point_set Y),
+  forall (SB:Family Y), subbasis SB ->
+  (forall V:Ensemble Y,
      In SB V -> open (inverse_image f V)) -> continuous.
 Proof.
 intros.
@@ -209,10 +209,10 @@ Arguments continuous {X} {Y}.
 Arguments continuous_at {X} {Y}.
 
 Lemma continuous_composition_at: forall {X Y Z:TopologicalSpace}
-  (f:point_set Y -> point_set Z) (g:point_set X -> point_set Y)
-  (x:point_set X),
+  (f:Y -> Z) (g:X -> Y)
+  (x:X),
   continuous_at f (g x) -> continuous_at g x ->
-  continuous_at (fun x:point_set X => f (g x)) x.
+  continuous_at (fun x:X => f (g x)) x.
 Proof.
 intros.
 red; intros.
@@ -221,9 +221,9 @@ auto.
 Qed.
 
 Lemma continuous_composition: forall {X Y Z:TopologicalSpace}
-  (f:point_set Y -> point_set Z) (g:point_set X -> point_set Y),
+  (f:Y -> Z) (g:X -> Y),
   continuous f -> continuous g ->
-  continuous (fun x:point_set X => f (g x)).
+  continuous (fun x:X => f (g x)).
 Proof.
 intros.
 red; intros.
@@ -232,7 +232,7 @@ auto.
 Qed.
 
 Lemma continuous_identity: forall (X:TopologicalSpace),
-  continuous (fun x:point_set X => x).
+  continuous (fun x:X => x).
 Proof.
 intros.
 red; intros.
@@ -241,19 +241,19 @@ assumption.
 Qed.
 
 Lemma continuous_constant: forall (X Y:TopologicalSpace)
-  (y0:point_set Y), continuous (fun x:point_set X => y0).
+  (y0:Y), continuous (fun x:X => y0).
 Proof.
 intros.
-pose (f := fun _:point_set X => y0).
+pose (f := fun _:X => y0).
 fold f.
 red; intros.
 destruct (classic (In V y0)).
-- replace (inverse_image f V) with (@Full_set (point_set X)).
+- replace (inverse_image f V) with (@Full_set X).
   { apply open_full. }
   apply Extensionality_Ensembles; split; red; intros.
   + constructor; trivial.
   + constructor.
-- replace (inverse_image f V) with (@Empty_set (point_set X)).
+- replace (inverse_image f V) with (@Empty_set X).
   { apply open_empty. }
   apply Extensionality_Ensembles; split; auto with sets;
     red; intros.
@@ -262,8 +262,8 @@ destruct (classic (In V y0)).
 Qed.
 
 Lemma continuous_at_is_local: forall (X Y:TopologicalSpace)
-  (x0:point_set X) (f g:point_set X -> point_set Y)
-  (N:Ensemble (point_set X)),
+  (x0:X) (f g:X -> Y)
+  (N:Ensemble X),
   neighborhood N x0 -> (forall x:point_set X, In N x -> f x = g x) ->
   continuous_at f x0 -> continuous_at g x0.
 Proof.
@@ -284,8 +284,8 @@ repeat split; trivial.
   + auto.
 Qed.
 
-Lemma dense_image_surjective {X Y : TopologicalSpace} {f : point_set X -> point_set Y}
-  (S : Ensemble (point_set X)) :
+Lemma dense_image_surjective {X Y : TopologicalSpace} {f : X -> point_set Y}
+  (S : Ensemble X) :
   continuous f ->
   surjective f ->
   dense S ->

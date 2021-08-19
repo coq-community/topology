@@ -4,15 +4,15 @@ Require Import FiltersAndNets ClassicalChoice.
 Set Asymmetric Patterns.
 
 Definition compact (X:TopologicalSpace) :=
-  forall C:Family (point_set X),
-    (forall U:Ensemble (point_set X), In C U -> open U) ->
+  forall C:Family X,
+    (forall U:Ensemble X, In C U -> open U) ->
     FamilyUnion C = Full_set ->
-    exists C':Family (point_set X),
+    exists C':Family X,
       Finite C' /\ Included C' C /\
       FamilyUnion C' = Full_set.
 
 Lemma compactness_on_indexed_covers:
-  forall (X:TopologicalSpace) (A:Type) (C:IndexedFamily A (point_set X)),
+  forall (X:TopologicalSpace) (A:Type) (C:IndexedFamily A X),
     compact X ->
     (forall a:A, open (C a)) -> IndexedUnion C = Full_set ->
   exists A':Ensemble A, Finite A' /\
@@ -28,7 +28,7 @@ destruct (H cover) as [subcover].
   now rewrite <- indexed_to_family_union.
 - destruct H2 as [? []].
   destruct (finite_choice _ _
-    (fun (U:{U:Ensemble (point_set X) | In subcover U}) (a:A) =>
+    (fun (U:{U:Ensemble X | In subcover U}) (a:A) =>
         proj1_sig U = C a)) as [choice_fun].
   + now apply Finite_ens_type.
   + destruct x as [U].
@@ -55,15 +55,15 @@ Qed.
 
 Lemma compact_finite_nonempty_closed_intersection:
   forall X:TopologicalSpace, compact X ->
-  forall F:Family (point_set X),
-    (forall G:Ensemble (point_set X), In F G -> closed G) ->
-    (forall F':Family (point_set X), Finite F' -> Included F' F ->
+  forall F:Family X,
+    (forall G:Ensemble X, In F G -> closed G) ->
+    (forall F':Family X, Finite F' -> Included F' F ->
      Inhabited (FamilyIntersection F')) ->
     Inhabited (FamilyIntersection F).
 Proof.
 intros.
 apply NNPP; red; intro.
-pose (C := [ U:Ensemble (point_set X) | In F (Complement U) ]).
+pose (C := [ U:Ensemble X | In F (Complement U) ]).
 unshelve refine (let H3:=(H C _ _) in _).
 - intros.
   destruct H3.
@@ -83,7 +83,7 @@ unshelve refine (let H3:=(H C _ _) in _).
       now rewrite Complement_Complement.
     * assumption.
 - destruct H3 as [C' [? [? ?]]].
-  pose (F' := [G : Ensemble (point_set X) | In C' (Complement G)]).
+  pose (F' := [G : Ensemble X | In C' (Complement G)]).
   unshelve refine (let H6 := (H1 F' _ _) in _).
   + assert (F' = Im C' Complement).
   { apply Extensionality_Ensembles; split; red; intros;
@@ -113,9 +113,9 @@ Qed.
 
 Lemma finite_nonempty_closed_intersection_impl_compact:
   forall X:TopologicalSpace,
-  (forall F:Family (point_set X),
-    (forall G:Ensemble (point_set X), In F G -> closed G) ->
-    (forall F':Family (point_set X), Finite F' -> Included F' F ->
+  (forall F:Family X,
+    (forall G:Ensemble X, In F G -> closed G) ->
+    (forall F':Family X, Finite F' -> Included F' F ->
      Inhabited (FamilyIntersection F')) ->
     Inhabited (FamilyIntersection F)) ->
   compact X.
@@ -123,7 +123,7 @@ Proof.
 intros.
 red; intros.
 apply NNPP; red; intro.
-pose (F := [ G:Ensemble (point_set X) | In C (Complement G) ]).
+pose (F := [ G:Ensemble X | In C (Complement G) ]).
 unshelve refine (let H3 := (H F _ _) in _).
 - intros.
   destruct H3.
@@ -131,9 +131,9 @@ unshelve refine (let H3 := (H F _ _) in _).
 - intros.
   apply NNPP; red; intro.
   contradiction H2.
-  exists [ U:Ensemble (point_set X) | In F' (Complement U) ].
+  exists [ U:Ensemble X | In F' (Complement U) ].
   repeat split.
-  + assert ([U:Ensemble (point_set X) | In F' (Complement U)] =
+  + assert ([U:Ensemble X | In F' (Complement U)] =
       Im F' Complement).
     * extensionality_ensembles.
       ** econstructor.
@@ -175,12 +175,12 @@ Qed.
 
 Lemma compact_impl_filter_cluster_point:
   forall X:TopologicalSpace, compact X ->
-    forall F:Filter (point_set X), exists x0:point_set X,
+    forall F:Filter X, exists x0:point_set X,
     filter_cluster_point F x0.
 Proof.
 intros.
 pose proof (compact_finite_nonempty_closed_intersection
-  _ H [ G:Ensemble (point_set X) | In (filter_family F) G /\
+  _ H [ G:Ensemble X | In (filter_family F) G /\
                                    closed G ]) as [x0].
 - intros.
   destruct H0 as [[]]; trivial.
@@ -214,7 +214,7 @@ pose proof (compact_finite_nonempty_closed_intersection
 
   apply NNPP; intro.
   contradiction (filter_empty _ F).
-  replace (@Empty_set (point_set X)) with (FamilyIntersection F'); trivial.
+  replace (@Empty_set X) with (FamilyIntersection F'); trivial.
   extensionality_ensembles.
   contradiction H4.
   exists x.
@@ -232,7 +232,7 @@ Qed.
 
 Lemma filter_cluster_point_impl_compact:
   forall X:TopologicalSpace,
-    (forall F:Filter (point_set X), exists x0:point_set X,
+    (forall F:Filter X, exists x0:point_set X,
       filter_cluster_point F x0) -> compact X.
 Proof.
 intros.
@@ -261,7 +261,7 @@ Qed.
 
 Lemma ultrafilter_limit_impl_compact:
   forall X:TopologicalSpace,
-    (forall U:Filter (point_set X), ultrafilter U ->
+    (forall U:Filter X, ultrafilter U ->
       exists x0:point_set X, filter_limit U x0) -> compact X.
 Proof.
 intros.
@@ -299,7 +299,7 @@ intros.
 apply filter_cluster_point_impl_compact.
 intros.
 destruct (H _ (filter_to_net _ F)) as [x0].
-- cut (inhabited (point_set X)).
+- cut (inhabited X).
   + intro.
     destruct H0 as [x].
     exists.
@@ -309,7 +309,7 @@ destruct (H _ (filter_to_net _ F)) as [x0].
     * constructor.
   + apply NNPP; intro.
     contradiction (filter_empty _ F).
-    replace (@Empty_set (point_set X)) with (@Full_set (point_set X)).
+    replace (@Empty_set X) with (@Full_set X).
     * apply filter_full.
     * extensionality_ensembles.
       contradiction H0.
@@ -319,7 +319,7 @@ destruct (H _ (filter_to_net _ F)) as [x0].
 Qed.
 
 Lemma compact_closed: forall (X:TopologicalSpace)
-  (S:Ensemble (point_set X)), Hausdorff X ->
+  (S:Ensemble X), Hausdorff X ->
   compact (SubspaceTopology S) -> closed S.
 Proof.
 intros.
@@ -331,7 +331,7 @@ destruct (classic (Inhabited S)).
     apply closure_inflationary. assumption.
   }
   destruct (net_limits_determine_topology _ _ H2) as [I0 [y []]].
-  pose (yS (i:DS_set I0) := exist (fun x:point_set X => In S x) (y i) (H3 i)).
+  pose (yS (i:DS_set I0) := exist (fun x:X => In S x) (y i) (H3 i)).
   assert (inhabited (point_set (SubspaceTopology S))).
 { destruct H1.
   constructor.
@@ -367,7 +367,7 @@ destruct (classic (Inhabited S)).
   apply open_full.
 Qed.
 
-Lemma closed_compact: forall (X:TopologicalSpace) (S:Ensemble (point_set X)),
+Lemma closed_compact: forall (X:TopologicalSpace) (S:Ensemble X),
   compact X -> closed S -> compact (SubspaceTopology S).
 Proof.
 intros.
@@ -398,12 +398,12 @@ now constructor.
 Qed.
 
 Lemma compact_image: forall {X Y:TopologicalSpace}
-  (f:point_set X->point_set Y),
+  (f:point_set X->Y),
   compact X -> continuous f -> surjective f -> compact Y.
 Proof.
 intros.
 red; intros.
-pose (B := fun U:{U:Ensemble (point_set Y) | In C U} =>
+pose (B := fun U:{U:Ensemble Y | In C U} =>
            inverse_image f (proj1_sig U)).
 destruct (compactness_on_indexed_covers _ _ B H) as [subcover].
 - destruct a as [U].
@@ -415,7 +415,7 @@ destruct (compactness_on_indexed_covers _ _ B H) as [subcover].
     inversion_clear H4 as [V].
     exists (exist _ V H5).
     now constructor.
-- exists (Im subcover (@proj1_sig _ (fun U:Ensemble (point_set Y) => In C U))).
+- exists (Im subcover (@proj1_sig _ (fun U:Ensemble Y => In C U))).
   destruct H4.
   repeat split.
   + now apply finite_image.
@@ -440,9 +440,9 @@ Lemma compact_Hausdorff_impl_normal_sep: forall X:TopologicalSpace,
 Proof.
 intros.
 assert (T3_sep X).
-{ destruct (choice (fun (xy:{xy:point_set X * point_set X |
+{ destruct (choice (fun (xy:{xy:X * X |
                     let (x,y):=xy in x <> y})
-    (UV:Ensemble (point_set X) * Ensemble (point_set X)) =>
+    (UV:Ensemble X * Ensemble X) =>
     match xy with | exist (x,y) i =>
       let (U,V):=UV in
     open U /\ open V /\ In U x /\ In V y /\ Intersection U V = Empty_set
@@ -451,11 +451,11 @@ assert (T3_sep X).
 - destruct x as [[x y] i].
   destruct (H0 _ _ i) as [U [V]].
   now exists (U, V).
-- pose (choice_fun_U := fun (x y:point_set X)
+- pose (choice_fun_U := fun (x y:X)
     (Hineq:x<>y) => fst (choice_fun (exist _ (x,y) Hineq))).
-  pose (choice_fun_V := fun (x y:point_set X)
+  pose (choice_fun_V := fun (x y:X)
     (Hineq:x<>y) => snd (choice_fun (exist _ (x,y) Hineq))).
-  assert (forall (x y:point_set X) (Hineq:x<>y),
+  assert (forall (x y:X) (Hineq:x<>y),
     open (choice_fun_U x y Hineq) /\
     open (choice_fun_V x y Hineq) /\
     In (choice_fun_U x y Hineq) x /\
@@ -523,14 +523,14 @@ assert (T3_sep X).
          destruct H9.
          pose proof (H8 a).
          destruct a as [[y]].
-         replace (@Empty_set (point_set X)) with
+         replace (@Empty_set X) with
            (Intersection (choice_fun_U x y (H5 y i))
                          (choice_fun_V x y (H5 y i))).
          *** now constructor.
          *** apply H2. }
-destruct (choice (fun (xF:{p:point_set X * Ensemble (point_set X) |
+destruct (choice (fun (xF:{p:X * Ensemble X |
                         let (x,F):=p in closed F /\ ~ In F x})
-  (UV:Ensemble (point_set X) * Ensemble (point_set X)) =>
+  (UV:Ensemble X * Ensemble X) =>
   let (p,i):=xF in let (x,F):=p in
   let (U,V):=UV in
   open U /\ open V /\ In U x /\ Included F V /\
@@ -539,13 +539,13 @@ destruct (choice (fun (xF:{p:point_set X * Ensemble (point_set X) |
   destruct H1.
   destruct (H4 x F H2 H3) as [U [V]].
   now exists (U, V).
-- pose (choice_fun_U := fun (x:point_set X) (F:Ensemble (point_set X))
+- pose (choice_fun_U := fun (x:X) (F:Ensemble X)
     (HC:closed F) (Hni:~ In F x) =>
     fst (choice_fun (exist _ (x,F) (conj HC Hni)))).
-  pose (choice_fun_V := fun (x:point_set X) (F:Ensemble (point_set X))
+  pose (choice_fun_V := fun (x:X) (F:Ensemble X)
     (HC:closed F) (Hni:~ In F x) =>
     snd (choice_fun (exist _ (x,F) (conj HC Hni)))).
-  assert (forall (x:point_set X) (F:Ensemble (point_set X))
+  assert (forall (x:X) (F:Ensemble X)
     (HC:closed F) (Hni:~ In F x),
     open (choice_fun_U x F HC Hni) /\
     open (choice_fun_V x F HC Hni) /\
@@ -621,7 +621,7 @@ destruct (choice (fun (xF:{p:point_set X * Ensemble (point_set X) |
              specialize H11 with a.
              destruct a as [[x']].
              simpl in H11, H10.
-             replace (@Empty_set (point_set X)) with (Intersection
+             replace (@Empty_set X) with (Intersection
                (choice_fun_U x' G H4 (H7 x' i))
                (choice_fun_V x' G H4 (H7 x' i))) by apply H3.
              now constructor.

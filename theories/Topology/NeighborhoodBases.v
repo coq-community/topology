@@ -2,25 +2,25 @@ Require Export TopologicalSpaces Neighborhoods OpenBases.
 From ZornsLemma Require Export IndexedFamilies EnsemblesSpec.
 
 Record neighborhood_basis {X:TopologicalSpace}
-  (NB:Family (point_set X)) (x:point_set X) : Prop := {
-  neighborhood_basis_elements: forall N:Ensemble (point_set X),
+  (NB:Family X) (x:point_set X) : Prop := {
+  neighborhood_basis_elements: forall N:Ensemble X,
     In NB N -> neighborhood N x;
-  neighborhood_basis_cond: forall N:Ensemble (point_set X),
-    neighborhood N x -> exists N':Ensemble (point_set X),
+  neighborhood_basis_cond: forall N:Ensemble X,
+    neighborhood N x -> exists N':Ensemble X,
     In NB N' /\ Included N' N
 }.
 
 Record open_neighborhood_basis {X:TopologicalSpace}
-  (NB:Family (point_set X)) (x:point_set X) : Prop := {
-  open_neighborhood_basis_elements: forall U:Ensemble (point_set X),
+  (NB:Family X) (x:point_set X) : Prop := {
+  open_neighborhood_basis_elements: forall U:Ensemble X,
     In NB U -> open_neighborhood U x;
-  open_neighborhood_basis_cond: forall U:Ensemble (point_set X),
-    open_neighborhood U x -> exists V:Ensemble (point_set X),
+  open_neighborhood_basis_cond: forall U:Ensemble X,
+    open_neighborhood U x -> exists V:Ensemble X,
     In NB V /\ Included V U
 }.
 
 Lemma open_neighborhood_basis_is_neighborhood_basis:
-  forall {X:TopologicalSpace} (NB:Family (point_set X)) (x:point_set X),
+  forall {X:TopologicalSpace} (NB:Family X) (x:point_set X),
   open_neighborhood_basis NB x -> neighborhood_basis NB x.
 Proof.
 intros.
@@ -35,9 +35,9 @@ constructor; intros.
 Qed.
 
 Lemma open_basis_to_open_neighborhood_basis:
-  forall {X:TopologicalSpace} (B:Family (point_set X)) (x:point_set X),
+  forall {X:TopologicalSpace} (B:Family X) (x:point_set X),
     open_basis B -> open_neighborhood_basis
-                    [ U:Ensemble (point_set X) | In B U /\ In U x ]
+                    [ U:Ensemble X | In B U /\ In U x ]
                     x.
 Proof.
 intros.
@@ -55,7 +55,7 @@ constructor;
 Qed.
 
 Lemma open_neighborhood_bases_to_open_basis:
-  forall {X:TopologicalSpace} (NB : point_set X -> Family (point_set X)),
+  forall {X:TopologicalSpace} (NB : point_set X -> Family X),
     (forall x:point_set X, open_neighborhood_basis (NB x) x) ->
     open_basis (IndexedUnion NB).
 Proof.

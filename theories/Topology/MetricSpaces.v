@@ -306,9 +306,9 @@ Lemma metrizable_separable_impl_second_countable:
 Proof.
 intros.
 destruct H, H0.
-exists (Im [p:(Q*(point_set X))%type |
+exists (Im [p:(Q*X)%type |
             let (r,x):=p in (r>0)%Q /\ In S x]
-  (fun p:(Q*(point_set X))%type =>
+  (fun p:(Q*X)%type =>
       let (r,x):=p in open_ball _ d x (Q2R r))).
 - constructor.
   + intros.
@@ -333,7 +333,7 @@ exists (Im [p:(Q*(point_set X))%type |
          *** constructor.
              lra.
          *** destruct (open_neighborhood_basis_elements
-               (open_ball (point_set X) d x (r/2))); trivial.
+               (open_ball X d x (r/2))); trivial.
              constructor.
              lra.
       ** exists x.
@@ -398,7 +398,7 @@ Lemma metrizable_Lindelof_impl_second_countable:
 Proof.
 intros.
 destruct H.
-destruct (ClassicalChoice.choice (fun (n:{n:nat | (n > 0)%nat}) (S:Family (point_set X)) =>
+destruct (ClassicalChoice.choice (fun (n:{n:nat | (n > 0)%nat}) (S:Family X) =>
   Included S (Im Full_set (fun x:point_set X =>
                             open_ball _ d x (/ (INR (proj1_sig n)))))
   /\ Countable S /\ FamilyUnion S = Full_set))
@@ -570,7 +570,7 @@ Variable X:TopologicalSpace.
 Variable d:point_set X -> point_set X -> R.
 Hypothesis d_is_metric: metric d.
 Hypothesis d_metrizes_X: metrizes X d.
-Variable S:Ensemble (point_set X).
+Variable S:Ensemble X.
 Hypothesis S_nonempty: Inhabited S.
 
 Lemma dist_to_set_zero_impl_closure: forall x:point_set X,
@@ -646,7 +646,7 @@ apply Rle_antisym.
   now apply metric_nonneg.
 Qed.
 
-Variable T:Ensemble (point_set X).
+Variable T:Ensemble X.
 Hypothesis T_nonempty: Inhabited T.
 
 Lemma closer_to_S_than_T_open: open
@@ -724,7 +724,7 @@ split.
         constructor.
       - destruct (H0 x0).
         destruct (open_neighborhood_basis_elements
-          (open_ball (point_set X) d x0 (d x0 x))).
+          (open_ball X d x0 (d x0 x))).
         + now constructor.
         + split; trivial.
           red. intros.

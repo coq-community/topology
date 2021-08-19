@@ -3,7 +3,7 @@ From ZornsLemma Require Export Filters.
 From Topology Require Export TopologicalSpaces Neighborhoods Continuity.
 
 Program Definition neighborhood_filter {X:TopologicalSpace} (x0:point_set X) :
-  Filter (point_set X) :=
+  Filter X :=
   {| filter_family := [N : _ | neighborhood N x0 ] |}.
 Next Obligation.
 intros.
@@ -31,18 +31,18 @@ apply H1 in H0.
 destruct H0.
 Qed.
 
-Definition filter_limit {X:TopologicalSpace} (F:Filter (point_set X))
+Definition filter_limit {X:TopologicalSpace} (F:Filter X)
   (x0:point_set X) : Prop :=
   Included (filter_family (neighborhood_filter x0))
            (filter_family F).
 
 Definition filter_cluster_point {X:TopologicalSpace}
-  (F:Filter (point_set X)) (x0:point_set X) : Prop :=
-  forall S:Ensemble (point_set X), In (filter_family F) S ->
+  (F:Filter X) (x0:point_set X) : Prop :=
+  forall S:Ensemble X, In (filter_family F) S ->
   In (closure S) x0.
 
 Lemma filter_limit_is_cluster_point:
-  forall {X:TopologicalSpace} (F:Filter (point_set X)) (x0:point_set X),
+  forall {X:TopologicalSpace} (F:Filter X) (x0:point_set X),
   filter_limit F x0 -> filter_cluster_point F x0.
 Proof.
 intros.
@@ -69,7 +69,7 @@ contradiction (filter_empty _ F).
 Qed.
 
 Lemma ultrafilter_cluster_point_is_limit: forall {X:TopologicalSpace}
-  (F:Filter (point_set X)) (x0:point_set X),
+  (F:Filter X) (x0:point_set X),
   filter_cluster_point F x0 -> ultrafilter F ->
   filter_limit F x0.
 Proof.
@@ -93,9 +93,9 @@ rewrite closure_fixes_closed in H5.
 Qed.
 
 Lemma closure_impl_filter_limit: forall {X:TopologicalSpace}
-  (S:Ensemble (point_set X)) (x0:point_set X),
+  (S:Ensemble X) (x0:point_set X),
   In (closure S) x0 ->
-  exists F:Filter (point_set X),
+  exists F:Filter X,
     In (filter_family F) S /\ filter_limit F x0.
 Proof.
 intros.
@@ -159,7 +159,7 @@ Qed.
 
 Lemma continuous_function_preserves_filter_limits:
   forall (X Y:TopologicalSpace) (f:point_set X -> point_set Y)
-    (x:point_set X) (F:Filter (point_set X)),
+    (x:point_set X) (F:Filter X),
   filter_limit F x -> continuous_at f x ->
   filter_limit (filter_direct_image f F) (f x).
 Proof.
@@ -178,7 +178,7 @@ Qed.
 Lemma func_preserving_filter_limits_is_continuous:
   forall (X Y:TopologicalSpace) (f:point_set X -> point_set Y)
     (x:point_set X),
-  (forall F:Filter (point_set X), filter_limit F x ->
+  (forall F:Filter X, filter_limit F x ->
                      filter_limit (filter_direct_image f F) (f x)) ->
   continuous_at f x.
 Proof.

@@ -1,7 +1,7 @@
 Require Export TopologicalSpaces Homeomorphisms SubspaceTopology.
 From ZornsLemma Require Import EnsemblesTactics Powerset_facts.
 
-Definition clopen {X:TopologicalSpace} (S:Ensemble (point_set X))
+Definition clopen {X:TopologicalSpace} (S:Ensemble X)
   : Prop :=
   open S /\ closed S.
 
@@ -26,7 +26,7 @@ Proof.
 Qed.
 
 Definition connected (X:TopologicalSpace) : Prop :=
-  forall S:Ensemble (point_set X), clopen S ->
+  forall S:Ensemble X, clopen S ->
         S = Empty_set \/ S = Full_set.
 
 Lemma connected_img: forall {X Y:TopologicalSpace}
@@ -59,7 +59,7 @@ destruct (H (inverse_image f S)).
 Qed.
 
 Lemma connected_union: forall {X:TopologicalSpace}
-  {A:Type} (S:IndexedFamily A (point_set X)),
+  {A:Type} (S:IndexedFamily A X),
   (forall a:A, connected (SubspaceTopology (S a))) ->
   Inhabited (IndexedIntersection S) ->
   IndexedUnion S = Full_set -> connected X.

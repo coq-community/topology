@@ -6,17 +6,17 @@ From Coq Require ProofIrrelevance ClassicalChoice.
 Global Set Asymmetric Patterns.
 
 Definition first_countable (X:TopologicalSpace) : Prop :=
-  forall x:point_set X, exists NBx:Family (point_set X),
+  forall x:point_set X, exists NBx:Family X,
     neighborhood_basis NBx x /\ Countable NBx.
 
 Lemma first_countable_open_neighborhood_bases:
   forall X:TopologicalSpace, first_countable X ->
-    forall x:point_set X, exists NBx:Family (point_set X),
+    forall x:point_set X, exists NBx:Family X,
       open_neighborhood_basis NBx x /\ Countable NBx.
 Proof.
 intros.
 destruct (H x) as [NBx [? ?]].
-exists (@Im (Ensemble (point_set X)) (Ensemble (point_set X)) NBx (@interior X)).
+exists (@Im (Ensemble X) (Ensemble X) NBx (@interior X)).
 split.
 - constructor; intros.
   + destruct H2.
@@ -38,7 +38,7 @@ Qed.
 Require Export Nets.
 
 Lemma first_countable_sequence_closure:
-  forall (X:TopologicalSpace) (S:Ensemble (point_set X)) (x:point_set X),
+  forall (X:TopologicalSpace) (S:Ensemble X) (x:point_set X),
   first_countable X -> In (closure S) x ->
   exists y:Net nat_DS X, (forall n:nat, In S (y n)) /\
                          net_limit y x.
@@ -47,12 +47,12 @@ intros.
 destruct (first_countable_open_neighborhood_bases _ H x) as [NB []].
 destruct H2 as [g].
 pose (U (n:nat) := IndexedIntersection
-  (fun x: {x:{x:Ensemble (point_set X) | In NB x} | (g x < n)%nat} =>
+  (fun x: {x:{x:Ensemble X | In NB x} | (g x < n)%nat} =>
      proj1_sig (proj1_sig x))).
 assert (forall n:nat, open (U n)).
 { intros.
   apply open_finite_indexed_intersection.
-- apply inj_finite with _ (fun x:{x:{x:Ensemble (point_set X) | In NB x}
+- apply inj_finite with _ (fun x:{x:{x:Ensemble X | In NB x}
                              | (g x < n)%nat} =>
     exist (fun m:nat => (m<n)%nat) (g (proj1_sig x)) (proj2_sig x)).
   + apply finite_nat_initial_segment.
@@ -86,7 +86,7 @@ destruct (ClassicalChoice.choice (fun (n:nat) (x:point_set X) => In (U n) x /\
     destruct H1.
     destruct (open_neighborhood_basis_cond V) as [W []].
     * now split.
-    * pose (a := (exist _ W H1 : {x:Ensemble (point_set X)|In NB x})).
+    * pose (a := (exist _ W H1 : {x:Ensemble X|In NB x})).
       exists (Datatypes.S (g a)).
       intros.
       simpl in j.
@@ -100,19 +100,19 @@ destruct (ClassicalChoice.choice (fun (n:nat) (x:point_set X) => In (U n) x /\
 Qed.
 
 Inductive separable (X:TopologicalSpace) : Prop :=
-  | intro_dense_ctbl: forall S:Ensemble (point_set X),
+  | intro_dense_ctbl: forall S:Ensemble X,
     Countable S -> dense S -> separable X.
 
 Definition Lindelof (X:TopologicalSpace) : Prop :=
-  forall cover:Family (point_set X),
-    (forall U:Ensemble (point_set X),
+  forall cover:Family X,
+    (forall U:Ensemble X,
        In cover U -> open U) ->
     FamilyUnion cover = Full_set ->
-  exists subcover:Family (point_set X), Included subcover cover /\
+  exists subcover:Family X, Included subcover cover /\
      Countable subcover /\ FamilyUnion subcover = Full_set.
 
 Inductive second_countable (X:TopologicalSpace) : Prop :=
-  | intro_ctbl_basis: forall B:Family (point_set X),
+  | intro_ctbl_basis: forall B:Family X,
     open_basis B -> Countable B -> second_countable X.
 
 Lemma second_countable_impl_first_countable:
@@ -121,7 +121,7 @@ Proof.
 intros.
 destruct H.
 red; intros.
-exists [ U:Ensemble (point_set X) | In B U /\ In U x ]; split.
+exists [ U:Ensemble X | In B U /\ In U x ]; split.
 - apply open_neighborhood_basis_is_neighborhood_basis.
   apply open_basis_to_open_neighborhood_basis; trivial.
 - apply countable_downward_closed with B; trivial.
@@ -134,7 +134,7 @@ Lemma second_countable_impl_separable:
 Proof.
 intros.
 destruct H.
-destruct (ClassicalChoice.choice (fun (U:{U:Ensemble (point_set X) | In B U /\ Inhabited U})
+destruct (ClassicalChoice.choice (fun (U:{U:Ensemble X | In B U /\ Inhabited U})
   (x:point_set X) => In (proj1_sig U) x)) as [choice_fun].
 - intros.
   destruct x as [U [? ?]].
@@ -146,7 +146,7 @@ destruct (ClassicalChoice.choice (fun (U:{U:Ensemble (point_set X) | In B U /\ I
     red.
     match goal with |- CountableT ?S =>
       pose (g := fun (x:S) =>
-        match x return {U:Ensemble (point_set X) | In B U} with
+        match x return {U:Ensemble X | In B U} with
         | exist (exist U (conj i _)) _ => exist _ U i
         end)
     end.
@@ -171,7 +171,7 @@ destruct (ClassicalChoice.choice (fun (U:{U:Ensemble (point_set X) | In B U /\ I
          pose proof (H1 (exist _ V H6)).
          simpl in H7.
          (* assumption. *)
-         exists (exist (fun U0:Ensemble (point_set X) => In B U0 /\ Inhabited U0) V H6).
+         exists (exist (fun U0:Ensemble X => In B U0 /\ Inhabited U0) V H6).
          *** constructor.
          *** reflexivity.
       ** apply H4.
@@ -185,10 +185,10 @@ intros.
 destruct H.
 red; intros.
 pose (basis_elts_contained_in_cover_elt :=
-  [ U:Ensemble (point_set X) | In B U /\ Inhabited U /\
-    exists V:Ensemble (point_set X), In cover V /\ Included U V ]).
+  [ U:Ensemble X | In B U /\ Inhabited U /\
+    exists V:Ensemble X, In cover V /\ Included U V ]).
 destruct (ClassicalChoice.choice (fun (U:{U | In basis_elts_contained_in_cover_elt U})
-  (V:Ensemble (point_set X)) => In cover V /\ Included (proj1_sig U) V))
+  (V:Ensemble X) => In cover V /\ Included (proj1_sig U) V))
   as [choice_fun].
 - intros.
   destruct x.
