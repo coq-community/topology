@@ -1,9 +1,29 @@
 Require Export TopologicalSpaces Homeomorphisms SubspaceTopology.
-From ZornsLemma Require Import EnsemblesTactics.
+From ZornsLemma Require Import EnsemblesTactics Powerset_facts.
 
 Definition clopen {X:TopologicalSpace} (S:Ensemble (point_set X))
   : Prop :=
   open S /\ closed S.
+
+Lemma clopen_Complement {X:TopologicalSpace} (A : Ensemble X) :
+  clopen A -> clopen (Complement A).
+Proof.
+  intros [].
+  split; try assumption.
+  unfold closed.
+  rewrite Complement_Complement.
+  assumption.
+Qed.
+
+Lemma continuous_clopen {X Y : TopologicalSpace} (f : X -> Y) (A : Ensemble Y) :
+  continuous f ->
+  clopen A -> clopen (inverse_image f A).
+Proof.
+  intros.
+  destruct H0.
+  split; auto.
+  apply continuous_closed; assumption.
+Qed.
 
 Definition connected (X:TopologicalSpace) : Prop :=
   forall S:Ensemble (point_set X), clopen S ->
