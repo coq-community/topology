@@ -2,16 +2,16 @@ Require Export TopologicalSpaces Ensembles InteriorsClosures.
 From ZornsLemma Require Import EnsemblesImplicit.
 
 Definition open_neighborhood {X:TopologicalSpace}
-  (U:Ensemble (point_set X)) (x:point_set X) :=
+  (U:Ensemble X) (x:X) :=
   open U /\ In U x.
 
 Definition neighborhood {X:TopologicalSpace}
-  (N:Ensemble (point_set X)) (x:point_set X) :=
-  exists U:Ensemble (point_set X),
+  (N:Ensemble X) (x:X) :=
+  exists U:Ensemble X,
     open_neighborhood U x /\ Included U N.
 
 Lemma open_neighborhood_is_neighborhood: forall {X:TopologicalSpace}
-  (U:Ensemble (point_set X)) (x:point_set X),
+  (U:Ensemble X) (x:X),
   open_neighborhood U x -> neighborhood U x.
 Proof.
 intros.
@@ -20,7 +20,7 @@ auto with sets.
 Qed.
 
 Lemma neighborhood_interior: forall {X:TopologicalSpace}
-  (N:Ensemble (point_set X)) (x:point_set X),
+  (N:Ensemble X) (x:X),
   neighborhood N x -> In (interior N) x.
 Proof.
 intros.
@@ -33,7 +33,7 @@ auto with sets.
 Qed.
 
 Lemma interior_neighborhood: forall {X:TopologicalSpace}
-  (N:Ensemble (point_set X)) (x:point_set X),
+  (N:Ensemble X) (x:X),
   In (interior N) x -> neighborhood N x.
 Proof.
 intros.
@@ -43,7 +43,7 @@ repeat split; trivial.
 - apply interior_deflationary.
 Qed.
 
-Lemma open_char_neighborhood: forall {X:TopologicalSpace} (U : Ensemble (point_set X)),
+Lemma open_char_neighborhood: forall {X:TopologicalSpace} (U : Ensemble X),
     open U <-> forall x, In U x -> neighborhood U x.
 Proof.
   split.
