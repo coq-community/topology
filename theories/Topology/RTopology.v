@@ -599,26 +599,6 @@ destruct (bounded_real_net_has_cluster_point nat_DS x a b) as [x0].
   apply RTop_metrization.
 Qed.
 
-Lemma countable_union2
-  {X : Type}
-  {U V : Ensemble X} :
-  Countable U ->
-  Countable V ->
-  Countable (Union U V).
-Proof.
-intros Hf Hg.
-replace (Union U V) with (IndexedUnion (fun b : bool => if b then U else V)).
-- apply countable_union.
-  + apply (intro_nat_injection _ (fun b : bool => if b then 1 else 0)%nat).
-    now intros [|] [|] eq.
-  + now intros [|].
-- extensionality_ensembles.
-  + destruct a;
-      now (left + right).
-  + now apply indexed_union_intro with true.
-  + now apply indexed_union_intro with false.
-Qed.
-
 Lemma RTop_second_countable : second_countable RTop.
 Proof.
 apply intro_ctbl_basis with

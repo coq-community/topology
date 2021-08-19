@@ -979,3 +979,11 @@ Proof.
     + intros. destruct x as [[]|]; intuition.
     + intros. destruct y as [|]; intuition.
 Qed.
+
+Lemma finite_couple {X} (x y : X) :
+  Finite (Couple x y).
+Proof.
+  rewrite <- Couple_as_union.
+  apply Union_preserves_Finite.
+  all: apply Singleton_is_finite.
+Qed.

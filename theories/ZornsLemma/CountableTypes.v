@@ -1,6 +1,6 @@
 From Coq Require Export Relation_Definitions QArith ZArith.
 From Coq Require Import Arith ArithRing FunctionalExtensionality
-    ProofIrrelevance ClassicalChoice.
+    Program.Subset ClassicalChoice.
 From ZornsLemma Require Import InfiniteTypes CSB DecidableDec
     DependentTypeChoice.
 From ZornsLemma Require Export FiniteTypes IndexedFamilies.
@@ -178,7 +178,8 @@ exists (fun x => match x with
 intros [x1] [x2] H1.
 apply H in H1.
 injection H1 as H1.
-now destruct H1, (proof_irrelevance _ i i0).
+destruct H1.
+now apply subset_eq.
 Qed.
 
 Lemma countable_img {X Y : Type} (f : X -> Y) (S : Ensemble X) :
@@ -196,7 +197,7 @@ exists (exist _ x i).
 simpl.
 generalize (H0 x i); intro.
 generalize (Im_intro X Y S f x i y e); intro.
-now destruct e, (proof_irrelevance _ i0 i1).
+now apply subset_eq.
 Qed.
 
 Lemma countable_type_ensemble  {X : Type} (S : Ensemble X) :
@@ -274,36 +275,80 @@ injection H2 as H2.
 f_equal; auto.
 Qed.
 
-Lemma countable_union: forall {X A:Type}
+Lemma countable_family_union: forall {X:Type}
+  (F:Family X), Countable F ->
+  (forall U, In F U -> Countable U) ->
+  Countable (FamilyUnion F).
+Proof.
+intros.
+destruct (choice_on_dependent_type (fun (a : { U | In F U })
+                               (f:{x:X | In (proj1_sig a) x} -> nat) =>
+  injective f)) as [choice_fun_inj].
+{ intros [U].
+  destruct (H0 U); try assumption.
+  now exists f.
+}
+destruct (choice (fun (x:{x:X | In (FamilyUnion F) x}) (a: { U | In F U }) =>
+  In (proj1_sig a) (proj1_sig x))) as [choice_fun_a].
+{ destruct x as [x [a]].
+  now exists (exist _ a i).
+}
+destruct countable_nat_product as [g],
+         H as [h].
+exists (fun x:{x:X | In (FamilyUnion F) x} =>
+  g (h (choice_fun_a x), choice_fun_inj _ (exist _ _ (H2 x)))).
+intros x1 x2 H4.
+apply H3 in H4.
+injection H4 as H5 H6.
+apply H in H5.
+revert H6.
+generalize (H2 x1), (H2 x2).
+rewrite H5.
+intros.
+apply H1 in H6.
+injection H6.
+destruct x1, x2.
+apply subset_eq_compat.
+Qed.
+
+Lemma countable_ens X (A : Ensemble X) :
+  CountableT X -> Countable A.
+Proof.
+  intros. red.
+  destruct H.
+  exists (fun x => f (proj1_sig x)).
+  intros ? ? ?.
+  apply H in H0.
+  apply subset_eq.
+  assumption.
+Qed.
+
+Lemma countable_indexed_union: forall {X A:Type}
   (F:IndexedFamily A X), CountableT A ->
     (forall a:A, Countable (F a)) ->
     Countable (IndexedUnion F).
 Proof.
 intros.
-destruct (choice_on_dependent_type (fun (a:A)
-                               (f:{x:X | In (F a) x} -> nat) =>
-  injective f)) as [choice_fun_inj].
-- intro.
-  destruct (H0 a).
-  now exists f.
-- destruct (choice (fun (x:{x:X | In (IndexedUnion F) x}) (a:A) =>
-    In (F a) (proj1_sig x))) as [choice_fun_a].
-  + destruct x as [x [a]].
-    now exists a.
-  + destruct countable_nat_product as [g],
-             H as [h].
-    exists (fun x:{x:X | In (IndexedUnion F) x} =>
-      g (h (choice_fun_a x), choice_fun_inj _ (exist _ _ (H2 x)))).
-    intros x1 x2 H4.
-    apply H3 in H4.
-    injection H4 as H5 H6.
-    apply H in H5.
-    revert H6.
-    generalize (H2 x1), (H2 x2).
-    rewrite H5.
-    intros.
-    apply H1 in H6.
-    injection H6.
-    destruct x1, x2.
-    apply subset_eq_compat.
+rewrite indexed_to_family_union.
+apply countable_family_union.
+- apply countable_img.
+  apply countable_ens.
+  assumption.
+- intros. destruct H1.
+  subst. apply H0.
+Qed.
+
+Lemma countable_union2
+  {X : Type}
+  {U V : Ensemble X} :
+  Countable U ->
+  Countable V ->
+  Countable (Union U V).
+Proof.
+intros Hf Hg.
+rewrite union_as_family_union.
+apply countable_family_union.
+- apply Finite_impl_Countable.
+  apply finite_couple.
+- intros ? [|]; assumption.
 Qed.

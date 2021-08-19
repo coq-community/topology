@@ -125,6 +125,24 @@ apply Extensionality_Ensembles; split; red; intros.
   constructor. rewrite Complement_Complement.
   assumption.
 Qed.
+
+Lemma union_as_family_union (U V : Ensemble T) :
+  Union U V = FamilyUnion (Couple U V).
+Proof.
+  extensionality_ensembles_inv; subst.
+  - exists U; firstorder.
+  - exists V; firstorder.
+  - left. assumption.
+  - right. assumption.
+Qed.
+
+Lemma family_union_singleton
+  (S : Ensemble T) :
+  FamilyUnion (Singleton S) = S.
+Proof.
+now extensionality_ensembles;
+  try econstructor.
+Qed.
 End FamilyFacts.
 
 Lemma image_family_union (X Y : Type) (F : Family X) (f : X -> Y) :
@@ -144,13 +162,4 @@ apply Extensionality_Ensembles; split; red; intros.
   subst.
   apply Im_def.
   exists x0; auto.
-Qed.
-
-Lemma family_union_singleton
-  {X : Type}
-  (S : Ensemble X) :
-  FamilyUnion (Singleton S) = S.
-Proof.
-now extensionality_ensembles;
-  try econstructor.
 Qed.

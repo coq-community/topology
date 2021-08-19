@@ -264,7 +264,7 @@ Lemma finite_intersections_countable
 Proof.
 intros [f Hf].
 rewrite <- finite_intersections_len_union.
-apply countable_union.
+apply countable_indexed_union.
 - apply nat_countable.
 - intro n.
   induction n.

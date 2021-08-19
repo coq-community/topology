@@ -465,7 +465,7 @@ as [choice_fun].
          lra.
       ** rewrite H17.
          now constructor.
-  + apply countable_union.
+  + apply countable_indexed_union.
     * apply countable_type_ensemble.
       exists (fun n:nat => n).
       now red.
