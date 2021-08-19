@@ -76,14 +76,14 @@ cut (exists Y:Type, exists i:X->Y, exists d':Y->Y->R,
             ** constructor.
             ** now apply subset_eq_compat.
       -- pose proof (metric_space_net_limit_converse (MetricTopology d' d'_metric) d'
-           (MetricTopology_metrizable _ d' d'_metric) nat_DS x0 x H4).
-         apply metric_space_net_limit with (1:=MetricTopology_metrizable _ _ d'_metric0).
+           (MetricTopology_metrized _ d' d'_metric) nat_DS x0 x H4).
+         apply metric_space_net_limit with (1:=MetricTopology_metrized _ _ d'_metric0).
          (*
          destruct (metric_space_net_limit (MetricTopology d' d'_metric)
-           d' (MetricTopology_metrizable _ d' d'_metric) nat_DS x0 x).
+           d' (MetricTopology_metrized _ d' d'_metric) nat_DS x0 x).
          pose proof (H6 H4); clear H6 H7.
          apply <- (metric_space_net_limit (MetricTopology _ d'_metric0)
-           _ (MetricTopology_metrizable _ _ d'_metric0) nat_DS). *)
+           _ (MetricTopology_metrized _ _ d'_metric0) nat_DS). *)
          intros.
          destruct (H6 eps H7).
          exists x1.
@@ -95,7 +95,7 @@ cut (exists Y:Type, exists i:X->Y, exists d':Y->Y->R,
          now apply H8.
     * apply metrizable_impl_first_countable.
       exists d'; trivial.
-      apply MetricTopology_metrizable.
+      apply MetricTopology_metrized.
   + intros.
     now simpl.
   + apply (closed_subset_of_complete_is_complete Y d' d'_metric F);

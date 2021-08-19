@@ -18,7 +18,7 @@ Lemma convergent_sequence_is_cauchy:
   net_limit x x0 -> cauchy x.
 Proof.
 intros.
-destruct (MetricTopology_metrizable X d d_metric x0).
+destruct (MetricTopology_metrized X d d_metric x0).
 red; intros.
 destruct (H (open_ball d x0 (eps/2))) as [N].
 - Opaque In. apply open_neighborhood_basis_elements. Transparent In.
@@ -45,14 +45,14 @@ Lemma cauchy_sequence_with_cluster_point_converges:
 Proof.
 intros.
 apply metric_space_net_limit with d.
-- apply MetricTopology_metrizable.
+- apply MetricTopology_metrized.
 - intros.
   red; intros.
   destruct (H (eps/2)) as [N].
   + lra.
   + pose (U := open_ball d x0 (eps/2)).
     assert (open_neighborhood U x0 (X:=MetricTopology d d_metric)).
-  { apply MetricTopology_metrizable.
+  { apply MetricTopology_metrized.
     constructor.
     lra. }
     destruct H3.
@@ -116,12 +116,12 @@ destruct (H y) as [y0].
     destruct (x i); trivial. }
   exists (exist _ y0 H3).
   apply metric_space_net_limit with d_restriction.
-  + apply MetricTopology_metrizable.
+  + apply MetricTopology_metrized.
   + intros.
     unfold d_restriction; simpl.
     apply metric_space_net_limit_converse with
       (MetricTopology d d_metric); trivial.
-    apply MetricTopology_metrizable.
+    apply MetricTopology_metrized.
 Qed.
 
 Lemma complete_subset_is_closed:
@@ -140,7 +140,7 @@ cut (Included (closure F (X:=MetricTopology d d_metric)) F).
     (forall n:nat, In F (y n)) /\ net_limit y x).
 { apply first_countable_sequence_closure; trivial.
   apply metrizable_impl_first_countable.
-  exists d; trivial; apply MetricTopology_metrizable. }
+  exists d; trivial; apply MetricTopology_metrized. }
   destruct H1 as [y []].
   pose (y' := ((fun n:nat => exist _ (y n) (H1 n)) :
                Net nat_DS (MetricTopology d_restriction d_restriction_metric))).
@@ -163,14 +163,14 @@ cut (Included (closure F (X:=MetricTopology d d_metric)) F).
     apply normal_sep_impl_T3_sep.
     apply metrizable_impl_normal_sep.
     exists d; trivial.
-    apply MetricTopology_metrizable. }
+    apply MetricTopology_metrized. }
     now apply H7. }
     now rewrite H7.
   + apply metric_space_net_limit with d.
-    * apply MetricTopology_metrizable.
+    * apply MetricTopology_metrized.
     * exact (metric_space_net_limit_converse
         (MetricTopology d_restriction d_restriction_metric)
-        d_restriction (MetricTopology_metrizable _ d_restriction
+        d_restriction (MetricTopology_metrized _ d_restriction
                              d_restriction_metric)
         nat_DS y' (exist _ x0 i) H5).
 Qed.
