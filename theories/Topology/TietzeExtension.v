@@ -416,7 +416,7 @@ split.
             R_metric_is_metric X_nonempty).
   + apply (uniform_metric_is_metric _ _ R_metric (fun _:X => 0)
               R_metric_is_metric X_nonempty).
-  + apply MetricTopology_metrizable.
+  + apply MetricTopology_metrized.
 Defined.
 
 Lemma Tietze_extension_func_bound: forall x:X,
@@ -453,7 +453,7 @@ apply Rle_trans with (uniform_metric _ _ R_metric_is_metric X_nonempty
 - apply lt_plus_epsilon_le.
   intros.
   unshelve refine (let H1:=metric_space_net_limit_converse _ _ _ _ _ _ n eps H0 in _); [ | | clearbody H1 ]; shelve_unifiable.
-  { apply MetricTopology_metrizable. }
+  { apply MetricTopology_metrized. }
   destruct H1 as [N].
   refine (Rle_lt_trans _ _ _
     (triangle_inequality _ _ _ _ (convert_approx_to_uniform_space N) _) _).
@@ -495,7 +495,7 @@ unfold Tietze_extension_func;
 assert (eps/2 > 0) by lra.
 unshelve refine (let H1:=metric_space_net_limit_converse _ _ _ _ _ _ n (eps/2) H0
           in _); [ | | clearbody H1 ]; shelve_unifiable.
-{ apply MetricTopology_metrizable. }
+{ apply MetricTopology_metrized. }
 destruct H1 as [N1].
 assert (Rabs (2/3) < 1).
 { rewrite Rabs_right; lra. }
@@ -537,7 +537,7 @@ assert (continuous (fun x:R => x)
   apply metric_space_fun_continuity with R_metric R_metric;
     intros.
   - apply RTop_metrization.
-  - apply MetricTopology_metrizable.
+  - apply MetricTopology_metrized.
   - now exists eps. }
 assert (continuous (fun x:R => x)
   (X:=MetricTopology R_metric R_metric_is_metric) (Y:=RTop)).
@@ -545,7 +545,7 @@ assert (continuous (fun x:R => x)
   intros.
   apply metric_space_fun_continuity with R_metric R_metric;
     intros.
-  - apply MetricTopology_metrizable.
+  - apply MetricTopology_metrized.
   - apply RTop_metrization.
   - now exists eps. }
 intros.

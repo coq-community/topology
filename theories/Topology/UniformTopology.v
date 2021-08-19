@@ -125,7 +125,7 @@ assert (forall y:Net nat_DS (MetricTopology d d_metric), cauchy d y ->
     apply T3_sep_impl_Hausdorff.
     apply normal_sep_impl_T3_sep.
     apply metrizable_impl_normal_sep.
-    exists d; trivial; apply MetricTopology_metrizable.
+    exists d; trivial; apply MetricTopology_metrized.
 }
 red; intros f ?.
 unshelve refine (let H1 := _ in let H2 := _ in ex_intro _
@@ -166,7 +166,7 @@ unshelve refine (let H1 := _ in let H2 := _ in ex_intro _
     intros.
     destruct cauchy_limit; simpl.
     pose proof (metric_space_net_limit_converse _ _
-      (MetricTopology_metrizable _ d d_metric) nat_DS
+      (MetricTopology_metrized _ d d_metric) nat_DS
       (fun n:nat => proj1_sig (f n) x) x0 n).
     destruct (H7 eps H6) as [i0].
     pose (N' := max N i0).
@@ -201,7 +201,7 @@ unshelve refine (let H1 := _ in let H2 := _ in ex_intro _
   }
   auto with real.
 - apply metric_space_net_limit with uniform_metric.
-  { apply MetricTopology_metrizable. }
+  { apply MetricTopology_metrized. }
   intros.
   assert (eps/2 > 0) by lra.
   destruct (H0 (eps/2) H4) as [N].
@@ -217,7 +217,7 @@ unshelve refine (let H1 := _ in let H2 := _ in ex_intro _
   destruct (cauchy_limit (fun n:nat => proj1_sig (f n) x0) (H1 x0));
     simpl.
   pose proof (metric_space_net_limit_converse _ _
-    (MetricTopology_metrizable _ d d_metric) nat_DS
+    (MetricTopology_metrized _ d d_metric) nat_DS
     (fun n:nat => proj1_sig (f n) x0) x1 n).
   destruct (H9 eps0 H8) as [N'].
   pose (N'' := max N N').
@@ -276,7 +276,7 @@ red; intros f0 ?.
 red.
 apply first_countable_sequence_closure in H.
 - destruct H as [f []].
-  pose proof (MetricTopology_metrizable _ d d_metric
+  pose proof (MetricTopology_metrized _ d d_metric
     (proj1_sig f0 x0)).
   apply open_neighborhood_basis_is_neighborhood_basis in H1.
   apply continuous_at_neighborhood_basis with (1:=H1).
@@ -284,14 +284,14 @@ apply first_countable_sequence_closure in H.
   destruct H2.
   assert (r/3>0) by lra.
   destruct (metric_space_net_limit_converse _ _
-    (MetricTopology_metrizable _ _
+    (MetricTopology_metrized _ _
        (uniform_metric_is_metric _ _ d y0 d_metric X_inh))
     nat_DS f f0 H0 (r/3) H3) as [N].
   assert (neighborhood
     (inverse_image (proj1_sig (f N))
        (open_ball d (proj1_sig (f N) x0) (r/3))) x0).
   { apply H.
-    pose proof (MetricTopology_metrizable _ d d_metric
+    pose proof (MetricTopology_metrized _ d d_metric
       (proj1_sig (f N) x0)).
     apply open_neighborhood_basis_is_neighborhood_basis in H5.
     apply H5.
@@ -336,7 +336,7 @@ apply first_countable_sequence_closure in H.
 - apply metrizable_impl_first_countable.
   exists (uniform_metric d y0 d_metric X_inh).
   + exact (uniform_metric_is_metric _ _ d y0 d_metric X_inh).
-  + apply MetricTopology_metrizable.
+  + apply MetricTopology_metrized.
 Qed.
 
 Lemma continuous_functions_closed_in_uniform_metric:

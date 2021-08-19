@@ -594,7 +594,7 @@ destruct (bounded_real_net_has_cluster_point nat_DS x a b) as [x0].
 - exists x0.
   apply cauchy_sequence_with_cluster_point_converges; trivial.
   apply metric_space_net_cluster_point with R_metric;
-    try apply MetricTopology_metrizable.
+    try apply MetricTopology_metrized.
   intros.
   apply metric_space_net_cluster_point_converse with RTop; trivial.
   apply RTop_metrization.
