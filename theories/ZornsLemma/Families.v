@@ -1,10 +1,9 @@
 From Coq Require Import Classical_Prop.
 From Coq Require Import Classical_sets.
-From Coq Require Export Ensembles.
-From ZornsLemma Require Import EnsemblesImplicit.
 From ZornsLemma Require Export EnsemblesSpec EnsemblesTactics.
 From ZornsLemma Require Import Image ImageImplicit.
-
+From ZornsLemma Require Import EnsemblesImplicit.
+From Coq Require Export Ensembles.
 Set Implicit Arguments.
 
 Section Families.
