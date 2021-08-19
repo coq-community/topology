@@ -45,11 +45,27 @@ Lemma cauchy_sequence_with_cluster_point_converges:
 Proof.
 intros.
 apply metric_space_net_limit with d.
-- apply MetricTopology_metrized.
-- intros.
-  red; intros.
-  destruct (H (eps/2)) as [N].
+{ apply MetricTopology_metrized. }
+intros.
+red; intros.
+destruct (H (eps/2)) as [N].
+{ lra. }
+pose (U := open_ball X d x0 (eps/2)).
+assert (open_neighborhood U x0 (X:=MetricTopology d d_metric)).
+{ apply metric_space_open_ball_open_nbhd.
+  - apply MetricTopology_metrized.
+  - lra.
+}
+destruct H3.
+destruct (H0 U H3 H4 N) as [m [? []]].
+simpl in H5.
+exists N; intros n ?.
+simpl in H7.
+apply Rle_lt_trans with (d x0 (x m) + d (x m) (x n)).
+- now apply triangle_inequality.
+- cut (d (x m) (x n) < eps/2).
   + lra.
+<<<<<<< HEAD
   + pose (U := open_ball d x0 (eps/2)).
     assert (open_neighborhood U x0 (X:=MetricTopology d d_metric)).
   { apply MetricTopology_metrized.
@@ -65,6 +81,9 @@ apply metric_space_net_limit with d.
     * cut (d (x m) (x n) < eps/2).
       ** lra.
       ** now apply H2.
+=======
+  + now apply H2.
+>>>>>>> c692022 (Implement `metrizable` as typeclass)
 Qed.
 
 Definition complete : Prop :=
@@ -159,8 +178,8 @@ cut (Included (closure F (X:=MetricTopology d d_metric)) F).
   { assert (uniqueness (net_limit y (I:=nat_DS)
                             (X:=MetricTopology d d_metric))).
   { apply Hausdorff_impl_net_limit_unique.
-    apply metrizable_Hausdorff.
-    apply MetricTopology_metrizable. }
+    typeclasses eauto.
+  }
     now apply H7. }
     now rewrite H7.
   + apply metric_space_net_limit with d.

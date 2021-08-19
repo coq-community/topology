@@ -98,10 +98,14 @@ Definition metrizes (X:TopologicalSpace)
   forall x:X, open_neighborhood_basis
              (metric_topology_neighborhood_basis d x) x.
 
-Inductive metrizable (X:TopologicalSpace) : Prop :=
-  | intro_metrizable: forall d:X -> X -> R,
-    metric d -> metrizes X d ->
-    metrizable X.
+Local Set Warnings "-cannot-define-projection".
+Class metrizable (X:TopologicalSpace) : Prop :=
+  intro_metrizable
+  { metrizable_metric : X -> X -> R;
+    metrizable_is_metric : metric metrizable_metric;
+    metrizable_metrizes : metrizes X metrizable_metric;
+  }.
+Local Set Warnings "+cannot-define-projection".
 
 Lemma MetricTopology_metrized: forall (X:Type) (d:X->X->R)
   (d_metric: metric d),
@@ -113,10 +117,10 @@ intros.
 apply Build_TopologicalSpace_from_open_neighborhood_bases_basis.
 Qed.
 
-Corollary MetricTopology_metrizable X (d:X->X->R) d_metric :
+Instance MetricTopology_metrizable X (d:X->X->R) d_metric :
   metrizable (MetricTopology d d_metric).
 Proof.
-apply intro_metrizable with (d := d).
+apply intro_metrizable with (metrizable_metric := d).
 - assumption.
 - apply MetricTopology_metrized.
 Qed.
@@ -227,21 +231,24 @@ Proof.
   lra.
 Qed.
 
-Lemma metric_space_open_ball_open :
-  forall (X:TopologicalSpace) (d:X -> X -> R),
-    metrizes X d -> metric d ->
-    forall x r, open (open_ball d x r).
+Lemma metric_space_open_ball_open_nbhd :
+  forall (X:TopologicalSpace) (d:point_set X -> point_set X -> R),
+    metrizes X d ->
+    forall x r, r > 0 -> open_neighborhood (open_ball d x r) x.
 Proof.
   intros.
-  specialize (H x).
-  destruct (classic (r > 0)).
-  - assert (In (metric_topology_neighborhood_basis d x) (open_ball d x r)).
-    { constructor. assumption. }
-    apply H in H2.
-    destruct H2.
-    assumption.
-  - rewrite metric_open_ball_radius_nonpositive;
-      auto with topology; lra.
+  apply H.
+  constructor.
+  assumption.
+Qed.
+
+Lemma metric_space_open_ball_open :
+  forall (X:TopologicalSpace) (d:point_set X -> point_set X -> R),
+    metrizes X d ->
+    forall x r, r > 0 -> open (open_ball d x r).
+Proof.
+  intros.
+  apply metric_space_open_ball_open_nbhd; assumption.
 Qed.
 
 Lemma metric_space_closed_ball_closed {X : TopologicalSpace} (d : X -> X -> R) :
@@ -253,14 +260,16 @@ Proof.
   apply open_char_neighborhood.
   intros.
   exists (open_ball d x0 (d x x0 - r)).
+  assert (~ (d x x0 <= r)).
+  { intros ?H. apply H1.
+    constructor. assumption.
+  }
+  clear H1.
   split.
-  - split.
-    + apply metric_space_open_ball_open; assumption.
-    + apply metric_open_ball_In; auto.
-      apply NNPP. intros ?.
-      apply H1. constructor. lra.
+  - apply metric_space_open_ball_open_nbhd; auto.
+    lra.
   - intros ? ?.
-    destruct H2.
+    destruct H1.
     intros ?.
     destruct H3.
     pose proof (triangle_inequality X d H0 x x1 x0).
@@ -415,7 +424,7 @@ Lemma metrizable_impl_first_countable: forall X:TopologicalSpace,
   metrizable X -> first_countable X.
 Proof.
 intros.
-destruct H.
+destruct H as [d ?H ?H].
 red. intros.
 exists (Im [n:nat | (n>0)%nat]
            (fun n:nat => open_ball d x (/ (INR n)))).
@@ -448,7 +457,7 @@ Lemma metrizable_separable_impl_second_countable:
     second_countable X.
 Proof.
 intros.
-destruct H, H0.
+destruct H as [d ?H ?H], H0.
 exists (Im [p:(Q*X)%type |
             let (r,x):=p in (r>0)%Q /\ In S x]
   (fun p:(Q*X)%type =>
@@ -542,7 +551,7 @@ Lemma metrizable_Lindelof_impl_second_countable:
     second_countable X.
 Proof.
 intros.
-destruct H.
+destruct H as [d ?H ?H].
 destruct (choice (fun (n:{n:nat | (n > 0)%nat}) (S:Family X) =>
   Included S (Im Full_set (fun x:X =>
                             open_ball d x (/ (INR (proj1_sig n)))))
@@ -621,7 +630,7 @@ Qed.
 Instance metrizable_Hausdorff {X} `(H:metrizable X) : Hausdorff X.
 Proof.
   constructor. intros.
-  destruct H.
+  destruct H as [d ?H ?H].
   exists (open_ball d x ((d x y)/2)).
   exists (open_ball d y ((d x y)/2)).
   assert (0 < d x y).
@@ -803,12 +812,10 @@ destruct H.
 match type of H with ?d1 < ?d2 => pose (eps := d2 - d1) end.
 exists (open_ball d x (eps/2)).
 split.
-{ split.
-  - apply metric_space_open_ball_open; assumption.
-  - apply metric_open_ball_In; try assumption.
-    assert (0 < eps).
-    { apply Rgt_minus. auto with real. }
-    lra.
+{ apply metric_space_open_ball_open_nbhd; auto.
+  assert (0 < eps).
+  { apply Rgt_minus. auto with real. }
+  lra.
 }
 intros ? ?.
 destruct H0.
@@ -835,9 +842,9 @@ Qed.
 End dist_to_set_and_topology.
 
 Instance metrizable_is_normal_space {X:TopologicalSpace}
-         (H:metrizable X) : normal_space X.
+         `(H:metrizable X) : normal_space X.
 Proof.
-destruct H.
+destruct H as [d ?H ?H].
 split.
 - constructor. intros.
   replace (Singleton x) with (closure (Singleton x)).

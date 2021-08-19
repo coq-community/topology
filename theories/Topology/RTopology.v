@@ -165,7 +165,7 @@ constructor;
     now apply H.
 Qed.
 
-Corollary RTop_metrizable: metrizable RTop.
+Instance RTop_metrizable: metrizable RTop.
 Proof.
 exists R_metric.
 - exact R_metric_is_metric.

@@ -493,8 +493,8 @@ repeat split.
     now subst.
 Qed.
 
-Instance compact_Hausdorff_impl_T3_sep: forall X:TopologicalSpace,
-  compact X -> Hausdorff X -> T3_space X.
+Instance compact_Hausdorff_is_T3_space {X:TopologicalSpace}
+         (H : compact X) `(H0 : Hausdorff X) : T3_space X.
 Proof.
 intros X HX_compact HX_Hausdorff.
 split.

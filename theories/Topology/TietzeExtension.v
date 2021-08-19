@@ -646,12 +646,8 @@ destruct (UrysohnsLemma _ H G F) as [phi [? [? []]]]; trivial.
 - replace G with (inverse_image g0 (Union (Singleton 1) (Singleton (-1)))).
   + red. rewrite <- inverse_image_complement.
     apply H3.
-    assert (T1_space RTop) as HRT1.
-    { apply Hausdorff_is_T1_space.
-      apply metrizable_Hausdorff.
-      apply RTop_metrizable.
-    }
-    apply (closed_union2 (X:=RTop)); apply HRT1.
+    apply (closed_union2 (X:=RTop)); apply (@T1_sep RTop);
+      typeclasses eauto.
   + extensionality_ensembles_inv;
       constructor.
     * now left.
