@@ -135,6 +135,74 @@ Proof.
     assumption.
 Qed.
 
+Lemma continuous_interior :
+  continuous <->
+  forall A, Included (inverse_image f (interior A))
+                (interior (inverse_image f A)).
+Proof.
+split.
+- intros. red; intros.
+  assert (open (inverse_image f (interior A))).
+  { apply H. apply interior_open. }
+  apply (interior_maximal _ _ H1).
+  + intros ? ?.
+    destruct H2. constructor.
+    apply interior_deflationary. assumption.
+  + assumption.
+- intros. red; intros.
+  specialize (H V).
+  rewrite interior_fixes_open in H; auto.
+  assert (inverse_image f V = interior (inverse_image f V)).
+  { apply Extensionality_Ensembles. split.
+    - assumption.
+    - apply interior_deflationary.
+  }
+  rewrite H1.
+  apply interior_open.
+Qed.
+
+Lemma continuous_closure :
+  continuous <->
+  (forall A, Included (Im (closure A) f)
+                 (closure (Im A f))).
+Proof.
+rewrite continuous_closed.
+split.
+- intros.
+  remember (inverse_image f (closure (Im A f))) as B.
+  assert (closed B).
+  { subst B. apply H. apply closure_closed. }
+  assert (Included (closure A) B).
+  { subst B. apply closure_minimal; auto.
+    intros ? ?.
+    constructor. apply closure_inflationary.
+    exists x; auto.
+  }
+  intros ? ?.
+  destruct H2; subst.
+  apply H1 in H2.
+  destruct H2.
+  assumption.
+- intros.
+  assert (inverse_image f U = closure (inverse_image f U)).
+  2: { rewrite H1. apply closure_closed. }
+  apply Extensionality_Ensembles; split.
+  { apply closure_inflationary. }
+  specialize (H (inverse_image f U)).
+  assert (Included (Im (closure (inverse_image f U)) f) U).
+  + apply (Inclusion_is_transitive _ _ (closure (Im (inverse_image f U) f)));
+      auto.
+    apply closure_fixes_closed in H0.
+    rewrite <- H0 at 2.
+    apply closure_increasing.
+    apply image_inverse_image_included.
+  + apply (inverse_image_increasing f) in H1.
+    apply (Inclusion_is_transitive
+             _ _ (inverse_image f (Im (closure (inverse_image f U)) f)));
+      auto.
+    apply inverse_image_image_included.
+Qed.
+
 End continuity.
 
 Arguments continuous {X} {Y}.

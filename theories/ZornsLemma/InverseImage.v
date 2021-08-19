@@ -370,3 +370,21 @@ split; red; intros;
 [ rewrite <- eq | rewrite eq ];
   now constructor.
 Qed.
+
+Lemma image_inverse_image_included {X Y} (f : X -> Y) (U : Ensemble Y) :
+  Included (Im (inverse_image f U) f) U.
+Proof.
+  intros ? ?.
+  inversion_ensembles_in.
+  subst. inversion_ensembles_in.
+  assumption.
+Qed.
+
+Lemma inverse_image_image_included {X Y} (f : X -> Y) (U : Ensemble X) :
+  Included U (inverse_image f (Im U f)).
+Proof.
+  intros ? ?.
+  constructor.
+  apply Im_def.
+  assumption.
+Qed.
