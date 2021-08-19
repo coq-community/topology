@@ -179,100 +179,102 @@ Proof.
 (* idea: the liminf is a cluster point *)
 intros.
 destruct (classic (inhabited (DS_set I))) as [Hinh|Hempty].
-- assert (forall i:DS_set I, { y:R | is_glb
-                             (Im [ j:DS_set I | DS_ord i j ] x) y }).
-  { intro.
-    apply inf.
-    - exists a.
-      red. intros.
-      destruct H0.
-      destruct (H x0).
-      lra.
-    - exists (x i), i; trivial.
-      constructor.
-      apply preord_refl, DS_ord_cond. }
-  assert ({ x0:R | is_lub (Im Full_set (fun i => proj1_sig (X i))) x0 }).
-  { apply sup.
-    - exists b.
-      red. intros.
-      destruct H0 as [i].
-      destruct (X i).
-      simpl in H1.
-      rewrite H1.
-      destruct i0.
-      cut (b >= x0); auto with real.
-      apply Rge_trans with (x i).
-      + destruct (H i). lra.
-      + apply H2.
-        exists i; trivial.
-        constructor.
-        apply preord_refl, DS_ord_cond.
-    - destruct Hinh as [i0].
-      exists (proj1_sig (X i0)).
-      exists i0; trivial.
-      constructor.
-  }
-  destruct H0 as [x0].
-  exists x0.
-  assert (forall i j:DS_set I,
-             DS_ord i j -> proj1_sig (X i) <= proj1_sig (X j)).
-  { intros.
-    destruct (X i0), (X j).
-    simpl.
-    destruct i1, i2.
-    apply H4.
-    red. intros.
-    destruct H5.
-    destruct H5.
-    apply H1.
-    exists x3; trivial.
-    constructor.
-    apply preord_trans with j; trivial.
-    apply DS_ord_cond.
-  }
-  red. intros.
-  destruct (RTop_metrization x0).
-  destruct (open_neighborhood_basis_cond U).
-  { now split. }
-  destruct H3.
-  destruct H3.
-  destruct (lub_approx _ _ r i); trivial.
-  destruct H5.
-  destruct H5.
-  destruct H6.
-  red; intros.
-  destruct (DS_join_cond x1 i0).
-  destruct H9.
-  remember (X x2) as y2.
-  destruct y2.
-  destruct (glb_approx _ _ r i1); trivial.
-  destruct H11.
-  destruct H11.
-  destruct H11.
-  destruct H12.
-  exists x4.
-  split.
-  + apply preord_trans with x2; trivial.
-    apply DS_ord_cond.
-  + apply H4.
-    constructor.
-    assert (y <= proj1_sig (X x2)).
-    { rewrite H7.
-      now apply H0. }
-    rewrite <- Heqy2 in H15.
-    simpl in H15.
-    assert (proj1_sig (X x2) <= x0).
-    { apply i.
-      exists x2; trivial.
-      constructor. }
-    rewrite <- Heqy2 in H16.
-    simpl in H16.
-    apply Rabs_def1; lra.
-- exists a.
+2: {
+  exists a.
   red. intros.
   red. intros.
   contradiction Hempty.
   now exists.
+}
+assert (forall i:DS_set I, { y:R | is_glb
+                           (Im [ j:DS_set I | DS_ord i j ] x) y }).
+{ intro.
+  apply inf.
+  - exists a.
+    red. intros.
+    destruct H0.
+    destruct (H x0).
+    lra.
+  - exists (x i), i; trivial.
+    constructor.
+    apply preord_refl, DS_ord_cond. }
+assert ({ x0:R | is_lub (Im Full_set (fun i => proj1_sig (X i))) x0 }).
+{ apply sup.
+  - exists b.
+    red. intros.
+    destruct H0 as [i].
+    destruct (X i).
+    simpl in H1.
+    rewrite H1.
+    destruct i0.
+    cut (b >= x0); auto with real.
+    apply Rge_trans with (x i).
+    + destruct (H i). lra.
+    + apply H2.
+      exists i; trivial.
+      constructor.
+      apply preord_refl, DS_ord_cond.
+  - destruct Hinh as [i0].
+    exists (proj1_sig (X i0)).
+    exists i0; trivial.
+    constructor.
+}
+destruct H0 as [x0].
+exists x0.
+assert (forall i j:DS_set I,
+           DS_ord i j -> proj1_sig (X i) <= proj1_sig (X j)).
+{ intros.
+  destruct (X i0), (X j).
+  simpl.
+  destruct i1, i2.
+  apply H4.
+  red. intros.
+  destruct H5.
+  destruct H5.
+  apply H1.
+  exists x3; trivial.
+  constructor.
+  apply preord_trans with j; trivial.
+  apply DS_ord_cond.
+}
+red. intros.
+destruct (RTop_metrization x0).
+destruct (open_neighborhood_basis_cond U).
+{ now split. }
+destruct H3.
+destruct H3.
+destruct (lub_approx _ _ r i); trivial.
+destruct H5.
+destruct H5.
+destruct H6.
+red; intros.
+destruct (DS_join_cond x1 i0).
+destruct H9.
+remember (X x2) as y2.
+destruct y2.
+destruct (glb_approx _ _ r i1); trivial.
+destruct H11.
+destruct H11.
+destruct H11.
+destruct H12.
+exists x4.
+split.
++ apply preord_trans with x2; trivial.
+  apply DS_ord_cond.
++ apply H4.
+  constructor.
+  assert (y <= proj1_sig (X x2)).
+  { rewrite H7.
+    now apply H0. }
+  rewrite <- Heqy2 in H15.
+  simpl in H15.
+  assert (proj1_sig (X x2) <= x0).
+  { apply i.
+    exists x2; trivial.
+    constructor. }
+  rewrite <- Heqy2 in H16.
+  simpl in H16.
+  apply Rabs_def1; lra.
 Qed.
 
 Lemma R_closed_interval_compact: forall a b:R, a <= b ->
@@ -283,51 +285,52 @@ apply net_cluster_point_impl_compact.
 intros.
 pose (y := fun i:DS_set I => proj1_sig (x i)).
 destruct (bounded_real_net_has_cluster_point _ y a b).
-- intros.
+{ intros.
   unfold y.
   destruct (x i).
   now destruct i0.
-- assert (closed [x:point_set RTop | a <= x <= b]).
-  { replace [x:point_set RTop | a <= x <= b] with
-          (Intersection
-            [ x:point_set RTop | a <= x ]
-            [ x:point_set RTop | x <= b ]) by
-      (extensionality_ensembles;
-        do 2 constructor; lra).
-    apply closed_intersection2.
-    - apply upper_closed_interval_closed.
-      + constructor; red; intros; auto with real.
-        apply Rle_trans with y0; trivial.
-      + intros.
-        destruct (total_order_T x1 y0) as [[|]|]; auto with real.
-    - apply lower_closed_interval_closed.
-      + constructor; red; intros; auto with real.
-        apply Rle_trans with y0; trivial.
-      + intros.
-        destruct (total_order_T x1 y0) as [[|]|]; auto with real. }
-  assert (Ensembles.In [x:point_set RTop | a <= x <= b] x0).
-  { rewrite <- (closure_fixes_closed _ H1).
-    apply net_cluster_point_in_closure with y; trivial.
-    destruct H as [i0].
-    exists i0.
-    intros.
-    constructor.
-    unfold y.
-    destruct (x j).
-    now destruct i. }
-  exists (exist _ x0 H2).
-  red. intros.
-  rewrite subspace_open_char in H3.
-  destruct H3 as [V []].
-  subst U.
-  destruct H4.
-  red. intros.
-  assert (Ensembles.In V x0).
-  { assumption. }
-  destruct (H0 V H3 H4 i) as [j []].
-  exists j.
-  split; trivial.
-  now constructor.
+}
+assert (closed [x:point_set RTop | a <= x <= b]).
+{ replace [x:point_set RTop | a <= x <= b] with
+        (Intersection
+          [ x:point_set RTop | a <= x ]
+          [ x:point_set RTop | x <= b ]) by
+    (extensionality_ensembles;
+      do 2 constructor; lra).
+  apply closed_intersection2.
+  - apply upper_closed_interval_closed.
+    + constructor; red; intros; auto with real.
+      apply Rle_trans with y0; trivial.
+    + intros.
+      destruct (total_order_T x1 y0) as [[|]|]; auto with real.
+  - apply lower_closed_interval_closed.
+    + constructor; red; intros; auto with real.
+      apply Rle_trans with y0; trivial.
+    + intros.
+      destruct (total_order_T x1 y0) as [[|]|]; auto with real. }
+assert (Ensembles.In [x:point_set RTop | a <= x <= b] x0).
+{ rewrite <- (closure_fixes_closed _ H1).
+  apply net_cluster_point_in_closure with y; trivial.
+  destruct H as [i0].
+  exists i0.
+  intros.
+  constructor.
+  unfold y.
+  destruct (x j).
+  now destruct i. }
+exists (exist _ x0 H2).
+red. intros.
+rewrite subspace_open_char in H3.
+destruct H3 as [V []].
+subst U.
+destruct H4.
+red. intros.
+assert (Ensembles.In V x0).
+{ assumption. }
+destruct (H0 V H3 H4 i) as [j []].
+exists j.
+split; trivial.
+now constructor.
 Qed.
 
 Lemma R_compact_subset_bounded: forall A:Ensemble (point_set RTop),
