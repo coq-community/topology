@@ -87,4 +87,4 @@ Definition topological_property (P : TopologicalSpace -> Prop) :=
   forall X Y (f : point_set X -> point_set Y),
     homeomorphism f -> P X -> P Y.
 
-Hint Unfold topological_property : homeo.
+Global Hint Unfold topological_property : homeo.

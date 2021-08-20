@@ -200,8 +200,8 @@ rewrite Complement_IndexedUnion.
 apply open_finite_indexed_intersection; trivial.
 Qed.
 
-Hint Unfold closed : topology.
-Hint Resolve open_family_union open_intersection2 open_full
+Global Hint Unfold closed : topology.
+Global Hint Resolve open_family_union open_intersection2 open_full
   open_empty open_union2 open_indexed_union
   open_finite_indexed_intersection closed_complement_open
   closed_union2 closed_intersection2 closed_family_intersection
