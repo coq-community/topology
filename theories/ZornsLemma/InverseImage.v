@@ -94,7 +94,7 @@ apply Extensionality_Ensembles; split; red; intros.
   constructor; trivial.
 Qed.
 
-Global Hint Resolve @inverse_image_increasing : sets.
+Global Hint Resolve inverse_image_increasing : sets.
 Hint Rewrite @inverse_image_empty @inverse_image_full
   @inverse_image_intersection @inverse_image_union
   @inverse_image_complement @inverse_image_composition : sets.
