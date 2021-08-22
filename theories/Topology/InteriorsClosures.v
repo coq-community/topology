@@ -88,6 +88,13 @@ Qed.
 
 End interior_closure.
 
+Lemma closure_empty {X:TopologicalSpace} :
+  closure (@Empty_set X) = Empty_set.
+Proof.
+  apply closure_fixes_closed.
+  apply closed_empty.
+Qed.
+
 Section interior_closure_relations.
 
 Definition idempotent {T:Type} (f:T->T) := forall x, f (f x) = f x.

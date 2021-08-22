@@ -209,6 +209,15 @@ rewrite Complement_IndexedUnion.
 apply open_finite_indexed_intersection; trivial.
 Qed.
 
+Lemma open_setminus {X : TopologicalSpace} (U V : Ensemble X) :
+  open U -> closed V ->
+  open (Setminus U V).
+Proof.
+  intros.
+  rewrite Setminus_Intersection.
+  apply open_intersection2; assumption.
+Qed.
+
 Global Hint Unfold closed : topology.
 Global Hint Resolve open_family_union open_intersection2 open_full
   open_empty open_union2 open_indexed_union
