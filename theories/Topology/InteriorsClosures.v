@@ -4,7 +4,7 @@ From ZornsLemma Require Export EnsemblesSpec.
 
 Section interior_closure.
 
-Variable X:TopologicalSpace.
+Context {X:TopologicalSpace}.
 Variable S:Ensemble X.
 
 Definition interior := FamilyUnion
@@ -87,17 +87,6 @@ constructor; split; trivial.
 Qed.
 
 End interior_closure.
-
-Arguments interior {X}.
-Arguments closure {X}.
-Arguments interior_open {X}.
-Arguments interior_deflationary {X}.
-Arguments interior_fixes_open {X}.
-Arguments interior_maximal {X}.
-Arguments closure_closed {X}.
-Arguments closure_inflationary {X}.
-Arguments closure_fixes_closed {X}.
-Arguments closure_minimal {X}.
 
 Section interior_closure_relations.
 
