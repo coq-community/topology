@@ -5,12 +5,12 @@ From ZornsLemma Require Export EnsemblesSpec.
 Section interior_closure.
 
 Variable X:TopologicalSpace.
-Variable S:Ensemble (point_set X).
+Variable S:Ensemble X.
 
 Definition interior := FamilyUnion
-  [ U:Ensemble (point_set X) | open U /\ Included U S ].
+  [ U:Ensemble X | open U /\ Included U S ].
 Definition closure := FamilyIntersection
-  [ F:Ensemble (point_set X) | closed F /\ Included S F ].
+  [ F:Ensemble X | closed F /\ Included S F ].
 
 Lemma interior_open : open interior.
 Proof.
@@ -37,7 +37,7 @@ apply Extensionality_Ensembles; split.
   auto with sets.
 Qed.
 
-Lemma interior_maximal: forall U:Ensemble (point_set X),
+Lemma interior_maximal: forall U:Ensemble X,
   open U -> Included U S -> Included U interior.
 Proof.
 intros.
@@ -75,7 +75,7 @@ split.
 - apply closure_inflationary.
 Qed.
 
-Lemma closure_minimal: forall F:Ensemble (point_set X),
+Lemma closure_minimal: forall F:Ensemble X,
   closed F -> Included S F -> Included closure F.
 Proof.
 intros.
@@ -138,7 +138,7 @@ split.
 - apply closure_inflationary.
 Qed.
 
-Lemma interior_increasing: forall S T:Ensemble (point_set X),
+Lemma interior_increasing: forall S T:Ensemble X,
   Included S T -> Included (interior S) (interior T).
 Proof.
 intros.
@@ -149,7 +149,7 @@ apply interior_maximal.
   auto with sets.
 Qed.
 
-Lemma interior_intersection: forall S T:Ensemble (point_set X),
+Lemma interior_intersection: forall S T:Ensemble X,
   interior (Intersection S T) =
   Intersection (interior S) (interior T).
 Proof.
@@ -172,7 +172,7 @@ apply Extensionality_Ensembles. split.
       now destruct H1.
 Qed.
 
-Lemma interior_union: forall S T:Ensemble (point_set X),
+Lemma interior_union: forall S T:Ensemble X,
   Included (Union (interior S) (interior T))
            (interior (Union S T)).
 Proof.
@@ -194,7 +194,7 @@ contradiction H0.
 auto with sets.
 Qed.
 
-Lemma interior_complement: forall S:Ensemble (point_set X),
+Lemma interior_complement: forall S:Ensemble X,
   interior (Complement S) = Complement (closure S).
 Proof.
 intros.
@@ -215,7 +215,7 @@ apply Extensionality_Ensembles; split.
     apply closure_inflationary.
 Qed.
 
-Lemma closure_increasing: forall S T:Ensemble (point_set X),
+Lemma closure_increasing: forall S T:Ensemble X,
   Included S T -> Included (closure S) (closure T).
 Proof.
 intros.
@@ -225,7 +225,7 @@ apply closure_minimal.
   auto with sets.
 Qed.
 
-Lemma closure_complement: forall S:Ensemble (point_set X),
+Lemma closure_complement: forall S:Ensemble X,
   closure (Complement S) = Complement (interior S).
 Proof.
 intros.
@@ -234,7 +234,7 @@ rewrite Complement_Complement in H.
 now rewrite H, Complement_Complement.
 Qed.
 
-Lemma closure_union: forall S T:Ensemble (point_set X),
+Lemma closure_union: forall S T:Ensemble X,
   closure (Union S T) = Union (closure S) (closure T).
 Proof.
 intros.
@@ -251,7 +251,7 @@ apply Extensionality_Ensembles; split.
   auto with sets.
 Qed.
 
-Lemma closure_intersection: forall S T:Ensemble (point_set X),
+Lemma closure_intersection: forall S T:Ensemble X,
   Included (closure (Intersection S T))
            (Intersection (closure S) (closure T)).
 Proof.
@@ -312,8 +312,8 @@ extensionality_ensembles;
 Qed.
 
 Lemma meets_every_open_neighborhood_impl_closure:
-  forall (S:Ensemble (point_set X)) (x:point_set X),
-  (forall U:Ensemble (point_set X), open U -> In U x ->
+  forall (S:Ensemble X) (x:X),
+  (forall U:Ensemble X, open U -> In U x ->
                                 Inhabited (Intersection S U)) ->
   In (closure S) x.
 Proof.
@@ -329,9 +329,9 @@ destruct H1.
 Qed.
 
 Lemma closure_impl_meets_every_open_neighborhood:
-  forall (S:Ensemble (point_set X)) (x:point_set X),
+  forall (S:Ensemble X) (x:X),
   In (closure S) x ->
-  forall U:Ensemble (point_set X), open U -> In U x ->
+  forall U:Ensemble X, open U -> In U x ->
     Inhabited (Intersection S U).
 Proof.
 intros.
@@ -348,12 +348,12 @@ contradict H1.
 now apply H3.
 Qed.
 
-Definition dense (S:Ensemble (point_set X)) : Prop :=
+Definition dense (S:Ensemble X) : Prop :=
   closure S = Full_set.
 
 Lemma dense_meets_every_nonempty_open:
-  forall S:Ensemble (point_set X), dense S ->
-    forall U:Ensemble (point_set X), open U -> Inhabited U ->
+  forall S:Ensemble X, dense S ->
+    forall U:Ensemble X, open U -> Inhabited U ->
     Inhabited (Intersection S U).
 Proof.
 intros.
@@ -363,8 +363,8 @@ rewrite H; constructor.
 Qed.
 
 Lemma meets_every_nonempty_open_impl_dense:
-  forall S:Ensemble (point_set X),
-  (forall U:Ensemble (point_set X), open U -> Inhabited U ->
+  forall S:Ensemble X,
+  (forall U:Ensemble X, open U -> Inhabited U ->
    Inhabited (Intersection S U)) ->
   dense S.
 Proof.
