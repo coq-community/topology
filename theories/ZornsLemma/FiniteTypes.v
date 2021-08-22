@@ -10,7 +10,7 @@ From Coq Require Import Description.
 From ZornsLemma Require Import Powerset_facts.
 From Coq Require Import FunctionalExtensionality.
 From ZornsLemma Require Import FiniteImplicit.
-From Coq Require Import PeanoNat.
+From Coq Require Import Lia PeanoNat.
 
 Set Asymmetric Patterns.
 
@@ -1070,4 +1070,54 @@ Proof.
              end).
     + intros. destruct x as [[]|]; intuition.
     + intros. destruct y as [|]; intuition.
+Qed.
+
+Lemma finite_nat_initial_segment_ens (n : nat) :
+  Finite (fun m => m < n).
+Proof.
+  induction n.
+  { replace (fun _ => _) with (@Empty_set nat).
+    { constructor. }
+    apply Extensionality_Ensembles; split; auto with sets.
+    intros x Hx. red in Hx. inversion Hx.
+  }
+  replace (fun _ => _) with (Add (fun m => m < n) n).
+  { constructor; auto.
+    intros ?. red in H.
+    apply Nat.lt_irrefl in H.
+    auto.
+  }
+  clear IHn.
+  apply Extensionality_Ensembles; split; intros m Hm.
+  - inversion Hm; subst; clear Hm.
+    + cbv in *.
+      apply Nat.le_le_succ_r.
+      assumption.
+    + inversion H; subst; clear H.
+      constructor.
+  - cbv in *.
+    apply le_S_n in Hm.
+    destruct Hm.
+    + right. constructor.
+    + left. cbv.
+      apply le_n_S.
+      assumption.
+Qed.
+
+Lemma finite_nat_initial_segment: forall n:nat,
+  FiniteT { m:nat | m < n }.
+Proof.
+intros.
+apply Finite_ens_type.
+apply finite_nat_initial_segment_ens.
+Qed.
+
+Lemma finite_nat_initial_segment_le (n : nat) :
+  FiniteT { m : nat | (m <= n)%nat }.
+Proof.
+apply Finite_ens_type.
+replace (fun _ => _) with (fun m => m < S n).
+{ apply finite_nat_initial_segment_ens. }
+apply Extensionality_Ensembles; split; intros m Hm;
+  cbv in *; lia.
 Qed.

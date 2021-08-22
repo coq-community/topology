@@ -7,43 +7,6 @@ From ZornsLemma Require Import EnsemblesSpec.
 From Coq Require Import FunctionalExtensionality.
 From Coq Require Import Lia.
 
-Lemma finite_nat_initial_segment: forall n:nat,
-  FiniteT { m:nat | m < n }.
-Proof.
-intros.
-apply Finite_ens_type.
-rewrite <- characteristic_function_to_ensemble_is_identity.
-induction n.
-- replace [x:nat | _] with (@Empty_set nat).
-  { constructor. }
-  apply Extensionality_Ensembles; split; auto with sets.
-  red; intros.
-  destruct H.
-  contradict H.
-  auto with arith.
-- replace [x:nat | S x <= S n] with (Add [x:nat | x < n] n).
-  { constructor; trivial.
-    intro. destruct H.
-    apply Nat.lt_irrefl in H. assumption.
-  }
-  apply Extensionality_Ensembles; split; red; intros.
-  + red; intros.
-    case H.
-    * intros.
-      destruct H0; constructor.
-      auto with arith.
-    * intros.
-      destruct H0.
-      constructor.
-      lia.
-  + destruct H.
-    assert (x <= n); auto with arith.
-    apply Nat.lt_eq_cases in H0.
-    case H0.
-    * left; now constructor.
-    * right; auto with sets.
-Qed.
-
 Lemma infinite_nat_inj: forall X:Type, ~ FiniteT X ->
   exists f:nat->X, injective f.
 Proof.
