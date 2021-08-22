@@ -107,6 +107,39 @@ apply Extensionality_Ensembles; split; red; intros.
 - destruct H. split; assumption.
 Qed.
 
+Instance Disjoint_Symmetric (A : Type) :
+  Symmetric (@Disjoint A).
+Proof.
+  intros ? ? ?.
+  destruct H.
+  constructor.
+  rewrite Intersection_commutative.
+  assumption.
+Qed.
+
+Lemma Disjoint_Intersection:
+  forall (A : Type) (s1 s2 : Ensemble A),
+  Disjoint s1 s2 <-> Intersection s1 s2 = Empty_set.
+Proof.
+intros. split.
+- apply Coq.Sets.Powerset_facts.Disjoint_Intersection.
+- intros. constructor. intros.
+  intros ?. rewrite H in H0. destruct H0.
+Qed.
+
+Lemma Disjoint_Included_Complement :
+  forall (A : Type) (s1 s2 : Ensemble A),
+    Disjoint s1 s2 <-> Included s1 (Complement s2).
+Proof.
+intros.
+split.
+- intros. intros ? ? ?. destruct H.
+  apply (H x). split; assumption.
+- intros. constructor. intros ? ?.
+  destruct H0.
+  apply (H x); assumption.
+Qed.
+
 Lemma Disjoint_Complement_r {X} (U : Ensemble X) :
   Disjoint U (Complement U).
 Proof.
