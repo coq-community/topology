@@ -579,54 +579,6 @@ cut (-x0 <= m).
   now f_equal.
 Qed.
 
-Lemma metrizes_MetricSpace_open (X:TopologicalSpace) d d_metric :
-  metrizes X d ->
-    @open X = @open (@MetricTopology X d d_metric).
-Proof.
-  intros. apply Extensionality_Ensembles; split; red; intros.
-  - red in H.
-    red.
-    replace x with (FamilyUnion (fun U => Included U x /\ exists p, snd p > 0 /\ U = open_ball X d (fst p) (snd p))).
-    + constructor. red; intros.
-      inversion H1; subst; clear H1.
-      destruct H3 as [? []]. subst.
-      exists (fst x1).
-      constructor. assumption.
-    + extensionality_ensembles_inv.
-      * subst. destruct H5 as [? []].
-        subst. apply H1. assumption.
-      * destruct (@open_neighborhood_basis_cond _ _ _ (H x0) x).
-        { now split. }
-        destruct H2. destruct H2.
-        exists (open_ball X d x0 r).
-        -- repeat split; try assumption.
-           exists (x0, r). repeat split.
-           assumption.
-        -- constructor. rewrite metric_zero; auto.
-  - destruct H0.
-    apply open_family_union.
-    intros.
-    apply H0 in H1. clear H0.
-    destruct H1. destruct H0.
-    apply metric_space_open_ball_open; assumption.
-Qed.
-
-Lemma metrizes_identical_cluster_points (X:TopologicalSpace) d d_metric :
-  metrizes X d ->
-  forall DS x y,
-    @net_cluster_point DS X x y <->
-    @net_cluster_point DS (@MetricTopology X d d_metric) x y.
-Proof.
-  intros. split; intros.
-  - eapply metric_space_net_cluster_point;
-      try apply MetricTopology_metrizable.
-    intros.
-    apply metric_space_net_cluster_point_converse with X; trivial.
-  - red; intros.
-    apply H0; trivial.
-    rewrite <- metrizes_MetricSpace_open; assumption.
-Qed.
-
 Lemma R_metric_complete: complete R_metric R_metric_is_metric.
 Proof.
 red. intros.
@@ -641,7 +593,10 @@ destruct (bounded_real_net_has_cluster_point nat_DS x a b) as [x0].
     constructor.
 - exists x0.
   apply cauchy_sequence_with_cluster_point_converges; trivial.
-  rewrite metrizes_identical_cluster_points in H2; eauto.
+  apply metric_space_net_cluster_point with R_metric;
+    try apply MetricTopology_metrizable.
+  intros.
+  apply metric_space_net_cluster_point_converse with RTop; trivial.
   apply RTop_metrization.
 Qed.
 
