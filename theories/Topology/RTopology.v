@@ -133,9 +133,8 @@ Qed.
 
 Lemma RTop_metrization: metrizes RTop R_metric.
 Proof.
-refine (let Hsubbasis := Build_TopologicalSpace_from_subbasis_subbasis
-  _ (order_topology_subbasis _ Rle) in _).
-clearbody Hsubbasis.
+pose proof (Hsubbasis := Build_TopologicalSpace_from_subbasis_subbasis
+  _ (order_topology_subbasis _ Rle)).
 red. intros.
 constructor;
   intros.
