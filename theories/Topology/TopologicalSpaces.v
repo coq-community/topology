@@ -35,19 +35,10 @@ Lemma open_union2: forall {X:TopologicalSpace}
   (U V:Ensemble X), open U -> open V -> open (Union U V).
 Proof.
 intros.
-assert (Union U V = FamilyUnion (Couple U V)).
-{ apply Extensionality_Ensembles; split; red; intros.
-  - destruct H1.
-    + exists U; auto with sets.
-    + exists V; auto with sets.
-  - destruct H1.
-    destruct H1.
-    + left; trivial.
-    + right; trivial.
-}
-rewrite H1; apply open_family_union.
+rewrite union_as_family_union.
+apply open_family_union.
 intros.
-destruct H2; trivial.
+destruct H1; trivial.
 Qed.
 
 Lemma open_indexed_union: forall {X:TopologicalSpace} {A:Type}

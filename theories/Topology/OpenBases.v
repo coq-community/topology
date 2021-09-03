@@ -153,12 +153,10 @@ Proof.
 constructor.
 - intros.
   simpl.
-  replace V with (FamilyUnion (Singleton V)).
-  + constructor.
-    red. intros.
-    now destruct H0.
-  + extensionality_ensembles; trivial.
-    exists V; auto with sets.
+  rewrite <- family_union_singleton.
+  constructor.
+  red. intros.
+  now destruct H0.
 - simpl.
   intros.
   destruct H, H0.
