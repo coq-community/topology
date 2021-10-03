@@ -311,18 +311,6 @@ destruct x1, x2.
 apply subset_eq_compat.
 Qed.
 
-Lemma countable_ens X (A : Ensemble X) :
-  CountableT X -> Countable A.
-Proof.
-  intros. red.
-  destruct H.
-  exists (fun x => f (proj1_sig x)).
-  intros ? ? ?.
-  apply H in H0.
-  apply subset_eq.
-  assumption.
-Qed.
-
 Lemma countable_indexed_union: forall {X A:Type}
   (F:IndexedFamily A X), CountableT A ->
     (forall a:A, Countable (F a)) ->
@@ -332,7 +320,7 @@ intros.
 rewrite indexed_to_family_union.
 apply countable_family_union.
 - apply countable_img.
-  apply countable_ens.
+  apply countable_type_ensemble.
   assumption.
 - intros. destruct H1.
   subst. apply H0.
