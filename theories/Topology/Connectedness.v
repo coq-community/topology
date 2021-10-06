@@ -167,3 +167,35 @@ split.
   specialize (H S H0) as [|]; auto.
   subst. destruct H1.
 Qed.
+
+(* For constructing examples of connected spaces. *)
+Lemma connected_subsingleton {X : TopologicalSpace} :
+  (forall x y : X, x = y) ->
+  connected X.
+Proof.
+  intros. red. intros.
+  destruct (classic (Inhabited S)).
+  - right.
+    apply Extensionality_Ensembles; split; red; intros.
+    { constructor. }
+    destruct H1.
+    replace x with x0; try assumption.
+    apply H.
+  - apply Powerset_facts.not_inhabited_empty in H1.
+    left. assumption.
+Qed.
+
+Corollary connected_subspace_empty {X : TopologicalSpace} :
+  connected (@SubspaceTopology X Empty_set).
+Proof.
+  apply connected_subsingleton.
+  intros. destruct x as [? []].
+Qed.
+
+Corollary connected_subspace_singleton {X : TopologicalSpace} (x : X) :
+  connected (SubspaceTopology (Singleton x)).
+Proof.
+  apply connected_subsingleton.
+  intros [? []] [? []].
+  reflexivity.
+Qed.
