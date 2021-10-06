@@ -140,7 +140,7 @@ red. intros.
 constructor;
   intros.
 - destruct H.
-  replace (open_ball (point_set RTop) R_metric x r) with
+  replace (@open_ball RTop R_metric x r) with
           (Intersection
             [ y:R | x-r <= y /\ y <> x-r ]
             [ y:R | y <= x+r /\ y <> x+r ]).
@@ -158,7 +158,7 @@ constructor;
 - intros.
   apply open_neighborhood_is_neighborhood, RTop_neighborhood_is_neighbourhood in H.
   destruct H.
-  exists (open_ball (point_set RTop) R_metric x x0).
+  exists (open_ball R_metric x x0).
   split.
   + now destruct x0.
   + intros r [H0].

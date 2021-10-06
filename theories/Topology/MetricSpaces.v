@@ -36,12 +36,15 @@ Arguments metric {X}.
 
 Section metric_topology.
 
-Variable X:Type.
+Context {X:Type}.
 Variable d:X->X->R.
 Hypothesis d_is_metric: metric d.
 
 Definition open_ball (x0:X) (r:R) : Ensemble X :=
   [ x:X | d x0 x < r ].
+
+Definition closed_ball (x0 : X) (r : R) : Ensemble X :=
+  [x : X | d x0 x <= r].
 
 Inductive metric_topology_neighborhood_basis (x:X) : Family X :=
   | intro_open_ball: forall r:R, r > 0 ->
@@ -109,18 +112,143 @@ intros.
 apply Build_TopologicalSpace_from_open_neighborhood_bases_basis.
 Qed.
 
+Lemma metric_open_ball_In X (d : X -> X -> R) :
+  metric d -> forall x r,
+    0 < r <->
+    In (open_ball d x r) x.
+Proof.
+  intros.
+  split.
+  - intros.
+    constructor.
+    rewrite metric_zero; assumption.
+  - intros.
+    destruct H0.
+    rewrite metric_zero in H0; assumption.
+Qed.
+
+Lemma metric_open_ball_radius_nonpositive X d :
+  @metric X d ->
+  forall x r,
+    r <= 0 <->
+    open_ball d x r = Empty_set.
+Proof.
+  intros.
+  split; intros.
+  - apply Extensionality_Ensembles; split; red; intros; try contradiction.
+    destruct H1.
+    pose proof (metric_nonneg X d H x x0).
+    lra.
+  - apply NNPP. intros ?.
+    apply Rnot_le_lt in H1.
+    apply (metric_open_ball_In X d H x) in H1.
+    rewrite H0 in H1.
+    destruct H1.
+Qed.
+
+Lemma closed_ball_radius_zero X d (x0 : X) :
+  metric d ->
+  closed_ball d x0 0 = Singleton x0.
+Proof.
+  intros.
+  apply Extensionality_Ensembles; split; red; intros.
+  - destruct H0.
+    apply Singleton_intro.
+    apply (metric_strict _ _ H).
+    apply Rle_antisym; try assumption.
+    pose proof (metric_nonneg _ _ H x0 x).
+    lra.
+  - constructor. destruct H0.
+    rewrite metric_zero; auto; lra.
+Qed.
+
+Lemma metric_closed_ball_In X (d : X -> X -> R) :
+  metric d -> forall x r,
+    0 <= r <->
+    In (closed_ball d x r) x.
+Proof.
+  intros.
+  pose proof (metric_zero X d H x).
+  split.
+  - intros.
+    constructor.
+    lra.
+  - intros.
+    destruct H1.
+    lra.
+Qed.
+
+Lemma closed_ball_radius_negative X d :
+  @metric X d ->
+  forall x r,
+    r < 0 <->
+    closed_ball d x r = Empty_set.
+Proof.
+  intros.
+  split.
+  - intros.
+    apply Extensionality_Ensembles; split; red; intros; try contradiction.
+    destruct H1.
+    pose proof (metric_nonneg X d H x x0).
+    lra.
+  - intros.
+    apply NNPP.
+    intros ?.
+    apply not_Rlt in H1.
+    apply Rge_le in H1.
+    apply (metric_closed_ball_In X d H x r) in H1.
+    rewrite H0 in H1.
+    destruct H1.
+Qed.
+
+Lemma metric_open_closed_ball_Included X d (x : X) r :
+  Included (open_ball d x r) (closed_ball d x r).
+Proof.
+  intros ? ?.
+  destruct H.
+  constructor.
+  lra.
+Qed.
+
 Lemma metric_space_open_ball_open :
   forall (X:TopologicalSpace) (d:point_set X -> point_set X -> R),
     metrizes X d -> metric d ->
-    forall x r, r > 0 -> open (open_ball _ d x r).
+    forall x r, open (open_ball d x r).
 Proof.
   intros.
   specialize (H x).
-  assert (In (metric_topology_neighborhood_basis d x) (open_ball _ d x r)).
-  { constructor. assumption. }
-  apply H in H2.
-  destruct H2.
-  assumption.
+  destruct (classic (r > 0)).
+  - assert (In (metric_topology_neighborhood_basis d x) (open_ball d x r)).
+    { constructor. assumption. }
+    apply H in H2.
+    destruct H2.
+    assumption.
+  - rewrite metric_open_ball_radius_nonpositive;
+      auto with topology; lra.
+Qed.
+
+Lemma metric_space_closed_ball_closed {X : TopologicalSpace} (d : X -> X -> R) :
+  metrizes X d -> metric d ->
+  forall x r, closed (closed_ball d x r).
+Proof.
+  intros.
+  red.
+  apply open_char_neighborhood.
+  intros.
+  exists (open_ball d x0 (d x x0 - r)).
+  split.
+  - split.
+    + apply metric_space_open_ball_open; assumption.
+    + apply metric_open_ball_In; auto.
+      apply NNPP. intros ?.
+      apply H1. constructor. lra.
+  - intros ? ?.
+    destruct H2.
+    intros ?.
+    destruct H3.
+    pose proof (triangle_inequality X d H0 x x1 x0).
+    rewrite (metric_sym X d H0 x1 x0) in H4.
+    lra.
 Qed.
 
 Require Export Nets.
@@ -150,7 +278,7 @@ Lemma metric_space_net_limit_converse: forall (X:TopologicalSpace)
                          for large i:DS_set I, d x0 (x i) < eps.
 Proof.
 intros.
-pose (U:=open_ball _ d x0 eps).
+pose (U:=open_ball d x0 eps).
 assert (open_neighborhood U x0).
 { apply H.
   now constructor. }
@@ -188,7 +316,7 @@ Lemma metric_space_net_cluster_point_converse: forall (X:TopologicalSpace)
                 exists arbitrarily large i:DS_set I, d x0 (x i) < eps.
 Proof.
 intros.
-pose (U:=open_ball _ d x0 eps).
+pose (U:=open_ball d x0 eps).
 assert (open_neighborhood U x0).
 { apply H.
   now constructor. }
@@ -214,7 +342,7 @@ Proof.
 intros.
 destruct (H x).
 destruct (H0 (f x)).
-assert (neighborhood (open_ball _ dY (f x) eps) (f x)).
+assert (neighborhood (open_ball dY (f x) eps) (f x)).
 { apply open_neighborhood_is_neighborhood.
   apply open_neighborhood_basis_elements0.
   now constructor. }
@@ -227,7 +355,7 @@ destruct H5 as [delta].
 exists delta.
 split; trivial.
 intros.
-assert (In (inverse_image f (open_ball _ dY (f x) eps)) x').
+assert (In (inverse_image f (open_ball dY (f x) eps)) x').
 { apply H4, H6.
   now constructor. }
 destruct H8.
@@ -254,7 +382,7 @@ destruct (open_neighborhood_basis_cond0 V' H2).
 destruct H4.
 destruct H4 as [eps].
 destruct (H1 eps H4) as [delta []].
-exists (open_ball _ dX x delta).
+exists (open_ball dX x delta).
 split.
 - apply open_neighborhood_basis_elements.
   now constructor.
@@ -275,7 +403,7 @@ intros.
 destruct H.
 red. intros.
 exists (Im [n:nat | (n>0)%nat]
-           (fun n:nat => open_ball _ d x (/ (INR n)))).
+           (fun n:nat => open_ball d x (/ (INR n)))).
 split.
 - apply open_neighborhood_basis_is_neighborhood_basis.
   constructor; intros.
@@ -287,7 +415,7 @@ split.
   + destruct (H0 x).
     destruct (open_neighborhood_basis_cond U) as [V [[eps] ?]]; trivial.
     destruct (inverses_of_nats_approach_0 eps H2) as [n [? ?]].
-    exists (open_ball _ d x (/ (INR n))).
+    exists (open_ball d x (/ (INR n))).
     split.
     * now exists n.
     * red. intros y ?.
@@ -309,7 +437,7 @@ destruct H, H0.
 exists (Im [p:(Q*X)%type |
             let (r,x):=p in (r>0)%Q /\ In S x]
   (fun p:(Q*X)%type =>
-      let (r,x):=p in open_ball _ d x (Q2R r))).
+      let (r,x):=p in open_ball d x (Q2R r))).
 - constructor.
   + intros.
     destruct H3.
@@ -327,13 +455,13 @@ exists (Im [p:(Q*X)%type |
     destruct (open_neighborhood_basis_cond U) as [V [[r]]].
     * now split.
     * destruct (dense_meets_every_nonempty_open _ _ H2
-        (open_ball _ d x (r/2))).
+        (open_ball d x (r/2))).
       ** destruct (open_neighborhood_basis_elements
-           (open_ball _ d x (r/2))).
+           (open_ball d x (r/2))).
          *** constructor.
              lra.
          *** destruct (open_neighborhood_basis_elements
-               (open_ball X d x (r/2))); trivial.
+               (open_ball d x (r/2))); trivial.
              constructor.
              lra.
       ** exists x.
@@ -343,7 +471,7 @@ exists (Im [p:(Q*X)%type |
       ** destruct H7, H8.
          destruct (rationals_dense_in_reals (d x x0) (r - d x x0)) as [r'].
          *** lra.
-         *** exists (open_ball _ d x0 (Q2R r')).
+         *** exists (open_ball d x0 (Q2R r')).
              repeat split.
              **** exists ( (r', x0) ); trivial.
                   constructor.
@@ -400,7 +528,7 @@ intros.
 destruct H.
 destruct (ClassicalChoice.choice (fun (n:{n:nat | (n > 0)%nat}) (S:Family X) =>
   Included S (Im Full_set (fun x:point_set X =>
-                            open_ball _ d x (/ (INR (proj1_sig n)))))
+                            open_ball d x (/ (INR (proj1_sig n)))))
   /\ Countable S /\ FamilyUnion S = Full_set))
 as [choice_fun].
 - destruct x as [n].
@@ -416,7 +544,7 @@ as [choice_fun].
   + extensionality_ensembles.
     * constructor.
     * simpl.
-      exists (open_ball _ d x (/ INR n)).
+      exists (open_ball d x (/ INR n)).
       ** now exists x.
       ** constructor.
          rewrite metric_zero; auto with real.
@@ -478,8 +606,8 @@ Lemma metrizable_Hausdorff :
 Proof.
   intros. red; intros.
   destruct H.
-  exists (open_ball _ d x ((d x y)/2)).
-  exists (open_ball _ d y ((d x y)/2)).
+  exists (open_ball d x ((d x y)/2)).
+  exists (open_ball d y ((d x y)/2)).
   assert (0 < d x y).
   { apply NNPP. intro.
     contradict H0.
@@ -593,7 +721,7 @@ destruct (open_neighborhood_basis_cond (Complement (closure S))) as [V [? ?]].
     destruct H4 as [y].
     rewrite H5. clear y0 H5.
     destruct (total_order_T (d x y) r) as [[?|?]|?]; auto with real rorders.
-    assert (In (open_ball _ d x r) y) by
+    assert (In (open_ball d x r) y) by
       now constructor.
     apply H2 in H5.
     contradiction H5.
@@ -619,10 +747,10 @@ apply Rle_antisym.
     clear H1.
     simpl in H2.
     assert (In (interior (Complement S)) x).
-    { exists (open_ball _ d x eps).
+    { exists (open_ball d x eps).
       - red. split.
         destruct (d_metrizes_X x).
-        destruct (open_neighborhood_basis_elements (open_ball _ d x eps)).
+        destruct (open_neighborhood_basis_elements (open_ball d x eps)).
         + constructor. lra.
         + split; trivial.
           red. intros y ?.
@@ -653,160 +781,132 @@ Lemma closer_to_S_than_T_open: open
   [x:point_set X | dist_to_set d d_is_metric S S_nonempty x <
                    dist_to_set d d_is_metric T T_nonempty x].
 Proof.
-match goal with |- open ?U => replace U with (interior U) end.
-{ apply interior_open. }
-apply Extensionality_Ensembles; split.
-{ apply interior_deflationary. }
-red. intros.
+apply open_char_neighborhood.
+intros.
 destruct H.
 match type of H with ?d1 < ?d2 => pose (eps := d2 - d1) end.
-match goal with |- In (interior ?U) x =>
-  assert (Included (open_ball _ d x (eps/2)) (interior U)) end.
-{ apply interior_maximal.
-  * destruct (d_metrizes_X x).
-    destruct (open_neighborhood_basis_elements
-      (open_ball _ d x (eps/2))); trivial.
-    constructor.
-    assert (eps > 0).
+exists (open_ball d x (eps/2)).
+split.
+{ split.
+  - apply metric_space_open_ball_open; assumption.
+  - apply metric_open_ball_In; try assumption.
+    assert (0 < eps).
     { apply Rgt_minus. auto with real. }
     lra.
-  * red. intros.
-    destruct H0.
-    constructor.
-    eapply Rle_lt_trans with
-      (dist_to_set d d_is_metric S S_nonempty x +
-       d x x0).
-    ** apply dist_to_set_triangle_inequality.
-    ** apply Rlt_le_trans with
-         (dist_to_set d d_is_metric T T_nonempty x - d x x0).
-       *** apply Rminus_lt.
-           match goal with |- ?LHS < 0 => replace LHS with (2 * d x x0 - eps) end;
-             [| unfold eps]; lra.
-       *** assert (dist_to_set d d_is_metric T T_nonempty x <=
-             dist_to_set d d_is_metric T T_nonempty x0 + d x x0).
-           { rewrite (metric_sym _ d d_is_metric x x0).
-             apply dist_to_set_triangle_inequality. }
-           lra. }
-apply H0.
+}
+intros ? ?.
+destruct H0.
 constructor.
-rewrite metric_zero; trivial.
-apply Rmult_gt_0_compat; auto with real rorders.
-now apply Rgt_minus.
+eapply Rle_lt_trans with
+  (dist_to_set d d_is_metric S S_nonempty x +
+   d x x0).
+- apply dist_to_set_triangle_inequality.
+- apply Rlt_le_trans with
+     (dist_to_set d d_is_metric T T_nonempty x - d x x0).
+  * apply Rminus_lt.
+    match goal with
+      |- ?LHS < 0 =>
+      replace LHS with (2 * d x x0 - eps)
+    end; [| unfold eps]; lra.
+  * assert (dist_to_set d d_is_metric T T_nonempty x <=
+            dist_to_set d d_is_metric T T_nonempty x0 + d x x0).
+    { rewrite (metric_sym _ d d_is_metric x x0).
+      apply dist_to_set_triangle_inequality.
+    }
+    lra.
 Qed.
 
 End dist_to_set_and_topology.
+
+Lemma metrizable_impl_T1_sep: forall X:TopologicalSpace,
+  metrizable X -> T1_sep X.
+Proof.
+intros.
+destruct H.
+red. intros.
+rewrite <- closed_ball_radius_zero with (d := d); try assumption.
+apply metric_space_closed_ball_closed; assumption.
+Qed.
 
 Lemma metrizable_impl_normal_sep: forall X:TopologicalSpace,
   metrizable X -> normal_sep X.
 Proof.
 intros.
-destruct H.
 split.
-- red. intros.
-  replace (Singleton x) with (closure (Singleton x)).
-  { apply closure_closed. }
-  apply Extensionality_Ensembles. split.
-  + red. intros.
-    replace x0 with x.
-    { constructor. }
-    apply metric_strict with d; trivial.
-    apply NNPP; intro.
-    assert (d x0 x > 0).
-    { destruct (total_order_T (d x0 x) 0) as [[?|?]|?]; trivial.
-      - assert (0 < 0).
-        { apply Rle_lt_trans with (d x0 x); trivial.
-          assert (d x0 x >= 0); auto with *.
-          now apply metric_nonneg. }
-        contradict H3; apply Rlt_irrefl.
-      - destruct H. now rewrite metric_sym0 in e. }
-    assert (In (interior (Complement (Singleton x))) x0).
-    { exists (open_ball _ d x0 (d x0 x));
-        constructor.
-      - destruct (H0 x0).
-        destruct (open_neighborhood_basis_elements
-          (open_ball X d x0 (d x0 x))).
-        + now constructor.
-        + split; trivial.
-          red. intros.
-          intro.
-          destruct H7, H6.
-          lra.
-      - now rewrite metric_zero. }
-    rewrite interior_complement in H4.
-    contradiction H4.
-  + apply closure_inflationary.
-- intros.
-  case (classic_dec (Inhabited F)); intro.
-  + case (classic_dec (Inhabited G)); intro.
-    * pose (U := [ x:point_set X | dist_to_set d H F i x <
-                                   dist_to_set d H G i0 x ]).
-      pose (V := [ x:point_set X | dist_to_set d H G i0 x <
-                                   dist_to_set d H F i x ]).
-      exists U, V; repeat split.
-      ** now apply closer_to_S_than_T_open.
-      ** now apply closer_to_S_than_T_open.
-      ** replace (dist_to_set d H F i x) with 0.
-         *** destruct (total_order_T 0 (dist_to_set d H G i0 x)) as [[?|?]|?]; trivial.
-             **** symmetry in e.
-                  apply dist_to_set_zero_impl_closure in e; trivial.
-                  rewrite closure_fixes_closed in e; trivial.
-                  assert (In Empty_set x).
-                  { rewrite <- H3. now constructor. }
-                  destruct H5.
-             **** assert (0 < 0).
-                  { apply Rle_lt_trans with (dist_to_set d H G i0 x); auto with sets.
-                    unfold dist_to_set. destruct inf.
-                    simpl.
-                    apply i1.
-                    red. intros.
-                    destruct H5.
-                    rewrite H6.
-                    now apply metric_nonneg. }
-                  lra.
-         *** unfold dist_to_set. destruct inf.
-             simpl.
-             apply Rle_antisym.
-             **** apply i1.
-                  red. intros.
-                  destruct H5.
-                  rewrite H6.
-                  now apply metric_nonneg.
-             **** destruct i1.
-                  assert (0 >= x0); auto with real.
-                  apply H5.
-                  exists x; trivial.
-                  rewrite metric_zero; auto with real.
-      ** replace (dist_to_set d H G i0 x) with 0.
-         *** destruct (total_order_T 0 (dist_to_set d H F i x)) as [[?|?]|?]; trivial.
-             **** symmetry in e.
-                  apply dist_to_set_zero_impl_closure in e; trivial.
-                  rewrite closure_fixes_closed in e; trivial.
-                  now assert (In Empty_set x) by
-                    now rewrite <- H3.
-             **** assert (0 < 0).
-                  { apply Rle_lt_trans with (dist_to_set d H F i x);
-                      auto with real.
-                    unfold dist_to_set. destruct inf.
-                    simpl.
-                    apply i1.
-                    red. intros.
-                    destruct H5.
-                    rewrite H6.
-                    now apply metric_nonneg. }
-                  lra.
-         *** symmetry.
-             apply closure_impl_dist_to_set_zero; trivial.
-             now apply closure_inflationary.
-      ** extensionality_ensembles;
-           lra.
-    * exists Full_set, Empty_set.
-      repeat split; auto with sets topology.
+{ apply metrizable_impl_T1_sep.
+  assumption.
+}
+destruct H.
+intros.
+case (classic_dec (Inhabited F)); intro.
+2: {
+  apply Powerset_facts.not_inhabited_empty in n.
+  subst.
+  exists Empty_set, Full_set.
+  repeat split; auto with sets topology.
+}
+case (classic_dec (Inhabited G)); intro.
+2: {
+  apply Powerset_facts.not_inhabited_empty in n.
+  subst.
+  exists Full_set, Empty_set.
+  repeat split; auto with sets topology.
+}
+pose (U := [ x:X | dist_to_set d H F i x < dist_to_set d H G i0 x ]).
+pose (V := [ x:X | dist_to_set d H G i0 x < dist_to_set d H F i x ]).
+exists U, V; repeat split.
+- now apply closer_to_S_than_T_open.
+- now apply closer_to_S_than_T_open.
+- replace (dist_to_set d H F i x) with 0.
+  + destruct (total_order_T 0 (dist_to_set d H G i0 x)) as [[?|?]|?]; trivial.
+    * symmetry in e.
+      apply dist_to_set_zero_impl_closure in e; trivial.
+      rewrite closure_fixes_closed in e; trivial.
+      assert (In Empty_set x).
+      { rewrite <- H3. now constructor. }
+      destruct H5.
+    * destruct (Rlt_irrefl 0).
+      apply Rle_lt_trans with (dist_to_set d H G i0 x); auto with sets.
+      unfold dist_to_set. destruct inf.
+      simpl.
+      apply i1.
       red. intros.
-      contradiction n.
-      now exists x.
-  + exists Empty_set, Full_set.
-    repeat split; auto with sets topology.
-    red. intros.
-    contradiction n.
-    now exists x.
+      destruct H5.
+      rewrite H6.
+      now apply metric_nonneg.
+  + unfold dist_to_set. destruct inf.
+    simpl.
+    apply Rle_antisym.
+    * apply i1.
+      red. intros.
+      destruct H5.
+      rewrite H6.
+      now apply metric_nonneg.
+    * destruct i1.
+      assert (0 >= x0); auto with real.
+      apply H5.
+      exists x; trivial.
+      rewrite metric_zero; auto with real.
+- replace (dist_to_set d H G i0 x) with 0.
+  + destruct (total_order_T 0 (dist_to_set d H F i x)) as [[?|?]|?]; trivial.
+    * symmetry in e.
+      apply dist_to_set_zero_impl_closure in e; trivial.
+      rewrite closure_fixes_closed in e; trivial.
+      now assert (In Empty_set x) by
+        now rewrite <- H3.
+    * destruct (Rlt_irrefl 0).
+      apply Rle_lt_trans with (dist_to_set d H F i x);
+        auto with real.
+      unfold dist_to_set. destruct inf.
+      simpl.
+      apply i1.
+      red. intros.
+      destruct H5.
+      rewrite H6.
+      now apply metric_nonneg.
+  + symmetry.
+    apply closure_impl_dist_to_set_zero; trivial.
+    now apply closure_inflationary.
+- extensionality_ensembles;
+    lra.
 Qed.

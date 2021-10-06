@@ -68,15 +68,15 @@ apply continuous_at_neighborhood_basis with
 - intros.
   destruct H0.
   exists ([ p:point_set RTop * point_set RTop | let (x',y'):=p in
-    In (open_ball _ R_metric x (r/2)) x' /\
-    In (open_ball _ R_metric y (r/2)) y' ]).
+    In (open_ball R_metric x (r/2)) x' /\
+    In (open_ball R_metric y (r/2)) y' ]).
   repeat split;
     try (rewrite metric_zero; apply R_metric_is_metric + lra).
   + apply ProductTopology2_basis_is_basis.
     constructor;
     [ destruct (RTop_metrization x) |
       destruct (RTop_metrization y)];
-      apply (open_neighborhood_basis_elements (open_ball _ _ _ _));
+      apply (open_neighborhood_basis_elements (open_ball _ _ _));
       constructor; lra.
   + destruct x0 as [x' y'],
              H1 as [[[] []]].
@@ -174,15 +174,15 @@ apply continuous_at_neighborhood_basis with
   destruct H0.
   exists (characteristic_function_to_ensemble
     (fun p:point_set RTop * point_set RTop => let (x',y'):=p in
-    In (open_ball _ R_metric 0 r) x' /\
-    In (open_ball _ R_metric 0 1) y' )).
+    In (open_ball R_metric 0 r) x' /\
+    In (open_ball R_metric 0 1) y' )).
   repeat split.
   + apply ProductTopology2_basis_is_basis.
     constructor;
       destruct H.
-    * apply (open_neighborhood_basis_elements (open_ball _ R_metric 0 r)).
+    * apply (open_neighborhood_basis_elements (open_ball R_metric 0 r)).
       now constructor.
-    * apply (open_neighborhood_basis_elements (open_ball _ R_metric 0 1)).
+    * apply (open_neighborhood_basis_elements (open_ball R_metric 0 1)).
       constructor; red; auto with real.
   + rewrite metric_zero; trivial.
     apply R_metric_is_metric.

@@ -20,7 +20,7 @@ Proof.
 intros.
 destruct (MetricTopology_metrizable X d d_metric x0).
 red; intros.
-destruct (H (open_ball _ d x0 (eps/2))) as [N].
+destruct (H (open_ball d x0 (eps/2))) as [N].
 - Opaque In. apply open_neighborhood_basis_elements. Transparent In.
   constructor.
   lra.
@@ -50,7 +50,7 @@ apply metric_space_net_limit with d.
   red; intros.
   destruct (H (eps/2)) as [N].
   + lra.
-  + pose (U := open_ball X d x0 (eps/2)).
+  + pose (U := open_ball d x0 (eps/2)).
     assert (open_neighborhood U x0 (X:=MetricTopology d d_metric)).
   { apply MetricTopology_metrizable.
     constructor.

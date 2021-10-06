@@ -289,7 +289,7 @@ apply first_countable_sequence_closure in H.
     nat_DS f f0 H0 (r/3) H3) as [N].
   assert (neighborhood
     (inverse_image (proj1_sig (f N))
-       (open_ball _ d (proj1_sig (f N) x0) (r/3))) x0).
+       (open_ball d (proj1_sig (f N) x0) (r/3))) x0).
   { apply H.
     pose proof (MetricTopology_metrizable _ d d_metric
       (proj1_sig (f N) x0)).
