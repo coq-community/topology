@@ -130,20 +130,28 @@ Qed.
 Lemma metric_open_ball_radius_nonpositive X d :
   @metric X d ->
   forall x r,
-    r <= 0 <->
+    r <= 0 ->
     open_ball d x r = Empty_set.
 Proof.
   intros.
-  split; intros.
-  - apply Extensionality_Ensembles; split; red; intros; try contradiction.
-    destruct H1.
-    pose proof (metric_nonneg X d H x x0).
-    lra.
-  - apply NNPP. intros ?.
-    apply Rnot_le_lt in H1.
-    apply (metric_open_ball_In X d H x) in H1.
-    rewrite H0 in H1.
-    destruct H1.
+  apply Extensionality_Ensembles; split; red; intros; try contradiction.
+  destruct H1.
+  pose proof (metric_nonneg X d H x x0).
+  lra.
+Qed.
+
+Lemma metric_open_ball_radius_nonpositive0 X d :
+  @metric X d ->
+  forall x r,
+    open_ball d x r = Empty_set ->
+    r <= 0.
+Proof.
+  intros.
+  apply NNPP. intros ?.
+  apply Rnot_le_lt in H1.
+  apply (metric_open_ball_In X d H x) in H1.
+  rewrite H0 in H1.
+  destruct H1.
 Qed.
 
 Lemma closed_ball_radius_zero X d (x0 : X) :
