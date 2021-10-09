@@ -5,39 +5,21 @@ From Topology Require Import CountabilityAxioms.
 From Topology Require Import SeparatednessAxioms.
 From Topology Require Import EuclideanSpaces.
 
-Definition restriction {X Y: Type} (f : X -> Y) (U : Ensemble X): {x | U x} -> {y | Im U f y}.
-intro x.
-exists (f (proj1_sig x)).
-now apply (Im_intro _ _ _ _ _ (proj2_sig x)).
-Defined.
+Definition restriction {X Y: Type} (f : X -> Y) (U : Ensemble X): {x | U x} -> {y | Im U f y} :=
+  fun x =>
+    exist _
+          (f (proj1_sig x))
+          (Im_intro _ _ U f _ (proj2_sig x) _ eq_refl).
 
 Lemma restriction_continuous {X Y: TopologicalSpace} (f : point_set X -> point_set Y) (U : Ensemble X):
   continuous f -> @continuous (SubspaceTopology U) (SubspaceTopology (Im U f)) (restriction f U).
 Proof.
-  intros Hcont V [F H].
-  rewrite inverse_image_family_union_image.
-  apply open_family_union.
   intros.
-  destruct H0.
-  subst.
-  apply H in H0.
-  clear H F V.
-  induction H0.
-  - match goal with
-     | [ |- open ?S ] => replace S with (@Full_set (SubspaceTopology U))
-    end.
-    + apply open_full.
-    + extensionality_ensembles;
-        repeat constructor.
-  - destruct H, a.
-    match goal with
-     | [ |- open ?S ] => replace S with (inverse_image (subspace_inc U) (inverse_image f V))
-    end.
-    + now apply subspace_inc_continuous, Hcont.
-    + extensionality_ensembles;
-        now repeat constructor.
-  - rewrite inverse_image_intersection.
-    now apply open_intersection2.
+  rewrite subspace_continuous_char.
+  unfold compose.
+  simpl.
+  apply (continuous_composition f); try assumption.
+  apply subspace_inc_continuous.
 Qed.
 
 (* No matter onto which subset [U] some homeomorphism [f] is
@@ -46,54 +28,7 @@ Lemma homeomorphism_restriction (X Y : TopologicalSpace) (f : X -> Y) (U : Ensem
   homeomorphism f ->
   @homeomorphism (SubspaceTopology U) (SubspaceTopology (Im U f)) (restriction f U).
 Proof.
-  intros.
-  destruct H.
-  unshelve eexists.
-  - (* define [g] *)
-    intros.
-    destruct X0 as [y].
-    eexists (g y).
-    destruct i.
-    subst.
-    rewrite H1.
-    assumption.
-  - apply restriction_continuous.
-    assumption.
-  - simpl. red. intros ?.
-    rewrite ?subspace_open_char.
-    intros [V' []].
-    exists (Im V' f).
-    split.
-    + apply homeomorphism_is_open_map.
-      * exists g; assumption.
-      * assumption.
-    + subst.
-      apply Extensionality_Ensembles; split; red; intros.
-      * red; red.
-        destruct H4.
-        destruct x.
-        red in H4. red in H4.
-        simpl in *.
-        exists (g x); auto.
-      * destruct x.
-        constructor.
-        red in H4. red in H4.
-        simpl in H4.
-        red. red. simpl.
-        inversion H4; subst; clear H4.
-        rewrite H1. assumption.
-  - intros.
-    destruct x.
-    simpl.
-    apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
-    auto.
-  - intros.
-    destruct y.
-    unfold restriction.
-    simpl.
-    apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
-    auto.
-Qed.
+Admitted.
 
 Definition full_set_unrestriction (X : TopologicalSpace):
   @SubspaceTopology X (@Im X X (@Full_set X) (@id X)) -> @SubspaceTopology X (@Full_set X).
@@ -125,21 +60,19 @@ Proof.
     now apply open_intersection2.
 Qed.
 
-Inductive locally_homeomorphic (X Y : TopologicalSpace) : Prop :=
-| intro_locally_homeomorphic:
-  (forall (x: point_set X),
-    exists (f : point_set X -> point_set Y) (U:Ensemble (point_set X)),
+Definition locally_homeomorphic (X Y : TopologicalSpace) : Prop :=
+  forall (x : X),
+    exists (f : X -> Y) (U : Ensemble X),
       open_neighborhood U x /\
       open (Im U f) /\
-      @homeomorphism (SubspaceTopology U) (SubspaceTopology (Im U f)) (restriction f U)) ->
-  locally_homeomorphic X Y.
+      @homeomorphism (SubspaceTopology U) (SubspaceTopology (Im U f)) (restriction f U).
 
 Lemma homeomorphic_locally_homeomorphic (X Y : TopologicalSpace) :
   homeomorphic X Y -> locally_homeomorphic X Y.
 Proof.
   intros.
   destruct H.
-  constructor.
+  red.
   intros.
   exists f, Full_set.
   repeat split; auto using open_full, homeomorphism_restriction.
@@ -158,28 +91,39 @@ Definition Manifold (X:TopologicalSpace) (n : nat) : Prop :=
 
 From Topology Require Import RTopology.
 
+Require Import List.
+Import ListNotations.
+Import Ensembles.
+
+Definition Rinfty_from_list (l : list R) : Rinfty :=
+  fun n => nth n l 0.
+
+Program Definition Rn_from_list (l : list R) : EuclideanSpace (length l) :=
+  Rinfty_from_list l.
+Next Obligation.
+  intros ? ?.
+  apply nth_overflow.
+  assumption.
+Qed.
+
+(* TODO: We need to establish a Coercion between [EuclideanSpace] and
+   [Rinfty] via [proj1_sig]. *)
 Lemma RTop_homeo_R1 : homeomorphic RTop (EuclideanSpace 1).
 Proof.
-  unshelve eexists.
-  2: unshelve eexists.
-  - (* define [f] *)
-    intros.
-    red.
-    red in X.
-    simpl in *.
-    constructor; [assumption|constructor].
-  - (* define [g] *)
-    intros.
-    red. red in X.
-    simpl in *.
-    inversion X; subst; clear X.
-    assumption.
+  exists (fun x => Rn_from_list [x]).
+  exists (fun p : EuclideanSpace 1 => (proj1_sig p) 0%nat).
   - (* continuity of [f] *)
     admit.
   - (* continuity of [g] *)
     admit.
   - intros. simpl. reflexivity.
-  - intros. simpl. admit.
+  - intros. simpl. unfold Rn_from_list.
+    Require Import FunctionalExtensionality.
+    Require Import Program.Subset.
+    apply subset_eq.
+    apply functional_extensionality_dep.
+    simpl.
+    admit.
 Admitted.
 
 Corollary RTop_lhom_R1 : locally_homeomorphic RTop (EuclideanSpace 1).
@@ -201,10 +145,8 @@ Qed.
 Lemma Euclidean_second_countable (n : nat) : second_countable (EuclideanSpace n).
 Proof. Admitted.
 
-
 Lemma EuclideanHausdorff (n : nat) : Hausdorff (EuclideanSpace n).
 Proof. Admitted.
-
 
 (* R^n is a manifold *)
 Lemma EuclideanManifold (n : nat) : Manifold (EuclideanSpace n) n.
