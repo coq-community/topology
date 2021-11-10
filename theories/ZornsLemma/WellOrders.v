@@ -1,177 +1,55 @@
 From Coq Require Export Relation_Definitions.
 From Coq Require Import Classical Description
-     FunctionalExtensionality ProofIrrelevance.
+     FunctionalExtensionality Program.Subset.
 From ZornsLemma Require Import Classical_Wf EnsemblesSpec
-     Relation_Definitions_Implicit ZornsLemma.
-
-Section WellOrder.
-
-(* this definition is for the strict order, e.g. the
-   element relation for ordinals of ZFC *)
-Variable T:Type.
-
-Definition total_strict_order (R:relation T) : Prop :=
-  forall x y:T, R x y \/ x = y \/ R y x.
-
-Record well_order (R:relation T) : Prop := {
-  wo_well_founded: well_founded R;
-  wo_total_strict_order: total_strict_order R
-}.
-
-Lemma wo_irrefl: forall R:relation T, well_order R ->
-  (forall x:T, ~ R x x).
-Proof.
-intuition.
-assert (forall y:T, Acc R y -> y <> x).
-{ intros.
-  induction H1.
-  intuition.
-  rewrite H3 in H2.
-  apply H2 with x.
-  - trivial.
-  - trivial.
-}
-pose proof (wo_well_founded R H).
-unfold well_founded in H2.
-pose proof (H1 x (H2 x)).
-contradiction.
-Qed.
-
-Lemma wo_antisym: forall R:relation T, well_order R ->
-  (forall x y:T, R x y -> ~ R y x).
-Proof.
-intuition.
-assert (forall z:T, Acc R z -> z <> x /\ z <> y).
-{ intros.
-  induction H2.
-  intuition.
-  - rewrite H4 in H3.
-    pose proof (H3 y H1).
-    tauto.
-  - rewrite H4 in H3.
-    pose proof (H3 x H0).
-    tauto.
-}
-pose proof (wo_well_founded R H).
-unfold well_founded in H3.
-pose proof (H2 x (H3 x)).
-tauto.
-Qed.
-
-Lemma wo_transitive: forall R:relation T, well_order R -> transitive R.
-Proof.
-intros.
-unfold transitive.
-intros.
-case (wo_total_strict_order R H x z).
-{ trivial. }
-intro.
-case H2.
-- intro.
-  rewrite H3 in H0.
-  pose proof (wo_antisym R H y z).
-  contradict H0.
-  auto.
-- intro.
-  assert (forall a:T, Acc R a -> a <> x /\ a <> y /\ a <> z).
-  { intros.
-    induction H4.
-    intuition; subst.
-    - specialize (H5 z H3).
-      tauto.
-    - specialize (H5 z H0).
-      tauto.
-    - specialize (H5 y H1).
-      tauto.
-    - specialize (H5 z H3).
-      tauto.
-    - specialize (H5 x H0).
-      tauto.
-    - pose proof (H5 y H1).
-      tauto.
-  }
-  pose proof (wo_well_founded R H).
-  unfold well_founded in H5.
-  pose proof (H4 x (H5 x)).
-  tauto.
-Qed.
-
-End WellOrder.
-
-Arguments total_strict_order {T}.
-Arguments well_order {T}.
-Arguments wo_well_founded {T} {R}.
-Arguments wo_transitive {T} {R}.
-Arguments wo_total_strict_order {T} {R}.
-Arguments wo_irrefl {T} {R}.
-Arguments wo_antisym {T} {R}.
+     Relation_Definitions_Implicit Image ZornsLemma.
+From ZornsLemma Require Import StrictOrders WellOrders_new.
 
 Section WellOrderMinimum.
-
-Variable T:Type.
+Context {T:Type}.
 Variable R:relation T.
-Hypothesis well_ord: well_order R.
+Context `{well_ord : WellOrder T R}.
 
 Definition WO_minimum:
   forall S:Ensemble T, Inhabited S ->
     { x:T | In S x /\ forall y:T, In S y -> y = x \/ R x y }.
 refine (fun S H => constructive_definite_description _ _).
-pose proof (WF_implies_MEP T R (wo_well_founded well_ord)).
-unfold minimal_element_property in H0.
-pose proof (H0 S H).
-
-destruct H1.
-destruct H1.
-exists x.
-red.
-split.
-- split.
-  { assumption. }
+destruct (WF_implies_MEP T R wo_WF S H) as [x [Hx0 Hx1]].
+exists x. split.
+{ split; auto.
   intros.
-  case (wo_total_strict_order well_ord x y).
-  { tauto. }
-  intro.
-  case H4.
-  { auto. }
-  intro.
-  contradict H5.
-  auto.
-- intros.
-  destruct H3.
-  case (wo_total_strict_order well_ord x x').
-  + intro.
-    pose proof (H4 x H1).
-    case H6.
-    * trivial.
-    * intro.
-      contradict H7.
-      auto.
-  + intro.
-    case H5.
-    * trivial.
-    * intro.
-      contradict H6.
-      auto.
+  apply Hx1 in H0.
+  apply Connected_Classical_le in H0; try tauto;
+    typeclasses eauto.
+}
+intros y [Hy0 Hy1].
+specialize (Hx1 y Hy0).
+specialize (Hy1 x Hx0) as [|]; tauto.
 Defined.
 
 End WellOrderMinimum.
-
-Arguments WO_minimum {T}.
 
 Section WellOrderConstruction.
 
 Variable T:Type.
 
-Definition restriction_relation (R:relation T) (S:Ensemble T) :
-  relation ({z:T | In S z}) :=
-  fun (x y:{z:T | In S z}) => R (proj1_sig x) (proj1_sig y).
-
 Record partial_WO : Type := {
   pwo_S: Ensemble T;
   pwo_R: relation T;
   pwo_R_lives_on_S: forall (x y:T), pwo_R x y -> In pwo_S x /\ In pwo_S y;
-  pwo_wo: well_order (restriction_relation pwo_R pwo_S)
+  pwo_wo:> WellOrder (rel_restriction pwo_R pwo_S);
 }.
+
+Instance pwo_trans (WO : partial_WO) :
+  RelationClasses.Transitive (pwo_R WO).
+Proof.
+  intros x y z Hxy Hyz.
+  pose proof (pwo_R_lives_on_S _ x y Hxy).
+  pose proof (pwo_R_lives_on_S _ y z Hyz).
+  unshelve eapply (@wo_trans _ _ (pwo_wo WO)
+                     (exist _ x _) (exist _ y _) (exist _ z _));
+    try tauto.
+Qed.
 
 (* the last condition below says that S WO1 is a downward closed
    subset of S WO2 *)
@@ -217,162 +95,170 @@ constructor.
          auto with sets.
 Qed.
 
-Definition partial_WO_chain_ub: forall C:Ensemble partial_WO,
-  chain partial_WO_ord C -> partial_WO.
-refine (fun C H => let US := [ x:T | exists WO:partial_WO,
-                                     In C WO /\ In (pwo_S WO) x ] in
-           let UR := fun x y:T => exists WO:partial_WO, In C WO /\
-                                     pwo_R WO x y in
-        Build_partial_WO US UR _ _).
-- intros.
-  unfold UR in H0.
-  destruct H0.
-  destruct H0.
-  split.
-  + constructor.
-    exists x0.
-    split.
-    * assumption.
-    * pose proof (pwo_R_lives_on_S x0 x y).
-      tauto.
-  + constructor.
-    exists x0.
-    split.
-    * assumption.
-    * pose proof (pwo_R_lives_on_S x0 x y).
-      tauto.
-- constructor.
-  + assert (forall (WO:partial_WO) (x:{z:T | In (pwo_S WO) z}),
-       In C WO -> In US (proj1_sig x)).
-    { intros.
-      constructor.
-      exists WO.
-      split.
-      - assumption.
-      - exact (proj2_sig x).
-    }
-    assert (forall (WO:partial_WO) (iC:In C WO) (x:{z:T | In (pwo_S WO) z}),
-      Acc (restriction_relation (pwo_R WO) (pwo_S WO)) x ->
-      Acc (restriction_relation UR US)
-            (exist _ (proj1_sig x) (H0 WO x iC))).
-    { intros.
-      induction H1.
-      constructor.
-      intros.
-      destruct x as [x ix].
-      destruct y as [y iy].
-      unfold restriction_relation in H3.
-      simpl in H3.
-      assert (In (pwo_S WO) y).
-      { destruct H3.
-        destruct H3.
-        pose proof (H WO x0 iC H3).
-        case H5.
-        - intro.
-          destruct H6.
-          apply pwo_downward_closed0 with x.
-          + assumption.
-          + pose proof (pwo_R_lives_on_S x0 y x).
-            tauto.
-          + assumption.
-        - intro.
-          destruct H6.
-          apply pwo_S_incl0.
-          pose proof (pwo_R_lives_on_S x0 y x).
-          tauto.
-      }
-      pose proof (H2 (exist (In (pwo_S WO)) y H4)).
-      simpl in H5.
-      assert (iy = H0 WO (exist (In (pwo_S WO)) y H4) iC).
-      { apply proof_irrelevance. }
-      rewrite <- H6 in H5.
-      apply H5.
-      unfold restriction_relation.
-      simpl.
-      destruct H3.
-      destruct H3.
-      pose proof (H WO x0 iC H3).
-      case H8.
-      - intros.
-        destruct H9.
-        apply <- pwo_restriction0.
-        + assumption.
-        + assumption.
-        + assumption.
-      - intro.
-        destruct H9.
-        apply -> pwo_restriction0.
-        + assumption.
-        + pose proof (pwo_R_lives_on_S x0 y x).
-          tauto.
-        + pose proof (pwo_R_lives_on_S x0 y x).
-          tauto.
-    }
-    red. intro.
-    destruct a.
-    inversion i.
-    destruct H2.
-    destruct H2.
-    pose proof (H1 x0 H2 (exist _ x H3)).
-    simpl in H4.
-    assert (i = H0 x0 (exist _ x H3) H2).
-    { apply proof_irrelevance. }
-    rewrite <- H5 in H4.
-    apply H4.
-    apply (wo_well_founded (pwo_wo x0)).
-  + unfold total_strict_order.
-    intros.
-    destruct x.
-    destruct y.
-    unfold restriction_relation.
-    simpl.
-    destruct i.
-    destruct e.
-    destruct a.
-    destruct i0.
-    destruct e.
-    destruct a.
+Section partial_WO_chain_ub.
+  Variable (C : Ensemble partial_WO).
+  Variable (H : chain partial_WO_ord C).
 
-    case (H x1 x2 i i0).
-    * intro.
-      assert (In (pwo_S x2) x).
-      { apply H0. assumption. }
-      case (wo_total_strict_order (pwo_wo x2) (exist _ x H1) (exist _ x0 i2)).
-      -- unfold restriction_relation.
-         simpl.
-         left.
-         exists x2.
-         tauto.
-      -- intro.
-         case H2.
-         ++ right; left.
-            apply subset_eq_compat.
-            injection H3.
-            trivial.
-         ++ unfold restriction_relation.
-            simpl.
-            right; right.
-            exists x2. tauto.
-    * intro.
-      assert (In (pwo_S x1) x0).
-      { apply H0. assumption. }
-      case (wo_total_strict_order (pwo_wo x1) (exist _ x i1) (exist _ x0 H1)).
-      -- unfold restriction_relation.
-         simpl.
-         left.
-         exists x1.
-         tauto.
-      -- intro.
-         case H2.
-         ++ right; left.
-            apply subset_eq_compat.
-            injection H3.
-            trivial.
-         ++ unfold restriction_relation; simpl.
-            right; right.
-            exists x1.
-            tauto.
-Defined.
+  Let US := fun x => exists WO, In C WO /\ In (pwo_S WO) x.
+  Let UR := fun x y => exists WO, In C WO /\ pwo_R WO x y.
+
+  Lemma partial_WO_chain_ub_WExt_Lemma :
+    forall Wx Wy (x y : T) (Hx : In (pwo_S Wx) x) (Hy : In (pwo_S Wy) y)
+      (HWW : partial_WO_ord Wx Wy) (HWx : In C Wx) (HWy : In C Wy)
+      (Hsame :
+        Same_set
+          (initial_segment (rel_restriction UR US)
+             (exist (fun x : T => In US x) x
+                (ex_intro (fun WO : partial_WO => In C WO /\ In (pwo_S WO) x)
+                   Wx (conj HWx Hx))))
+          (initial_segment (rel_restriction UR US)
+             (exist (fun x : T => In US x) y
+                (ex_intro (fun WO : partial_WO => In C WO /\ In (pwo_S WO) y)
+                   Wy (conj HWy Hy))))),
+      x = y.
+  Proof.
+    intros Wx Wy x y Hx Hy HWW HWx HWy Hsame.
+    unshelve epose proof (@wo_wext _ _ Wy (exist _ x _) (exist _ y _));
+      simpl; try tauto.
+    { apply HWW; tauto. }
+    simpl in *.
+    unshelve epose proof (H0 _) as Heq.
+    2: {
+      inversion Heq; subst; clear Heq.
+      reflexivity.
+    }
+    clear H0.
+    (* use [Hsame] to do this *)
+    destruct Hsame as [Hsame0 Hsame1].
+    split; red; intros.
+    - unshelve epose proof (Hsame0 (exist _ (proj1_sig x0) _) _) as Hx0.
+      { simpl. exists Wy. split; auto.
+        apply (proj2_sig x0).
+      }
+      { lazy. exists Wy. split; auto. }
+      clear Hsame0 Hsame1 H0.
+      destruct Hx0 as [Wz [HWz HWx0]].
+      (* which is greater? [Wy] or [Wz]? *)
+      destruct (H Wy Wz HWy HWz) as [HWWW|HWWW].
+      + apply HWWW; auto.
+        apply (proj2_sig x0).
+      + simpl in HWx0.
+        pose proof (pwo_R_lives_on_S _ _ _ HWx0).
+        rewrite (pwo_restriction _ _ HWWW) in HWx0;
+          tauto.
+    - unshelve epose proof (Hsame1 (exist _ (proj1_sig x0) _) _) as Hx0.
+      { simpl. exists Wy. split; auto.
+        apply (proj2_sig x0).
+      }
+      { lazy. exists Wy. split; auto. }
+      clear Hsame0 Hsame1 H0.
+      destruct Hx0 as [Wz [HWz HWx0]].
+      (* which is greater? [Wy] or [Wz]? *)
+      destruct (H Wy Wz HWy HWz) as [HWWW|HWWW].
+      { simpl in HWx0.
+        pose proof (pwo_R_lives_on_S _ _ _ HWx0).
+        do 4 red. simpl.
+        rewrite (pwo_restriction _ _ HWWW);
+          try tauto.
+        - apply (proj2_sig x0).
+        - apply HWW. assumption.
+      }
+      simpl in HWx0.
+      do 4 red. simpl.
+      pose proof (pwo_R_lives_on_S _ _ _ HWx0).
+      apply HWWW; auto; try tauto.
+  Qed.
+
+  Lemma partial_WO_chain_ub_WO : WellOrder (rel_restriction UR US).
+  Proof.
+    constructor.
+    - (** well-founded *)
+      assert (forall (WO:partial_WO) (x:{z:T | In (pwo_S WO) z}),
+         In C WO -> In US (proj1_sig x)).
+      { intros.
+        exists WO.
+        split.
+        - assumption.
+        - exact (proj2_sig x).
+      }
+      assert (forall (WO:partial_WO) (iC:In C WO) (x:{z:T | In (pwo_S WO) z}),
+        Acc (rel_restriction (pwo_R WO) (pwo_S WO)) x ->
+        Acc (rel_restriction UR US)
+              (exist _ (proj1_sig x) (H0 WO x iC))).
+      { intros WO ? x ?.
+        induction H1.
+        constructor.
+        intros [y iy] ?.
+        destruct x as [x ix].
+        unfold rel_restriction in H3.
+        simpl in H3.
+        assert (In (pwo_S WO) y).
+        { destruct H3 as [Wy [HWy Hy]].
+          pose proof (pwo_R_lives_on_S Wy y x Hy) as [].
+          destruct (H WO Wy iC HWy) as [HWOW|HWOW].
+          - apply (pwo_downward_closed _ _ HWOW) with x;
+              auto.
+          - apply (pwo_S_incl _ _ HWOW).
+            auto.
+        }
+        pose proof (H2 (exist (In (pwo_S WO)) y H4)).
+        simpl in H5.
+        assert (iy = H0 WO (exist (In (pwo_S WO)) y H4) iC).
+        { apply proof_irrelevance. }
+        subst.
+        apply H5. clear H5.
+        unfold rel_restriction.
+        simpl.
+        destruct H3.
+        destruct H3.
+        destruct (H WO x0 iC H3) as [HWW|HWW].
+        - apply <- (pwo_restriction _ _ HWW); auto.
+        - pose proof (pwo_R_lives_on_S x0 y x).
+          apply -> (pwo_restriction _ _ HWW); tauto.
+      }
+      red. intro.
+      destruct a.
+      inversion i.
+      destruct H2.
+      pose proof (H1 x0 H2 (exist _ x H3)).
+      simpl in H4.
+      assert (i = H0 x0 (exist _ x H3) H2).
+      { apply proof_irrelevance. }
+      subst.
+      apply H4.
+      apply (pwo_wo x0).
+    - (** transitivity *)
+      intros x y z [W0 [HW0 Hxy]] [W1 [HW1 Hyz]].
+      pose proof (pwo_R_lives_on_S _ _ _ Hxy) as [].
+      pose proof (pwo_R_lives_on_S _ _ _ Hyz) as [].
+      (* decide which of [W0] and [W1] is bigger. *)
+      destruct (H W0 W1 HW0 HW1) as [HWW|HWW];
+        [exists W1 | exists W0]; split; auto.
+      all: unshelve eapply (pwo_trans _ _ (proj1_sig y) _);
+          simpl; try tauto; apply HWW; tauto.
+    - intros [x [Wx [HWx Hx]]] [y [Wy [HWy Hy]]] ?.
+      destruct (H Wx Wy HWx HWy) as [HWW|HWW].
+      + apply subset_eq.
+        apply (partial_WO_chain_ub_WExt_Lemma
+                 Wx Wy x y Hx Hy HWW HWx HWy H0).
+      + apply subset_eq.
+        symmetry in H0.
+        symmetry.
+        apply (partial_WO_chain_ub_WExt_Lemma
+                 Wy Wx y x Hy Hx HWW HWy HWx H0).
+  Qed.
+
+  Program Definition partial_WO_chain_ub : partial_WO :=
+      {| pwo_S := US;
+         pwo_R := UR;
+         pwo_wo := partial_WO_chain_ub_WO;
+      |}.
+  Next Obligation.
+    destruct H0 as [? []].
+    apply pwo_R_lives_on_S in H1 as [].
+    split; exists x0; auto.
+  Qed.
+End partial_WO_chain_ub.
 
 Lemma partial_WO_chain_ub_correct: forall (C:Ensemble partial_WO)
   (c:chain partial_WO_ord C), forall WO:partial_WO, In C WO ->
@@ -382,193 +268,240 @@ intros.
 constructor.
 - unfold Included.
   intros.
-  constructor.
   exists WO.
   tauto.
 - intros.
   split.
-  + intro.
+  { intro.
     exists WO.
     tauto.
-  + intro.
-    destruct H2.
-    destruct H2.
-    case (c WO x0 H H2).
-    * intro.
-      destruct H4.
-      apply <- pwo_restriction0; assumption.
-    * intro.
-      destruct H4.
-      apply -> pwo_restriction0.
-      -- assumption.
-      -- pose proof (pwo_R_lives_on_S x0 x y).
-         tauto.
-      -- pose proof (pwo_R_lives_on_S x0 x y).
-         tauto.
-
+  }
+  intro.
+  destruct H2.
+  destruct H2.
+  case (c WO x0 H H2).
+  { intro.
+    destruct H4.
+    apply <- pwo_restriction0; assumption.
+  }
+  intro.
+  destruct H4.
+  pose proof (pwo_R_lives_on_S x0 x y).
+  apply -> pwo_restriction0; tauto.
 - intros.
   destruct H2.
   destruct H2.
   case (c WO x0 H H2).
   + intro.
     destruct H4.
-    apply pwo_downward_closed0 with y.
-    * assumption.
-    * pose proof (pwo_R_lives_on_S x0 x y).
-      tauto.
-    * assumption.
+    pose proof (pwo_R_lives_on_S x0 x y).
+    apply pwo_downward_closed0 with y; tauto.
   + intro.
     apply H4.
     pose proof (pwo_R_lives_on_S x0 x y).
     tauto.
 Qed.
 
-Definition extend_strictly_partial_WO: forall (WO:partial_WO)
-  (a:T), ~ In (pwo_S WO) a -> partial_WO.
-refine (fun WO a H => let S' := Add (pwo_S WO) a in
-  let R' := fun x y:T => pwo_R WO x y \/ (In (pwo_S WO) x /\ y = a) in
-  Build_partial_WO S' R' _ _).
-- intros.
-  case H0.
-  + intros.
-    split.
-    * left.
-      pose proof (pwo_R_lives_on_S WO x y).
-      tauto.
-    * left.
-      pose proof (pwo_R_lives_on_S WO x y).
-      tauto.
-  + intros.
-    destruct H1.
-    split.
-    * left.
-      assumption.
-    * right.
-      rewrite H2.
-      auto with sets.
-- constructor.
-  + red.
-    intros.
-    assert (forall x:{y:T | In (pwo_S WO) y}, In S' (proj1_sig x)).
-    { intro.
-      destruct x.
-      left. simpl.
-      assumption.
-    }
+Section extend_strictly_partial_WO.
+  Variable (WO : partial_WO) (a : T) (H : ~ In (pwo_S WO) a).
 
-    assert (forall x:{y:T | In (pwo_S WO) y},
-      Acc (restriction_relation R' S') (exist _ (proj1_sig x) (H0 x))).
-    { intro.
-      pose proof (wo_well_founded (pwo_wo WO) x).
-      induction H1.
-      constructor.
-      intros.
-      destruct x.
-      destruct y.
-      unfold restriction_relation in H3.
-      simpl in H3.
-      assert (In (pwo_S WO) x0).
-      { case H3.
-        - intro.
-          pose proof (pwo_R_lives_on_S WO x0 x).
-          tauto.
-        - tauto.
-      }
-      assert (pwo_R WO x0 x).
-      { case H3.
-        - trivial.
-        - intro.
-          destruct H5.
-          contradict H.
-          rewrite <- H6.
-          assumption.
-      }
-      pose proof (H2 (exist _ x0 H4)).
-      simpl in H6.
-      assert (i0 = (H0 (exist (In (pwo_S WO)) x0 H4))).
-      { apply proof_irrelevance. }
-      rewrite <- H7 in H6.
-      apply H6.
-      red.
-      simpl.
-      assumption.
-    }
-    destruct a0.
-    case i.
-    * intros.
-      pose proof (H1 (exist _ x0 i0)).
-      simpl in H2.
-      assert (H0 (exist (In (pwo_S WO)) x0 i0) =
-        Union_introl T (pwo_S WO) (Singleton a) x0 i0).
-      { apply proof_irrelevance. }
-      rewrite <- H3.
-      assumption.
-    * intros.
-      generalize i0.
-      destruct i0.
-      intro.
-      constructor.
-      intros.
-      unfold restriction_relation in H2.
-      destruct y.
-      simpl in H2.
-      case H2.
-      -- intro.
-         contradict H.
-         pose proof (pwo_R_lives_on_S WO x0 a).
-         tauto.
-      -- intros.
-         destruct H3.
-         pose proof (H1 (exist _ x0 H3)).
-         simpl in H5.
-         replace (H0 (exist (In (pwo_S WO)) x0 H3)) with i1 in H5.
-         ++ assumption.
-         ++ apply proof_irrelevance.
-  + red.
-    intros.
+  Let S' := Add (pwo_S WO) a.
+  Let R' := fun x y => pwo_R WO x y \/ (In (pwo_S WO) x /\ y = a).
+
+  Lemma extend_strictly_partial_S'_In
+    (x : {y : T | In (pwo_S WO) y}) :
+    In S' (proj1_sig x).
+  Proof.
+    destruct x.
+    left. simpl.
+    assumption.
+  Qed.
+
+  Lemma extend_strictly_partial_S'_WF_lemma :
+    forall x:{y:T | In (pwo_S WO) y},
+        Acc (rel_restriction R' S') (exist _ (proj1_sig x) (extend_strictly_partial_S'_In x)).
+  Proof.
+    intro x.
+    pose proof (@wo_WF _ _ (pwo_wo WO) x) as Hx_acc.
+    induction Hx_acc.
+    constructor.
+    intros ? Hyx.
     destruct x.
     destruct y.
-    unfold restriction_relation.
-    simpl.
-    case i.
-    * case i0.
-      -- intros.
-         case (wo_total_strict_order (pwo_wo WO)
-           (exist _ x2 i2) (exist _ x1 i1)).
-         ++ intro.
-            red in H0.
-            simpl in H0.
-            left.
-            constructor 1.
-            assumption.
-         ++ intro.
-            case H0.
-            ** right; left.
-               apply subset_eq_compat.
-               injection H1.
-               trivial.
-            ** right; right.
-               red in H1.
-               simpl in H1.
-               constructor 1.
-               assumption.
-      -- intros.
-         left.
-         destruct i1.
-         constructor 2.
-         tauto.
-    * case i0.
-      -- intros.
-         right; right.
-         destruct i2.
-         constructor 2.
-         tauto.
-      -- right; left.
-         apply subset_eq_compat.
-         destruct i1.
-         destruct i2.
-         trivial.
-Defined.
+    unfold rel_restriction in Hyx.
+    simpl in Hyx.
+    assert (In (pwo_S WO) x0) as Hx0.
+    { case Hyx; try tauto.
+      intro.
+      pose proof (pwo_R_lives_on_S WO x0 x).
+      tauto.
+    }
+    assert (pwo_R WO x0 x) as Hx0x.
+    { case Hyx; try tauto.
+      intros [? Heq].
+      contradict H.
+      rewrite <- Heq.
+      assumption.
+    }
+    pose proof (H1 (exist _ x0 Hx0)).
+    simpl in H2.
+    assert (i0 = (extend_strictly_partial_S'_In (exist (In (pwo_S WO)) x0 Hx0)))
+             as Heq.
+    { apply proof_irrelevance. }
+    subst.
+    apply H2.
+    assumption.
+  Qed.
+
+  Lemma extend_strictly_partial_WO_WO :
+    WellOrder (rel_restriction R' S').
+  Proof.
+    constructor.
+    - intros ?.
+      pose extend_strictly_partial_S'_In as H0.
+      destruct a0.
+      pose proof (extend_strictly_partial_S'_WF_lemma) as H1.
+      case i.
+      + intros.
+        pose proof (H1 (exist _ x0 i0)).
+        simpl in H2.
+        assert (H0 (exist (In (pwo_S WO)) x0 i0) =
+          Union_introl T (pwo_S WO) (Singleton a) x0 i0).
+        { apply proof_irrelevance. }
+        rewrite <- H3.
+        assumption.
+      + intros.
+        generalize i0.
+        destruct i0.
+        intro.
+        constructor.
+        intros.
+        unfold rel_restriction in H2.
+        destruct y.
+        simpl in H2.
+        case H2.
+        * intro.
+          contradict H.
+          pose proof (pwo_R_lives_on_S WO x0 a).
+          tauto.
+        * intros.
+          destruct H3.
+          pose proof (H1 (exist _ x0 H3)).
+          simpl in H5.
+          replace (extend_strictly_partial_S'_In (exist (In (pwo_S WO)) x0 H3)) with i1 in H5;
+            auto; apply proof_irrelevance.
+    - intros [x Hx] [y Hy] [z Hz] Hxy Hyz.
+      destruct Hxy as [|[]].
+      2: {
+        destruct Hyz as [|[]].
+        - rewrite H1 in H2.
+          apply pwo_R_lives_on_S in H2.
+          tauto.
+        - rewrite H1 in H2.
+          tauto.
+      }
+      destruct Hyz as [|[]].
+      + left.
+        simpl in *.
+        apply (pwo_trans WO x y z); auto.
+      + right.
+        split; auto.
+        apply pwo_R_lives_on_S in H0.
+        tauto.
+    - intros [x Hx] [y Hy].
+      inversion Hx; subst.
+      + inversion Hy; subst.
+        * intros. apply subset_eq. simpl.
+          pose proof (@wo_wext _ _ (pwo_wo WO) (exist _ x H0) (exist _ y H1)).
+          pose (fun z Hz =>
+                  initial_segment (rel_restriction R' S') (exist _ z Hz)) as V.
+          pose (fun z Hz =>
+                  initial_segment (rel_restriction (pwo_R WO) (pwo_S WO)) (exist _ z Hz)) as U.
+          cut (forall a Ha0 Ha1 b Hb0 Hb1,
+                     Included (V a Ha0) (V b Hb0) ->
+                     Included (U a Ha1) (U b Hb1)).
+          { intros Hinc.
+            unshelve epose proof (H3 _) as Hi.
+            2: inversion Hi; subst; clear Hi; reflexivity.
+            split; unshelve eapply Hinc; auto; apply H2.
+          }
+          clear x Hx y Hy H0 H1 H2 H3.
+          intros.
+          intros [c Hc] Hac.
+          do 5 red. simpl.
+          do 5 red in Hac. simpl in Hac.
+          unshelve epose proof (H0 (exist _ c _) _); auto.
+          { left. auto. }
+          { left. assumption. }
+          destruct H1 as [|[]]; auto.
+          simpl in *. subst a. contradiction.
+        * intros.
+          inversion H1; subst; clear H1.
+          exfalso.
+          match goal with
+          | H : Same_set ?a ?b |- _ =>
+              unshelve eassert (In a (exist _ x _))
+          end.
+          { assumption. }
+          { apply Extensionality_Ensembles in H2.
+            rewrite H2.
+            lazy. right. split; auto.
+          }
+          lazy in H1.
+          destruct H1 as [|[]]; subst; try tauto.
+          apply (@wf_irrefl _ _ (@wo_WF _ _ (pwo_wo WO)) (exist _ x H0)) in H1.
+          auto.
+      + inversion H0; subst; clear H0.
+        inversion Hy; subst.
+        2: {
+          inversion H0; subst; clear H0.
+          intros.
+          apply subset_eq.
+          reflexivity.
+        }
+        intros.
+        exfalso.
+        match goal with
+        | H : Same_set ?a ?b |- _ =>
+            unshelve eassert (In b (exist _ y _))
+        end.
+        { assumption. }
+        { apply Extensionality_Ensembles in H1.
+          rewrite <- H1.
+          lazy. right. split; auto.
+        }
+        lazy in H2.
+        destruct H2 as [|[]]; subst; try tauto.
+        simpl in *.
+        apply (@wf_irrefl _ _ (@wo_WF _ _ (pwo_wo WO)) (exist _ y H0)) in H2.
+        auto.
+  Qed.
+
+  Program Definition extend_strictly_partial_WO : partial_WO :=
+    {| pwo_S := S';
+       pwo_R := R';
+       pwo_wo := extend_strictly_partial_WO_WO;
+    |}.
+  Next Obligation.
+    case H0.
+    - intros.
+      split.
+      + left.
+        pose proof (pwo_R_lives_on_S WO x y).
+        tauto.
+      + left.
+        pose proof (pwo_R_lives_on_S WO x y).
+        tauto.
+    - intros.
+      destruct H1.
+      split.
+      + left.
+        assumption.
+      + right.
+        rewrite H2.
+        auto with sets.
+  Qed.
+End extend_strictly_partial_WO.
 
 Lemma extend_strictly_partial_WO_correct: forall (WO:partial_WO)
   (x:T) (ni:~ In (pwo_S WO) x),
@@ -601,7 +534,7 @@ constructor.
     tauto.
 Qed.
 
-Lemma premaximal_partial_WO_is_full: forall WO:partial_WO,
+Lemma premaximal_partial_WO_is_full : forall WO:partial_WO,
   premaximal partial_WO_ord WO -> pwo_S WO = Full_set.
 Proof.
 intros.
@@ -624,20 +557,11 @@ apply H2.
 assumption.
 Qed.
 
-Theorem well_orderable: exists R:relation T, well_order R.
+Lemma premaximal_partial_WO_is_WF
+  (WO : partial_WO) `(H : premaximal partial_WO_ord WO) :
+  WellFounded (pwo_R WO).
 Proof.
-assert (exists WO:partial_WO, premaximal partial_WO_ord WO).
-{ apply ZornsLemmaForPreorders.
-  - exact partial_WO_preord.
-  - intros.
-    exists (partial_WO_chain_ub S H).
-    exact (partial_WO_chain_ub_correct S H).
-}
-
-destruct H as [WO].
-exists (pwo_R WO).
-constructor.
-- assert (forall x:T, In (pwo_S WO) x).
+  assert (forall x:T, In (pwo_S WO) x).
   { rewrite premaximal_partial_WO_is_full.
     - intro.
       constructor.
@@ -645,11 +569,11 @@ constructor.
   }
   assert (forall a:{x:T | In (pwo_S WO) x}, Acc (pwo_R WO) (proj1_sig a)).
   { intro.
-    pose proof (wo_well_founded (pwo_wo WO)).
+    pose proof (@wo_WF _ _ (pwo_wo WO)).
     induction (H1 a).
     destruct x.
     simpl.
-    unfold restriction_relation in H3; simpl in H3.
+    unfold rel_restriction in H3; simpl in H3.
     constructor.
     intros.
     apply H3 with (y := exist _ y (H0 y)).
@@ -657,22 +581,55 @@ constructor.
   }
   red; intro.
   apply H1 with (a := exist _ a (H0 a)).
-- red; intros.
-  assert (forall x:T, In (pwo_S WO) x).
-  { rewrite premaximal_partial_WO_is_full; intro.
-    - constructor.
-    - apply H.
+Qed.
+
+Lemma premaximal_partial_WO_is_weakly_extensional
+  (WO : partial_WO) (H : premaximal partial_WO_ord WO) :
+  WeaklyExtensional (pwo_R WO).
+Proof.
+  intros ? ? ?.
+  unshelve epose proof ((@wo_wext _ _ (pwo_wo WO)) (exist _ x _) (exist _ y _)).
+  1, 2: rewrite premaximal_partial_WO_is_full; auto; try constructor.
+  unshelve epose proof (H1 _) as Heq.
+  2: {
+    inversion Heq; subst; reflexivity.
   }
-  case (wo_total_strict_order (pwo_wo WO)
-    (exist _ x (H0 x)) (exist _ y (H0 y))).
-  { unfold restriction_relation; tauto. }
-  intro.
-  case H1.
-  + intro.
-    right; left.
-    injection H2.
-    trivial.
-  + unfold restriction_relation; tauto.
+  clear H1.
+  destruct H0.
+  firstorder.
+Qed.
+
+Lemma premaximal_partial_WO_is_WO
+  (WO : partial_WO) (H : premaximal partial_WO_ord WO) :
+  WellOrder (pwo_R WO).
+Proof.
+  constructor.
+  - apply (premaximal_partial_WO_is_WF WO H).
+  - apply (pwo_trans WO).
+  - apply (premaximal_partial_WO_is_weakly_extensional WO H).
+Qed.
+
+Theorem well_orderable_packed : exists W : well_order_packed,
+    wop_carrier W = T.
+Proof.
+assert (exists WO:partial_WO, premaximal partial_WO_ord WO)
+  as [WO H].
+{ apply ZornsLemmaForPreorders.
+  - exact partial_WO_preord.
+  - intros.
+    exists (partial_WO_chain_ub S H).
+    exact (partial_WO_chain_ub_correct S H).
+}
+exists {| wop_WO := premaximal_partial_WO_is_WO WO H |}.
+reflexivity.
+Qed.
+
+Theorem well_orderable: exists (R:relation T), WellOrder R.
+Proof.
+destruct well_orderable_packed as [WO].
+subst.
+exists (wop_rel WO).
+apply wop_WO.
 Qed.
 
 End WellOrderConstruction.
@@ -680,26 +637,25 @@ End WellOrderConstruction.
 Section WO_implies_AC.
 
 Lemma WO_implies_AC: forall (A B:Type) (R: A -> B -> Prop)
-  (WO:relation B), well_order WO ->
+  (WO:relation B) `{W : WellOrder B WO},
   (forall x:A, exists y:B, R x y) ->
   exists f:A->B, forall x:A, R x (f x).
 Proof.
 intros.
 assert (forall a:A, Inhabited [ b:B | R a b ]).
 { intro.
-  pose proof (H0 a).
-  destruct H1.
+  pose proof (H a) as [x].
   exists x.
   constructor; assumption.
 }
 
 exists (fun a:A => proj1_sig
-  (WO_minimum WO H [ b:B | R a b ] (H1 a))).
+  (WO_minimum WO [ b:B | R a b ] (H0 a))).
 intro.
 destruct @WO_minimum.
 simpl.
 destruct a.
-destruct H2.
+destruct H1.
 assumption.
 Qed.
 

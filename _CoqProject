@@ -64,5 +64,7 @@ theories/ZornsLemma/Powerset_facts.v
 theories/ZornsLemma/Proj1SigInjective.v
 theories/ZornsLemma/Quotients.v
 theories/ZornsLemma/Relation_Definitions_Implicit.v
+theories/ZornsLemma/StrictOrders.v
 theories/ZornsLemma/WellOrders.v
+theories/ZornsLemma/WellOrders_new.v
 theories/ZornsLemma/ZornsLemma.v
