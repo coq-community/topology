@@ -44,27 +44,54 @@ case (classic (forall y:T, In S y -> ~ R y x)).
   + assumption.
 Qed.
 
+(* Prop. 2.1 from n-lab page "well-founded relation" 2021-11-21
+   This is why the [minimal_element_property] is way too strong for
+   constructive reasoning.
+   This proof can even be performed in a topos. See the n-lab for this. *)
+Lemma MEP_inh_impl_LEM :
+  minimal_element_property ->
+  (exists x y, R y x) ->
+  (forall P : Prop, P \/ ~ P).
+Proof.
+  intros ? ? Q.
+  destruct H0 as [x [y Hxy]].
+  pose (P := Union (Singleton x) (fun a => R y x /\ Q)).
+  specialize (H P).
+  destruct H as [x0].
+  { exists x. left. constructor. }
+  destruct H.
+  destruct H.
+  2: {
+    left.
+    apply H.
+  }
+  inversion H; subst; clear H.
+  right.
+  intros ?.
+  unshelve eapply (H0 _ _ Hxy).
+  right. split; assumption.
+Qed.
+
+(* This fact holds constructively. *)
 Lemma MEP_implies_WF: minimal_element_property -> well_founded R.
 Proof.
-unfold well_founded.
-unfold minimal_element_property.
-intro MEP.
-apply NNPP.
-intuition.
-apply not_all_ex_not in H.
-destruct H.
-assert (Inhabited [x:T | ~ Acc R x]).
-{ exists x.
+intros MEP. red. intros.
+constructor. intros.
+unshelve epose proof (MEP_inh_impl_LEM MEP _) as LEM.
+{ eauto. }
+destruct (LEM (Acc R y)) as [|]; try assumption.
+exfalso.
+assert (Inhabited [x:T | ~ Acc R x]) as HInh.
+{ exists y.
   constructor; assumption.
 }
-apply MEP in H0.
-destruct H0 as [? [[?] ?]].
-contradict H0.
+apply MEP in HInh as [? [[?] ?]].
+contradict H1.
 constructor.
 intros.
-apply NNPP.
-intuition.
-apply H1 with y.
+destruct (LEM (Acc R y0)) as [|]; try assumption.
+exfalso.
+apply H2 with y0.
 - constructor; assumption.
 - assumption.
 Qed.
