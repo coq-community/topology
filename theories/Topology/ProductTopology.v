@@ -358,11 +358,11 @@ Variable f:point_set X -> point_set Y -> point_set Z.
 
 Definition continuous_2arg :=
   continuous (fun p:point_set X * point_set Y =>
-              let (x,y):=p in f x y)
+                f (fst p) (snd p))
   (X:=ProductTopology2 X Y).
 Definition continuous_at_2arg (x:point_set X) (y:point_set Y) :=
   continuous_at (fun p:point_set X * point_set Y =>
-                 let (x,y):=p in f x y)  (x, y)
+                 f (fst p) (snd p))  (x, y)
   (X:=ProductTopology2 X Y).
 
 Lemma continuous_2arg_func_continuous_everywhere:
@@ -398,9 +398,10 @@ Lemma continuous_composition_at_2arg:
   continuous_at (fun w:point_set W => f (g w) (h w)) w.
 Proof.
 intros.
+red in H.
 apply (continuous_composition_at
   (fun p:point_set (ProductTopology2 X Y) =>
-      let (x,y):=p in f x y)
+      f (fst p) (snd p))
   (fun w:point_set W => (g w, h w))); trivial.
 now apply product2_map_continuous_at.
 Qed.
