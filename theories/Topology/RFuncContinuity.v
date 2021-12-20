@@ -81,6 +81,7 @@ apply continuous_at_neighborhood_basis with
   + destruct x0 as [x' y'],
              H1 as [[[] []]].
     unfold R_metric.
+    simpl.
     replace (x'+y' - (x+y)) with ((x'-x) + (y'-y)) by ring.
     apply Rle_lt_trans with (Rabs (x'-x) + Rabs(y'-y)).
     * apply Rabs_triang.
@@ -167,9 +168,8 @@ pose proof (RTop_metrization 0).
 apply continuous_at_neighborhood_basis with
   (metric_topology_neighborhood_basis R_metric 0).
 - apply open_neighborhood_basis_is_neighborhood_basis.
-  replace (0*0) with 0 by auto with real.
-  apply H.
-
+  simpl. rewrite Rmult_0_r.
+  assumption.
 - intros.
   destruct H0.
   exists (characteristic_function_to_ensemble
@@ -192,9 +192,8 @@ apply continuous_at_neighborhood_basis with
     destruct x as [x y].
     destruct H1 as [[] []].
     unfold R_metric in *.
-    replace (x*y-0) with (x*y) by auto with real.
-    replace (x-0) with x in H1 by auto with real.
-    replace (y-0) with y in H2 by auto with real.
+    simpl.
+    rewrite Rminus_0_r in *.
     rewrite Rabs_mult.
     replace r with (r*1) by auto with real.
     apply Rmult_le_0_lt_compat;
