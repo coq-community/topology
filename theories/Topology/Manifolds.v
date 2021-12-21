@@ -193,6 +193,118 @@ Admitted.
   example the above lemma [locally_homeomorphic_sum].
 *)
 
+Lemma homeomorphism_Subspace_Im_homeomorphic (X Y : TopologicalSpace) U (f : X -> Y) :
+  homeomorphism f ->
+  homeomorphic (SubspaceTopology (Im U f)) (SubspaceTopology U).
+Proof.
+Admitted.
+
+Lemma subspace_inc_inverse_image (X : TopologicalSpace) (U V : Ensemble X) :
+  homeomorphic (SubspaceTopology (Intersection U V))
+               (SubspaceTopology (inverse_image (subspace_inc U) V)).
+Proof.
+Admitted.
+
+Lemma homeomorphic_nbhd_lemma (X Y Z : TopologicalSpace) (U V : Ensemble Y) (p : Y)
+  (HU : open_neighborhood U p)
+  (HV : open_neighborhood V p) :
+  forall (f0 : (SubspaceTopology U) -> X)
+         (f1 : (SubspaceTopology V) -> Z),
+    homeomorphism f0 -> homeomorphism f1 ->
+    let U' : Ensemble X := Im (inverse_image (subspace_inc U) V) f0 in
+    let V' : Ensemble Z := Im (inverse_image (subspace_inc V) U) f1 in
+    open_neighborhood U' (f0 (exist _ p (proj2 HU))) /\
+      open_neighborhood V' (f1 (exist _ p (proj2 HV))) /\
+      homeomorphic (SubspaceTopology (Intersection U V)) (SubspaceTopology U') /\
+      homeomorphic (SubspaceTopology (Intersection U V)) (SubspaceTopology V').
+Proof.
+  intros.
+  repeat split.
+  - apply homeomorphism_is_open_map;
+      try assumption.
+    apply subspace_inc_continuous.
+    apply HV.
+  - apply Im_def.
+    constructor.
+    apply HV.
+  - apply homeomorphism_is_open_map;
+      try assumption.
+    apply subspace_inc_continuous.
+    apply HU.
+  - apply Im_def.
+    constructor.
+    apply HU.
+  - etransitivity.
+    2: {
+      symmetry.
+      apply homeomorphism_Subspace_Im_homeomorphic.
+      assumption.
+    }
+    apply subspace_inc_inverse_image.
+  - etransitivity.
+    2: {
+      symmetry.
+      apply homeomorphism_Subspace_Im_homeomorphic.
+      assumption.
+    }
+    rewrite Intersection_commutative.
+    apply subspace_inc_inverse_image.
+Qed.
+
+Lemma inverse_image_image_inj {X Y : Type} (f : X -> Y) (U : Ensemble X) :
+  injective f ->
+  inverse_image f (Im U f) = U.
+Proof.
+  intros.
+  apply Extensionality_Ensembles; split.
+  2: apply inverse_image_image_included.
+  intros ? ?.
+  destruct H0.
+  inversion H0; subst; clear H0.
+  apply H in H2.
+  subst; assumption.
+Qed.
+
+Lemma proj1_sig_injective {X P} :
+  injective (@proj1_sig X P).
+Proof.
+  intros ? ? ?.
+  apply Subset.subset_eq.
+  assumption.
+Qed.
+
+Lemma homeomorphic_subspace_inc_Im_open {X : TopologicalSpace} (U : Ensemble X)
+      (V : Ensemble (SubspaceTopology U)) :
+  open U -> open V ->
+  homeomorphic (SubspaceTopology (Im V (subspace_inc U))) (SubspaceTopology V).
+Proof.
+  intros.
+  symmetry.
+  replace V with (inverse_image (subspace_inc U) (Im V (subspace_inc U))).
+  2: {
+    apply inverse_image_image_inj.
+    apply proj1_sig_injective.
+  }
+  etransitivity; symmetry.
+  apply subspace_inc_inverse_image.
+  replace (Im _ _) with (Intersection U (Im V (subspace_inc U))).
+  { reflexivity. }
+  apply Extensionality_Ensembles; split; red; intros.
+  - destruct H1.
+    inversion H2; subst; clear H2.
+    apply Im_def. constructor.
+    apply Im_def.
+    assumption.
+  - inversion H1; subst; clear H1.
+    destruct H2. inversion H1; subst; clear H1.
+    destruct x0, x. simpl in H3. subst.
+    split; try assumption.
+    apply Im_def.
+    replace i with i0.
+    2: apply proof_irrelevance.
+    assumption.
+Qed.
+
 Lemma locally_homeomorphic_trans (X Y Z : TopologicalSpace) :
   locally_homeomorphic X Y ->
   locally_homeomorphic Y Z ->
@@ -203,36 +315,58 @@ Proof.
   intros.
   specialize (H x) as [U0 [V0 [? [? [f0]]]]].
   specialize (H0 (proj1_sig (f0 (exist _ x (proj2 H))))) as [U1 [V1 [? [? [f1]]]]].
-  pose (W := Intersection V0 U1).
-  exists (Im (inverse_image f0 (inverse_image (subspace_inc V0) W)) (subspace_inc U0)).
-  exists (Im (Im (inverse_image (subspace_inc U1) W) f1) (subspace_inc V1)).
+  pose (y := proj1_sig (f0 (exist _ x (proj2 H)))).
+  assert (In V0 y).
+  { apply (proj2_sig _). }
+  destruct H2 as [g0 Hfg00 Hfg01 Hfg02 Hfg03].
+  unshelve epose proof (homeomorphic_nbhd_lemma
+                          (SubspaceTopology U0) Y
+                          (SubspaceTopology V1) V0 U1 y
+                          _ _ g0 f1 _ _).
+  { split; assumption. }
+  { apply H0. }
+  { exists f0; assumption. }
+  { assumption. }
+  pose (U' := Im (inverse_image (subspace_inc V0) U1) g0).
+  pose (V' := Im (inverse_image (subspace_inc U1) V0) f1).
+  fold U' V' in H2.
+  destruct H2 as [? [? []]].
+  exists (Im U' (subspace_inc _)), (Im V' (subspace_inc _)).
   repeat split.
   - apply (subspace_inc_open_map _ U0).
     + apply H.
     + apply H2.
-      apply subspace_inc_continuous.
-      unfold W.
-      apply open_intersection2;
-        try assumption.
-      apply H0.
-  - exists (exist _ x (proj2 H)).
+  - unshelve eexists (exist _ x _).
+    { apply H. }
     2: reflexivity.
-    constructor.
-    constructor.
-    split.
-    + apply (proj2_sig _).
-    + apply H0.
+    unshelve eexists (exist _ y H5).
+    + constructor.
+      simpl. apply H0.
+    + rewrite <- (Hfg02 (exist _ x _)).
+      apply f_equal. unfold y.
+      apply Subset.subset_eq.
+      simpl.
+      apply f_equal.
+      apply f_equal.
+      apply Subset.subset_eq.
+      reflexivity.
   - apply (subspace_inc_open_map _ V1).
-    1: assumption.
-    apply homeomorphism_is_open_map;
-      try assumption.
-    apply subspace_inc_continuous.
-    apply open_intersection2;
-      try assumption.
-    apply H0.
-  - (* Very difficult. *)
-    admit.
-Admitted.
+    + assumption.
+    + apply H6.
+  - etransitivity.
+    { apply homeomorphic_subspace_inc_Im_open.
+      - apply H.
+      - apply H2.
+    }
+    etransitivity.
+    2: {
+      symmetry.
+      apply homeomorphic_subspace_inc_Im_open.
+      - assumption.
+      - apply H6.
+    }
+    etransitivity; try eassumption; symmetry; assumption.
+Qed.
 
 Require Import Connectedness.
 
