@@ -644,3 +644,13 @@ Proof.
     + apply Sphere_hausdorff.
     + apply Sphere_lhom_Rn.
 Qed.
+
+Conjecture classification_zero_dim_mfd :
+  forall M, Manifold M 0 ->
+  homeomorphic M (DiscreteTopology M).
+
+Conjecture classification_one_dim_mfd :
+  forall M, Manifold M 1 -> connected M ->
+  homeomorphic M RTop \/ homeomorphic M (Sphere 1).
+
+(* Classification of (connected) two dimensional manifolds. *)
