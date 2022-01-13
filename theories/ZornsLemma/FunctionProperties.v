@@ -129,3 +129,23 @@ exists (compose f' g'); intros; unfold compose.
 - rewrite H0. apply H.
 - rewrite H1. apply H2.
 Qed.
+
+Lemma surjective_compose_conv {X Y Z : Type} (f : X -> Y) (g : Y -> Z) :
+  surjective (compose g f) -> surjective g.
+Proof.
+  intros.
+  red; intros.
+  specialize (H y).
+  destruct H as [x].
+  exists (f x).
+  assumption.
+Qed.
+
+Lemma injective_compose_conv {X Y Z : Type} (f : X -> Y) (g : Y -> Z) :
+  injective (compose g f) -> injective f.
+Proof.
+  intros ? ? ? ?.
+  apply (f_equal g) in H0.
+  apply H in H0.
+  assumption.
+Qed.
