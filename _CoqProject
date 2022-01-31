@@ -21,6 +21,7 @@ theories/Topology/OpenBases.v
 theories/Topology/OrderTopology.v
 theories/Topology/ProductTopology.v
 theories/Topology/QuotientTopology.v
+theories/Topology/AdjunctionSpace.v
 theories/Topology/RationalsInReals.v
 theories/Topology/RFuncContinuity.v
 theories/Topology/RTopology.v
