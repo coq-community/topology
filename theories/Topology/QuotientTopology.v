@@ -99,3 +99,20 @@ exists (Im S (quotient_projection R)).
     (quotient_projection_continuous R)
     (quotient_projection_surjective' R)).
 Qed.
+
+Lemma saturated_subset_quotient_projection_open {X : TopologicalSpace} (R : relation (point_set X)) (S : Ensemble X) :
+  equivalence R ->
+  (forall x, In S x -> Included (equiv_class R x) S) ->
+  open S -> @open (QuotientTopology R) (Im S (quotient_projection R)).
+Proof.
+intros.
+apply quotient_projection_open_iff.
+replace (inverse_image (quotient_projection R) (Im S (quotient_projection R))) with S; trivial.
+extensionality_ensembles_inv.
+- repeat econstructor + eassumption.
+- apply quotient_projection_minimally_collapses_R in H4; trivial.
+  apply H0 in H2.
+  apply H2.
+  constructor.
+  now apply equiv_sym.
+Qed.
