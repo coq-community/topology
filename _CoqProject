@@ -36,6 +36,7 @@ theories/Topology/TopologicalSpaces.v
 theories/Topology/UniformTopology.v
 theories/Topology/UrysohnsLemma.v
 theories/Topology/WeakTopology.v
+theories/Topology/Example_S1.v
 theories/ZornsLemma/Cardinals.v
 theories/ZornsLemma/Classical_Wf.v
 theories/ZornsLemma/CountableTypes.v
