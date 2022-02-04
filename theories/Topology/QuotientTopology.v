@@ -100,7 +100,7 @@ exists (Im S (quotient_projection R)).
     (quotient_projection_surjective' R)).
 Qed.
 
-Lemma saturated_subset_quotient_projection_open {X : TopologicalSpace} (R : relation (point_set X)) (S : Ensemble X) :
+Lemma saturated_subset_quotient_projection_open {X : TopologicalSpace} (R : relation X) (S : Ensemble X) :
   equivalence R ->
   (forall x, In S x -> Included (equiv_class R x) S) ->
   open S -> @open (QuotientTopology R) (Im S (quotient_projection R)).

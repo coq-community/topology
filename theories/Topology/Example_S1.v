@@ -209,24 +209,31 @@ rewrite <- asin_0.
 apply asin_increasing_1; lra.
 Qed.
 
+(* To be moved to the standard library *)
+Lemma sin_lt_x x : 0 < x -> sin x < x.
+Proof.
+intros.
+pose proof PI2_1.
+destruct (SIN_bound x), (Rle_or_lt x (PI / 2)); try lra.
+pose (f x := x - sin x).
+cut (f 0 < f x); [now unfold f; rewrite sin_0; lra|].
+eapply (MVT.derive_increasing_interv 0 (PI/2) (id - sin)%F); try lra.
+intros t Ht.
+rewrite derive_pt_minus, derive_pt_id, derive_pt_sin.
+pose proof (COS_bound t).
+pose proof cos_0.
+pose proof (cos_inj 0 t).
+lra.
+Qed.
+
 End TrigLemmas.
 
 Definition S1_Ensemble := [s : @ProductTopology2 RTop RTop | let (x, y) := s in x² + y² = 1].
 Definition S1 := SubspaceTopology S1_Ensemble.
 Definition UnitInterval_Ensemble := [x : RTop | 0 <= x <= 1].
 Definition UnitInterval := SubspaceTopology [x : RTop | 0 <= x <= 1].
-Definition U0 : UnitInterval.
-refine (exist _ 0 _).
-constructor.
-lra.
-Defined.
-
-Definition U1 : UnitInterval.
-refine (exist _ 1 _).
-constructor.
-lra.
-Defined.
-
+Definition U0 : UnitInterval := exist UnitInterval_Ensemble 0 ltac:(constructor; lra).
+Definition U1 : UnitInterval := exist UnitInterval_Ensemble 1 ltac:(constructor; lra).
 Definition ClosedUnitInterval := AdjunctionSpace (Couple U0 U1).
 
 Lemma Singleton_neq_Couple {T : Type} : forall x y z : T, x <> y -> Singleton z <> Couple x y.
@@ -1149,9 +1156,10 @@ split; intros.
   subst.
   destruct H1.
   simpl in H1.
-  assert (exists V : Ensemble (ProductTopology2 RTop RTop), In (small_metric_topology_neighborhood_basis2 RTop R_metric 1 0 1) V /\ Included V x0).
-  { apply small_neighborhood_basis2, open_neighborhood_is_neighborhood; try lra.
-    now split. }
+  assert (exists V : Ensemble (ProductTopology2 RTop RTop),
+          In (small_metric_topology_neighborhood_basis2 RTop R_metric 1 0 1) V /\ Included V x0).
+  { apply small_neighborhood_basis2, open_neighborhood_is_neighborhood;
+      [ lra | now split ]. }
   destruct H2, H2, H2.
   pose (Rmax (sqrt (1 - r²)) (1 - r)) as r1.
   assert (0 < 1 - r² < 1).
@@ -1386,78 +1394,38 @@ destruct (classic (x=quotient_projection _ U0)).
         pose proof (Rmin_l x (1 - x)).
         pose proof (Rmin_r x (1 - x)).
         change (rm <= Rmin x (1 - x)) in H11. lra. }
-      exists (Rmin r ((asin (r / 2)) / PI)).
-      pose proof PI_RGT_0.
-      pose proof (Rmin_l r (asin (r / 2) / PI)).
+      pose proof PI2_1.
+      assert (r / (2 * PI) < r).
+      { apply Rdiv_gt_mult; try lra.
+        unfold Rdiv.
+        rewrite Rinv_r; try lra.
+        replace 1 with (/1) by lra.
+        apply Rinv_lt_contravar; lra. }
+      exists (r / (2 * PI)).
       repeat split; try lra.
-      - apply Rmin_glb_lt; try lra.
-        apply Rdiv_gt_mult; trivial.
-        rewrite Rmult_0_r.
-        apply asin_gt_0; lra.
+      - apply Rdiv_gt_mult; lra.
       - red. intros.
         destruct x1, H14.
+        replace (r / (2 * PI) * PI) with (r / 2) in H14 by
+          (unfold Rdiv; rewrite Rinv_mult_distr, Rmult_assoc, Rmult_assoc, Rinv_l; lra ).
         simpl in H14.
+        assert (4 * (sin (r / 2))² < r²).
+        { apply Rdiv_gt_mult; try lra.
+          replace 4 with (2²) by (unfold Rsqr; lra).
+          rewrite <- Rsqr_div; try lra.
+          apply Rsqr_lt_abs_1.
+          rewrite Rabs_pos_eq, Rabs_pos_eq; try lra.
+          - apply sin_lt_x. lra.
+          - apply sin_ge_0; lra. }
+        pose proof (Rle_0_sqr (sin (x * (2 * PI)) - p0)).
+        pose proof (Rle_0_sqr (cos (x * (2 * PI)) - p)).
         apply H9.
-        destruct (asin_bound (r / 2)).
         split; simpl;
           constructor;
-          unfold R_metric.
-        + rewrite <- (Rabs_pos_eq r); try lra.
-          apply Rsqr_lt_abs_0.
-          rewrite Rsqr_neg_minus.
-          pose proof (Rmin_r r (asin (r / 2) / PI)) as H20.
-          apply Rdiv_ge_mult in H20; try lra.
-          rewrite Rmult_comm in H20.
-          apply sin_incr_1 in H20; try lra.
-          * rewrite sin_asin in H20; try lra.
-            apply Rdiv_ge_mult in H20; try lra.
-            apply neg_pos_Rsqr_le in H20.
-            -- rewrite Rsqr_mult in H20.
-               replace 2² with 4 in H20 by (unfold Rsqr; lra).
-               pose proof (Rle_0_sqr (sin (x * (2 * PI)) - p0)).
-               lra.
-            -- cut (0 < sin (Rmin r (asin (r / 2) / PI) * PI)); try lra.
-               apply sin_gt_0.
-               ++ apply Rmult_lt_0_compat; try lra.
-                  apply Rmin_glb_lt; try lra.
-                  apply Rdiv_lt_0_compat; try lra.
-                  apply asin_gt_0; lra.
-               ++ rewrite Rmult_comm.
-                  apply Rdiv_gt_mult; try lra.
-                  unfold Rdiv at 1. rewrite Rinv_r; lra.
-          * cut (0 < Rmin r (asin (r / 2) / PI) * PI); try lra.
-            apply Rmult_lt_0_compat; try lra.
-            apply Rmin_glb_lt; try lra.
-            apply Rdiv_lt_0_compat; try lra.
-            apply asin_gt_0; lra.
-        + rewrite <- (Rabs_pos_eq r); try lra.
-          apply Rsqr_lt_abs_0.
-          rewrite Rsqr_neg_minus.
-          pose proof (Rmin_r r (asin (r / 2) / PI)) as H20.
-          apply Rdiv_ge_mult in H20; try lra.
-          rewrite Rmult_comm in H20.
-          apply sin_incr_1 in H20; try lra.
-          * rewrite sin_asin in H20; try lra.
-            apply Rdiv_ge_mult in H20; try lra.
-            apply neg_pos_Rsqr_le in H20.
-            -- rewrite Rsqr_mult in H20.
-               replace 2² with 4 in H20 by (unfold Rsqr; lra).
-               pose proof (Rle_0_sqr (cos (x * (2 * PI)) - p)).
-               lra.
-            -- cut (0 < sin (Rmin r (asin (r / 2) / PI) * PI)); try lra.
-               apply sin_gt_0.
-               ++ apply Rmult_lt_0_compat; try lra.
-                  apply Rmin_glb_lt; try lra.
-                  apply Rdiv_lt_0_compat; try lra.
-                  apply asin_gt_0; lra.
-               ++ rewrite Rmult_comm.
-                  apply Rdiv_gt_mult; try lra.
-                  unfold Rdiv at 1. rewrite Rinv_r; lra.
-          * cut (0 < Rmin r (asin (r / 2) / PI) * PI); try lra.
-            apply Rmult_lt_0_compat; try lra.
-            apply Rmin_glb_lt; try lra.
-            apply Rdiv_lt_0_compat; try lra.
-            apply asin_gt_0; lra. }
+          unfold R_metric;
+          rewrite <- (Rabs_pos_eq r); try lra;
+          apply Rsqr_lt_abs_0;
+          rewrite Rsqr_neg_minus; lra. }
     destruct H8 as [r H8], H8, H9.
     exists (Im (inverse_image (@subspace_inc RTop _) (open_ball R_metric x r))
             (quotient_projection (SpaceAdjunction (Couple U0 U1)))).
@@ -1652,10 +1620,4 @@ destruct (classic (x = 0)), (classic (x = 1)); lra + subst.
       -- apply Rmult_lt_0_compat; lra.
       -- replace (2 * PI) with (1 * (2 * PI)) at 2 by lra.
          apply Rmult_le_compat_r; lra.
-Qed.
-
-Goal homeomorphic S1 ClosedUnitInterval.
-Proof.
-econstructor.
-apply (intro_homeomorphism f f_inv f_continuous f_inv_continuous f_bijection_1 f_bijection_2).
 Qed.

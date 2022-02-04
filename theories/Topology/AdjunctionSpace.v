@@ -1,20 +1,12 @@
 From ZornsLemma Require Import InverseImage Quotients.
 Require Export QuotientTopology.
 
-Lemma Singleton_injective {T : Type} : forall x y : T, Singleton x = Singleton y -> x = y.
-Proof.
-intros.
-assert (In (Singleton x) x) by constructor.
-rewrite H in H0.
-now destruct H0.
-Qed.
-
 Section AdjunctionSpace.
 
-Variable X : TopologicalSpace.
+Context {X : TopologicalSpace}.
 Variable S : Ensemble X.
 
-Definition SpaceAdjunction : relation X := fun x y => x = y \/ In S x /\ In S y.
+Definition SpaceAdjunction : relation X := fun x y => x = y \/ (In S x /\ In S y).
 Definition AdjunctionSpace := QuotientTopology SpaceAdjunction.
 
 Lemma SpaceAdjunction_equivalence: equivalence SpaceAdjunction.
@@ -86,12 +78,3 @@ now destruct H0.
 Qed.
 
 End AdjunctionSpace.
-
-Arguments SpaceAdjunction {X}.
-Arguments AdjunctionSpace {X}.
-Arguments SpaceAdjunction_equivalence {X}.
-Arguments SpaceAdjunction_equiv_class_S {X}.
-Arguments SpaceAdjunction_equiv_class_Singleton {X}.
-Arguments SpaceAdjunction_equiv_class_cases {X}.
-Arguments SpaceAdjunction_equiv_class_Singleton_eq {X}.
-Arguments SpaceAdjunction_quotient_projection_injective {X}.
