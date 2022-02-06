@@ -17,7 +17,7 @@ was as support for the Topology library.
 build: ["dune" "build" "-p" name "-j" jobs]
 depends: [
   "dune" {>= "2.5"}
-  "coq" {(>= "8.10" & < "8.15~") | (= "dev")}
+  "coq" {(>= "8.10" & < "8.16~") | (= "dev")}
 ]
 
 tags: [
