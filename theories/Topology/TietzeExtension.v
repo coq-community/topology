@@ -666,42 +666,44 @@ destruct (UrysohnsLemma _ H G F) as [phi [? [? []]]]; trivial.
   lra.
 - exists (fun x => phi x * g0 x).
   split.
-  + apply pointwise_continuity.
+  { apply pointwise_continuity.
     intros.
     apply product_continuous;
       now apply continuous_func_continuous_everywhere.
-  + split.
-    * intros.
-      rewrite H9.
-      ** replace (1*g0 (subspace_inc F x)) with (g0 (subspace_inc F x)) by
-           auto with real.
-         apply H4.
-      ** now destruct x.
-    * intros.
-      apply and_comm, Rabs_def2.
-      rewrite Rabs_mult.
-      rewrite (Rabs_right (phi x));
-        [ | apply Rle_ge; apply H7 ].
-      destruct (classic (In G x)).
-      { rewrite H8; trivial. lra. }
-      assert (Rabs (g0 x) < 1).
-      { assert (Rabs (g0 x) <= 1).
-        { destruct (H5 x).
-          unfold Rabs; destruct Rcase_abs; lra. }
-        destruct H11; trivial.
-        contradiction H10.
-        unfold Rabs in H11.
-        destruct Rcase_abs in H11;
-          constructor.
-        - lra.
-        - now left. }
-      destruct (H7 x).
-      apply Rle_lt_trans with (Rabs (g0 x)); trivial.
-      pattern (Rabs (g0 x)) at 2.
-      replace (Rabs (g0 x)) with (1*Rabs (g0 x)) by
+  }
+  split.
+  { intros.
+    rewrite H9.
+    - replace (1*g0 (subspace_inc F x)) with (g0 (subspace_inc F x)) by
         auto with real.
-      apply Rmult_le_compat_r; trivial.
-      apply Rabs_pos.
+      apply H4.
+    - now destruct x.
+  }
+  intros.
+  apply and_comm, Rabs_def2.
+  rewrite Rabs_mult.
+  rewrite (Rabs_right (phi x));
+    [ | apply Rle_ge; apply H7 ].
+  destruct (classic (In G x)).
+  { rewrite H8; trivial. lra. }
+  assert (Rabs (g0 x) < 1).
+  { assert (Rabs (g0 x) <= 1).
+    { destruct (H5 x).
+      unfold Rabs; destruct Rcase_abs; lra. }
+    destruct H11; trivial.
+    contradiction H10.
+    unfold Rabs in H11.
+    destruct Rcase_abs in H11;
+      constructor.
+    - lra.
+    - now left. }
+  destruct (H7 x).
+  apply Rle_lt_trans with (Rabs (g0 x)); trivial.
+  pattern (Rabs (g0 x)) at 2.
+  replace (Rabs (g0 x)) with (1*Rabs (g0 x)) by
+    auto with real.
+  apply Rmult_le_compat_r; trivial.
+  apply Rabs_pos.
 Qed.
 
 Theorem Tietze_extension_theorem: forall (X:TopologicalSpace)
