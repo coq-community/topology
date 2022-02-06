@@ -10,21 +10,21 @@ Require Import UrysohnsLemma.
 Section Tietze_extension_construction.
 
 Variable X:TopologicalSpace.
-Variable F:Ensemble (point_set X).
+Variable F:Ensemble X.
 Hypothesis F_closed: closed F.
-Variable f:point_set (SubspaceTopology F) -> point_set RTop.
+Variable f:SubspaceTopology F -> RTop.
 Hypothesis f_continuous: continuous f.
-Hypothesis f_bound: forall x:point_set (SubspaceTopology F),
+Hypothesis f_bound: forall x:SubspaceTopology F,
   -1 <= f x <= 1.
-Hypothesis X_nonempty: inhabited (point_set X).
+Hypothesis X_nonempty: inhabited X.
 
 Variable Urysohns_lemma_function:
-  forall F G:Ensemble (point_set X),
+  forall F G:Ensemble X,
   closed F -> closed G -> Intersection F G = Empty_set ->
-  { f:point_set X -> point_set RTop |
-  continuous f /\ (forall x:point_set X, 0 <= f x <= 1) /\
-  (forall x:point_set X, In F x -> f x = 0) /\
-  (forall x:point_set X, In G x -> f x = 1) }.
+  { f:X -> RTop |
+  continuous f /\ (forall x:X, 0 <= f x <= 1) /\
+  (forall x:X, In F x -> f x = 0) /\
+  (forall x:X, In G x -> f x = 1) }.
 
 Lemma Rle_order: order Rle.
 Proof.
@@ -38,22 +38,22 @@ Qed.
 
 Section extension_approximation.
 
-Variable f0:point_set (SubspaceTopology F) -> point_set RTop.
+Variable f0:SubspaceTopology F -> RTop.
 Hypothesis f0_cont: continuous f0.
-Hypothesis f0_bound: forall x:point_set (SubspaceTopology F),
+Hypothesis f0_bound: forall x:SubspaceTopology F,
                      -1 <= f0 x <= 1.
 
-Definition extension_approximation: point_set X -> point_set RTop.
+Definition extension_approximation: X -> RTop.
 refine (
-  let F0:=Im [ x:point_set (SubspaceTopology F) | f0 x <= -1/3 ]
+  let F0:=Im [ x:SubspaceTopology F | f0 x <= -1/3 ]
              (subspace_inc F) in
-  let G0:=Im [ x:point_set (SubspaceTopology F) | f0 x >= 1/3 ]
+  let G0:=Im [ x:SubspaceTopology F | f0 x >= 1/3 ]
              (subspace_inc F) in
   let g:=proj1_sig (Urysohns_lemma_function F0 G0 _ _ _) in
-  fun x:point_set X => -1/3 + 2/3 * g x).
+  fun x:X => -1/3 + 2/3 * g x).
 - apply subspace_inc_takes_closed_to_closed; [assumption|].
-  replace ([ x:point_set (SubspaceTopology F) | f0 x <= -1/3 ]) with
-    (inverse_image f0 [ y:point_set RTop | y <= -1/3 ]).
+  replace ([ x:SubspaceTopology F | f0 x <= -1/3 ]) with
+    (inverse_image f0 [ y:RTop | y <= -1/3 ]).
   + red.
     rewrite <- inverse_image_complement.
     apply f0_cont.
@@ -67,8 +67,8 @@ refine (
     * constructor.
       now constructor.
 - apply subspace_inc_takes_closed_to_closed; [assumption|].
-  replace ([ x:point_set (SubspaceTopology F) | f0 x >= 1/3 ]) with
-    (inverse_image f0 [ y:point_set RTop | 1/3 <= y ]).
+  replace ([ x:SubspaceTopology F | f0 x >= 1/3 ]) with
+    (inverse_image f0 [ y:RTop | 1/3 <= y ]).
   + red.
     rewrite <- inverse_image_complement.
     apply f0_cont.
@@ -88,7 +88,7 @@ refine (
   lra.
 Defined.
 
-Lemma extension_approximation_bound: forall x:point_set X,
+Lemma extension_approximation_bound: forall x:X,
   -1/3 <= extension_approximation x <= 1/3.
 Proof.
 intros.
@@ -101,7 +101,7 @@ lra.
 Qed.
 
 Lemma extension_approximation_diff_bound:
-  forall x:point_set (SubspaceTopology F),
+  forall x:SubspaceTopology F,
   -2/3 <= f0 x - extension_approximation (subspace_inc F x) <= 2/3.
 Proof.
 intros.
@@ -154,25 +154,25 @@ induction n.
 Qed.
 
 Definition extension_approximation_seq: forall n:nat,
-  { g0:point_set X -> point_set RTop |
+  { g0:X -> RTop |
     continuous g0 /\
-    (forall x:point_set X, -1 + (2/3)^n <= g0 x <= 1 - (2/3)^n) /\
-    (forall x:point_set (SubspaceTopology F),
+    (forall x:X, -1 + (2/3)^n <= g0 x <= 1 - (2/3)^n) /\
+    (forall x:SubspaceTopology F,
       -(2/3)^n <= f x - g0 (subspace_inc F x) <= (2/3)^n) }.
 simple refine (fix g (n:nat) {struct n} := match n return
-  { g0:point_set X -> point_set RTop |
+  { g0:X -> RTop |
     continuous g0 /\
-    (forall x:point_set X, -1 + (2/3)^n <= g0 x <= 1 - (2/3)^n) /\
-    (forall x:point_set (SubspaceTopology F),
+    (forall x:X, -1 + (2/3)^n <= g0 x <= 1 - (2/3)^n) /\
+    (forall x:SubspaceTopology F,
       -(2/3)^n <= f x - g0 (subspace_inc F x) <= (2/3)^n) } with
 | O => exist _ (fun _ => 0) _
 | S m => match g m with
          | exist gm y =>
          let H := _ in
          let approx := extension_approximation
-                       (fun x:point_set (SubspaceTopology F) =>
+                       (fun x:SubspaceTopology F =>
                        (3/2)^m * (f x - gm (subspace_inc F x))) H in
-         exist _ (fun x:point_set X => gm x + (2/3)^m * approx x) _
+         exist _ (fun x:X => gm x + (2/3)^m * approx x) _
          end
 end); clear g; [ | | clearbody H ].
 - simpl.
@@ -255,7 +255,7 @@ end); clear g; [ | | clearbody H ].
          now rewrite pow1.
 Defined.
 
-Lemma extension_approximation_seq_diff: forall (n:nat) (x:point_set X),
+Lemma extension_approximation_seq_diff: forall (n:nat) (x:X),
   -(1/3 * (2/3)^n) <= proj1_sig (extension_approximation_seq (S n)) x -
                       proj1_sig (extension_approximation_seq n) x
                    <= 1/3*(2/3)^n.
@@ -298,12 +298,12 @@ now apply pow_le.
 Qed.
 
 Lemma extension_approximation_seq_cauchy_aux:
-  forall (m n:nat) (x:point_set X),
+  forall (m n:nat) (x:X),
   Rabs (proj1_sig (extension_approximation_seq m) x -
         proj1_sig (extension_approximation_seq n) x) <=
   Rabs ((2/3)^m - (2/3)^n).
 Proof.
-cut (forall (m n:nat) (x:point_set X), (m <= n)%nat ->
+cut (forall (m n:nat) (x:X), (m <= n)%nat ->
   Rabs (proj1_sig (extension_approximation_seq m) x -
         proj1_sig (extension_approximation_seq n) x) <=
   (2/3)^m - (2/3)^n).
@@ -346,7 +346,7 @@ cut (forall (m n:nat) (x:point_set X), (m <= n)%nat ->
 Qed.
 
 Definition convert_approx_to_uniform_space:
-  nat -> uniform_space R_metric (fun _:point_set X => 0).
+  nat -> uniform_space R_metric (fun _:X => 0).
 refine (fun n:nat => exist _ (proj1_sig (extension_approximation_seq n)) _).
 destruct extension_approximation_seq as [g [? []]].
 simpl.
@@ -361,7 +361,7 @@ destruct Rcase_abs; lra.
 Defined.
 
 Lemma extension_approximation_seq_cauchy:
-  cauchy (uniform_metric R_metric (fun _:point_set X => 0)
+  cauchy (uniform_metric R_metric (fun _:X => 0)
           R_metric_is_metric X_nonempty)
     convert_approx_to_uniform_space.
 Proof.
@@ -392,16 +392,16 @@ apply Rle_lt_trans with (Rabs ((2/3)^m - (2/3)^n)).
       now apply H2.
 Qed.
 
-Definition Tietze_extension_func : point_set X -> point_set RTop.
+Definition Tietze_extension_func : X -> RTop.
 refine (proj1_sig (proj1_sig (constructive_definite_description
-  (fun f:point_set (UniformTopology R_metric (fun _:point_set X => 0)
+  (fun f:(UniformTopology R_metric (fun _:X => 0)
                     R_metric_is_metric X_nonempty) =>
   net_limit convert_approx_to_uniform_space f
-    (I:=nat_DS) (X:=UniformTopology R_metric (fun _:point_set X => 0)
+    (I:=nat_DS) (X:=UniformTopology R_metric (fun _:X => 0)
                     R_metric_is_metric X_nonempty)) _))).
 apply -> unique_existence.
 split.
-- assert (complete (uniform_metric R_metric (fun _:point_set X => 0)
+- assert (complete (uniform_metric R_metric (fun _:X => 0)
                       R_metric_is_metric X_nonempty)
             (uniform_metric_is_metric _ _ _ _ _ _)).
   { apply uniform_metric_complete.
@@ -412,14 +412,14 @@ split.
   apply T3_sep_impl_Hausdorff.
   apply normal_sep_impl_T3_sep.
   apply metrizable_impl_normal_sep.
-  exists (uniform_metric R_metric (fun _:point_set X => 0)
+  exists (uniform_metric R_metric (fun _:X => 0)
             R_metric_is_metric X_nonempty).
-  + apply (uniform_metric_is_metric _ _ R_metric (fun _:point_set X => 0)
+  + apply (uniform_metric_is_metric _ _ R_metric (fun _:X => 0)
               R_metric_is_metric X_nonempty).
   + apply MetricTopology_metrizable.
 Defined.
 
-Lemma Tietze_extension_func_bound: forall x:point_set X,
+Lemma Tietze_extension_func_bound: forall x:X,
   -1 <= Tietze_extension_func x <= 1.
 Proof.
 intros.
@@ -430,7 +430,7 @@ cut (Rabs (Tietze_extension_func x) <= 1).
 unfold Tietze_extension_func.
 destruct constructive_definite_description as [[g]].
 simpl.
-assert (bound (Im Full_set (fun x:point_set X => R_metric 0 0))).
+assert (bound (Im Full_set (fun x:X => R_metric 0 0))).
 { exists 0.
   red. intros.
   destruct H.
@@ -438,7 +438,7 @@ assert (bound (Im Full_set (fun x:point_set X => R_metric 0 0))).
   rewrite H0.
   apply R_metric_is_metric. }
 apply Rle_trans with (uniform_metric _ _ R_metric_is_metric X_nonempty
-                    (exist _ (fun _:point_set X => 0) H)
+                    (exist _ (fun _:X => 0) H)
                     (exist _ g b)).
 - unfold uniform_metric.
   simpl.
@@ -480,7 +480,7 @@ apply Rle_trans with (uniform_metric _ _ R_metric_is_metric X_nonempty
 Qed.
 
 Lemma Tietze_extension_func_is_extension:
-  forall x:point_set (SubspaceTopology F),
+  forall x:SubspaceTopology F,
   Tietze_extension_func (subspace_inc F x) = f x.
 Proof.
 intros.
@@ -526,7 +526,7 @@ apply Rplus_lt_compat.
   + apply Rle_ge, pow_le; lra.
 Qed.
 
-Let convert_continuity: forall h:point_set X -> R,
+Let convert_continuity: forall h:X -> R,
   continuous h (Y:=RTop) <-> continuous h (Y:=MetricTopology R_metric
                                            R_metric_is_metric).
 Proof.
@@ -560,8 +560,8 @@ unfold Tietze_extension_func;
   destruct constructive_definite_description as [g];
   simpl.
 apply net_limit_in_closure with
-  (S:=fun h:point_set (UniformTopology R_metric (fun _:point_set X => 0)
-                           R_metric_is_metric X_nonempty) =>
+  (S:=fun h:UniformTopology R_metric (fun _:X => 0)
+                          R_metric_is_metric X_nonempty =>
      continuous (proj1_sig h)
      (Y:=MetricTopology R_metric R_metric_is_metric)) in n.
 - rewrite closure_fixes_closed in n.
@@ -581,34 +581,33 @@ Qed.
 End Tietze_extension_construction.
 
 Lemma bounded_Tietze_extension_theorem: forall (X:TopologicalSpace)
-  (F:Ensemble (point_set X)) (f:point_set (SubspaceTopology F) ->
-                                point_set RTop),
+  (F:Ensemble X) (f:SubspaceTopology F -> RTop),
   normal_sep X -> closed F -> continuous f ->
-  (forall x:point_set (SubspaceTopology F), -1 <= f x <= 1) ->
-  exists g:point_set X -> point_set RTop,
-    continuous g /\ (forall x:point_set (SubspaceTopology F),
+  (forall x:SubspaceTopology F, -1 <= f x <= 1) ->
+  exists g:X -> RTop,
+    continuous g /\ (forall x:SubspaceTopology F,
                      g (subspace_inc F x) = f x) /\
-    (forall x:point_set X, -1 <= g x <= 1).
+    (forall x:X, -1 <= g x <= 1).
 Proof.
 intros.
-destruct (classic (inhabited (point_set X))) as [Hinh|Hempty].
+destruct (classic (inhabited X)) as [Hinh|Hempty].
 - destruct (choice (fun
-    (FG:{FG:Ensemble (point_set X) * Ensemble (point_set X) | let (F,G):=FG in
+    (FG:{FG:Ensemble X * Ensemble X | let (F,G):=FG in
                       closed F /\ closed G /\ Intersection F G = Empty_set})
-    (phi:point_set X -> point_set RTop) =>
+    (phi:X -> RTop) =>
      let (F,G):=proj1_sig FG in
-     continuous phi /\ (forall x:point_set X, 0 <= phi x <= 1) /\
-     (forall x:point_set X, In F x -> phi x = 0) /\
-     (forall x:point_set X, In G x -> phi x = 1))) as [choice_fun].
+     continuous phi /\ (forall x:X, 0 <= phi x <= 1) /\
+     (forall x:X, In F x -> phi x = 0) /\
+     (forall x:X, In G x -> phi x = 1))) as [choice_fun].
   + intros.
     destruct x as [[F' G] [? []]].
     now apply UrysohnsLemma.
-  + pose (Urysohns_lemma_function := fun (F G:Ensemble (point_set X))
+  + pose (Urysohns_lemma_function := fun (F G:Ensemble X)
       (HF:closed F) (HG:closed G) (Hdisj:Intersection F G = Empty_set) =>
-      exist (fun (f:point_set X -> point_set RTop) =>
-               continuous f /\ (forall x:point_set X, 0 <= f x <= 1) /\
-               (forall x:point_set X, In F x -> f x = 0) /\
-               (forall x:point_set X, In G x -> f x = 1))
+      exist (fun (f:X -> RTop) =>
+               continuous f /\ (forall x:X, 0 <= f x <= 1) /\
+               (forall x:X, In F x -> f x = 0) /\
+               (forall x:X, In G x -> f x = 1))
         (choice_fun (exist _ (F,G) (conj HF (conj HG Hdisj))))
         (H3 (exist _ (F,G) (conj HF (conj HG Hdisj))))).
     clearbody Urysohns_lemma_function. clear choice_fun H3.
@@ -619,7 +618,7 @@ destruct (classic (inhabited (point_set X))) as [Hinh|Hempty].
     * split; intros.
       ** apply Tietze_extension_func_is_extension.
       ** apply Tietze_extension_func_bound.
-- exists (fun x:point_set X => False_rect _ (Hempty (inhabits x))).
+- exists (fun x:X => False_rect _ (Hempty (inhabits x))).
   split.
   + apply pointwise_continuity.
     intros.
@@ -632,19 +631,18 @@ destruct (classic (inhabited (point_set X))) as [Hinh|Hempty].
 Qed.
 
 Lemma open_bounded_Tietze_extension_theorem: forall (X:TopologicalSpace)
-  (F:Ensemble (point_set X)) (f:point_set (SubspaceTopology F) ->
-                                point_set RTop),
+  (F:Ensemble X) (f:SubspaceTopology F -> RTop),
   normal_sep X -> closed F -> continuous f ->
-  (forall x:point_set (SubspaceTopology F), -1 < f x < 1) ->
-  exists g:point_set X -> point_set RTop,
-    continuous g /\ (forall x:point_set (SubspaceTopology F),
+  (forall x:SubspaceTopology F, -1 < f x < 1) ->
+  exists g:X -> RTop,
+    continuous g /\ (forall x:SubspaceTopology F,
                      g (subspace_inc F x) = f x) /\
-    (forall x:point_set X, -1 < g x < 1).
+    (forall x:X, -1 < g x < 1).
 Proof.
 intros.
 destruct (bounded_Tietze_extension_theorem _ F f) as [g0 [? []]]; trivial.
 { intros. split; left; apply H2. }
-pose (G := characteristic_function_to_ensemble (fun x:point_set X =>
+pose (G := characteristic_function_to_ensemble (fun x:X =>
   g0 x = 1 \/ g0 x = -1)).
 destruct (UrysohnsLemma _ H G F) as [phi [? [? []]]]; trivial.
 - replace G with (inverse_image g0 (Union (Singleton 1) (Singleton (-1)))).
@@ -707,21 +705,20 @@ destruct (UrysohnsLemma _ H G F) as [phi [? [? []]]]; trivial.
 Qed.
 
 Theorem Tietze_extension_theorem: forall (X:TopologicalSpace)
-  (F:Ensemble (point_set X)) (f:point_set (SubspaceTopology F) ->
-                                point_set RTop),
+  (F:Ensemble X) (f:SubspaceTopology F -> RTop),
   normal_sep X -> closed F -> continuous f ->
-  exists g:point_set X -> point_set RTop,
-    continuous g /\ (forall x:point_set (SubspaceTopology F),
+  exists g:X -> RTop,
+    continuous g /\ (forall x:SubspaceTopology F,
                      g (subspace_inc F x) = f x).
 Proof.
 intros.
 pose (U := characteristic_function_to_ensemble
-      (fun x:point_set RTop => -1 < x < 1)).
+      (fun x:RTop => -1 < x < 1)).
 pose proof (open_interval_homeomorphic_to_real_line).
 fold U in H2.
 simpl in H2.
 destruct H2 as [a [b]].
-pose (f0 := fun x:point_set (SubspaceTopology F) => subspace_inc U (a (f x))).
+pose (f0 := fun x:SubspaceTopology F => subspace_inc U (a (f x))).
 destruct (open_bounded_Tietze_extension_theorem X F f0) as [g0 [? []]];
   trivial.
 - unfold f0.
@@ -732,14 +729,14 @@ destruct (open_bounded_Tietze_extension_theorem X F f0) as [g0 [? []]];
   unfold f0.
   destruct (a (f x)).
   now destruct i.
-- assert (forall x:point_set X, In U (g0 x)).
+- assert (forall x:X, In U (g0 x)).
   { intros.
     constructor.
     apply H8. }
   pose (g0_U := continuous_factorization g0 U H9).
   assert (continuous g0_U) by
     now apply factorization_is_continuous.
-  exists (fun x:point_set X => b (g0_U x)).
+  exists (fun x:X => b (g0_U x)).
   split.
   { now apply continuous_composition. }
   intros.
