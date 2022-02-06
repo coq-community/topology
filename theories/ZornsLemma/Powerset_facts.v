@@ -5,7 +5,19 @@
 
 From Coq.Sets Require Export Powerset_facts.
 From ZornsLemma Require Export EnsemblesImplicit EnsemblesTactics.
-From Coq Require Import Classical_Prop.
+From Coq Require Import Classical_Prop RelationClasses.
+
+Global Instance Included_PreOrder {X : Type} :
+  PreOrder (@Included X).
+Proof.
+firstorder.
+Qed.
+
+Global Instance Same_set_Equivalence {X : Type} :
+  Equivalence (@Same_set X).
+Proof.
+firstorder.
+Qed.
 
 Lemma Intersection_Full_set
   {X : Type}
