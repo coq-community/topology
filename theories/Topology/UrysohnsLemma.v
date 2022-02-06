@@ -366,8 +366,8 @@ induction H.
               <- (U_dyadic_wd _ _ H1).
 Qed.
 
-Definition Urysohns_Lemma_function : point_set X -> point_set RTop.
-refine (fun x:point_set X => proj1_sig (inf
+Definition Urysohns_Lemma_function : X -> RTop.
+refine (fun x:X => proj1_sig (inf
  (Add
   (Im [ alpha:dyadic_rational | In (U_dyadic alpha) x ]
       (fun alpha:dyadic_rational => Q2R (dr2Q alpha)))
@@ -395,7 +395,7 @@ refine (fun x:point_set X => proj1_sig (inf
 Defined.
 
 Lemma Urysohns_Lemma_function_range:
-  forall x:point_set X, 0 <= Urysohns_Lemma_function x <= 1.
+  forall x:X, 0 <= Urysohns_Lemma_function x <= 1.
 Proof.
 intros.
 unfold Urysohns_Lemma_function.
@@ -423,7 +423,7 @@ split.
   constructor.
 Qed.
 
-Lemma Urysohns_Lemma_function_0: forall x:point_set X,
+Lemma Urysohns_Lemma_function_0: forall x:X,
   In U0 x -> Urysohns_Lemma_function x = 0.
 Proof.
 intros.
@@ -442,7 +442,7 @@ exists (m_over_2_to_n 0 0).
   ring.
 Qed.
 
-Lemma Urysohns_Lemma_function_1: forall x:point_set X,
+Lemma Urysohns_Lemma_function_1: forall x:X,
   ~ In U1 x -> Urysohns_Lemma_function x = 1.
 Proof.
 intros.
@@ -712,10 +712,10 @@ End Urysohns_Lemma_construction.
 Theorem UrysohnsLemma: forall X:TopologicalSpace, normal_sep X ->
   forall F G:Ensemble X,
   closed F -> closed G -> Intersection F G = Empty_set ->
-  exists f:point_set X -> point_set RTop,
-  continuous f /\ (forall x:point_set X, 0 <= f x <= 1) /\
-  (forall x:point_set X, In F x -> f x = 0) /\
-  (forall x:point_set X, In G x -> f x = 1).
+  exists f:X -> RTop,
+  continuous f /\ (forall x:X, 0 <= f x <= 1) /\
+  (forall x:X, In F x -> f x = 0) /\
+  (forall x:X, In G x -> f x = 1).
 Proof.
 intros.
 destruct H.
