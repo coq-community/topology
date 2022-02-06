@@ -717,72 +717,67 @@ Theorem UrysohnsLemma: forall X:TopologicalSpace, normal_sep X ->
   (forall x:X, In F x -> f x = 0) /\
   (forall x:X, In G x -> f x = 1).
 Proof.
-intros.
-destruct H.
-destruct (H3 F G H0 H1 H2) as [U [V [? [? [? [? ?]]]]]].
-assert (Included (closure U) (Complement G)).
-{ assert (Included (closure U) (Complement V)).
-  { apply closure_minimal.
-    - red. now rewrite Complement_Complement.
-    - red. intros.
-      intro.
-      eapply Noone_in_empty.
-      rewrite <- H8.
-      econstructor;
-        eassumption. }
-  assert (Included (Complement V) (Complement G)).
-  { red. intros.
-    intro.
-    contradiction H10.
-    now apply H7. }
-  auto with sets. }
+intros X [_ HX_normal] F G HF HG HFG.
+destruct (HX_normal F G HF HG HFG) as [U [V [HU [HV [HFU [HGV HUV]]]]]].
 assert (inhabited (forall F U:Ensemble X, closed F ->
   open U -> Included F U ->
   { V:Ensemble X | open V /\ Included F V /\
-                               Included (closure V) U })).
+                               Included (closure V) U }))
+       as [normal_sep_fun].
 { destruct (choice (fun (FU_pair:
     {p:Ensemble X * Ensemble X |
      closed (fst p) /\ open (snd p) /\ Included (fst p) (snd p)})
     (V0:Ensemble X) =>
      open V0 /\ Included (fst (proj1_sig FU_pair)) V0 /\
      Included (closure V0) (snd (proj1_sig FU_pair)))) as
-    [pre_choice_fun].
-  - intro p.
-    destruct p as [[F0 U0]].
-    simpl in a.
-    simpl.
-    destruct a as [? []].
-    destruct (H3 F0 (Complement U0)) as [U1 [V1 []]]; trivial.
-    + red. now rewrite Complement_Complement.
-    + extensionality_ensembles_inv.
-      contradiction H15.
-      now apply H12.
-    + destruct H14 as [? [? []]].
-      exists U1.
-      repeat split; trivial.
-      assert (Included (closure U1) (Complement V1)).
-      { apply closure_minimal.
-        - red. now rewrite Complement_Complement.
-        - red. intros.
-          intro.
-          eapply Noone_in_empty.
-          rewrite <- H17.
-          constructor;
-            eassumption. }
-      assert (Included (Complement V1) U0).
-      { red. intros.
-        apply NNPP. intro.
-        contradiction H19.
-        now apply H16. }
-      auto with sets.
-  - exists.
-    intros.
+    [pre_choice_fun Hpre_choice_fun].
+  2: {
+    exists.
+    intros F0 U0 HF0 HU0 HF0U0.
     exists (pre_choice_fun (exist _ (F0,U0)
-      (conj H11 (conj H12 H13)))).
-    apply H10. }
-destruct H10 as [normal_sep_fun].
-exists (Urysohns_Lemma_function _ normal_sep_fun
-  U (Complement G) H4 H1 H9).
+      (conj HF0 (conj HU0 HF0U0)))).
+    apply Hpre_choice_fun. }
+  intros [[F0 U0] [HF0 [HU0 HF0U0]]].
+  simpl in *.
+  destruct (HX_normal F0 (Complement U0))
+    as [U1 [V1 [? [? [? [H_CU0_V1 HU1V1]]]]]]; trivial.
+  { red. now rewrite Complement_Complement. }
+  { extensionality_ensembles_inv.
+    subst.
+    match goal with
+    | H : In F0 _ |- _ =>
+      apply HF0U0 in H
+    end.
+    contradiction. }
+  exists U1.
+  repeat split; trivial.
+  transitivity (Complement V1).
+  - apply closure_minimal.
+    + red. now rewrite Complement_Complement.
+    + red. intros.
+      intro.
+      eapply Noone_in_empty.
+      rewrite <- HU1V1.
+      constructor;
+        eassumption.
+  - red. intros.
+    apply NNPP. intros Hx.
+    apply H_CU0_V1 in Hx.
+    contradiction. }
+unshelve eexists (Urysohns_Lemma_function _ normal_sep_fun
+  U (Complement G) HU HG _).
+{ transitivity (Complement V).
+  - apply closure_minimal.
+    + red. now rewrite Complement_Complement.
+    + red. intros.
+      intro.
+      eapply Noone_in_empty.
+      rewrite <- HUV.
+      econstructor;
+        eassumption.
+  - red. intros x Hx ?.
+    contradiction Hx.
+    now apply HGV. }
 split.
 { apply Urysohns_Lemma_function_continuous. }
 split.
