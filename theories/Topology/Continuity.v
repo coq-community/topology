@@ -307,3 +307,17 @@ repeat split.
 - apply H4.
   now econstructor; trivial.
 Qed.
+
+(* This fact is trivial, given function-extensionality. But in the usual
+  "setoid-hell" and "constructive math" sense, it can be useful instead of
+  doing rewrites. *)
+Lemma continuous_funext {X Y : TopologicalSpace} (f g : X -> Y) :
+  (forall x, f x = g x) ->
+  continuous f -> continuous g.
+Proof.
+  intros Hfg Hf U HU.
+  replace (inverse_image g U) with (inverse_image f U);
+    auto.
+  extensionality_ensembles; constructor;
+    rewrite Hfg in *; assumption.
+Qed.

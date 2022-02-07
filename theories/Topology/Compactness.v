@@ -1,3 +1,4 @@
+From Coq Require Import Program.Subset.
 From ZornsLemma Require Import EnsemblesTactics Powerset_facts.
 Require Export TopologicalSpaces Nets FilterLimits Homeomorphisms SeparatednessAxioms SubspaceTopology.
 Require Import FiltersAndNets ClassicalChoice.
@@ -683,4 +684,54 @@ Proof.
   red. intros.
   exists C. repeat split; auto with sets.
   apply Finite_downward_closed with (A := open); assumption.
+Qed.
+
+Lemma compact_image_ens {X Y : TopologicalSpace} (f : X -> Y)
+      (U : Ensemble X) :
+  continuous f ->
+  compact (SubspaceTopology U) ->
+  compact (SubspaceTopology (Im U f)).
+Proof.
+  intros.
+  unshelve eapply (@compact_image (SubspaceTopology U)).
+  { refine (fun p => exist _ (f (proj1_sig p)) _).
+    apply Im_def. apply proj2_sig.
+  }
+  1: assumption.
+  { apply subspace_continuous_char.
+    unfold compose. simpl.
+    apply (continuous_composition f).
+    - assumption.
+    - apply subspace_inc_continuous.
+  }
+  intros [y Hy].
+  inversion Hy; subst.
+  exists (exist _ x H1).
+  simpl.
+  apply subset_eq. reflexivity.
+Qed.
+
+(* Every bijective map from a compact space to a Hausdorff space is a homeomorphism.
+   Proof taken from Munkres, 2ed. Theorem 26.6
+*)
+Lemma compact_hausdorff_homeo {X Y : TopologicalSpace} (f : X -> Y) :
+  compact X -> Hausdorff Y -> bijective f -> continuous f ->
+  homeomorphism f.
+Proof.
+  intros.
+  apply bijective_impl_invertible in H1.
+  destruct H1 as [g Hgf Hfg].
+  exists g; auto.
+  apply continuous_closed.
+  intros.
+  assert (compact (SubspaceTopology U)) as HU_compact.
+  { apply closed_compact; auto. }
+  replace (inverse_image g U) with (Im U f).
+  2: {
+    extensionality_ensembles; subst.
+    - constructor. rewrite Hgf. assumption.
+    - exists (g x); auto.
+  }
+  apply compact_closed; auto.
+  apply compact_image_ens; assumption.
 Qed.
