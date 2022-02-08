@@ -145,18 +145,24 @@ Definition induced_function (xbar:quotient R) : B :=
   proj1_sig (constructive_definite_description _
                (description_of_fbar xbar)).
 
-Lemma induced_function_correct: forall x:A,
-  induced_function (quotient_projection R x) = f x.
+(* NOTE: To apply this lemma to
+  [induced_function (quotient_projection R x)],
+  the [quotient_projection] has to be unfolded. Can this be
+  avoided?  *)
+Lemma induced_function_correct: forall (x:A) Hx,
+  induced_function (exist _ (equiv_class R x) Hx) = f x.
 Proof.
-intro.
+intros.
 unfold induced_function.
 destruct constructive_definite_description.
 simpl.
-destruct e.
-destruct H.
-rewrite <- H0.
+destruct e as [x1 []].
+subst.
 apply well_defined.
-apply quotient_projection_minimally_collapses_R; trivial.
+inversion H; subst; clear H.
+assert (In (equiv_class R x1) x) as [];
+  try assumption.
+rewrite H1. constructor. apply equiv.
 Qed.
 
 Lemma induced_function_unique: forall fbar:quotient R->B,
@@ -167,8 +173,8 @@ intros.
 destruct (quotient_projection_surjective xbar).
 rewrite <- H0.
 rewrite H.
-rewrite induced_function_correct.
-reflexivity.
+symmetry.
+apply induced_function_correct.
 Qed.
 
 End InducedFunction.
@@ -206,6 +212,7 @@ Lemma induced_function2_correct: forall a:A,
 Proof.
 intros.
 unfold induced_function2.
+unfold quotient_projection.
 rewrite induced_function_correct.
 reflexivity.
 Qed.
@@ -267,8 +274,8 @@ pose proof (quotient_projection_surjective b).
 destruct H0.
 rewrite <- H0.
 unfold induced1.
-rewrite induced_function_correct.
-rewrite induced_function_correct.
+unfold quotient_projection.
+rewrite !induced_function_correct.
 apply well_defined_2arg.
 - assumption.
 - apply (equiv_refl equivS).
@@ -301,6 +308,7 @@ unfold induced_function2arg.
 unfold induced_eval.
 unfold induced2.
 rewrite induced_function2_correct.
+unfold quotient_projection.
 rewrite induced_function_correct.
 unfold eval.
 unfold induced1.
