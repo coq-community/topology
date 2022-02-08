@@ -99,3 +99,37 @@ exists (Im S (quotient_projection R)).
     (quotient_projection_continuous R)
     (quotient_projection_surjective' R)).
 Qed.
+
+Lemma saturated_subset_quotient_projection_open {X : TopologicalSpace} (R : relation X) (S : Ensemble X) :
+  equivalence R ->
+  (forall x, In S x -> Included (equiv_class R x) S) ->
+  open S -> @open (QuotientTopology R) (Im S (quotient_projection R)).
+Proof.
+intros.
+apply quotient_projection_open_iff.
+replace (inverse_image (quotient_projection R) (Im S (quotient_projection R))) with S; trivial.
+extensionality_ensembles_inv.
+- repeat econstructor + eassumption.
+- apply quotient_projection_minimally_collapses_R in H4; trivial.
+  apply H0 in H2.
+  apply H2.
+  constructor.
+  now apply equiv_sym.
+Qed.
+
+Lemma induced_function_continuous {X : TopologicalSpace} (R : relation X)
+      (Y : TopologicalSpace) (f : X -> Y)
+      (Hf : forall x0 x1, R x0 x1 -> f x0 = f x1)
+      (HR : equivalence R) :
+  continuous f ->
+  @continuous (QuotientTopology R) Y (induced_function _ HR Hf).
+Proof.
+  intros.
+  apply StrongTopology.strong_topology_continuous_char.
+  intros [].
+  simpl.
+  unfold compose.
+  apply (continuous_funext f); auto.
+  intros. symmetry.
+  apply induced_function_correct.
+Qed.

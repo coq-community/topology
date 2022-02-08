@@ -1,5 +1,6 @@
-Require Export Nets.
-Require Import Homeomorphisms.
+From Coq Require Import Program.Subset.
+From Topology Require Export Nets.
+From Topology Require Import Homeomorphisms SubspaceTopology.
 From ZornsLemma Require Import EnsemblesTactics.
 
 Definition T0_sep (X:TopologicalSpace) : Prop :=
@@ -286,3 +287,26 @@ destruct H2 as [J [x' [? ?]]].
 Qed.
 
 End Hausdorff_and_nets.
+
+Lemma Hausdorff_Subspace {X : TopologicalSpace} (A : Ensemble X) :
+  Hausdorff X ->
+  Hausdorff (SubspaceTopology A).
+Proof.
+  intros HX.
+  intros [x Hx] [y Hy] H.
+  specialize (HX x y) as [U [V [HU [HV [HUx [HVx HUV]]]]]].
+  { intros ?. subst. apply H.
+    apply subset_eq. reflexivity.
+  }
+  exists (inverse_image (subspace_inc _) U).
+  exists (inverse_image (subspace_inc _) V).
+  repeat split.
+  1,2: apply subspace_inc_continuous.
+  all: try assumption.
+  extensionality_ensembles.
+  assert (In Empty_set (subspace_inc A x0)).
+  { rewrite <- HUV.
+    split; assumption.
+  }
+  contradiction.
+Qed.
