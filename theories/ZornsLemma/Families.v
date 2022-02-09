@@ -163,3 +163,17 @@ apply Extensionality_Ensembles; split; red; intros.
   apply Im_def.
   exists x0; auto.
 Qed.
+
+Lemma family_intersection_add {X : Type} (F : Family X) (U : Ensemble X) :
+  FamilyIntersection (Add F U) = Intersection (FamilyIntersection F) U.
+Proof.
+apply Extensionality_Ensembles; split; red; intros; constructor.
+- constructor. destruct H.
+  intros. apply H. left. assumption.
+- destruct H. apply H. right. reflexivity.
+- intros. destruct H. destruct H.
+  destruct H0.
+  + apply H. assumption.
+  + inversion H0; subst; clear H0.
+    assumption.
+Qed.

@@ -101,6 +101,24 @@ induction H.
   intro; apply H0.
 Qed.
 
+Lemma open_finite_family_intersection:
+  forall {X:TopologicalSpace} (F:Family X),
+    Finite F -> (forall U, In F U -> open U) ->
+    open (FamilyIntersection F).
+Proof.
+intros.
+induction H.
+- (* F = Empty_set *)
+  rewrite empty_family_intersection.
+  apply open_full.
+- (* F = Add _ _ *)
+  rewrite family_intersection_add.
+  apply open_intersection2.
+  + apply IHFinite. intros.
+    apply H0. left. assumption.
+  + apply H0. right. reflexivity.
+Qed.
+
 Definition closed {X:TopologicalSpace} (F:Ensemble X) :=
   open (Ensembles.Complement F).
 
