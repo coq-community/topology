@@ -22,36 +22,39 @@ Proof.
 intros.
 pose (cover := ImageFamily C).
 destruct (H cover) as [subcover].
-- intros.
+{ intros.
   destruct H2.
   rewrite H3; apply H0.
-- unfold cover.
+}
+{ unfold cover.
   now rewrite <- indexed_to_family_union.
-- destruct H2 as [? []].
-  destruct (finite_choice _ _
-    (fun (U:{U:Ensemble X | In subcover U}) (a:A) =>
-        proj1_sig U = C a)) as [choice_fun].
+}
+destruct H2 as [? []].
+destruct (finite_choice _ _
+  (fun (U:{U:Ensemble X | In subcover U}) (a:A) =>
+      proj1_sig U = C a)) as [choice_fun].
+{ now apply Finite_ens_type. }
+{ destruct x as [U].
+  simpl.
+  apply H3 in i.
+  destruct i.
+  now exists x.
+}
+exists (Im Full_set choice_fun).
+split.
+- apply FiniteT_img.
   + now apply Finite_ens_type.
-  + destruct x as [U].
-    simpl.
-    apply H3 in i.
-    destruct i.
-    now exists x.
-  + exists (Im Full_set choice_fun).
-    split.
-    * apply FiniteT_img.
-      ** now apply Finite_ens_type.
-      ** intros; apply classic.
-    * extensionality_ensembles.
-      ** constructor.
-      ** assert (In Full_set x) by constructor.
-         rewrite <- H4 in H6.
-          destruct H6.
-          assert (In (Im Full_set choice_fun) (choice_fun (exist _ S H6))).
-        { exists (exist _ S H6); constructor. }
-          exists (exist _ (choice_fun (exist _ S H6)) H8).
-          simpl.
-          now rewrite <- H5.
+  + intros; apply classic.
+- extensionality_ensembles.
+  { constructor. }
+  assert (In Full_set x) by constructor.
+  rewrite <- H4 in H6.
+  destruct H6.
+  assert (In (Im Full_set choice_fun) (choice_fun (exist _ S H6))).
+  { exists (exist _ S H6); constructor. }
+  exists (exist _ (choice_fun (exist _ S H6)) H8).
+  simpl.
+  now rewrite <- H5.
 Qed.
 
 Lemma compact_finite_nonempty_closed_intersection:
@@ -65,51 +68,55 @@ Proof.
 intros.
 apply NNPP; red; intro.
 pose (C := [ U:Ensemble X | In F (Complement U) ]).
-unshelve refine (let H3:=(H C _ _) in _).
-- intros.
-  destruct H3.
-  apply H0 in H3.
+specialize (H C) as [C' [? [? ?]]].
+{ intros.
+  destruct H.
+  apply H0 in H.
   now apply closed_complement_open.
-- extensionality_ensembles.
+}
+{ extensionality_ensembles.
+  { constructor. }
+  apply NNPP; red; intro.
+  contradict H2.
+  exists x.
+  constructor.
+  intros.
+  apply NNPP; red; intro.
+  contradict H.
+  exists (Complement S).
   + constructor.
-  + apply NNPP; red; intro.
-    contradiction H2.
-    exists x.
-    constructor.
-    intros.
-    apply NNPP; red; intro.
-    contradiction H3.
-    exists (Complement S).
-    * constructor.
-      now rewrite Complement_Complement.
-    * assumption.
-- destruct H3 as [C' [? [? ?]]].
-  pose (F' := [G : Ensemble X | In C' (Complement G)]).
-  unshelve refine (let H6 := (H1 F' _ _) in _).
-  + assert (F' = Im C' Complement).
-  { apply Extensionality_Ensembles; split; red; intros;
-      destruct H6.
-    - exists (Complement x); trivial.
-      now rewrite Complement_Complement.
-    - constructor.
-      now rewrite H7, Complement_Complement. }
-    rewrite H6.
+    now rewrite Complement_Complement.
+  + assumption.
+}
+pose (F' := [G : Ensemble X | In C' (Complement G)]).
+specialize (H1 F') as [x0].
+{ cut (F' = Im C' Complement).
+  { intros. rewrite H1.
     now apply finite_image.
-  + red; intros.
-    destruct H6.
-    apply H4 in H6.
-    destruct H6.
-    now rewrite Complement_Complement in H6.
-  + destruct H6 as [x0].
-    destruct H6.
-    assert (In (FamilyUnion C') x).
-  { rewrite H5. constructor. }
-    destruct H7.
-    assert (In (Complement S) x).
-  { apply H6.
-    constructor.
-    now rewrite Complement_Complement. }
-    contradiction H9.
+  }
+  apply Extensionality_Ensembles; split; red; intros.
+  - exists (Complement x).
+    + apply H1.
+    + now rewrite Complement_Complement.
+  - constructor.
+    inversion H1; subst; clear H1.
+    now rewrite Complement_Complement.
+}
+{ red; intros.
+  destruct H1.
+  apply H3 in H1 as [].
+  now rewrite Complement_Complement in H1.
+}
+destruct H1.
+assert (In (FamilyUnion C') x).
+{ rewrite H4. constructor. }
+destruct H5.
+assert (In (Complement S) x).
+{ apply H1.
+  constructor.
+  now rewrite Complement_Complement.
+}
+contradiction H7.
 Qed.
 
 Lemma finite_nonempty_closed_intersection_impl_compact:
@@ -125,53 +132,54 @@ intros.
 red; intros.
 apply NNPP; red; intro.
 pose (F := [ G:Ensemble X | In C (Complement G) ]).
-unshelve refine (let H3 := (H F _ _) in _).
-- intros.
-  destruct H3.
-  now apply H0.
-- intros.
-  apply NNPP; red; intro.
-  contradiction H2.
-  exists [ U:Ensemble X | In F' (Complement U) ].
-  repeat split.
-  + assert ([U:Ensemble X | In F' (Complement U)] =
-      Im F' Complement).
-    * extensionality_ensembles.
-      ** econstructor.
-         *** eassumption.
-         *** now rewrite Complement_Complement.
-      ** constructor.
-         now rewrite H7, Complement_Complement.
-    *  rewrite H6.
-       now apply finite_image.
-  + red; intros.
-    destruct H6.
-    apply H4 in H6.
-    destruct H6.
-    now rewrite Complement_Complement in H6.
-  + extensionality_ensembles.
-    * constructor.
-    * apply NNPP; red; intro.
-      contradiction H5.
-      exists x.
-      constructor.
-      intros.
-      apply NNPP; red; intro.
-      contradiction H6.
-      exists (Complement S).
-      ** constructor.
-         rewrite Complement_Complement; trivial.
-      ** exact H8.
-- destruct H3.
+specialize (H F) as [x].
+{ intros.
+  destruct H.
+  apply H0 in H.
+  assumption.
+}
+2: {
+  apply H2.
   assert (In (FamilyUnion C) x).
-{ rewrite H1. constructor. }
-  destruct H4.
-  assert (In (Complement S) x).
-{ destruct H3.
-  apply H3.
+  { rewrite H1. constructor. }
+  destruct H3.
+  assert (In (Complement S) x); try contradiction.
+  destruct H.
+  apply H.
   constructor.
-  now rewrite Complement_Complement. }
-  contradiction H6.
+  now rewrite Complement_Complement.
+}
+intros.
+apply NNPP; red; intro.
+contradiction H2.
+exists [ U:Ensemble X | In F' (Complement U) ].
+repeat split.
+- replace [U:Ensemble X | In F' (Complement U)] with (Im F' Complement).
+  { now apply finite_image. }
+  extensionality_ensembles.
+  + subst. constructor.
+    now rewrite Complement_Complement.
+  + econstructor.
+    * eassumption.
+    * now rewrite Complement_Complement.
+- red; intros.
+  destruct H5.
+  apply H3 in H5.
+  destruct H5.
+  now rewrite Complement_Complement in H5.
+- extensionality_ensembles.
+  { constructor. }
+  apply NNPP; red; intro.
+  contradict H4.
+  exists x.
+  constructor.
+  intros.
+  apply NNPP; red; intro.
+  contradict H5.
+  exists (Complement S).
+  + constructor.
+    rewrite Complement_Complement; trivial.
+  + exact H6.
 Qed.
 
 Lemma compact_impl_filter_cluster_point:
