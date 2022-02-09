@@ -1,7 +1,7 @@
-From Coq Require Import Program.Subset.
-From ZornsLemma Require Import EnsemblesTactics Powerset_facts.
-Require Export TopologicalSpaces Nets FilterLimits Homeomorphisms SeparatednessAxioms SubspaceTopology.
-Require Import FiltersAndNets ClassicalChoice.
+From Coq Require Import ClassicalChoice Program.Subset.
+From ZornsLemma Require Import EnsemblesTactics Finite_sets Powerset_facts.
+From Topology Require Export TopologicalSpaces Nets FilterLimits Homeomorphisms SeparatednessAxioms SubspaceTopology.
+From Topology Require Import FiltersAndNets.
 Set Asymmetric Patterns.
 
 Definition compact (X:TopologicalSpace) :=
@@ -382,6 +382,47 @@ assert (x = x0).
 now subst.
 Qed.
 
+(* Every closed subset of a compact space is compact, but avoid
+   mentioning the subspace topology. *)
+Lemma closed_compact_ens (X : TopologicalSpace) (S : Ensemble X) :
+  compact X -> closed S ->
+  forall F : Family X,
+    (forall U, In F U -> open U) ->
+    Included S (FamilyUnion F) ->
+    exists C,
+      Finite C /\ Included C F /\
+        Included S (FamilyUnion C).
+Proof.
+  intros X_compact S_closed cover_of_S cover_open cover_covers.
+  specialize (X_compact (Union cover_of_S (Singleton (Complement S))))
+    as [fincover [Hfincover0 [Hfincover1 Hfincover2]]].
+  { intros. destruct H; auto.
+    destruct H. auto.
+  }
+  { rewrite family_union_union.
+    rewrite family_union_singleton.
+    apply union_complement_included_l.
+    assumption.
+  }
+  exists (Intersection cover_of_S fincover); repeat split.
+  - apply Intersection_preserves_finite.
+    assumption.
+  - intros U HU.
+    apply Intersection_decreases_l in HU.
+    assumption.
+  - intros x Hx.
+    assert (In (FamilyUnion fincover) x).
+    { rewrite Hfincover2. constructor. }
+    destruct H. exists S0; auto.
+    split; auto.
+    apply Hfincover1 in H.
+    destruct H.
+    2: {
+      destruct H; contradiction.
+    }
+    assumption.
+Qed.
+
 Lemma closed_compact: forall (X:TopologicalSpace) (S:Ensemble X),
   compact X -> closed S -> compact (SubspaceTopology S).
 Proof.
@@ -458,206 +499,105 @@ Proof.
 intros X HX_compact HX_Hausdorff.
 split.
 { now apply Hausdorff_impl_T1_sep. }
-destruct (choice (fun (xy:{xy:X * X |
-                    let (x,y):=xy in x <> y})
-    (UV:Ensemble X * Ensemble X) =>
-    match xy with | exist (x,y) i =>
-      let (U,V):=UV in
-    open U /\ open V /\ In U x /\ In V y /\ Intersection U V = Empty_set
-    end)) as
-  [choice_fun Hchoice_fun].
-{ destruct x as [[x y] i].
-  destruct (HX_Hausdorff _ _ i) as [U [V]].
-  now exists (U, V).
+intros x F HF HFx.
+pose (P := fun y => (fun p : Ensemble X * Ensemble X =>
+                    open (fst p) /\ open (snd p) /\
+                      Intersection (fst p) (snd p) = Empty_set /\
+                      In (fst p) x /\ In (snd p) y)).
+pose (cover_of_F := fun V => exists U y, In (P y) (U, V)).
+
+assert (forall V, In cover_of_F V -> open V) as Hcover_open.
+{ intros V HV.
+  destruct HV as [U [y []]].
+  intuition.
 }
-pose (choice_fun_U := fun (x y:X)
-  (Hineq:x<>y) => fst (choice_fun (exist _ (x,y) Hineq))).
-pose (choice_fun_V := fun (x y:X)
-  (Hineq:x<>y) => snd (choice_fun (exist _ (x,y) Hineq))).
-assert (forall (x y:X) (Hineq:x<>y),
-  open (choice_fun_U x y Hineq) /\
-  open (choice_fun_V x y Hineq) /\
-  In (choice_fun_U x y Hineq) x /\
-  In (choice_fun_V x y Hineq) y /\
-    Intersection (choice_fun_U x y Hineq) (choice_fun_V x y Hineq) = Empty_set)
-  as HUV.
-{ intros.
-  unfold choice_fun_U; unfold choice_fun_V.
-  pose proof (Hchoice_fun (exist _ (x,y) Hineq)).
-  now destruct (choice_fun (exist _ (x,y) Hineq)).
+destruct (closed_compact_ens X F HX_compact HF cover_of_F) as
+  [fincover [Hfincover0 [Hfincover1 Hfincover2]]]; auto.
+{ intros y Hy.
+  specialize (HX_Hausdorff x y) as [U [V [HU [HV [HUx [HVx0]]]]]].
+  { intros ?. subst. contradiction. }
+  exists V; auto.
+  exists U, y.
+  repeat split; auto.
 }
-clearbody choice_fun_U choice_fun_V; clear choice_fun Hchoice_fun.
-intros x F HF_closed HFx.
-pose proof (closed_compact _ _ HX_compact HF_closed) as HF_compact.
-assert (forall y:X, In F y -> x <> y) as HF_neq_x.
-{ intros. congruence.
-}
-pose (cover := fun (y:SubspaceTopology F) =>
-  let (y,i):=y in inverse_image (subspace_inc F)
-                     (choice_fun_V x y (HF_neq_x y i))).
-destruct (compactness_on_indexed_covers _ _ cover HF_compact)
-  as [subcover []].
-{ destruct a as [y i].
-  apply subspace_inc_continuous, HUV.
-}
-{ apply Extensionality_Ensembles; split; red; intros y ?.
-  { constructor. }
-  exists y.
-  destruct y as [y i].
-  simpl.
-  constructor.
-  simpl.
-  apply HUV.
-}
-exists (IndexedIntersection
-  (fun y:{y:SubspaceTopology F | In subcover y} =>
-    let (y,_):=y in let (y,i):=y in choice_fun_U x y (HF_neq_x y i))).
-exists (IndexedUnion
-  (fun y:{y:SubspaceTopology F | In subcover y} =>
-    let (y,_):=y in let (y,i):=y in choice_fun_V x y (HF_neq_x y i))).
-repeat split.
-- apply open_finite_indexed_intersection.
-  + now apply Finite_ens_type.
-  + destruct a as [[y]].
-    apply HUV.
-- apply open_indexed_union.
-  destruct a as [[y]].
-  apply HUV.
-- destruct a as [[y]].
-  apply HUV.
-- red; intros y ?.
-  assert (In (IndexedUnion
-    (fun y:{y:SubspaceTopology F | In subcover y} =>
-      cover (proj1_sig y))) (exist _ y H1)).
-  { rewrite H0. constructor. }
-  remember (exist (In F) y H1) as ysig.
-  destruct H2 as [[y']].
-  rewrite Heqysig in H2; clear x0 Heqysig.
-  simpl in H2.
-  destruct y' as [y'].
-  simpl in H2.
-  destruct H2.
-  simpl in H2.
-  now exists (exist _ (exist _ y' i0) i).
-- apply Extensionality_Ensembles; split; auto with sets; red; intros y ?.
-  destruct H1.
-  destruct H1.
-  destruct H2.
-  pose proof (H1 a).
-  destruct a as [[y]].
-  replace (@Empty_set X) with
-    (Intersection (choice_fun_U x y (HF_neq_x y i))
-                  (choice_fun_V x y (HF_neq_x y i))).
-  + now constructor.
-  + apply HUV.
+
+(* recover the corresponding sets *)
+destruct (finite_ens_pair_choice
+            fincover (fun V U => exists y, In (P y) (U, V)))
+  as [fincomplement [Hfincomplement0 [Hfincomplement1 Hfincomplement2]]];
+  auto.
+(* finish the proof *)
+exists (FamilyIntersection fincomplement), (FamilyUnion fincover).
+repeat split; auto using open_family_union.
+1: apply open_finite_family_intersection; auto.
+(* the other properties follow from [Hfincomplement2] and the def. of [P] *)
+1,2: intros V H0; specialize (Hfincomplement2 V H0) as [? [? [? []]]];
+  intuition.
+
+(* disjointness needs some work *)
+apply Extensionality_Ensembles; split;
+  auto with sets; red; intros.
+destruct H. destruct H. destruct H0 as [S ? HS_fincover].
+specialize (Hfincomplement1 S HS_fincover)
+  as [U [? [y []]]].
+intuition. simpl in *.
+specialize (H U H1).
+rewrite <- H3.
+split; assumption.
 Qed.
 
 Lemma compact_Hausdorff_impl_normal_sep: forall X:TopologicalSpace,
   compact X -> Hausdorff X -> normal_sep X.
 Proof.
-intros.
-pose proof (compact_Hausdorff_impl_T3_sep X H H0).
-destruct (choice (fun (xF:{p:X * Ensemble X |
-                        let (x,F):=p in closed F /\ ~ In F x})
-  (UV:Ensemble X * Ensemble X) =>
-  let (p,i):=xF in let (x,F):=p in
-  let (U,V):=UV in
-  open U /\ open V /\ In U x /\ Included F V /\
-  Intersection U V = Empty_set)) as [choice_fun].
-{ destruct x as [[x F] []].
-  destruct H1.
-  destruct (H4 x F H2 H3) as [U [V]].
-  now exists (U, V).
+intros X HX_compact HX_Hausdorff.
+apply compact_Hausdorff_impl_T3_sep in HX_Hausdorff as [HX_T1 HX_regular];
+  try assumption.
+split; try assumption.
+intros F G HF_closed HG_closed HFG_disjoint.
+pose (P := fun y => (fun p : Ensemble X * Ensemble X =>
+                    open (fst p) /\ open (snd p) /\
+                      Intersection (fst p) (snd p) = Empty_set /\
+                      In (fst p) y /\ Included G (snd p))).
+pose (cover_of_F := fun U => exists V y, In (P y) (U, V)).
+
+assert (forall U, In cover_of_F U -> open U) as Hcover_open.
+{ intros U HU.
+  destruct HU as [V [y []]].
+  intuition.
 }
-pose (choice_fun_U := fun (x:X) (F:Ensemble X)
-  (HC:closed F) (Hni:~ In F x) =>
-  fst (choice_fun (exist _ (x,F) (conj HC Hni)))).
-pose (choice_fun_V := fun (x:X) (F:Ensemble X)
-  (HC:closed F) (Hni:~ In F x) =>
-  snd (choice_fun (exist _ (x,F) (conj HC Hni)))).
-assert (forall (x:X) (F:Ensemble X)
-  (HC:closed F) (Hni:~ In F x),
-  open (choice_fun_U x F HC Hni) /\
-  open (choice_fun_V x F HC Hni) /\
-  In (choice_fun_U x F HC Hni) x /\
-  Included F (choice_fun_V x F HC Hni) /\
-  Intersection (choice_fun_U x F HC Hni) (choice_fun_V x F HC Hni) =
-     Empty_set).
-{ intros.
-  pose proof (H2 (exist _ (x,F) (conj HC Hni))).
-  unfold choice_fun_U, choice_fun_V.
-  now destruct (choice_fun (exist _ (x,F) (conj HC Hni))).
-}
-clearbody choice_fun_U choice_fun_V; clear choice_fun H2.
-split.
-{ apply H1. }
-intros.
-pose proof (closed_compact _ _ H H2).
-assert (forall x:X, In F x -> ~ In G x).
-{ intros.
-  intro.
-  absurd (In Empty_set x).
-  - easy.
-  - now rewrite <- H5.
+destruct (closed_compact_ens X F HX_compact HF_closed cover_of_F) as
+  [fincover [Hfincover0 [Hfincover1 Hfincover2]]]; auto.
+{ intros y Hy.
+  specialize (HX_regular y G) as [U [V [HU [HV [HUx [HVx0]]]]]];
+    auto.
+  { intros ?.
+    assert (In Empty_set y); try contradiction.
+    rewrite <- HFG_disjoint; split; assumption.
+  }
+  exists U; auto.
+  exists V, y.
+  repeat split; auto.
 }
 
-pose (cover := fun x:SubspaceTopology F =>
-  let (x,i):=x in inverse_image (subspace_inc F)
-                   (choice_fun_U x G H4 (H7 x i))).
-destruct (compactness_on_indexed_covers _ _ cover H6) as [subcover []].
-{ destruct a as [x i].
-  apply subspace_inc_continuous, H3.
-}
-{ apply Extensionality_Ensembles; split; red; intros.
-  { constructor. }
-  exists x.
-  destruct x.
-  simpl cover.
-  constructor.
-  simpl.
-  apply H3.
-}
-exists (IndexedUnion
-  (fun x:{x:SubspaceTopology F | In subcover x} =>
-     let (x,i):=proj1_sig x in choice_fun_U x G H4 (H7 x i))).
-exists (IndexedIntersection
-  (fun x:{x:SubspaceTopology F | In subcover x} =>
-     let (x,i):=proj1_sig x in choice_fun_V x G H4 (H7 x i))).
-repeat split.
-- apply open_indexed_union.
-  destruct a as [[x]].
-  simpl.
-  apply H3.
-- apply open_finite_indexed_intersection.
-  + apply Finite_ens_type; trivial.
-  + destruct a as [[x]].
-    simpl.
-    apply H3.
-- intros x ?.
-  assert (In (@Full_set (SubspaceTopology F)) (exist _ x H10))
-    by constructor.
-  rewrite <- H9 in H11.
-  remember (exist _ x H10) as xsig.
-  destruct H11.
-  destruct a as [x'].
-  destruct x' as [x'].
-  rewrite Heqxsig in H11; clear x0 Heqxsig.
-  simpl in H11.
-  destruct H11.
-  now exists (exist _ (exist _ x' i0) i).
-- destruct a as [x'].
-  simpl.
-  destruct x' as [x'].
-  assert (Included G (choice_fun_V x' G H4 (H7 x' i0))) by apply H3.
+destruct (finite_ens_pair_choice
+            fincover (fun U V => exists y, In (P y) (U, V)))
+  as [fincomplement [Hfincomplement0 [Hfincomplement1 Hfincomplement2]]];
   auto.
-- extensionality_ensembles.
-  specialize H11 with a.
-  destruct a as [[x']].
-  simpl in H11, H10.
-  replace (@Empty_set X) with (Intersection
-    (choice_fun_U x' G H4 (H7 x' i))
-    (choice_fun_V x' G H4 (H7 x' i))) by apply H3.
-  now split.
+exists (FamilyUnion fincover), (FamilyIntersection fincomplement).
+repeat split; auto using open_family_union.
+1: apply open_finite_family_intersection; auto.
+1,2: intros V H0; specialize (Hfincomplement2 V H0) as [? [? [? []]]];
+  intuition.
+
+apply Extensionality_Ensembles; split;
+  auto with sets; red; intros.
+destruct H. destruct H0. destruct H as [S ? HS_fincover].
+specialize (Hfincomplement1 S HS_fincover)
+  as [U [? [y []]]].
+intuition. simpl in *.
+specialize (H0 U H1).
+rewrite <- H3.
+split; assumption.
 Qed.
 
 Lemma topological_property_compact :

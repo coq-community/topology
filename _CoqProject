@@ -51,6 +51,7 @@ theories/ZornsLemma/Families.v
 theories/ZornsLemma/Filters.v
 theories/ZornsLemma/FiniteImplicit.v
 theories/ZornsLemma/FiniteIntersections.v
+theories/ZornsLemma/Finite_sets.v
 theories/ZornsLemma/FiniteTypes.v
 theories/ZornsLemma/FunctionProperties.v
 theories/ZornsLemma/Image.v
