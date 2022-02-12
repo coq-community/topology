@@ -421,33 +421,35 @@ red; intros.
 pose (B := fun U:{U:Ensemble Y | In C U} =>
            inverse_image f (proj1_sig U)).
 destruct (compactness_on_indexed_covers _ _ B H) as [subcover].
-- destruct a as [U].
+{ destruct a as [U].
   now apply H0, H2.
-- extensionality_ensembles.
-  + constructor.
-  + assert (In (FamilyUnion C) (f x)).
-  { rewrite H3; constructor. }
-    inversion_clear H4 as [V].
-    exists (exist _ V H5).
-    now constructor.
-- exists (Im subcover (@proj1_sig _ (fun U:Ensemble Y => In C U))).
-  destruct H4.
-  repeat split.
-  + now apply finite_image.
-  + intros V ?.
-    destruct H6 as [[U]].
-    now subst.
-  + apply Extensionality_Ensembles; split; red; intros y ?.
+}
+{ extensionality_ensembles.
   { constructor. }
-    destruct (H1 y) as [x].
-    assert (In (IndexedUnion
-      (fun a':{a' | In subcover a'} => B (proj1_sig a'))) x).
+  assert (In (FamilyUnion C) (f x)).
+  { rewrite H3; constructor. }
+  inversion_clear H4 as [V].
+  exists (exist _ V H5).
+  now constructor.
+}
+exists (Im subcover (@proj1_sig _ (fun U:Ensemble Y => In C U))).
+destruct H4.
+repeat split.
+- now apply finite_image.
+- intros V ?.
+  destruct H6 as [[U]].
+  now subst.
+- apply Extensionality_Ensembles; split; red; intros y ?.
+  { constructor. }
+  destruct (H1 y) as [x].
+  assert (In (IndexedUnion
+    (fun a':{a' | In subcover a'} => B (proj1_sig a'))) x).
   { rewrite H5; constructor. }
-    destruct H8 as [[[U]]].
-    exists U.
-    * now exists (exist _ U i).
-    * destruct H8.
-      now subst.
+  destruct H8 as [[[U]]].
+  exists U.
+  + now exists (exist _ U i).
+  + destruct H8.
+    now subst.
 Qed.
 
 Lemma compact_Hausdorff_impl_T3_sep: forall X:TopologicalSpace,
