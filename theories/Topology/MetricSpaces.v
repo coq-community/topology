@@ -93,12 +93,12 @@ Arguments metric_topology_neighborhood_basis {X}.
 Arguments MetricTopology {X}.
 
 Definition metrizes (X:TopologicalSpace)
-  (d:point_set X -> point_set X -> R) : Prop :=
-  forall x:point_set X, open_neighborhood_basis
+  (d:X -> X -> R) : Prop :=
+  forall x:X, open_neighborhood_basis
              (metric_topology_neighborhood_basis d x) x.
 
 Inductive metrizable (X:TopologicalSpace) : Prop :=
-  | intro_metrizable: forall d:point_set X -> point_set X -> R,
+  | intro_metrizable: forall d:X -> X -> R,
     metric d -> metrizes X d ->
     metrizable X.
 
@@ -227,7 +227,7 @@ Proof.
 Qed.
 
 Lemma metric_space_open_ball_open :
-  forall (X:TopologicalSpace) (d:point_set X -> point_set X -> R),
+  forall (X:TopologicalSpace) (d:X -> X -> R),
     metrizes X d -> metric d ->
     forall x r, open (open_ball d x r).
 Proof.
@@ -270,8 +270,8 @@ Qed.
 Require Export Nets.
 
 Lemma metric_space_net_limit: forall (X:TopologicalSpace)
-  (d:point_set X -> point_set X -> R), metrizes X d ->
-  forall (I:DirectedSet) (x:Net I X) (x0:point_set X),
+  (d:X -> X -> R), metrizes X d ->
+  forall (I:DirectedSet) (x:Net I X) (x0:X),
   (forall eps:R, eps > 0 -> for large i:DS_set I, d x0 (x i) < eps) ->
   net_limit x x0.
 Proof.
@@ -288,8 +288,8 @@ destruct (open_neighborhood_basis_cond U) as [V []].
 Qed.
 
 Lemma metric_space_net_limit_converse: forall (X:TopologicalSpace)
-  (d:point_set X -> point_set X -> R), metrizes X d ->
-  forall (I:DirectedSet) (x:Net I X) (x0:point_set X),
+  (d:X -> X -> R), metrizes X d ->
+  forall (I:DirectedSet) (x:Net I X) (x0:X),
     net_limit x x0 -> forall eps:R, eps > 0 ->
                          for large i:DS_set I, d x0 (x i) < eps.
 Proof.
@@ -306,8 +306,8 @@ now apply H4.
 Qed.
 
 Lemma metric_space_net_cluster_point: forall (X:TopologicalSpace)
-  (d:point_set X -> point_set X -> R), metrizes X d ->
-  forall (I:DirectedSet) (x:Net I X) (x0:point_set X),
+  (d:X -> X -> R), metrizes X d ->
+  forall (I:DirectedSet) (x:Net I X) (x0:X),
   (forall eps:R, eps > 0 ->
      exists arbitrarily large i:DS_set I, d x0 (x i) < eps) ->
   net_cluster_point x x0.
@@ -326,8 +326,8 @@ destruct (open_neighborhood_basis_cond U) as
 Qed.
 
 Lemma metric_space_net_cluster_point_converse: forall (X:TopologicalSpace)
-  (d:point_set X -> point_set X -> R), metrizes X d ->
-  forall (I:DirectedSet) (x:Net I X) (x0:point_set X),
+  (d:X -> X -> R), metrizes X d ->
+  forall (I:DirectedSet) (x:Net I X) (x0:X),
     net_cluster_point x x0 -> forall eps:R, eps > 0 ->
                 exists arbitrarily large i:DS_set I, d x0 (x i) < eps.
 Proof.
@@ -346,14 +346,14 @@ now destruct H6.
 Qed.
 
 Lemma metric_space_fun_continuity_converse: forall (X Y:TopologicalSpace)
-  (f:point_set X->point_set Y) (x:point_set X)
-  (dX:point_set X -> point_set X -> R)
-  (dY:point_set Y -> point_set Y -> R),
+  (f:X->Y) (x:X)
+  (dX:X -> X -> R)
+  (dY:Y -> Y -> R),
   metrizes X dX -> metrizes Y dY ->
   continuous_at f x -> forall eps:R, eps > 0 ->
                          exists delta:R, delta > 0 /\
-                         forall x':point_set X, dX x x' < delta ->
-                                        dY (f x) (f x') < eps.
+                         forall x':X, dX x x' < delta ->
+                                 dY (f x) (f x') < eps.
 Proof.
 intros.
 destruct (H x).
@@ -379,13 +379,13 @@ now destruct H8.
 Qed.
 
 Lemma metric_space_fun_continuity: forall (X Y:TopologicalSpace)
-  (f:point_set X->point_set Y) (x:point_set X)
-  (dX:point_set X -> point_set X -> R)
-  (dY:point_set Y -> point_set Y -> R),
+  (f:X->Y) (x:X)
+  (dX:X -> X -> R)
+  (dY:Y -> Y -> R),
   metrizes X dX -> metrizes Y dY ->
   (forall eps:R, eps > 0 -> exists delta:R, delta > 0 /\
-                         forall x':point_set X, dX x x' < delta ->
-                                        dY (f x) (f x') < eps) ->
+                         forall x':X, dX x x' < delta ->
+                                 dY (f x) (f x') < eps) ->
   continuous_at f x.
 Proof.
 intros.
@@ -543,7 +543,7 @@ Proof.
 intros.
 destruct H.
 destruct (ClassicalChoice.choice (fun (n:{n:nat | (n > 0)%nat}) (S:Family X) =>
-  Included S (Im Full_set (fun x:point_set X =>
+  Included S (Im Full_set (fun x:X =>
                             open_ball d x (/ (INR (proj1_sig n)))))
   /\ Countable S /\ FamilyUnion S = Full_set))
 as [choice_fun].
@@ -711,13 +711,13 @@ Section dist_to_set_and_topology.
 Import InteriorsClosures.
 
 Variable X:TopologicalSpace.
-Variable d:point_set X -> point_set X -> R.
+Variable d:X -> X -> R.
 Hypothesis d_is_metric: metric d.
 Hypothesis d_metrizes_X: metrizes X d.
 Variable S:Ensemble X.
 Hypothesis S_nonempty: Inhabited S.
 
-Lemma dist_to_set_zero_impl_closure: forall x:point_set X,
+Lemma dist_to_set_zero_impl_closure: forall x:X,
   dist_to_set d d_is_metric S S_nonempty x = 0 -> In (closure S) x.
 Proof.
 intros.
@@ -746,7 +746,7 @@ destruct (open_neighborhood_basis_cond (Complement (closure S))) as [V [? ?]].
   lra.
 Qed.
 
-Lemma closure_impl_dist_to_set_zero: forall x:point_set X,
+Lemma closure_impl_dist_to_set_zero: forall x:X,
   In (closure S) x -> dist_to_set d d_is_metric S S_nonempty x = 0.
 Proof.
 intros.
@@ -757,7 +757,7 @@ apply Rle_antisym.
 - apply lt_plus_epsilon_le.
   intros.
   ring_simplify.
-  assert (exists y:point_set X, In S y /\ d x y < eps).
+  assert (exists y:X, In S y /\ d x y < eps).
   { apply NNPP; intro.
     pose proof (not_ex_all_not _ _ H1).
     clear H1.
@@ -794,8 +794,8 @@ Variable T:Ensemble X.
 Hypothesis T_nonempty: Inhabited T.
 
 Lemma closer_to_S_than_T_open: open
-  [x:point_set X | dist_to_set d d_is_metric S S_nonempty x <
-                   dist_to_set d d_is_metric T T_nonempty x].
+  [x:X | dist_to_set d d_is_metric S S_nonempty x <
+           dist_to_set d d_is_metric T T_nonempty x].
 Proof.
 apply open_char_neighborhood.
 intros.

@@ -176,7 +176,7 @@ Qed.
 
 Lemma compact_impl_filter_cluster_point:
   forall X:TopologicalSpace, compact X ->
-    forall F:Filter X, exists x0:point_set X,
+    forall F:Filter X, exists x0:X,
     filter_cluster_point F x0.
 Proof.
 intros.
@@ -233,7 +233,7 @@ Qed.
 
 Lemma filter_cluster_point_impl_compact:
   forall X:TopologicalSpace,
-    (forall F:Filter X, exists x0:point_set X,
+    (forall F:Filter X, exists x0:X,
       filter_cluster_point F x0) -> compact X.
 Proof.
 intros.
@@ -263,7 +263,7 @@ Qed.
 Lemma ultrafilter_limit_impl_compact:
   forall X:TopologicalSpace,
     (forall U:Filter X, ultrafilter U ->
-      exists x0:point_set X, filter_limit U x0) -> compact X.
+      exists x0:X, filter_limit U x0) -> compact X.
 Proof.
 intros.
 apply filter_cluster_point_impl_compact.
@@ -281,7 +281,7 @@ Qed.
 Lemma compact_impl_net_cluster_point:
   forall X:TopologicalSpace, compact X ->
     forall (I:DirectedSet) (x:Net I X), inhabited (DS_set I) ->
-    exists x0:point_set X, net_cluster_point x x0.
+    exists x0:X, net_cluster_point x x0.
 Proof.
 intros.
 destruct (compact_impl_filter_cluster_point
@@ -293,7 +293,7 @@ Qed.
 
 Lemma net_cluster_point_impl_compact: forall X:TopologicalSpace,
   (forall (I:DirectedSet) (x:Net I X), inhabited (DS_set I) ->
-    exists x0:point_set X, net_cluster_point x x0) ->
+    exists x0:X, net_cluster_point x x0) ->
   compact X.
 Proof.
 intros.
@@ -339,7 +339,7 @@ apply Extensionality_Ensembles; split; red; intros.
 }
 destruct (net_limits_determine_topology _ _ H2) as [I0 [y []]].
 pose (yS (i:DS_set I0) := exist (fun x:X => In S x) (y i) (H3 i)).
-assert (inhabited (point_set (SubspaceTopology S))).
+assert (inhabited (SubspaceTopology S)).
 { destruct H1.
   constructor.
   now exists x0.
@@ -405,7 +405,7 @@ now constructor.
 Qed.
 
 Lemma compact_image: forall {X Y:TopologicalSpace}
-  (f:point_set X->Y),
+  (f:X->Y),
   compact X -> continuous f -> surjective f -> compact Y.
 Proof.
 intros.
@@ -479,10 +479,10 @@ assert (forall (x y:X) (Hineq:x<>y),
 clearbody choice_fun_U choice_fun_V; clear choice_fun Hchoice_fun.
 intros x F HF_closed HFx.
 pose proof (closed_compact _ _ HX_compact HF_closed) as HF_compact.
-assert (forall y:point_set X, In F y -> x <> y) as HF_neq_x.
+assert (forall y:X, In F y -> x <> y) as HF_neq_x.
 { intros. congruence.
 }
-pose (cover := fun (y:point_set (SubspaceTopology F)) =>
+pose (cover := fun (y:SubspaceTopology F) =>
   let (y,i):=y in inverse_image (subspace_inc F)
                      (choice_fun_V x y (HF_neq_x y i))).
 destruct (compactness_on_indexed_covers _ _ cover HF_compact)
@@ -500,10 +500,10 @@ destruct (compactness_on_indexed_covers _ _ cover HF_compact)
   apply HUV.
 }
 exists (IndexedIntersection
-  (fun y:{y:point_set (SubspaceTopology F) | In subcover y} =>
+  (fun y:{y:SubspaceTopology F | In subcover y} =>
     let (y,_):=y in let (y,i):=y in choice_fun_U x y (HF_neq_x y i))).
 exists (IndexedUnion
-  (fun y:{y:point_set (SubspaceTopology F) | In subcover y} =>
+  (fun y:{y:SubspaceTopology F | In subcover y} =>
     let (y,_):=y in let (y,i):=y in choice_fun_V x y (HF_neq_x y i))).
 repeat split.
 - apply open_finite_indexed_intersection.
@@ -517,7 +517,7 @@ repeat split.
   apply HUV.
 - red; intros y ?.
   assert (In (IndexedUnion
-    (fun y:{y:point_set (SubspaceTopology F) | In subcover y} =>
+    (fun y:{y:SubspaceTopology F | In subcover y} =>
       cover (proj1_sig y))) (exist _ y H1)).
   { rewrite H0. constructor. }
   remember (exist (In F) y H1) as ysig.
@@ -583,7 +583,7 @@ split.
 { apply H1. }
 intros.
 pose proof (closed_compact _ _ H H2).
-assert (forall x:point_set X, In F x -> ~ In G x).
+assert (forall x:X, In F x -> ~ In G x).
 { intros.
   intro.
   absurd (In Empty_set x).
@@ -591,7 +591,7 @@ assert (forall x:point_set X, In F x -> ~ In G x).
   - now rewrite <- H5.
 }
 
-pose (cover := fun x:point_set (SubspaceTopology F) =>
+pose (cover := fun x:SubspaceTopology F =>
   let (x,i):=x in inverse_image (subspace_inc F)
                    (choice_fun_U x G H4 (H7 x i))).
 destruct (compactness_on_indexed_covers _ _ cover H6) as [subcover []].
@@ -608,10 +608,10 @@ destruct (compactness_on_indexed_covers _ _ cover H6) as [subcover []].
   apply H3.
 }
 exists (IndexedUnion
-  (fun x:{x:point_set (SubspaceTopology F) | In subcover x} =>
+  (fun x:{x:SubspaceTopology F | In subcover x} =>
      let (x,i):=proj1_sig x in choice_fun_U x G H4 (H7 x i))).
 exists (IndexedIntersection
-  (fun x:{x:point_set (SubspaceTopology F) | In subcover x} =>
+  (fun x:{x:SubspaceTopology F | In subcover x} =>
      let (x,i):=proj1_sig x in choice_fun_V x G H4 (H7 x i))).
 repeat split.
 - apply open_indexed_union.
@@ -624,7 +624,7 @@ repeat split.
     simpl.
     apply H3.
 - intros x ?.
-  assert (In (@Full_set (point_set (SubspaceTopology F))) (exist _ x H10))
+  assert (In (@Full_set (SubspaceTopology F)) (exist _ x H10))
     by constructor.
   rewrite <- H9 in H11.
   remember (exist _ x H10) as xsig.

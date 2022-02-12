@@ -8,9 +8,9 @@ Variable A:Type.
 Variable X:forall a:A, TopologicalSpace.
 
 Definition product_space_point_set : Type :=
-  forall a:A, point_set (X a).
-Definition product_space_proj (a:A) : product_space_point_set ->
-                                      point_set (X a) :=
+  forall a:A, X a.
+Definition product_space_proj (a:A) :
+  product_space_point_set -> X a :=
   fun (x:product_space_point_set) => x a.
 
 Definition ProductTopology : TopologicalSpace :=
@@ -23,7 +23,7 @@ apply weak_topology_makes_continuous_funcs.
 Qed.
 
 Lemma product_net_limit: forall (I:DirectedSet)
-  (x:Net I ProductTopology) (x0:point_set ProductTopology),
+  (x:Net I ProductTopology) (x0:ProductTopology),
   inhabited (DS_set I) ->
   (forall a:A, net_limit (fun i:DS_set I => x i a) (x0 a)) ->
   net_limit x x0.
@@ -33,8 +33,8 @@ now apply net_limit_in_projections_impl_net_limit_in_weak_topology.
 Qed.
 
 Lemma product_filter_limit:
-  forall (F:Filter (point_set ProductTopology))
-    (x0:point_set ProductTopology),
+  forall (F:Filter ProductTopology)
+    (x0:ProductTopology),
   (forall a:A, filter_limit (filter_direct_image
                      (product_space_proj a) F) (x0 a)) ->
   filter_limit F x0.
@@ -79,7 +79,7 @@ Proof.
 intro.
 apply ultrafilter_limit_impl_compact.
 intros.
-destruct (choice_on_dependent_type (fun (a:A) (x:point_set (X a)) =>
+destruct (choice_on_dependent_type (fun (a:A) (x:X a) =>
   filter_limit (filter_direct_image (product_space_proj a) U) x))
   as [choice_fun].
 - intro.
@@ -103,9 +103,9 @@ Arguments product_space_proj {A} {X}.
 
 Lemma product_map_continuous: forall {A:Type}
   (X:TopologicalSpace) (Y:A->TopologicalSpace)
-  (f:forall a:A, point_set X -> point_set (Y a)) (x:point_set X),
+  (f:forall a:A, X -> Y a) (x:X),
   (forall a:A, continuous_at (f a) x) ->
-  continuous_at (fun x:point_set X => (fun a:A => f a x)) x
+  continuous_at (fun x:X => (fun a:A => f a x)) x
     (Y:=ProductTopology Y).
 Proof.
 intros.
@@ -122,8 +122,8 @@ Qed.
 
 Section product_topology2.
 
-(* we provide a version of the product topology on X and Y
-   whose underlying set is point_set X * point_set Y, for
+(* we provide a version of the product topology on [X] and [Y]
+   whose underlying set is [point_set X * point_set Y], for
    more convenience as compared with the general definition *)
 Variable X Y:TopologicalSpace.
 
@@ -132,14 +132,14 @@ Let prod2_fun (i:twoT) := match i with
   | twoT_1 => X | twoT_2 => Y end.
 Let prod2 := ProductTopology prod2_fun.
 
-Let prod2_conv1 (p:point_set prod2) : point_set X * point_set Y :=
+Let prod2_conv1 (p:prod2) : X * Y :=
   (p twoT_1, p twoT_2).
-Let prod2_conv2 (p : point_set X * point_set Y) : point_set prod2 :=
+Let prod2_conv2 (p : X * Y) : prod2 :=
   let (x,y):=p in fun i:twoT => match i with
     | twoT_1 => x | twoT_2 => y
   end.
 
-Lemma prod2_comp1: forall p:point_set prod2,
+Lemma prod2_comp1: forall p:prod2,
   prod2_conv2 (prod2_conv1 p) = p.
 Proof.
 intros.
@@ -147,17 +147,16 @@ extensionality i.
 now destruct i.
 Qed.
 
-Lemma prod2_comp2: forall p:point_set X * point_set Y,
+Lemma prod2_comp2: forall p:X * Y,
   prod2_conv1 (prod2_conv2 p) = p.
 Proof.
 now intros [? ?].
 Qed.
 
 Let prod2_proj := fun i:twoT =>
-  match i return (point_set X * point_set Y ->
-                  point_set (prod2_fun i)) with
-  | twoT_1 => @fst (point_set X) (point_set Y)
-  | twoT_2 => @snd (point_set X) (point_set Y)
+  match i return (X * Y -> (prod2_fun i)) with
+  | twoT_1 => @fst X Y
+  | twoT_2 => @snd X Y
   end.
 
 Definition ProductTopology2 : TopologicalSpace :=
@@ -213,7 +212,7 @@ apply net_limit_in_projections_impl_net_limit_in_weak_topology.
 Qed.
 
 Lemma product2_fst_continuous:
-  continuous (@fst (point_set X) (point_set Y))
+  continuous (@fst X Y)
     (X:=ProductTopology2).
 Proof.
 exact (weak_topology_makes_continuous_funcs
@@ -221,7 +220,7 @@ exact (weak_topology_makes_continuous_funcs
 Qed.
 
 Lemma product2_snd_continuous:
-  continuous (@snd (point_set X) (point_set Y))
+  continuous (@snd X Y)
     (X:=ProductTopology2).
 Proof.
 exact (weak_topology_makes_continuous_funcs
@@ -229,21 +228,20 @@ exact (weak_topology_makes_continuous_funcs
 Qed.
 
 Lemma product2_map_continuous_at: forall (W:TopologicalSpace)
-  (f:point_set W -> point_set X) (g:point_set W -> point_set Y)
-  (w:point_set W),
+  (f:W -> X) (g:W -> Y) (w:W),
   continuous_at f w -> continuous_at g w ->
-  continuous_at (fun w:point_set W => (f w, g w)) w
-  (Y:=ProductTopology2).
+  continuous_at (fun w:W => (f w, g w)) w (Y:=ProductTopology2).
 Proof.
 intros.
-replace (fun w:point_set W => (f w, g w)) with
-  (fun w:point_set W => prod2_conv1
-              (fun i:twoT => match i with
+replace (fun w:W => (f w, g w)) with
+  (fun w:W => prod2_conv1
+             (fun i:twoT =>
+                match i with
                 | twoT_1 => f w
                 | twoT_2 => g w end)).
 - apply (@continuous_composition_at W prod2 ProductTopology2
     prod2_conv1
-    (fun w:point_set W =>
+    (fun w:W =>
        fun i:twoT => match i with
            | twoT_1 => f w | twoT_2 => g w end)).
   + apply continuous_func_continuous_everywhere.
@@ -254,9 +252,9 @@ replace (fun w:point_set W => (f w, g w)) with
 Qed.
 
 Corollary product2_map_continuous: forall (W:TopologicalSpace)
-  (f:point_set W -> point_set X) (g:point_set W -> point_set Y),
+  (f:W -> X) (g:W -> Y),
   continuous f -> continuous g ->
-  continuous (fun w:point_set W => (f w, g w))
+  continuous (fun w:W => (f w, g w))
   (Y:=ProductTopology2).
 Proof.
   intros.
@@ -270,13 +268,13 @@ Proof.
 Qed.
 
 Inductive ProductTopology2_basis :
-  Family (point_set ProductTopology2) :=
+  Family ProductTopology2 :=
 | intro_product2_basis_elt:
-  forall (U:Ensemble (point_set X))
-         (V:Ensemble (point_set Y)),
+  forall (U:Ensemble X)
+         (V:Ensemble Y),
   open U -> open V ->
   In ProductTopology2_basis
-  [ p:point_set ProductTopology2 |
+  [ p:ProductTopology2 |
     let (x,y):=p in (In U x /\ In V y) ].
 
 Lemma ProductTopology2_basis_is_basis:
@@ -288,8 +286,8 @@ assert (open_basis (finite_intersections (weak_topology_subbasis prod2_proj))
 apply eq_ind with (1:=H).
 apply Extensionality_Ensembles; split; red; intros U ?.
 - induction H0.
-  + replace (@Full_set (point_set X * point_set Y)) with
-      [ p:point_set ProductTopology2 |
+  + replace (@Full_set (X * Y)) with
+      [ p:ProductTopology2 |
         let (x,y):=p in (In Full_set x /\ In Full_set y) ].
     * constructor;
         apply open_full.
@@ -300,7 +298,7 @@ apply Extensionality_Ensembles; split; red; intros U ?.
   + destruct H0.
     destruct a.
     * replace (inverse_image (prod2_proj twoT_1) V) with
-        [ p:point_set ProductTopology2 |
+        [ p:ProductTopology2 |
           let (x,y):=p in (In V x /\ In Full_set y) ].
       ** constructor; trivial.
          apply open_full.
@@ -310,7 +308,7 @@ apply Extensionality_Ensembles; split; red; intros U ?.
              now constructor.
          *** now constructor; constructor.
     * replace (inverse_image (prod2_proj twoT_2) V) with
-        [ p:point_set ProductTopology2 |
+        [ p:ProductTopology2 |
           let (x,y):=p in (In Full_set x /\ In V y) ].
       ** constructor; trivial.
          apply open_full.
@@ -321,11 +319,11 @@ apply Extensionality_Ensembles; split; red; intros U ?.
          *** now constructor; constructor.
   + destruct IHfinite_intersections as [U1 V1].
     destruct IHfinite_intersections0 as [U2 V2].
-    replace (@Intersection (point_set X * point_set Y)
-      [p:point_set ProductTopology2 | let (x,y):=p in In U1 x /\ In V1 y]
-      [p:point_set ProductTopology2 | let (x,y):=p in In U2 x /\ In V2 y])
+    replace (@Intersection (X * Y)
+      [p:ProductTopology2 | let (x,y):=p in In U1 x /\ In V1 y]
+      [p:ProductTopology2 | let (x,y):=p in In U2 x /\ In V2 y])
     with
-      [p:point_set ProductTopology2 | let (x,y):=p in
+      [p:ProductTopology2 | let (x,y):=p in
        (In (Intersection U1 U2) x /\ In (Intersection V1 V2) y)].
     * constructor;
         now apply open_intersection2.
@@ -336,7 +334,7 @@ apply Extensionality_Ensembles; split; red; intros U ?.
         [ | destruct H7 ];
         now repeat constructor.
 - destruct H0.
-  replace [p:point_set ProductTopology2 | let (x,y):=p in
+  replace [p:ProductTopology2 | let (x,y):=p in
            In U x /\ In V y] with
     (Intersection (inverse_image (prod2_proj twoT_1) U)
                   (inverse_image (prod2_proj twoT_2) V)).
@@ -354,19 +352,19 @@ End product_topology2.
 Section two_arg_convenience_results.
 
 Variable X Y Z:TopologicalSpace.
-Variable f:point_set X -> point_set Y -> point_set Z.
+Variable f:X -> Y -> Z.
 
 Definition continuous_2arg :=
-  continuous (fun p:point_set X * point_set Y =>
+  continuous (fun p:X * Y =>
                 f (fst p) (snd p))
   (X:=ProductTopology2 X Y).
-Definition continuous_at_2arg (x:point_set X) (y:point_set Y) :=
-  continuous_at (fun p:point_set X * point_set Y =>
+Definition continuous_at_2arg (x:X) (y:Y) :=
+  continuous_at (fun p:X * Y =>
                  f (fst p) (snd p))  (x, y)
   (X:=ProductTopology2 X Y).
 
 Lemma continuous_2arg_func_continuous_everywhere:
-  continuous_2arg -> forall (x:point_set X) (y:point_set Y),
+  continuous_2arg -> forall (x:X) (y:Y),
                        continuous_at_2arg x y.
 Proof.
 intros.
@@ -374,7 +372,7 @@ now apply continuous_func_continuous_everywhere.
 Qed.
 
 Lemma pointwise_continuity_2arg:
-  (forall (x:point_set X) (y:point_set Y),
+  (forall (x:X) (y:Y),
    continuous_at_2arg x y) -> continuous_2arg.
 Proof.
 intros.
@@ -390,19 +388,18 @@ Arguments continuous_at_2arg {X} {Y} {Z}.
 
 Lemma continuous_composition_at_2arg:
   forall (W X Y Z:TopologicalSpace)
-    (f:point_set X -> point_set Y -> point_set Z)
-    (g:point_set W -> point_set X) (h:point_set W -> point_set Y)
-    (w:point_set W),
+    (f:X -> Y -> Z) (g:W -> X) (h:W -> Y)
+    (w:W),
   continuous_at_2arg f (g w) (h w) ->
   continuous_at g w -> continuous_at h w ->
-  continuous_at (fun w:point_set W => f (g w) (h w)) w.
+  continuous_at (fun w:W => f (g w) (h w)) w.
 Proof.
 intros.
 red in H.
 apply (continuous_composition_at
-  (fun p:point_set (ProductTopology2 X Y) =>
+  (fun p:ProductTopology2 X Y =>
       f (fst p) (snd p))
-  (fun w:point_set W => (g w, h w))); trivial.
+  (fun w:W => (g w, h w))); trivial.
 now apply product2_map_continuous_at.
 Qed.
 

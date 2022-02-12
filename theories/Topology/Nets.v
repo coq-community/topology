@@ -8,17 +8,17 @@ Section Net.
 Variable I:DirectedSet.
 Variable X:TopologicalSpace.
 
-Definition Net := DS_set I -> point_set X.
+Definition Net := DS_set I -> X.
 
-Definition net_limit (x:Net) (x0:point_set X) : Prop :=
-  forall U:Ensemble (point_set X), open U -> In U x0 ->
+Definition net_limit (x:Net) (x0:X) : Prop :=
+  forall U:Ensemble X, open U -> In U x0 ->
   for large i:DS_set I, In U (x i).
 
-Definition net_cluster_point (x:Net) (x0:point_set X) : Prop :=
-  forall U:Ensemble (point_set X), open U -> In U x0 ->
+Definition net_cluster_point (x:Net) (x0:X) : Prop :=
+  forall U:Ensemble X, open U -> In U x0 ->
   exists arbitrarily large i:DS_set I, In U (x i).
 
-Lemma net_limit_is_cluster_point: forall (x:Net) (x0:point_set X),
+Lemma net_limit_is_cluster_point: forall (x:Net) (x0:X),
   net_limit x x0 -> net_cluster_point x x0.
 Proof.
 intros.
@@ -32,8 +32,8 @@ split; trivial.
 now apply H2.
 Qed.
 
-Lemma net_limit_in_closure: forall (S:Ensemble (point_set X))
-  (x:Net) (x0:point_set X),
+Lemma net_limit_in_closure: forall (S:Ensemble X)
+  (x:Net) (x0:X),
   (exists arbitrarily large i:DS_set I, In S (x i)) ->
   net_limit x x0 -> In (closure S) x0.
 Proof.
@@ -50,8 +50,8 @@ contradiction (H3 x2);
   tauto.
 Qed.
 
-Lemma net_cluster_point_in_closure: forall (S:Ensemble (point_set X))
-  (x:Net) (x0:point_set X),
+Lemma net_cluster_point_in_closure: forall (S:Ensemble X)
+  (x:Net) (x0:X),
   (for large i:DS_set I, In S (x i)) ->
   net_cluster_point x x0 -> In (closure S) x0.
 Proof.
@@ -79,11 +79,11 @@ Arguments net_cluster_point_in_closure {I} {X}.
 Section neighborhood_net.
 
 Variable X:TopologicalSpace.
-Variable x:point_set X.
+Variable x:X.
 
 Inductive neighborhood_net_DS_set : Type :=
   | intro_neighborhood_net_DS :
-    forall (U:Ensemble (point_set X)) (y:point_set X),
+    forall (U:Ensemble X) (y:X),
     open U -> In U x -> In U y -> neighborhood_net_DS_set.
 
 Definition neighborhood_net_DS_ord
@@ -136,13 +136,13 @@ Qed.
 End neighborhood_net.
 
 Lemma net_limits_determine_topology:
-  forall {X:TopologicalSpace} (S:Ensemble (point_set X))
-  (x0:point_set X), In (closure S) x0 ->
+  forall {X:TopologicalSpace} (S:Ensemble X)
+  (x0:X), In (closure S) x0 ->
   exists I:DirectedSet, exists x:Net I X,
   (forall i:DS_set I, In S (x i)) /\ net_limit x x0.
 Proof.
 intros.
-assert (forall U:Ensemble (point_set X), open U -> In U x0 ->
+assert (forall U:Ensemble X, open U -> In U x0 ->
   Inhabited (Intersection S U)).
 { intros.
   apply NNPP. intro.
@@ -215,10 +215,10 @@ Qed.
 Section Nets_and_continuity.
 
 Variable X Y:TopologicalSpace.
-Variable f:point_set X -> point_set Y.
+Variable f:X -> Y.
 
 Lemma continuous_func_preserves_net_limits:
-  forall {I:DirectedSet} (x:Net I X) (x0:point_set X),
+  forall {I:DirectedSet} (x:Net I X) (x0:X),
     net_limit x x0 -> continuous_at f x0 ->
     net_limit (fun i:DS_set I => f (x i)) (f x0).
 Proof.
@@ -238,7 +238,7 @@ now destruct H9.
 Qed.
 
 Lemma func_preserving_net_limits_is_continuous:
-  forall x0:point_set X,
+  forall x0:X,
   (forall (I:DirectedSet) (x:Net I X),
     net_limit x x0 -> net_limit (fun i:DS_set I => f (x i)) (f x0))
   -> continuous_at f x0.
@@ -273,7 +273,7 @@ Inductive Subnet {J:DirectedSet} : Net J X -> Prop :=
        exists j:DS_set J, h j = i) ->
     Subnet (fun j:DS_set J => x (h j)).
 
-Lemma subnet_limit: forall (x0:point_set X) {J:DirectedSet}
+Lemma subnet_limit: forall (x0:X) {J:DirectedSet}
   (y:Net J X), net_limit x x0 -> Subnet y ->
   net_limit y x0.
 Proof.
@@ -292,7 +292,7 @@ apply preord_trans with x2; trivial.
   now apply H0.
 Qed.
 
-Lemma subnet_cluster_point: forall (x0:point_set X) {J:DirectedSet}
+Lemma subnet_cluster_point: forall (x0:X) {J:DirectedSet}
   (y:Net J X), net_cluster_point y x0 ->
   Subnet y -> net_cluster_point x x0.
 Proof.
@@ -314,13 +314,13 @@ Qed.
 
 Section cluster_point_subnet.
 
-Variable x0:point_set X.
+Variable x0:X.
 Hypothesis x0_cluster_point: net_cluster_point x x0.
 Hypothesis I_nonempty: inhabited (DS_set I).
 
 Record cluster_point_subnet_DS_set : Type := {
   cps_i:DS_set I;
-  cps_U:Ensemble (point_set X);
+  cps_U:Ensemble X;
   cps_U_open_neigh: open_neighborhood cps_U x0;
   cps_xi_in_U: In cps_U (x cps_i)
 }.
