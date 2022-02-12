@@ -130,8 +130,19 @@ Proof.
   destruct (classic (In U x)); [right|left]; assumption.
 Qed.
 
-Lemma Couple_swap X (x y : X) :
+Lemma Couple_swap {X} (x y : X) :
   Couple x y = Couple y x.
 Proof.
   extensionality_ensembles_inv; constructor.
+Qed.
+
+Lemma union_complement_included_l {X : Type} (U V : Ensemble X) :
+  Included V U ->
+  Union U (Complement V) = Full_set.
+Proof.
+  intros.
+  apply Extensionality_Ensembles; split; red; intros.
+  { constructor. }
+  destruct (classic (In V x));
+    [left|right]; auto.
 Qed.

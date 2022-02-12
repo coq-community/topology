@@ -177,3 +177,13 @@ apply Extensionality_Ensembles; split; red; intros; constructor.
   + inversion H0; subst; clear H0.
     assumption.
 Qed.
+
+Lemma family_union_union {X : Type} (F G : Family X) :
+  FamilyUnion (Union F G) =
+    Union (FamilyUnion F) (FamilyUnion G).
+Proof.
+  apply Extensionality_Ensembles; split; red; intros.
+  - inversion H; subst; clear H.
+    destruct H0; [left|right]; exists x0; auto.
+  - destruct H, H; exists S; auto; [left|right]; auto.
+Qed.
