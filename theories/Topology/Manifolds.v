@@ -1,3 +1,4 @@
+Set Default Goal Selector "!".
 From Coq Require Import Image.
 From Topology Require Import Homeomorphisms.
 From Topology Require Import SubspaceTopology.
@@ -286,7 +287,7 @@ Proof.
     apply proj1_sig_injective.
   }
   etransitivity; symmetry.
-  apply subspace_inc_inverse_image.
+  { apply subspace_inc_inverse_image. }
   replace (Im _ _) with (Intersection U (Im V (subspace_inc U))).
   { reflexivity. }
   apply Extensionality_Ensembles; split; red; intros.
@@ -645,9 +646,55 @@ Proof.
     + apply Sphere_lhom_Rn.
 Qed.
 
-Conjecture classification_zero_dim_mfd :
+Lemma singleton_open_impl_discrete (X : TopologicalSpace) :
+  (forall x : X, open (Singleton x)) ->
+  (forall U : Ensemble X, open U).
+Proof.
+  intros.
+  replace U with (IndexedUnion (fun x : { x | In U x } => Singleton (proj1_sig x))).
+  { apply open_indexed_union.
+    auto.
+  }
+  apply Extensionality_Ensembles; split; red; intros.
+  - destruct H0. inversion H0; subst; clear H0.
+    apply proj2_sig.
+  - exists (exist _ x H0).
+    constructor.
+Qed.
+
+Lemma mfd_zero_dim_discrete (M : TopologicalSpace) (U : Ensemble M) :
+  Manifold M 0 ->
+  open U.
+Proof.
+  intros.
+  apply singleton_open_impl_discrete.
+  clear U.
+  intros.
+  red in H.
+  destruct H as [? []].
+  red in H1.
+  destruct (H1 x) as [U [V [? []]]].
+  admit.
+Admitted.
+
+Theorem classification_zero_dim_mfd :
   forall M, Manifold M 0 ->
   homeomorphic M (DiscreteTopology M).
+Proof.
+  intros.
+  unshelve econstructor.
+  { exact (fun x => x). }
+  unshelve econstructor.
+  { exact (fun x => x). }
+  { intros ? ?.
+    apply mfd_zero_dim_discrete.
+    assumption.
+  }
+  { intros ? ?.
+    constructor.
+  }
+  all: auto.
+Qed.
 
 Conjecture classification_one_dim_mfd :
   forall M, Manifold M 1 -> connected M ->
