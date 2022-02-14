@@ -469,48 +469,51 @@ exists (Im [p:(Q*X)%type |
   + intros.
     destruct (H1 x).
     destruct (open_neighborhood_basis_cond U) as [V [[r]]].
-    * now split.
-    * destruct (dense_meets_every_nonempty_open _ _ H2
+    { now split. }
+    destruct (dense_meets_every_nonempty_open _ _ H2
+      (open_ball d x (r/2))).
+    { destruct (open_neighborhood_basis_elements
         (open_ball d x (r/2))).
-      ** destruct (open_neighborhood_basis_elements
-           (open_ball d x (r/2))).
-         *** constructor.
-             lra.
-         *** destruct (open_neighborhood_basis_elements
-               (open_ball d x (r/2))); trivial.
-             constructor.
-             lra.
-      ** exists x.
-         constructor.
-         rewrite metric_zero; trivial.
+      - constructor.
+        lra.
+      - destruct (open_neighborhood_basis_elements
+          (open_ball d x (r/2))); trivial.
+        constructor.
+        lra.
+    }
+    { exists x.
+      constructor.
+      rewrite metric_zero; trivial.
+      lra.
+    }
+    destruct H7, H8.
+    destruct (rationals_dense_in_reals (d x x0) (r - d x x0)) as [r'].
+    { lra. }
+    exists (open_ball d x0 (Q2R r')).
+    repeat split.
+    * exists ( (r', x0) ); trivial.
+      constructor.
+      split; trivial.
+      assert (Q2R r' > 0).
+      { apply Rgt_ge_trans with (d x x0).
+        - apply H9.
+        - now apply metric_nonneg.
+      }
+      apply Rlt_Qlt.
+      unfold Q2R at 1.
+      simpl.
+      now ring_simplify.
+    * red. intros y ?.
+      destruct H10.
+      apply H6.
+      constructor.
+      eapply Rle_lt_trans.
+      -- now apply triangle_inequality.
+      -- apply Rlt_trans with (d x x0 + Q2R r');
+           auto with real.
          lra.
-      ** destruct H7, H8.
-         destruct (rationals_dense_in_reals (d x x0) (r - d x x0)) as [r'].
-         *** lra.
-         *** exists (open_ball d x0 (Q2R r')).
-             repeat split.
-             **** exists ( (r', x0) ); trivial.
-                  constructor.
-                  split; trivial.
-                  assert (Q2R r' > 0).
-                  { apply Rgt_ge_trans with (d x x0).
-                    - apply H9.
-                    - now apply metric_nonneg. }
-                  apply Rlt_Qlt.
-                  unfold Q2R at 1.
-                  simpl.
-                  now ring_simplify.
-             **** red. intros y ?.
-                  destruct H10.
-                  apply H6.
-                  constructor.
-                  eapply Rle_lt_trans.
-                  ***** now apply triangle_inequality.
-                  ***** apply Rlt_trans with (d x x0 + Q2R r');
-                          auto with real.
-                        lra.
-             **** destruct H9.
-                  now rewrite metric_sym.
+    * destruct H9.
+      now rewrite metric_sym.
 - apply countable_img.
   destruct H0 as [h].
   destruct Q_countable.
@@ -526,14 +529,13 @@ exists (Im [p:(Q*X)%type |
   red. intros x y H5.
   destruct x as [[r1 x1] [[pos_r1 i1]]].
   destruct y as [[r2 x2] [[pos_r2 i2]]].
-  apply subset_eq_compat.
+  apply subset_eq.
+  simpl.
   apply H4 in H5.
-  f_equal;
-    injection H5;
-    intros.
-  + now apply H3.
-  + apply H0 in H7.
-    now injection H7.
+  inversion H5; subst; clear H5.
+  apply H3 in H8.
+  apply H0 in H7.
+  congruence.
 Qed.
 
 Lemma metrizable_Lindelof_impl_second_countable:
