@@ -52,6 +52,22 @@ Proof.
     split; constructor; assumption.
 Qed.
 
+Lemma inverse_image_fst {X Y : Type} (U : Ensemble X) :
+  inverse_image fst U = EnsembleProduct U (@Full_set Y).
+Proof.
+  apply Extensionality_Ensembles; split; red; intros.
+  - do 2 red. destruct H. auto with sets.
+  - destruct H. constructor. auto.
+Qed.
+
+Lemma inverse_image_snd {X Y : Type} (V : Ensemble Y) :
+  inverse_image snd V = EnsembleProduct (@Full_set X) V.
+Proof.
+  apply Extensionality_Ensembles; split; red; intros.
+  - do 2 red. destruct H. auto with sets.
+  - destruct H. constructor. auto.
+Qed.
+
 Lemma EnsembleProduct_proj {X Y : Type} (U : Ensemble X) (V : Ensemble Y) :
   EnsembleProduct U V = Intersection (inverse_image fst U)
                                      (inverse_image snd V).
