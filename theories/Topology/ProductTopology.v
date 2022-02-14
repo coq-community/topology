@@ -273,9 +273,7 @@ Inductive ProductTopology2_basis :
   forall (U:Ensemble X)
          (V:Ensemble Y),
   open U -> open V ->
-  In ProductTopology2_basis
-  [ p:ProductTopology2 |
-    let (x,y):=p in (In U x /\ In V y) ].
+  In ProductTopology2_basis (EnsembleProduct U V).
 
 Lemma ProductTopology2_basis_is_basis:
   open_basis ProductTopology2_basis.
@@ -286,65 +284,29 @@ assert (open_basis (finite_intersections (weak_topology_subbasis prod2_proj))
 apply eq_ind with (1:=H).
 apply Extensionality_Ensembles; split; red; intros U ?.
 - induction H0.
-  + replace (@Full_set (X * Y)) with
-      [ p:ProductTopology2 |
-        let (x,y):=p in (In Full_set x /\ In Full_set y) ].
-    * constructor;
-        apply open_full.
-    * extensionality_ensembles;
-        constructor.
-      destruct x.
-      repeat constructor.
+  + rewrite <- EnsembleProduct_Full.
+    constructor; apply open_full.
   + destruct H0.
     destruct a.
-    * replace (inverse_image (prod2_proj twoT_1) V) with
-        [ p:ProductTopology2 |
-          let (x,y):=p in (In V x /\ In Full_set y) ].
-      ** constructor; trivial.
-         apply open_full.
-      ** extensionality_ensembles;
-           destruct x.
-         *** destruct H1.
-             now constructor.
-         *** now constructor; constructor.
-    * replace (inverse_image (prod2_proj twoT_2) V) with
-        [ p:ProductTopology2 |
-          let (x,y):=p in (In Full_set x /\ In V y) ].
-      ** constructor; trivial.
-         apply open_full.
-      ** extensionality_ensembles;
-           destruct x.
-         *** destruct H1.
-             now constructor.
-         *** now constructor; constructor.
+    * simpl.
+      rewrite inverse_image_fst.
+      constructor; auto with topology.
+    * simpl.
+      rewrite inverse_image_snd.
+      constructor; auto with topology.
   + destruct IHfinite_intersections as [U1 V1].
     destruct IHfinite_intersections0 as [U2 V2].
-    replace (@Intersection (X * Y)
-      [p:ProductTopology2 | let (x,y):=p in In U1 x /\ In V1 y]
-      [p:ProductTopology2 | let (x,y):=p in In U2 x /\ In V2 y])
-    with
-      [p:ProductTopology2 | let (x,y):=p in
-       (In (Intersection U1 U2) x /\ In (Intersection V1 V2) y)].
-    * constructor;
-        now apply open_intersection2.
-    * apply Extensionality_Ensembles; split; red; intros;
-        destruct H6, x;
-        destruct H6, H7;
-        destruct H6;
-        [ | destruct H7 ];
-        now repeat constructor.
+    rewrite EnsembleProduct_Intersection.
+    constructor; auto with topology.
 - destruct H0.
-  replace [p:ProductTopology2 | let (x,y):=p in
-           In U x /\ In V y] with
-    (Intersection (inverse_image (prod2_proj twoT_1) U)
-                  (inverse_image (prod2_proj twoT_2) V)).
-  + constructor 3;
-      now do 2 constructor.
-  + extensionality_ensembles;
-      destruct x;
-      [ | destruct H2 ];
-    constructor;
-    now constructor.
+  rewrite EnsembleProduct_proj.
+  constructor 3.
+  + constructor.
+    replace (@fst X Y) with (prod2_proj twoT_1); auto.
+    constructor. assumption.
+  + constructor.
+    replace (@snd X Y) with (prod2_proj twoT_2); auto.
+    constructor. assumption.
 Qed.
 
 End product_topology2.
@@ -425,10 +387,7 @@ open U -> open V -> @open (@ProductTopology2 X Y) (EnsembleProduct U V).
 Proof.
 intros.
 apply ProductTopology2_basis_is_basis.
-replace (EnsembleProduct U V) with [p: @ProductTopology2 X Y | let (x,y):=p in (In U x /\ In V y)].
-- now constructor.
-- extensionality_ensembles;
-    now destruct x.
+constructor; assumption.
 Qed.
 
 Lemma Hausdorff_ProductTopology2 {X Y : TopologicalSpace} :

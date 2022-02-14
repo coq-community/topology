@@ -1,7 +1,7 @@
 Require Export RTopology ProductTopology Homeomorphisms.
 Require Import ContinuousFactorization.
 From Coq Require Import FunctionalExtensionality Lra ProofIrrelevance.
-From ZornsLemma Require Import EnsemblesTactics.
+From ZornsLemma Require Import EnsembleProduct EnsemblesTactics.
 
 Lemma continuous_at_iff_continuity_pt
   {f : R -> R} {x : R} :
@@ -67,19 +67,16 @@ apply continuous_at_neighborhood_basis with
         RTop_metrization.
 - intros.
   destruct H0.
-  exists ([ p:point_set RTop * point_set RTop | let (x',y'):=p in
-    In (open_ball R_metric x (r/2)) x' /\
-    In (open_ball R_metric y (r/2)) y' ]).
+  exists (EnsembleProduct (open_ball R_metric x (r/2))
+                     (open_ball R_metric y (r/2))).
   repeat split;
     try (rewrite metric_zero; apply R_metric_is_metric + lra).
   + apply ProductTopology2_basis_is_basis.
     constructor;
-    [ destruct (RTop_metrization x) |
-      destruct (RTop_metrization y)];
-      apply (open_neighborhood_basis_elements (open_ball _ _ _));
-      constructor; lra.
+      apply metric_space_open_ball_open;
+      auto using RTop_metrization, R_metric_is_metric.
   + destruct x0 as [x' y'],
-             H1 as [[[] []]].
+             H1 as [[] []].
     unfold R_metric.
     simpl.
     replace (x'+y' - (x+y)) with ((x'-x) + (y'-y)) by ring.
@@ -172,25 +169,15 @@ apply continuous_at_neighborhood_basis with
   assumption.
 - intros.
   destruct H0.
-  exists (characteristic_function_to_ensemble
-    (fun p:point_set RTop * point_set RTop => let (x',y'):=p in
-    In (open_ball R_metric 0 r) x' /\
-    In (open_ball R_metric 0 1) y' )).
-  repeat split.
+  exists (EnsembleProduct (open_ball R_metric 0 r)
+                     (open_ball R_metric 0 1)).
+  repeat split; try (rewrite metric_zero; apply R_metric_is_metric + lra).
   + apply ProductTopology2_basis_is_basis.
     constructor;
-      destruct H.
-    * apply (open_neighborhood_basis_elements (open_ball R_metric 0 r)).
-      now constructor.
-    * apply (open_neighborhood_basis_elements (open_ball R_metric 0 1)).
-      constructor; red; auto with real.
-  + rewrite metric_zero; trivial.
-    apply R_metric_is_metric.
-  + rewrite metric_zero; auto with real.
-    apply R_metric_is_metric.
-  + destruct H1.
-    destruct x as [x y].
-    destruct H1 as [[] []].
+      apply metric_space_open_ball_open;
+      auto using RTop_metrization, R_metric_is_metric.
+  + destruct x as [x y],
+             H1 as [[] []].
     unfold R_metric in *.
     simpl.
     rewrite Rminus_0_r in *.
@@ -205,35 +192,49 @@ Proof.
 apply pointwise_continuity_2arg.
 intros x0 y0.
 red.
-match goal with |- continuous_at ?f ?q => replace f with
-  (fun p:point_set RTop*point_set RTop =>
-   (fst p - x0) * (snd p - y0) + y0 * fst p + x0 * snd p - x0 * y0) end.
-- apply diff_continuous.
-  + apply sum_continuous.
-    * apply sum_continuous.
-      ** apply continuous_composition_at_2arg with RTop RTop.
-         *** simpl.
-             replace (x0-x0) with 0 by ring.
-             replace (y0-y0) with 0 by ring.
-             apply Rmult_continuous_at_origin.
-         *** apply diff_continuous;
-               apply continuous_func_continuous_everywhere;
-               apply product2_fst_continuous + apply continuous_constant.
-         *** apply diff_continuous;
-               apply continuous_func_continuous_everywhere;
-               apply product2_snd_continuous + apply continuous_constant.
-      ** apply const_multiple_continuous,
-               continuous_func_continuous_everywhere;
-           apply product2_fst_continuous.
-    * apply const_multiple_continuous,
-            continuous_func_continuous_everywhere;
-        apply product2_snd_continuous.
-  + apply continuous_func_continuous_everywhere;
-      apply continuous_constant.
-- extensionality p.
+match goal with
+  |- continuous_at ?f ?q =>
+    replace f with
+    (fun p:point_set RTop*point_set RTop =>
+       (fst p - x0) * (snd p - y0) +
+         y0 * fst p +
+         x0 * snd p -
+         x0 * y0)
+end.
+2: {
+  extensionality p.
   destruct p.
   simpl.
   ring.
+}
+apply diff_continuous.
+2: {
+  apply continuous_func_continuous_everywhere;
+    apply continuous_constant.
+}
+apply sum_continuous.
+2: {
+  apply const_multiple_continuous,
+    continuous_func_continuous_everywhere;
+  apply product2_snd_continuous.
+}
+apply sum_continuous.
+2: {
+  apply const_multiple_continuous,
+    continuous_func_continuous_everywhere;
+  apply product2_fst_continuous.
+}
+apply continuous_composition_at_2arg with RTop RTop.
+- simpl.
+  replace (x0-x0) with 0 by ring.
+  replace (y0-y0) with 0 by ring.
+  apply Rmult_continuous_at_origin.
+- apply diff_continuous;
+    apply continuous_func_continuous_everywhere;
+    apply product2_fst_continuous + apply continuous_constant.
+- apply diff_continuous;
+    apply continuous_func_continuous_everywhere;
+    apply product2_snd_continuous + apply continuous_constant.
 Qed.
 
 Corollary product_continuous: forall (X:TopologicalSpace)
@@ -427,22 +428,6 @@ Proof.
     lra.
 Qed.
 
-Lemma continuous_2arg_compose : forall {U X Y Z : TopologicalSpace} (f : U -> X) (g : U -> Y) (h : X -> Y -> Z),
-    continuous f -> continuous g -> continuous_2arg h ->
-    continuous (fun p => h (f p) (g p)).
-Proof.
-  intros.
-  apply pointwise_continuity.
-  intros.
-  apply continuous_composition_at_2arg.
-  - apply continuous_2arg_func_continuous_everywhere.
-    assumption.
-  - apply continuous_func_continuous_everywhere.
-    assumption.
-  - apply continuous_func_continuous_everywhere.
-    assumption.
-Qed.
-
 Lemma Rmin_continuous : continuous_2arg Rmin (X:=RTop) (Y:=RTop) (Z:=RTop).
 Proof.
   red.
@@ -453,18 +438,18 @@ Proof.
     intros []. simpl.
     symmetry. apply Rmin_using_Rabs.
   }
-  apply @continuous_2arg_compose with (X := RTop) (Y := RTop).
+  apply @continuous_composition_2arg with (X := RTop) (Y := RTop).
   2: { apply continuous_constant. }
   2: { apply Rmult_continuous. }
-  apply @continuous_2arg_compose with (X := RTop) (Y := RTop).
+  apply @continuous_composition_2arg with (X := RTop) (Y := RTop).
   3: { apply Rminus_continuous. }
-  - apply @continuous_2arg_compose with (X := RTop) (Y := RTop).
+  - apply @continuous_composition_2arg with (X := RTop) (Y := RTop).
     + apply product2_fst_continuous.
     + apply product2_snd_continuous.
     + apply Rplus_continuous.
   - apply @continuous_composition with (Y := RTop).
     { apply Rabs_continuous. }
-    apply @continuous_2arg_compose with (X := RTop) (Y := RTop).
+    apply @continuous_composition_2arg with (X := RTop) (Y := RTop).
     + apply product2_fst_continuous.
     + apply product2_snd_continuous.
     + apply Rminus_continuous.
@@ -480,18 +465,18 @@ Proof.
     intros []. simpl.
     symmetry. apply Rmax_using_Rabs.
   }
-  apply @continuous_2arg_compose with (X := RTop) (Y := RTop).
+  apply @continuous_composition_2arg with (X := RTop) (Y := RTop).
   2: { apply continuous_constant. }
   2: { apply Rmult_continuous. }
-  apply @continuous_2arg_compose with (X := RTop) (Y := RTop).
+  apply @continuous_composition_2arg with (X := RTop) (Y := RTop).
   3: { apply Rplus_continuous. }
-  - apply @continuous_2arg_compose with (X := RTop) (Y := RTop).
+  - apply @continuous_composition_2arg with (X := RTop) (Y := RTop).
     + apply product2_fst_continuous.
     + apply product2_snd_continuous.
     + apply Rplus_continuous.
   - apply @continuous_composition with (Y := RTop).
     { apply Rabs_continuous. }
-    apply @continuous_2arg_compose with (X := RTop) (Y := RTop).
+    apply @continuous_composition_2arg with (X := RTop) (Y := RTop).
     + apply product2_fst_continuous.
     + apply product2_snd_continuous.
     + apply Rminus_continuous.
