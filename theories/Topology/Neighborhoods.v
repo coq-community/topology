@@ -50,7 +50,7 @@ Lemma open_char_neighborhood: forall {X:TopologicalSpace} (U : Ensemble X),
 Proof.
   split.
   - intros.
-    exists U. intuition. red. intuition.
+    exists U. intuition.
   - intros.
     assert (U = FamilyUnion (fun V => open V /\ Included V U)).
     2: {
