@@ -205,21 +205,22 @@ destruct (choice (fun (U:{U | In basis_elts_contained_in_cover_elt U})
     red; intros.
     now destruct H4 as [[]].
   + extensionality_ensembles.
-    * constructor.
-    * assert (In (FamilyUnion cover) x).
+    { constructor. }
+    assert (In (FamilyUnion cover) x).
     { rewrite H2. constructor. }
-      destruct H4, H.
-      destruct (open_basis_cover x S) as [V]; trivial.
-      ** now apply H1.
-      ** destruct H as [? [? ?]].
-         assert (In basis_elts_contained_in_cover_elt V).
-       { constructor.
-         repeat split; trivial.
-         - now exists x.
-         - exists S; now split. }
-         exists (choice_fun (exist _ V H8)).
-         *** exists (exist _ V H8); auto with sets.
-         *** pose proof (H3 (exist _ V H8)).
-             destruct H9.
-             now apply H10.
+    destruct H4, H.
+    destruct (open_basis_cover x S) as [V]; trivial.
+    { now apply H1. }
+    destruct H as [? [? ?]].
+    assert (In basis_elts_contained_in_cover_elt V).
+    { constructor.
+      repeat split; trivial.
+      - now exists x.
+      - exists S; now split.
+    }
+    exists (choice_fun (exist _ V H8)).
+    * exists (exist _ V H8); auto with sets.
+    * pose proof (H3 (exist _ V H8)).
+      destruct H9.
+      now apply H10.
 Qed.
