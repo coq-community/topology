@@ -2,7 +2,7 @@ Require Export Reals TopologicalSpaces NeighborhoodBases Continuity Countability
 Require Import RationalsInReals.
 From ZornsLemma Require Export EnsemblesSpec.
 From ZornsLemma Require Import EnsemblesTactics DecidableDec.
-From Coq Require ProofIrrelevance ClassicalChoice.
+From Coq Require Import ClassicalChoice Program.Subset.
 From Coq Require Import Lra.
 
 Open Scope R_scope.
@@ -526,7 +526,7 @@ exists (Im [p:(Q*X)%type |
   red. intros x y H5.
   destruct x as [[r1 x1] [[pos_r1 i1]]].
   destruct y as [[r2 x2] [[pos_r2 i2]]].
-  apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
+  apply subset_eq_compat.
   apply H4 in H5.
   f_equal;
     injection H5;
@@ -542,7 +542,7 @@ Lemma metrizable_Lindelof_impl_second_countable:
 Proof.
 intros.
 destruct H.
-destruct (ClassicalChoice.choice (fun (n:{n:nat | (n > 0)%nat}) (S:Family X) =>
+destruct (choice (fun (n:{n:nat | (n > 0)%nat}) (S:Family X) =>
   Included S (Im Full_set (fun x:X =>
                             open_ball d x (/ (INR (proj1_sig n)))))
   /\ Countable S /\ FamilyUnion S = Full_set))
