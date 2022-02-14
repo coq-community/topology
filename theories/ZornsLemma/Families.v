@@ -187,3 +187,14 @@ Proof.
     destruct H0; [left|right]; exists x0; auto.
   - destruct H, H; exists S; auto; [left|right]; auto.
 Qed.
+
+Lemma family_union_empty_sets (X : Type) (F : Family X) :
+  (forall U, In F U -> U = Empty_set) <->
+  FamilyUnion F = Empty_set.
+Proof.
+split.
+- intros. extensionality_ensembles.
+  rewrite <- (H S); auto.
+- intros. extensionality_ensembles.
+  rewrite <- H. exists U; assumption.
+Qed.
