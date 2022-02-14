@@ -1,4 +1,4 @@
-From ZornsLemma Require Import DecidableDec.
+From ZornsLemma Require Import DecidableDec FiniteIntersections.
 From ZornsLemma Require Export Families.
 From ZornsLemma Require Import EnsemblesSpec.
 
@@ -45,6 +45,17 @@ induction H.
     apply H1.
   }
   apply IHFiniteT; auto.
+Qed.
+
+Lemma filter_finite_intersection {X : Type} (F : Filter X) (S : Family X) :
+  Included S (filter_family F) ->
+  Included (finite_intersections S) (filter_family F).
+Proof.
+  intros HS U HU.
+  induction HU.
+  - apply filter_full.
+  - auto.
+  - apply filter_intersection; assumption.
 Qed.
 
 Section filter_from_basis.
