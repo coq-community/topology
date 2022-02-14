@@ -36,7 +36,7 @@ and results of general topology in Coq.
   - stop-cran ([**@stop-cran**](https://github.com/stop-cran))
   - Columbus240 ([**@Columbus240**](https://github.com/Columbus240))
 - License: [GNU Lesser General Public License v2.1 or later](LICENSE)
-- Compatible Coq versions: Coq 8.10 or later (use the corresponding branch or release for other Coq versions)
+- Compatible Coq versions: Coq 8.12 or later (use the corresponding branch or release for other Coq versions)
 - Additional dependencies:
   - Zorn's Lemma (set library that is part of this repository)
 - Coq namespace: `Topology`
