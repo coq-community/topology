@@ -1,7 +1,7 @@
 Require Export TopologicalSpaces NeighborhoodBases.
 From ZornsLemma Require Export CountableTypes.
-From ZornsLemma Require Import EnsemblesSpec EnsemblesTactics InfiniteTypes.
-From Coq Require ProofIrrelevance ClassicalChoice.
+From ZornsLemma Require Import DecidableDec EnsemblesSpec EnsemblesTactics InfiniteTypes.
+From Coq Require Import ClassicalChoice Program.Subset.
 
 Global Set Asymmetric Patterns.
 
@@ -58,16 +58,16 @@ assert (forall n:nat, open (U n)).
   + apply finite_nat_initial_segment.
   + intros [[x0 P] p] [[y0 Q] q] ?.
     simpl in H3.
-    apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
-    apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
+    apply subset_eq, subset_eq. simpl.
     injection H3; intros.
     apply H2 in H4.
     now injection H4.
   + intros; apply classic.
 - intros.
   destruct a as [[x0]].
-  now apply H1. }
-destruct (ClassicalChoice.choice (fun (n:nat) (x:point_set X) => In (U n) x /\
+  now apply H1.
+}
+destruct (choice (fun (n:nat) (x:point_set X) => In (U n) x /\
                                                  In S x)) as [y].
 - intros n.
   destruct (closure_impl_meets_every_open_neighborhood _ _ _ H0 (U n))
@@ -134,7 +134,7 @@ Lemma second_countable_impl_separable:
 Proof.
 intros.
 destruct H.
-destruct (ClassicalChoice.choice (fun (U:{U:Ensemble X | In B U /\ Inhabited U})
+destruct (choice (fun (U:{U:Ensemble X | In B U /\ Inhabited U})
   (x:point_set X) => In (proj1_sig U) x)) as [choice_fun].
 - intros.
   destruct x as [U [? ?]].
@@ -187,7 +187,7 @@ red; intros.
 pose (basis_elts_contained_in_cover_elt :=
   [ U:Ensemble X | In B U /\ Inhabited U /\
     exists V:Ensemble X, In cover V /\ Included U V ]).
-destruct (ClassicalChoice.choice (fun (U:{U | In basis_elts_contained_in_cover_elt U})
+destruct (choice (fun (U:{U | In basis_elts_contained_in_cover_elt U})
   (V:Ensemble X) => In cover V /\ Included (proj1_sig U) V))
   as [choice_fun].
 - intros.
