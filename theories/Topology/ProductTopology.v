@@ -1,6 +1,6 @@
-Require Export TopologicalSpaces WeakTopology FilterLimits Compactness.
-Require Import FunctionalExtensionality.
-From ZornsLemma Require Import DependentTypeChoice FiniteIntersections.
+From Topology Require Export TopologicalSpaces WeakTopology FilterLimits Compactness.
+From Coq Require Import FunctionalExtensionality.
+From ZornsLemma Require Import DependentTypeChoice EnsembleProduct FiniteIntersections.
 
 Section product_topology.
 
@@ -418,4 +418,48 @@ Proof.
     assumption.
   - apply continuous_func_continuous_everywhere.
     assumption.
+Qed.
+
+Lemma EnsembleProduct_open {X Y : TopologicalSpace} (U : Ensemble X) (V : Ensemble Y) :
+open U -> open V -> @open (@ProductTopology2 X Y) (EnsembleProduct U V).
+Proof.
+intros.
+apply ProductTopology2_basis_is_basis.
+replace (EnsembleProduct U V) with [p: @ProductTopology2 X Y | let (x,y):=p in (In U x /\ In V y)].
+- now constructor.
+- extensionality_ensembles;
+    now destruct x.
+Qed.
+
+Lemma Hausdorff_ProductTopology2 {X Y : TopologicalSpace} :
+  Hausdorff X -> Hausdorff Y ->
+  Hausdorff (ProductTopology2 X Y).
+Proof.
+  intros HX HY [x0 y0] [x1 y1] Hxy.
+  specialize (HX x0 x1).
+  specialize (HY y0 y1).
+  (* Is there some "symmetry" that can be used, so the proof doesn't
+     contain redundant parts? *)
+  destruct (classic (x0 = x1)) as [|Hx].
+  { subst.
+    assert (y0 <> y1) as Hy by congruence.
+    clear Hxy.
+    specialize (HY Hy) as [U [V [HU [HV [HU0 [HV0 HUV]]]]]].
+    exists (EnsembleProduct Full_set U), (EnsembleProduct Full_set V).
+    repeat split; auto using EnsembleProduct_open, open_full.
+    simpl.
+    rewrite EnsembleProduct_Intersection.
+    rewrite Powerset_facts.Intersection_Full_set.
+    rewrite HUV.
+    apply EnsembleProduct_Empty_r.
+  }
+  clear Hxy.
+  specialize (HX Hx) as [U [V [HU [HV [HU0 [HV0 HUV]]]]]].
+  exists (EnsembleProduct U Full_set), (EnsembleProduct V Full_set).
+  repeat split; auto using EnsembleProduct_open, open_full.
+  simpl.
+  rewrite EnsembleProduct_Intersection.
+  rewrite Powerset_facts.Intersection_Full_set.
+  rewrite HUV.
+  apply EnsembleProduct_Empty_l.
 Qed.
