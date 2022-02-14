@@ -3,7 +3,7 @@ From Topology Require Import RationalsInReals.
 From ZornsLemma Require Export EnsemblesSpec.
 From ZornsLemma Require Import EnsemblesTactics DecidableDec.
 From Coq Require Import Reals ClassicalChoice Program.Subset.
-From Coq Require Import Lra.
+From Coq Require Import Lia Lra.
 
 Open Scope R_scope.
 
@@ -447,21 +447,22 @@ Lemma metrizable_separable_impl_second_countable:
     second_countable X.
 Proof.
 intros.
-destruct H, H0.
+destruct H, H0 as [S []].
 exists (Im [p:(Q*X)%type |
             let (r,x):=p in (r>0)%Q /\ In S x]
   (fun p:(Q*X)%type =>
       let (r,x):=p in open_ball d x (Q2R r))).
+split.
 - constructor.
   + intros.
     destruct H3.
-    destruct H3.
+    subst.
     destruct x as [r x].
-    destruct H3.
+    destruct H3 as [[]].
     destruct (H1 x).
-    destruct (open_neighborhood_basis_elements y); trivial.
-    rewrite H4.
-    constructor; trivial.
+    destruct (open_neighborhood_basis_elements (open_ball d x (Q2R r)));
+      trivial.
+    constructor; try lra.
     rewrite <- RMicromega.Q2R_0.
     now apply Qlt_Rlt.
   + intros.
@@ -470,18 +471,9 @@ exists (Im [p:(Q*X)%type |
     { now split. }
     destruct (dense_meets_every_nonempty_open _ _ H2
       (open_ball d x (r/2))).
-    { destruct (open_neighborhood_basis_elements
-        (open_ball d x (r/2))).
-      - constructor.
-        lra.
-      - destruct (open_neighborhood_basis_elements
-          (open_ball d x (r/2))); trivial.
-        constructor.
-        lra.
-    }
+    { apply metric_space_open_ball_open; auto. }
     { exists x.
-      constructor.
-      rewrite metric_zero; trivial.
+      apply metric_open_ball_In; auto.
       lra.
     }
     destruct H7, H8.
@@ -531,90 +523,108 @@ exists (Im [p:(Q*X)%type |
   simpl.
   apply H4 in H5.
   inversion H5; subst; clear H5.
-  apply H3 in H8.
+  apply H3 in H8. subst.
   apply H0 in H7.
-  congruence.
+  inversion H7; subst; clear H7.
+  reflexivity.
+Qed.
+
+Lemma open_ball_half_radius_included X d r s x0 x1 :
+  @metric X d ->
+  In (open_ball d x1 s) x0 ->
+  0 < s < r / 2 ->
+  Included (open_ball d x1 s) (open_ball d x0 r).
+Proof.
+  intros ? ? ? z Hz.
+  constructor.
+  destruct Hz.
+  destruct H0.
+  apply (Rle_lt_trans _ (d x0 x1 + d x1 z)).
+  { now apply triangle_inequality. }
+  rewrite (metric_sym _ _ H x0 x1).
+  lra.
 Qed.
 
 Lemma metrizable_Lindelof_impl_second_countable:
   forall X:TopologicalSpace, metrizable X -> Lindelof X ->
     second_countable X.
 Proof.
-intros.
-destruct H.
-destruct (choice (fun (n:{n:nat | (n > 0)%nat}) (S:Family X) =>
-  Included S (Im Full_set (fun x:X =>
-                            open_ball d x (/ (INR (proj1_sig n)))))
-  /\ Countable S /\ FamilyUnion S = Full_set))
-as [choice_fun].
-- destruct x as [n].
-  apply H0.
-  + intros.
-    destruct H2 as [x ? U].
-    destruct (H1 x).
-    Opaque In. apply open_neighborhood_basis_elements. Transparent In.
-    rewrite H3.
-    constructor.
+intros X [d Hmetric Hmetrizes] HLindelof.
+(* For each [n], [small_balls n] is the open cover of [X] by balls of radius
+   [1 / n]. *)
+pose (small_balls := (fun n : { n : nat | (n > 0)%nat } =>
+                        Im Full_set (fun x : X =>
+                                       open_ball d x (/ (INR (proj1_sig n)))))).
+assert (forall n, open_cover (small_balls n)) as Hballs_cover.
+{ destruct n as [n].
+  split.
+  - intros U H.
+    destruct H as [x ? U].
+    destruct (Hmetrizes x).
+    subst.
+    apply metric_space_open_ball_open; auto.
+  - extensionality_ensembles.
+    { constructor. }
     simpl.
-    auto with real rorders.
-  + extensionality_ensembles.
-    * constructor.
-    * simpl.
-      exists (open_ball d x (/ INR n)).
-      ** now exists x.
-      ** constructor.
-         rewrite metric_zero; auto with real.
-- exists (IndexedUnion choice_fun).
-  + constructor.
-    * intros.
-      destruct H3 as [n V].
-      destruct (H2 n) as [? [? ?]].
-      apply H4 in H3.
-      destruct H3 as [x ? V].
-      destruct (H1 x).
-      Opaque In. apply open_neighborhood_basis_elements. Transparent In.
-      rewrite H7.
-      constructor.
-      destruct n as [n g].
-      simpl.
-      auto with real rorders.
-    * intros.
-      destruct (H1 x).
-      destruct (open_neighborhood_basis_cond U) as [V [? ?]].
-      { now split. }
-      inversion H5.
-      destruct (inverses_of_nats_approach_0 (r/2)) as [n [? ?]].
-      { lra. }
-      pose (nsig := exist _ n H9).
-      destruct (H2 nsig) as [? [? ?]].
-      assert (In (FamilyUnion (choice_fun nsig)) x) by
-        now rewrite H13.
-      destruct H14 as [W].
-      destruct (H11 _ H14) as [y ? W].
-      rewrite H17 in H15. destruct H15.
-      exists W.
-      repeat split.
-      ** now exists nsig.
-      ** assert (Included W V); auto with sets.
-         rewrite H17, <- H8.
-         red. intros z ?.
-         destruct H18.
-         constructor.
-         eapply Rle_lt_trans.
-         { now apply triangle_inequality. }
-         rewrite (metric_sym _ d H x y).
-         apply Rlt_trans with (/ INR (proj1_sig nsig) + / INR (proj1_sig nsig));
-           auto with real.
-         simpl.
-         lra.
-      ** rewrite H17.
-         now constructor.
-  + apply countable_indexed_union.
-    * apply countable_type_ensemble.
-      exists (fun n:nat => n).
-      now red.
-    * intro.
-      now destruct (H2 a) as [? [? ?]].
+    exists (open_ball d x (/ INR n)).
+    + now exists x.
+    + constructor.
+      rewrite metric_zero; auto with real.
+}
+(* We can choose for each (positive) [n:nat], a countable family of
+   the small balls that still cover the whole space (using the Lindelof property). *)
+destruct (choice (fun (n:{n:nat | (n > 0)%nat}) (S:Family X) =>
+  subcover S (small_balls n) /\ Countable S))
+  as [choice_fun Hchoice_fun].
+{ intros. auto. (* here we use the [HLindelof] assumption. *) }
+exists (IndexedUnion choice_fun). split.
+2: {
+  (* Countability *)
+  apply countable_indexed_union.
+  - apply countable_type_ensemble.
+    exists (fun n:nat => n).
+    now red.
+  - intro.
+    apply Hchoice_fun.
+}
+split.
+{ intros V HV.
+  destruct HV as [n V HV].
+  apply (Hballs_cover n).
+  apply (Hchoice_fun n).
+  assumption.
+}
+intros.
+destruct (open_neighborhood_basis_cond _ x (Hmetrizes x) U)
+  as [V [HVbasis HVU]].
+{ now split. }
+inversion HVbasis; subst; clear HVbasis.
+destruct (inverses_of_nats_approach_0 (r/2)) as [n [Hnpos ?]].
+{ lra. }
+pose (nsig := exist _ n Hnpos).
+destruct (Hchoice_fun nsig) as [[Hnsig_subcover0 Hnsig_subcover1] Hnsig_countable].
+assert (In (FamilyUnion (choice_fun nsig)) x) as Hx.
+{ apply Hnsig_subcover1.
+  exists (open_ball d x (/ INR n)).
+  { exists x; constructor. }
+  apply metric_open_ball_In; auto.
+  apply Rinv_0_lt_compat.
+  apply lt_0_INR.
+  lia.
+}
+destruct Hx as [W x HW_nsig HWx].
+exists W.
+repeat split.
+{ exists nsig. assumption. }
+2: {
+  assumption.
+}
+assert (Included W (open_ball d x r)); auto with sets.
+pose proof (Hnsig_subcover0 _ HW_nsig) as HW_small_balls.
+destruct HW_small_balls. subst.
+simpl in *.
+apply open_ball_half_radius_included; auto.
+split; auto with real.
 Qed.
 
 Lemma metrizable_Hausdorff :
@@ -644,7 +654,7 @@ Proof.
   - rewrite metric_zero; assumption.
   - rewrite metric_zero; assumption.
   - apply Extensionality_Ensembles; split; red; intros.
-    2: { destruct H4. }
+    2: { contradiction. }
     destruct H4. destruct H4, H5.
     assert (d x x0 + d x0 y < d x y).
     { rewrite double_var.

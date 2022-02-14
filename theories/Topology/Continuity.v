@@ -110,14 +110,12 @@ intros.
 apply (continuous_open_basis _
   (finite_intersections_of_subbasis_form_open_basis _ _ H)).
 intros.
-destruct H1.
-destruct H1 as [A [? [V' []]]].
-rewrite H3.
-rewrite inverse_image_indexed_intersection.
-apply open_finite_indexed_intersection; trivial.
-intros.
-apply H0.
-apply H2.
+induction H1.
+- rewrite inverse_image_full.
+  apply open_full.
+- apply H0. assumption.
+- rewrite inverse_image_intersection.
+  apply open_intersection2; assumption.
 Qed.
 
 Lemma continuous_closed :

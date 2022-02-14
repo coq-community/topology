@@ -2,6 +2,7 @@ Require Export TopologicalSpaces.
 Require Export OpenBases.
 From ZornsLemma Require Export FiniteTypes.
 From ZornsLemma Require Export EnsemblesSpec.
+From ZornsLemma Require Import FiniteIntersections.
 
 Section Subbasis.
 
@@ -13,11 +14,10 @@ Record subbasis : Prop := {
     In SB U -> open U;
   subbasis_cover: forall (U:Ensemble X) (x:X),
     In U x -> open U ->
-    exists A:Type, FiniteT A /\
-    exists V:A->Ensemble X,
-      (forall a:A, In SB (V a)) /\
-      In (IndexedIntersection V) x /\
-      Included (IndexedIntersection V) U
+    exists V,
+      In V x /\
+        In (finite_intersections SB) V /\
+        Included V U;
 }.
 
 Lemma open_basis_is_subbasis: open_basis SB -> subbasis.
@@ -29,45 +29,22 @@ constructor.
 intros.
 destruct (open_basis_cover x U); trivial.
 destruct H1 as [? [? ?]].
-exists True.
-split.
-{ apply True_finite. }
-exists (True_rect x0).
-repeat split; intros.
-- destruct a. simpl. assumption.
-- destruct a. simpl. assumption.
-- red; intros.
-  destruct H4.
-  apply H2.
-  exact (H4 I).
+exists x0. split; auto.
+split; auto.
+constructor. assumption.
 Qed.
 
 Lemma finite_intersections_of_subbasis_form_open_basis:
   subbasis ->
-  open_basis [ U:Ensemble X |
-              exists A:Type, FiniteT A /\
-              exists V:A->Ensemble X,
-              (forall a:A, In SB (V a)) /\
-              U = IndexedIntersection V ].
+  open_basis (finite_intersections SB).
 Proof.
 constructor.
 - intros.
-  destruct H0.
-  destruct H0 as [A [? [V' [? ?]]]].
-  rewrite H2.
-  apply open_finite_indexed_intersection; trivial.
-  intros.
-  apply H; trivial.
+  induction H0; auto with topology.
+  apply H. assumption.
 - intros.
-  pose proof (subbasis_cover H U x).
-  destruct H2 as [A [? [V [? [? ?]]]]]; trivial.
-  exists (IndexedIntersection V).
-  repeat split; trivial.
-  + exists A; split; trivial.
-    exists V; trivial.
-    split; trivial.
-  + destruct H4.
-    exact H4.
+  pose proof (subbasis_cover H U x H1 H0) as [V [? []]].
+  exists V. repeat split; auto.
 Qed.
 
 End Subbasis.
@@ -111,13 +88,7 @@ constructor.
   destruct (@open_basis_cover _ _ H x U) as [V]; trivial.
   destruct H2 as [? [? ?]].
   simpl.
-  pose proof (finite_intersection_is_finite_indexed_intersection
-    _ _ H2).
-  destruct H5 as [A [? [W [? ?]]]].
-  exists A; split; trivial.
-  exists W; repeat split; trivial.
-  + rewrite H7 in H4; destruct H4; apply H4.
-  + rewrite H7 in H3; assumption.
+  exists V. repeat split; auto.
 Qed.
 
 End build_from_subbasis.
