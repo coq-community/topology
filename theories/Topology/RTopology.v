@@ -598,38 +598,42 @@ destruct (bounded_real_net_has_cluster_point nat_DS x a b) as [x0].
   apply RTop_metrization.
 Qed.
 
-Lemma RTop_second_countable : second_countable RTop.
+Lemma RTop_subbasis_rational_beams :
+  subbasis (Union (ImageFamily (fun q => [r : RTop | r < Q2R q]))
+                     (ImageFamily (fun q => [r : RTop | r > Q2R q]))).
 Proof.
-apply intro_ctbl_basis with
-  (finite_intersections (Union
-    (ImageFamily (fun q => [r : R | r < Q2R q]))
-    (ImageFamily (fun q => [r : R | r > Q2R q])))).
-- constructor.
-  + intros S H.
-    induction H.
-    * apply open_full.
-    * destruct H as [S [[q Hq] H]| S [[q Hq] H]];
-        subst.
-      -- apply R_lower_beam_open.
-      -- apply R_upper_beam_open.
-    * now apply (@open_intersection2 RTop).
-  + intros r U H1 H2.
-    assert (neighborhood U r) as H by now exists U.
-    apply RTop_neighborhood_is_neighbourhood in H.
-    destruct H as [[d ?] H],
-            (rationals_dense_in_reals (r - d) r) as [p ?],
-            (rationals_dense_in_reals r (r + d)) as [q ?];
-    exists (Intersection [x : R | x > Q2R p] [x : R | x < Q2R q]) + lra.
-    repeat split;
-      simpl; try lra.
-    * do 2 constructor;
-      [ right | left ];
-        repeat econstructor.
-    * intros ? [y [?] [?]].
-      apply H, Rabs_def1;
-        simpl; lra.
-- apply finite_intersections_countable, countable_union2;
-    now apply countable_img, countable_type_ensemble, Q_countable.
+split.
+- intros S H.
+  destruct H as [S [[q Hq] H]| S [[q Hq] H]]; subst.
+  + apply R_lower_beam_open.
+  + apply R_upper_beam_open.
+- intros U r H1 H2.
+  assert (neighborhood U r) as H by now exists U.
+  apply RTop_neighborhood_is_neighbourhood in H.
+  destruct H as [[d ?] H],
+          (rationals_dense_in_reals (r - d) r) as [p ?],
+          (rationals_dense_in_reals r (r + d)) as [q ?];
+  exists (Intersection [x : R | x > Q2R p] [x : R | x < Q2R q]) + lra.
+  repeat split;
+    simpl; try lra.
+  + do 2 constructor;
+    [ right | left ];
+      repeat econstructor.
+  + intros ? [y [?] [?]].
+    apply H, Rabs_def1;
+      simpl; lra.
+Qed.
+
+Corollary RTop_second_countable : second_countable RTop.
+Proof.
+apply (second_countable_subbasis
+         RTop (Union (ImageFamily (fun q => [r : R | r < Q2R q]))
+                     (ImageFamily (fun q => [r : R | r > Q2R q])))).
+2: {
+  apply countable_union2;
+  now apply countable_img, countable_type_ensemble, Q_countable.
+}
+apply RTop_subbasis_rational_beams.
 Qed.
 
 Lemma RTop_separable: separable RTop.

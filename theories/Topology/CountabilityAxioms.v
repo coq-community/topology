@@ -1,6 +1,6 @@
 Require Export TopologicalSpaces NeighborhoodBases.
 From ZornsLemma Require Export CountableTypes.
-From ZornsLemma Require Import DecidableDec EnsemblesSpec EnsemblesTactics InfiniteTypes.
+From ZornsLemma Require Import DecidableDec EnsemblesSpec EnsemblesTactics FiniteIntersections InfiniteTypes.
 From Coq Require Import ClassicalChoice Program.Subset.
 
 Global Set Asymmetric Patterns.
@@ -99,27 +99,32 @@ destruct (choice (fun (n:nat) (x:point_set X) => In (U n) x /\
       apply H9, H4.
 Qed.
 
-Inductive separable (X:TopologicalSpace) : Prop :=
-  | intro_dense_ctbl: forall S:Ensemble X,
-    Countable S -> dense S -> separable X.
+Definition separable (X : TopologicalSpace) : Prop :=
+  exists S : Ensemble X,
+    Countable S /\ dense S.
 
-Definition Lindelof (X:TopologicalSpace) : Prop :=
+Definition open_cover {X : TopologicalSpace} (F : Family X) : Prop :=
+  (forall U, In F U -> open U) /\ (FamilyUnion F = Full_set).
+
+(* [FS] is a subcover of [F] *)
+Definition subcover {X : TopologicalSpace} (FS F : Family X) : Prop :=
+  Included FS F /\ Included (FamilyUnion F) (FamilyUnion FS).
+
+Definition Lindelof (X : TopologicalSpace) : Prop :=
   forall cover:Family X,
-    (forall U:Ensemble X,
-       In cover U -> open U) ->
-    FamilyUnion cover = Full_set ->
-  exists subcover:Family X, Included subcover cover /\
-     Countable subcover /\ FamilyUnion subcover = Full_set.
+    open_cover cover ->
+    exists scover:Family X,
+      subcover scover cover /\ Countable scover.
 
-Inductive second_countable (X:TopologicalSpace) : Prop :=
-  | intro_ctbl_basis: forall B:Family X,
-    open_basis B -> Countable B -> second_countable X.
+Definition second_countable (X:TopologicalSpace) : Prop :=
+  exists B : Family X,
+    open_basis B /\ Countable B.
 
 Lemma second_countable_impl_first_countable:
   forall X:TopologicalSpace, second_countable X -> first_countable X.
 Proof.
 intros.
-destruct H.
+destruct H as [B []].
 red; intros.
 exists [ U:Ensemble X | In B U /\ In U x ]; split.
 - apply open_neighborhood_basis_is_neighborhood_basis.
@@ -129,11 +134,25 @@ exists [ U:Ensemble X | In B U /\ In U x ]; split.
   now destruct H1 as [[? ?]].
 Qed.
 
+Lemma second_countable_subbasis:
+  forall (X:TopologicalSpace) (SB : Family X),
+    subbasis SB -> Countable SB ->
+    second_countable X.
+Proof.
+  intros.
+  eexists; split.
+  { apply finite_intersections_of_subbasis_form_open_basis.
+    eassumption.
+  }
+  apply finite_intersections_countable.
+  assumption.
+Qed.
+
 Lemma second_countable_impl_separable:
   forall X:TopologicalSpace, second_countable X -> separable X.
 Proof.
 intros.
-destruct H.
+destruct H as [B []].
 destruct (choice (fun (U:{U:Ensemble X | In B U /\ Inhabited U})
   (x:point_set X) => In (proj1_sig U) x)) as [choice_fun].
 - intros.
@@ -141,7 +160,7 @@ destruct (choice (fun (U:{U:Ensemble X | In B U /\ Inhabited U})
   simpl.
   destruct i0.
   now exists x.
-- exists (Im Full_set choice_fun).
+- exists (Im Full_set choice_fun); split.
   + apply countable_img.
     red.
     match goal with |- CountableT ?S =>
@@ -155,72 +174,65 @@ destruct (choice (fun (U:{U:Ensemble X | In B U /\ Inhabited U})
     unfold g in H2.
     destruct x as [[U [? ?]]].
     destruct y as [[V [? ?]]].
-    apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
-    apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
+    apply subset_eq, subset_eq.
     now injection H2.
   + apply meets_every_nonempty_open_impl_dense.
     intros.
     destruct H3, H.
     destruct (open_basis_cover x U) as [V [? [? ?]]]; trivial.
     assert (In B V /\ Inhabited V).
-    * split; trivial.
+    { split; trivial.
       exists x; trivial.
-    * exists (choice_fun (exist _ V H6)).
-      constructor.
-      ** (* apply H4. *)
-         pose proof (H1 (exist _ V H6)).
-         simpl in H7.
-         (* assumption. *)
-         exists (exist (fun U0:Ensemble X => In B U0 /\ Inhabited U0) V H6).
-         *** constructor.
-         *** reflexivity.
-      ** apply H4.
-         now pose proof (H1 (exist _ V H6)).
+    }
+    exists (choice_fun (exist _ V H6)).
+    constructor.
+    * pose proof (H1 (exist _ V H6)).
+      simpl in H7.
+      exists (exist _ V H6).
+      ** constructor.
+      ** reflexivity.
+    * apply H4.
+      now pose proof (H1 (exist _ V H6)).
 Qed.
 
 Lemma second_countable_impl_Lindelof:
   forall X:TopologicalSpace, second_countable X -> Lindelof X.
 Proof.
-intros.
-destruct H.
-red; intros.
+intros X [B [HBbasis HBcountable]].
+red; intros cover Hcover.
 pose (basis_elts_contained_in_cover_elt :=
   [ U:Ensemble X | In B U /\ Inhabited U /\
     exists V:Ensemble X, In cover V /\ Included U V ]).
 destruct (choice (fun (U:{U | In basis_elts_contained_in_cover_elt U})
   (V:Ensemble X) => In cover V /\ Included (proj1_sig U) V))
-  as [choice_fun].
-- intros.
+  as [choice_fun Hchoice].
+{ intros.
   destruct x.
   simpl.
   now destruct i as [[? [? ?]]].
-- exists (Im Full_set choice_fun).
-  repeat split.
-  + red; intros.
-    destruct H4.
-    destruct (H3 x).
-    rewrite H5; assumption.
-  + apply countable_img, countable_type_ensemble.
-    apply countable_downward_closed with B; trivial.
-    red; intros.
-    now destruct H4 as [[]].
-  + extensionality_ensembles.
-    { constructor. }
-    assert (In (FamilyUnion cover) x).
-    { rewrite H2. constructor. }
-    destruct H4, H.
-    destruct (open_basis_cover x S) as [V]; trivial.
-    { now apply H1. }
-    destruct H as [? [? ?]].
-    assert (In basis_elts_contained_in_cover_elt V).
-    { constructor.
-      repeat split; trivial.
-      - now exists x.
-      - exists S; now split.
-    }
-    exists (choice_fun (exist _ V H8)).
-    * exists (exist _ V H8); auto with sets.
-    * pose proof (H3 (exist _ V H8)).
-      destruct H9.
-      now apply H10.
+}
+exists (Im Full_set choice_fun).
+repeat split.
+- red; intros.
+  inversion H; subst; clear H.
+  destruct (Hchoice x0).
+  assumption.
+- red; intros.
+  destruct H.
+  destruct (open_basis_cover B HBbasis x S) as [V [HV0 [HV1 HV2]]]; trivial.
+  { now apply Hcover. }
+  assert (In basis_elts_contained_in_cover_elt V).
+  { constructor.
+    repeat split; trivial.
+    - now exists x.
+    - exists S; now split.
+  }
+  exists (choice_fun (exist _ V ltac:(eauto))).
+  * exists (exist _ V ltac:(eauto)); auto with sets.
+  * pose proof (Hchoice (exist _ V ltac:(eauto))) as [? ?].
+    simpl in *. auto.
+- apply countable_img, countable_type_ensemble.
+  apply countable_downward_closed with B; trivial.
+  red; intros.
+  now destruct H as [[]].
 Qed.

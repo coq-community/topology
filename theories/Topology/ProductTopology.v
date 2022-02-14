@@ -39,7 +39,7 @@ Lemma product_filter_limit:
                      (product_space_proj a) F) (x0 a)) ->
   filter_limit F x0.
 Proof.
-intros.
+intros F **.
 assert (subbasis
   (weak_topology_subbasis product_space_proj)
   (X:=ProductTopology)) by
@@ -49,28 +49,40 @@ red. intros U ?.
 destruct H1.
 destruct H1 as [U' []].
 cut (In (filter_family F) U').
-- intro.
+{ intro.
   apply filter_upward_closed with U'; trivial.
-- destruct H1.
-  destruct (subbasis_cover _ _ H0 _ _ H3 H1) as
-    [B [? [V [? []]]]].
-  cut (In (filter_family F) (IndexedIntersection V)).
-  + intro.
-    eapply filter_upward_closed;
-      eassumption.
-  + apply filter_finite_indexed_intersection;
-      trivial.
-    intro b.
-    pose proof (H5 b).
-    inversion H8.
-    apply H.
-    constructor.
-    apply open_neighborhood_is_neighborhood.
-    constructor; trivial.
-    destruct H6.
-    pose proof (H6 b).
-    rewrite <- H9 in H11.
-    now destruct H11.
+}
+destruct H1.
+destruct (subbasis_cover _ _ H0 _ _ H3 H1) as
+  [V [? []]].
+cut (In (filter_family F) V).
+{ intro.
+  eapply filter_upward_closed;
+    eassumption.
+}
+clear U U' H1 H2 H3 H6.
+(* important: [V] is a finite intersection of [weak_topology_subbasis
+   product_space_proj] (subbasis elements) which contain [x0] *)
+apply (filter_finite_intersection
+         F (Intersection (weak_topology_subbasis product_space_proj) (fun U : Ensemble _ => In U x0))).
+2: {
+  clear F H H0.
+  induction H5.
+  - constructor.
+  - constructor.
+    split; auto.
+  - destruct H4. intuition.
+    apply intro_intersection; auto.
+}
+clear V H4 H5.
+intros b Hb.
+destruct Hb as [b Hb0 Hb1].
+inversion Hb0; subst; clear Hb0.
+apply H.
+constructor.
+apply open_neighborhood_is_neighborhood.
+constructor; trivial.
+apply Hb1.
 Qed.
 
 Theorem TychonoffProductTheorem:

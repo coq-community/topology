@@ -87,8 +87,8 @@ Qed.
 Lemma quotient_separable {X : TopologicalSpace} (R : Relation (point_set X)) :
   separable X -> separable (QuotientTopology R).
 Proof.
-intros [S HC HD].
-exists (Im S (quotient_projection R)).
+intros [S [HC HD]].
+exists (Im S (quotient_projection R)). split.
 - unshelve refine (surj_countable (fun x => exist _ (quotient_projection R (proj1_sig x)) _) HC _).
   + destruct x.
     now econstructor; trivial.
