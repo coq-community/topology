@@ -1,4 +1,4 @@
-Require Export Reals TopologicalSpaces NeighborhoodBases Continuity CountabilityAxioms SupInf SeparatednessAxioms.
+Require Export Reals TopologicalSpaces NeighborhoodBases Nets Continuity CountabilityAxioms SupInf SeparatednessAxioms.
 Require Import RationalsInReals.
 From ZornsLemma Require Export EnsemblesSpec.
 From ZornsLemma Require Import EnsemblesTactics DecidableDec.
@@ -266,8 +266,6 @@ Proof.
     rewrite (metric_sym X d H0 x1 x0) in H4.
     lra.
 Qed.
-
-Require Export Nets.
 
 Lemma metric_space_net_limit: forall (X:TopologicalSpace)
   (d:X -> X -> R), metrizes X d ->
