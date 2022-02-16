@@ -6,15 +6,15 @@ From ZornsLemma Require Export EnsemblesSpec.
 Section Subbasis.
 
 Variable X:TopologicalSpace.
-Variable SB:Family (point_set X).
+Variable SB:Family X.
 
 Record subbasis : Prop := {
-  subbasis_elements: forall U:Ensemble (point_set X),
+  subbasis_elements: forall U:Ensemble X,
     In SB U -> open U;
-  subbasis_cover: forall (U:Ensemble (point_set X)) (x:point_set X),
+  subbasis_cover: forall (U:Ensemble X) (x:X),
     In U x -> open U ->
     exists A:Type, FiniteT A /\
-    exists V:A->Ensemble (point_set X),
+    exists V:A->Ensemble X,
       (forall a:A, In SB (V a)) /\
       In (IndexedIntersection V) x /\
       Included (IndexedIntersection V) U
@@ -44,9 +44,9 @@ Qed.
 
 Lemma finite_intersections_of_subbasis_form_open_basis:
   subbasis ->
-  open_basis [ U:Ensemble (point_set X) |
+  open_basis [ U:Ensemble X |
               exists A:Type, FiniteT A /\
-              exists V:A->Ensemble (point_set X),
+              exists V:A->Ensemble X,
               (forall a:A, In SB (V a)) /\
               U = IndexedIntersection V ].
 Proof.
