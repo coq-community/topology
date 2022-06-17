@@ -17,7 +17,7 @@ Arguments DS_join_cond {d}.
 
 Section for_large.
 
-Variable I : DirectedSet.
+Context {I : DirectedSet}.
 
 Definition eventually (P : DS_set I -> Prop) : Prop :=
   exists i:DS_set I, forall j:DS_set I,
@@ -94,14 +94,6 @@ now exists j.
 Qed.
 
 End for_large.
-
-Arguments eventually {I}.
-Arguments eventually_and {I}.
-Arguments eventually_impl_base {I}.
-Arguments eventually_impl {I}.
-Arguments exists_arbitrarily_large {I}.
-Arguments not_eal_eventually_not {I}.
-Arguments not_eventually_eal_not {I}.
 
 Notation "'for' 'large' i : I , p" :=
   (eventually (fun i:I => p))
