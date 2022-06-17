@@ -1,6 +1,14 @@
 From Coq Require Import Classical.
-From Coq Require Export Finite_sets.
-From ZornsLemma Require Import EnsemblesImplicit FiniteImplicit.
+From Coq Require Export Finite_sets Finite_sets_facts.
+From ZornsLemma Require Import EnsemblesImplicit FiniteImplicit Powerset_facts.
+
+Lemma finite_couple {X} (x y : X) :
+  Finite (Couple x y).
+Proof.
+  rewrite <- Couple_as_union.
+  apply Union_preserves_Finite.
+  all: apply Singleton_is_finite.
+Qed.
 
 (* This is like a choice property for finite sets. And [P] is about pairs, so
    that's the meaning of the name. It is similar to

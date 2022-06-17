@@ -2,7 +2,7 @@ From Coq Require Export Relation_Definitions QArith ZArith.
 From Coq Require Import Arith ArithRing FunctionalExtensionality
     Program.Subset ClassicalChoice.
 From ZornsLemma Require Import InfiniteTypes CSB DecidableDec
-    DependentTypeChoice.
+    DependentTypeChoice Finite_sets.
 From ZornsLemma Require Export FiniteTypes IndexedFamilies.
 
 Local Close Scope Q_scope.
