@@ -555,22 +555,13 @@ Qed.
 
 End le_cardinal_total.
 
-Lemma le_cardinal_total: forall kappa lambda:Cardinal,
+Corollary le_cardinal_total: forall kappa lambda:Cardinal,
   le_cardinal kappa lambda \/ le_cardinal lambda kappa.
 Proof.
-intros.
-destruct kappa.
-destruct lambda.
-pose proof (types_comparable T T0).
-case H.
-- left.
-  destruct H0.
-  exists x.
-  assumption.
-- right.
-  destruct H0.
-  exists x.
-  assumption.
+intros [T0] [T1].
+destruct (types_comparable T0 T1) as [[f]|[f]];
+  [left|right];
+  exists f; assumption.
 Qed.
 
 Lemma CountableT_cardinality {X : Type} :
