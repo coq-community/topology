@@ -19,6 +19,12 @@ Proof.
 firstorder.
 Qed.
 
+Global Instance Included_PartialOrder {X : Type} :
+  PartialOrder (@Same_set X) (@Included X).
+Proof.
+  firstorder.
+Qed.
+
 Lemma Intersection_Full_set
   {X : Type}
   {U : Ensemble X} :
