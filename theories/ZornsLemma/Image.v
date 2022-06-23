@@ -81,3 +81,25 @@ Proof.
     all: apply Im_def.
     all: assumption.
 Qed.
+
+Lemma Im_id {X : Type} (U : Ensemble X) :
+  Im U id = U.
+Proof.
+  apply Extensionality_Ensembles; split; red; intros.
+  - inversion H; subst; clear H. assumption.
+  - exists x; auto.
+Qed.
+
+Lemma Im_compose_inj_surj {X Y Z : Type} (f : X -> Y) (g : Y -> Z) :
+  injective g -> Im Full_set (compose g f) = Im Full_set g ->
+  surjective f.
+Proof.
+  intros ? ? ?.
+  assert (In (Im Full_set g) (g y)).
+  { apply Im_def. constructor. }
+  rewrite <- H0 in H1.
+  inversion H1; subst; clear H1.
+  unfold compose in H3.
+  exists x. apply H in H3.
+  congruence.
+Qed.

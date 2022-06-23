@@ -152,3 +152,13 @@ Proof.
   destruct (classic (In V x));
     [left|right]; auto.
 Qed.
+
+Lemma not_SIncl_full {X : Type} (U : Ensemble X) :
+  ~ Strict_Included Full_set U.
+Proof.
+  intros ?.
+  destruct H.
+  apply H0.
+  extensionality_ensembles; try constructor.
+  apply H. constructor.
+Qed.
