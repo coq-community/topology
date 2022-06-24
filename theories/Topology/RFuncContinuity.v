@@ -481,3 +481,15 @@ Proof.
     + apply product2_snd_continuous.
     + apply Rminus_continuous.
 Qed.
+
+Corollary cos_continuous : @continuous RTop RTop cos.
+Proof.
+  apply continuous_iff_continuity.
+  apply continuity_cos.
+Qed.
+
+Corollary sin_continuous : @continuous RTop RTop sin.
+Proof.
+  apply continuous_iff_continuity.
+  apply continuity_sin.
+Qed.
