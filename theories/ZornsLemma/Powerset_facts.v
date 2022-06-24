@@ -162,3 +162,11 @@ Proof.
   extensionality_ensembles; try constructor.
   apply H. constructor.
 Qed.
+
+Lemma Singleton_injective {T : Type} : forall x y : T, Singleton x = Singleton y -> x = y.
+Proof.
+intros.
+assert (In (Singleton x) x) by constructor.
+rewrite H in H0.
+now destruct H0.
+Qed.
