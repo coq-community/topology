@@ -65,6 +65,9 @@ Qed.
 
 End Subspace.
 
+#[nonuniform]
+Coercion SubspaceTopology : Ensemble >-> TopologicalSpace.
+
 (* Every set is dense in its closure. *)
 Lemma dense_in_closure {X:TopologicalSpace} (A : Ensemble X) :
   dense (inverse_image (subspace_inc (closure A)) A).
@@ -88,7 +91,7 @@ Qed.
 Lemma subspace_inc_takes_closed_to_closed
   (X : TopologicalSpace) (F:Ensemble X) :
   closed F ->
-  forall G:Ensemble (SubspaceTopology F),
+  forall G:Ensemble F,
   closed G -> closed (Im G (subspace_inc F)).
 Proof.
 intros.

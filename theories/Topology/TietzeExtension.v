@@ -14,7 +14,7 @@ Variable F:Ensemble X.
 Hypothesis F_closed: closed F.
 Variable f:SubspaceTopology F -> RTop.
 Hypothesis f_continuous: continuous f.
-Hypothesis f_bound: forall x:SubspaceTopology F,
+Hypothesis f_bound: forall x:F,
   -1 <= f x <= 1.
 Hypothesis X_nonempty: inhabited X.
 
