@@ -3,7 +3,7 @@ Require Import WeakTopology.
 
 Section Subspace.
 
-Variable X:TopologicalSpace.
+Context {X:TopologicalSpace}.
 Variable A:Ensemble X.
 
 Definition SubspaceTopology : TopologicalSpace :=
@@ -64,9 +64,6 @@ Proof.
 Qed.
 
 End Subspace.
-
-Arguments SubspaceTopology {X}.
-Arguments subspace_inc {X}.
 
 (* Every set is dense in its closure. *)
 Lemma dense_in_closure {X:TopologicalSpace} (A : Ensemble X) :
