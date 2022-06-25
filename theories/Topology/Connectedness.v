@@ -82,7 +82,7 @@ destruct (classic (In S0 x)).
   assert (forall a:A, inverse_image (inc a) S0 = Full_set).
 { intro.
   destruct (H a _ (H3 a)).
-  - assert (In (@Empty_set (point_set (SubspaceTopology (S a))))
+  - assert (In (@Empty_set (SubspaceTopology (S a)))
       (exist _ x (H0 a))).
   { rewrite <- H5.
     now constructor. }
@@ -93,7 +93,7 @@ destruct (classic (In S0 x)).
   + assert (In (IndexedUnion S) x0).
   { rewrite H1. constructor. }
     destruct H6.
-    assert (In (@Full_set (point_set (SubspaceTopology (S a))))
+    assert (In (@Full_set (SubspaceTopology (S a)))
       (exist _ x0 H6)) by
       constructor.
     rewrite <- H5 in H7.
@@ -104,7 +104,7 @@ destruct (classic (In S0 x)).
 { intros.
   destruct (H a _ (H3 a)).
   - assumption.
-  - assert (In (@Full_set (point_set (SubspaceTopology (S a))))
+  - assert (In (@Full_set (SubspaceTopology (S a)))
       (exist _ x (H0 a))) by
       constructor.
     rewrite <- H5 in H6.
@@ -114,7 +114,7 @@ destruct (classic (In S0 x)).
   assert (In (IndexedUnion S) x0).
 { rewrite H1. constructor. }
   destruct H7.
-  assert (In (@Empty_set (point_set (SubspaceTopology (S a))))
+  assert (In (@Empty_set (SubspaceTopology (S a)))
     (exist _ x0 H7)).
 { rewrite <- H5.
   now constructor. }

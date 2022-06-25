@@ -174,7 +174,7 @@ Qed.
 
 Lemma bounded_real_net_has_cluster_point: forall (I:DirectedSet)
   (x:Net I RTop) (a b:R), (forall i:DS_set I, a <= x i <= b) ->
-  exists x0:point_set RTop, net_cluster_point x x0.
+  exists x0:RTop, net_cluster_point x x0.
 Proof.
 (* idea: the liminf is a cluster point *)
 intros.
@@ -278,7 +278,7 @@ split.
 Qed.
 
 Lemma R_closed_interval_compact: forall a b:R, a <= b ->
-  compact (SubspaceTopology ([x:point_set RTop | a <= x <= b])).
+  compact (SubspaceTopology ([x:RTop | a <= x <= b])).
 Proof.
 intros a b Hbound.
 apply net_cluster_point_impl_compact.
@@ -290,11 +290,11 @@ destruct (bounded_real_net_has_cluster_point _ y a b).
   destruct (x i).
   now destruct i0.
 }
-assert (closed [x:point_set RTop | a <= x <= b]).
-{ replace [x:point_set RTop | a <= x <= b] with
+assert (closed [x:RTop | a <= x <= b]).
+{ replace [x:RTop | a <= x <= b] with
         (Intersection
-          [ x:point_set RTop | a <= x ]
-          [ x:point_set RTop | x <= b ]) by
+          [ x:RTop | a <= x ]
+          [ x:RTop | x <= b ]) by
     (extensionality_ensembles;
       do 2 constructor; lra).
   apply closed_intersection2.
@@ -308,7 +308,7 @@ assert (closed [x:point_set RTop | a <= x <= b]).
       apply Rle_trans with y0; trivial.
     + intros.
       destruct (total_order_T x1 y0) as [[|]|]; auto with real. }
-assert (Ensembles.In [x:point_set RTop | a <= x <= b] x0).
+assert (Ensembles.In [x:RTop | a <= x <= b] x0).
 { rewrite <- (closure_fixes_closed _ H1).
   apply net_cluster_point_in_closure with y; trivial.
   destruct H as [i0].
@@ -333,12 +333,12 @@ split; trivial.
 now constructor.
 Qed.
 
-Lemma R_compact_subset_bounded: forall A:Ensemble (point_set RTop),
+Lemma R_compact_subset_bounded: forall A:Ensemble RTop,
   compact (SubspaceTopology A) -> bound A.
 Proof.
 intros.
 destruct (H (Im Full_set (fun y => inverse_image (subspace_inc _)
-                   [ x:point_set RTop | y - 1 < x < y + 1 ]))).
+                   [ x:RTop | y - 1 < x < y + 1 ]))).
 - intros U [H0].
   subst.
   apply subspace_inc_continuous, R_interval_open.
@@ -350,8 +350,8 @@ destruct (H (Im Full_set (fun y => inverse_image (subspace_inc _)
     simpl.
     lra.
 - destruct H0, H1.
-  assert (exists a:R, forall S:Ensemble (point_set (SubspaceTopology A)),
-    forall b:point_set (SubspaceTopology A),
+  assert (exists a:R, forall S:Ensemble (SubspaceTopology A),
+    forall b:SubspaceTopology A,
     Ensembles.In x S -> Ensembles.In S b -> proj1_sig b < a).
   { clear H2.
     induction H0.

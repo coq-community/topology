@@ -4,14 +4,14 @@ Require Export TopologicalSpaces Continuity SubspaceTopology.
 Section continuous_factorization.
 
 Variable X Y:TopologicalSpace.
-Variable f:point_set X -> point_set Y.
-Variable S:Ensemble (point_set Y).
+Variable f:X -> Y.
+Variable S:Ensemble Y.
 Hypothesis f_cont: continuous f.
-Hypothesis f_img: forall x:point_set X, In S (f x).
+Hypothesis f_img: forall x:X, In S (f x).
 
 Definition continuous_factorization :
-  point_set X -> point_set (SubspaceTopology S) :=
-  fun x:point_set X => exist _ (f x) (f_img x).
+  X -> SubspaceTopology S :=
+  fun x:X => exist _ (f x) (f_img x).
 
 Lemma factorization_is_continuous:
   continuous continuous_factorization.
@@ -23,7 +23,7 @@ destruct H as [V' []].
 subst V.
 rewrite <- inverse_image_composition.
 simpl.
-replace (inverse_image (fun x:point_set X => f x) V')
+replace (inverse_image (fun x:X => f x) V')
         with (inverse_image f V').
 - now apply f_cont.
 - extensionality_ensembles; now constructor.
@@ -36,11 +36,11 @@ Arguments continuous_factorization {X} {Y}.
 Section continuous_surj_factorization.
 
 Variable X Y:TopologicalSpace.
-Variable f:point_set X -> point_set Y.
+Variable f:X -> Y.
 Hypothesis f_cont: continuous f.
 
 Definition continuous_surj_factorization :
-  point_set X -> point_set (SubspaceTopology (Im Full_set f)).
+  X -> SubspaceTopology (Im Full_set f).
 apply continuous_factorization with f.
 intros.
 exists x; constructor.
