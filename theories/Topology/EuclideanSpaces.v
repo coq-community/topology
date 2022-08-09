@@ -717,8 +717,6 @@ Qed.
    repeated application of product to [RTop].
  *)
 
-Definition EuclideanSpace (n : nat) := SubspaceTopology (Rn_ens n).
-
 (* Takes an argument up to which index the vectors shall be evaluated.
    There is no compatible scalarproduct-structure on the whole of [Rinfty].
 
@@ -822,6 +820,14 @@ Next Obligation.
   lra.
 Qed.
 
+Lemma pos_nat_INR (n : nat) :
+  0 < / INR (S n).
+Proof.
+  apply Rinv_0_lt_compat.
+  apply lt_0_INR.
+  lia.
+Qed.
+
 Lemma Rinfty_bounded_metric_metric :
   metric Rinfty_bounded_metric.
 Proof.
@@ -844,7 +850,29 @@ Proof.
     destruct (sup _ _ _) as [d1].
     destruct (sup _ _ _) as [d2].
     simpl.
-    admit.
+    apply i.
+    intros w Hw.
+    inversion Hw; subst; clear Hw.
+    clear H.
+    eapply Rle_trans with (r2 :=
+                             ((/ INR (S x0) * Rmin (R_metric (x x0) (y x0)) 1) +
+                                (/ INR (S x0) * Rmin (R_metric (y x0) (z x0)) 1))).
+    + rewrite <- Rmult_plus_distr_l.
+      apply Rmult_le_compat_l.
+      { clear. pose proof (pos_nat_INR x0).
+        auto with real.
+      }
+      pose proof (triangle_inequality _ _ R_metric_is_metric (x x0) (y x0) (z x0)).
+      pose proof (metric_nonneg _ _ R_metric_is_metric (x x0) (y x0)).
+      pose proof (metric_nonneg _ _ R_metric_is_metric (y x0) (z x0)).
+      pose proof (metric_nonneg _ _ R_metric_is_metric (x x0) (z x0)).
+      unfold Rmin.
+      repeat destruct (Rle_dec _ _); try lra.
+    + apply Rplus_le_compat.
+      * apply i0.
+        exists x0; auto with sets.
+      * apply i1.
+        exists x0; auto with sets.
   - (* [d x x = 0] *)
     intros. unfold Rinfty_bounded_metric.
     destruct (sup _ _ _) as [d].
@@ -893,7 +921,7 @@ Proof.
     }
     unfold Rmin in H.
     destruct (Rle_dec _ _); try lra.
-Admitted.
+Qed.
 
 Lemma open_neighborhood_basis_from_subbasis {X : TopologicalSpace}
       (SB : Family X) (x : X) (NB : Family X) :
@@ -928,6 +956,15 @@ Lemma ProductTopology_subbasis_from_subbasis_correct {A : Type}
   (forall a, subbasis (SB a)) ->
   subbasis (ProductTopology_subbasis_from_subbasis SB).
 Proof.
+Admitted.
+
+Lemma sup_Rlt_split (f : nat -> R) HUbound HUnonempty r q N :
+  q < r ->
+  (forall n : nat, (n >= N)%nat -> f n <= q) ->
+  (forall n : nat, (n < N)%nat -> f n < r) ->
+  proj1_sig (sup (Im Full_set f) HUbound HUnonempty) < r.
+Proof.
+  intros.
 Admitted.
 
 Lemma Rinfty_bounded_metric_open_ball_open x r :
@@ -986,7 +1023,22 @@ Proof.
     * intros. apply H1.
   }
   destruct H2.
-  admit.
+  unfold Vn in H2.
+  unfold In in H2.
+  unfold Rinfty_bounded_metric.
+  apply sup_Rlt_split with (q := / INR N) (N := N).
+  { destruct Rle_dec; try lra.
+    - assumption.
+    - unfold eps in HN0.
+      apply Rlt_le_trans with (r2 := Rmin r (Rinfty_bounded_metric x y)); auto.
+      apply Rmin_l.
+  }
+  - intros.
+    (* use basic arithmetic. *)
+    admit.
+  - intros.
+    (* use [H2] *)
+    admit.
 Admitted.
 
 Lemma Rinfty_bounded_metric_metrizes :
