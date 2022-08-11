@@ -1466,7 +1466,7 @@ Proof.
   intros.
   etransitivity.
   { apply Rsqrt_monotonous; eassumption. }
-  
+
   admit.
 Admitted.
 *)
@@ -1795,6 +1795,19 @@ Qed.
 *)
 Lemma Rn_metric_metrizes (n : nat) : metrizes (Rn_space n) (Rn_metric n).
 Proof.
+  split.
+  - intros.
+    inversion H; subst; clear H.
+    split.
+    2: {
+      apply metric_open_ball_In.
+      { apply Rn_metric_metric. }
+      lra.
+    }
+    apply open_char_neighborhood.
+    intros y Hy.
+    destruct Hy.
+
   admit.
 Admitted.
 
@@ -1969,86 +1982,84 @@ Proof.
 Admitted.
 
 Theorem metric_HeineBorel_converse (X : Type) (d : X -> X -> R) (H : metric d) :
-  forall S : Ensemble (point_set (MetricTopology d H)),
-    compact (SubspaceTopology S) ->
+  forall S : Ensemble (MetricTopology d H),
+    compact S ->
     closed S /\ metrically_bounded d S.
 Proof.
   intros.
   split.
-  - apply compact_closed.
-    + apply metrizable_Hausdorff.
-      exists d.
-      * assumption.
-      * apply MetricTopology_metrized.
-    + assumption.
-  - (* Construct the following family of open balls:
-       For each x ∈ X include the ball of radius 1 in the family. *)
-    pose proof (compact_Subspace _ _ H0).
-    pose (C := (fun x : X => open_ball d x 1)).
-    specialize (H1 (ImageFamily C)).
-    destruct H1 as [C'].
-    { intros.
-      destruct H1; subst. unfold C.
-      apply metric_space_open_ball_open; auto.
-      apply MetricTopology_metrized.
+  { apply compact_closed; auto.
+    apply metrizable_Hausdorff.
+    apply MetricTopology_metrizable.
+  }
+  (* Construct the following family of open balls:
+     For each x ∈ X include the ball of radius 1 in the family. *)
+  pose proof (compact_Subspace _ _ H0).
+  pose (C := (fun x : X => open_ball d x 1)).
+  specialize (H1 (ImageFamily C)).
+  destruct H1 as [C'].
+  { intros.
+    destruct H1; subst. unfold C.
+    apply metric_space_open_ball_open; auto.
+    apply MetricTopology_metrized.
+  }
+  { apply Extensionality_Ensembles; split; red; intros.
+    { constructor. }
+    clear H1.
+    exists (C x).
+    * exists x; try reflexivity. constructor.
+    * constructor. rewrite metric_zero; try assumption.
+      apply Rlt_0_1.
+  }
+  destruct H1 as [? [? ?]].
+  unfold ImageFamily in H2.
+  red. intros [x].
+  assert (exists r, 0 < r /\
+           forall y, In (FamilyUnion C') y ->
+                d x y < r).
+  { clear H3 H4.
+    induction H1.
+    { exists 1. split; try lra; intros.
+      destruct H1. contradiction.
     }
-    { apply Extensionality_Ensembles; split; red; intros.
-      { constructor. }
-      clear H1.
-      exists (C x).
-      * exists x; try reflexivity. constructor.
-      * constructor. rewrite metric_zero; try assumption.
-        apply Rlt_0_1.
+    destruct IHFinite as [r0].
+    { intros ? ?.
+      apply H2. left. assumption.
     }
-    destruct H1 as [? [? ?]].
-    unfold ImageFamily in H2.
-    red. intros [x].
-    assert (exists r, 0 < r /\
-             forall y, In (FamilyUnion C') y ->
-                  d x y < r).
-    { clear H3 H4.
-      induction H1.
-      { exists 1. split; try lra; intros.
-        destruct H1. contradiction.
-      }
-      destruct IHFinite as [r0].
-      { intros ? ?.
-        apply H2. left. assumption.
-      }
-      assert (In (Im Full_set C) x0).
-      { apply H2.
-        right. constructor.
-      }
-      inversion H5; subst; clear H5.
-      clear H6.
-      destruct H4.
-      exists (r0 + (d x x1 + 2)).
+    assert (In (Im Full_set C) x0).
+    { apply H2.
+      right. constructor.
+    }
+    inversion H5; subst; clear H5.
+    clear H6.
+    destruct H4.
+    exists (r0 + (d x x1 + 2)).
+    assert (d x x1 >= 0).
+    { apply metric_nonneg.
+      assumption.
+    }
+    split; try lra.
+    intros. destruct H7.
+    destruct H7.
+    - unshelve epose proof (H5 x0 _); clear H5.
+      { exists x2; auto. }
+      lra.
+    - inversion H7; subst; clear H7.
+      destruct H8.
       assert (d x x1 >= 0).
       { apply metric_nonneg.
         assumption.
       }
-      split; try lra.
-      intros. destruct H7.
-      destruct H7.
-      - unshelve epose proof (H5 x0 _); clear H5.
-        { exists x2; auto. }
-        lra.
-      - inversion H7; subst; clear H7.
-        destruct H8.
-        assert (d x x1 >= 0).
-        { apply metric_nonneg.
-          assumption.
-        }
-        unshelve epose proof (triangle_inequality _ d _ x x1 x0); auto.
-        lra.
-    }
-    destruct H5 as [r []].
-    exists r, x.
-    intros ? ?.
-    apply H3 in H7.
-    apply H6 in H7.
-    constructor.
-    auto.
+      unshelve epose proof (triangle_inequality _ d _ x x1 x0); auto.
+      lra.
+  }
+  destruct H5 as [r []].
+  exists r, x.
+  intros ? ?.
+  apply H3 in H7.
+  apply H6 in H7.
+  constructor.
+  auto.
 Qed.
 
 Lemma SingletonSpace_is_metrizable (X : TopologicalSpace) :
@@ -2093,13 +2104,317 @@ Proof.
 Admitted.
 *)
 
-Theorem Rn_HeineBorel (n : nat) :
-  HeineBorel (Rn_space n) (Rn_metric n).
+Definition limit_point {X : TopologicalSpace} (S : Ensemble X) (x : X) :=
+  forall U, neighborhood U x ->
+       Inhabited (Intersection S (Subtract U x)).
+
+Lemma closed_char_limit_point {X : TopologicalSpace} (S : Ensemble X) :
+  closed S <-> Included (limit_point S) S.
 Proof.
+  split.
+  - intros.
+    intros x Hx.
+    rewrite <- (closure_fixes_closed S); auto.
+    apply meets_every_open_neighborhood_impl_closure.
+    intros.
+    specialize (Hx U) as [_ [y Hy0 Hy1]].
+    { apply open_neighborhood_is_neighborhood.
+      split; auto.
+    }
+    exists y.
+    split; auto.
+    destruct Hy1. auto.
+  - intros.
+    cut (S = closure S).
+    { intros H0. rewrite H0. apply closure_closed. }
+    apply Extensionality_Ensembles; split; red; intros.
+    { apply closure_inflationary. assumption. }
+    destruct (classic (In S x)); auto.
+    pose proof (closure_impl_meets_every_open_neighborhood X S x H0).
+    apply H.
+    intros U [O [[HO0 HO1] HO2]].
+    specialize (H2 O HO0 HO1) as [_ [y Hy0 Hy1]].
+    exists y. split; auto.
+    split; auto.
+    intros ?.
+    inversion H2; subst; clear H2.
+    contradiction.
+Qed.
+
+(* limit point compactness. A space is limit point compact if every
+   infinite subset of it has a limit point. *)
+Definition limit_point_compact (X : TopologicalSpace) :=
+  forall S : Ensemble X,
+    ~ Finite S -> Inhabited (limit_point S).
+
+(* [Finite] is preserved by "injective relations" *)
+Lemma Finite_inj_presv {X Y} (U : Ensemble X) (V : Ensemble Y) (R : X -> Y -> Prop) :
+  Finite V ->
+  (* [R] is injective *)
+  (forall x0 x1 y, R x0 y -> R x1 y -> x0 = x1) ->
+  (* The domain of [R] includes [U], with range in [V] *)
+  (forall x, In U x -> exists y, R x y /\ In V y) ->
+  Finite U.
+Proof.
+  intros H H0 (*H1*) H2.
+  revert U H2.
+  induction H as [|V HV IHFinite y].
+  { intros. replace U with (@Empty_set X).
+    { constructor. }
+    apply Extensionality_Ensembles; split; red; intros;
+      try contradiction.
+    apply H2 in H as [y [Hy0 Hy1]].
+    contradiction.
+  }
+  intros U H2.
+  destruct (classic (exists x, R x y /\ In U x)) as [H3|H3].
+  { destruct H3 as [x [Hx0 Hx1]].
+    replace U with (Add (Subtract U x) x).
+    2: {
+      apply Extensionality_Ensembles; split.
+      - apply add_soustr_1; auto.
+      - apply add_soustr_2; auto.
+    }
+    constructor.
+    2: {
+      intros H3.
+      destruct H3 as [? H4].
+      apply H4. constructor.
+    }
+    apply IHFinite.
+    intros ? H3.
+    destruct H3 as [H3 H4].
+    apply H2 in H3.
+    destruct H3 as [z [Hz0 Hz1]].
+    exists z. split; auto.
+    destruct Hz1 as [|z H3]; auto.
+    inversion H3; subst; clear H3.
+    specialize (H0 _ _ _ Hx0 Hz0).
+    subst.
+    contradict H4. constructor.
+  }
+  apply IHFinite.
+  intros x H4.
+  specialize (H2 x H4) as [z [Hz0 Hz1]].
+  exists z. split; auto.
+  destruct Hz1 as [|z H2]; auto.
+  inversion H2; subst; clear H2.
+  contradict H3.
+  exists x; split; auto.
+Qed.
+
+(* Theorem 28.1 in Munkres, p.179 *)
+Lemma compact_impl_limit_point_compact_lemma X :
+  compact X ->
+  forall S : Ensemble X,
+    ~ Inhabited (limit_point S) -> Finite S.
+Proof.
+  intros.
+  assert (closed S).
+  { apply closed_char_limit_point.
+    intros x Hx.
+    contradict H0.
+    exists x. assumption.
+  }
+  pose (fun x U => In S x /\ open_neighborhood U x /\ Same_set (Singleton x) (Intersection U S)) as P.
+  assert (forall x, In S x -> Inhabited (P x)).
+  { intros.
+    apply NNPP.
+    intros ?.
+    apply H0.
+    exists x. intros U [O [HO0 HO1]].
+    apply NNPP.
+    intros ?.
+    apply H3.
+    exists O. split; auto.
+    split; auto.
+    split; red; intros; auto.
+    - inversion H5; subst; clear H5.
+      split; auto.
+      apply HO0.
+    - destruct H5.
+      apply Singleton_intro.
+      apply NNPP.
+      intros ?.
+      apply H4.
+      exists x0. split; auto.
+      split; auto.
+      intros ?.
+      inversion H8; subst; clear H8.
+      contradiction.
+  }
+  specialize (H (Add (IndexedUnion P) (Complement S))) as [FinFam HFF].
+  { intros.
+    destruct H.
+    - inversion H; subst; clear H.
+      apply H3.
+    - inversion H; subst; clear H.
+      assumption.
+  }
+  { apply Extensionality_Ensembles; split; red; intros; auto with sets.
+    destruct (classic (In S x)).
+    - specialize (H2 x H3) as [U HU].
+      exists U; try apply HU.
+      left. exists x. assumption.
+    - exists (Complement S); auto.
+      right. constructor.
+  }
+  apply Finite_inj_presv with (V := FinFam) (R := fun x U => In FinFam U /\ In (Intersection U S) x).
+  { apply HFF. }
+  - intros ? ? ? [Hy0 Hx0] [Hy1 Hx1].
+    apply HFF in Hy1.
+    destruct Hy1.
+    2: {
+      inversion H; subst; clear H.
+      destruct Hx1. contradiction.
+    }
+    inversion H; subst; clear H.
+    destruct H3 as [Hx2 [Hx3 Hx4]].
+    apply Extensionality_Ensembles in Hx4.
+    rewrite <- Hx4 in Hx0, Hx1.
+    inversion Hx0; subst; clear Hx0.
+    inversion Hx1; subst; clear Hx1.
+    reflexivity.
+  - intros x Hx.
+    assert (In (FamilyUnion FinFam) x).
+    { destruct HFF as [_ [_ HFF]]. rewrite HFF.
+      constructor.
+    }
+    inversion H; subst; clear H.
+    exists S0. repeat split; auto.
+Qed.
+
+Theorem compact_impl_limit_point_compact X :
+  compact X -> limit_point_compact X.
+Proof.
+  intros.
+  pose proof (compact_impl_limit_point_compact_lemma X H).
+  red. intros.
+  specialize (H0 S).
+  apply NNPP. intros ?. auto.
+Qed.
+
+(* sequential compactness. A space is sequentially compact, if every
+   sequence has a convergent subsequence. *)
+Definition seq_compact (X : TopologicalSpace) :=
+  forall sequence : Net nat_DS X,
+  exists (subseq : Net nat_DS X) (limit : X),
+    Subnet X nat_DS sequence subseq /\
+    net_limit subseq limit.
+
+Lemma metrizable_limit_point_compact_impl_seq_compact X :
+  metrizable X -> limit_point_compact X -> seq_compact X.
+Proof.
+  intros [d Hd0 Hd1] Hc.
+  intros x.
+  destruct (classic (Finite (Im Full_set x))).
+  { admit. }
+  apply Hc in H.
+  destruct H as [y].
+  do 2 red in H.
+ (* the proof in Munkres seems to use countable choice. *)
+  admit.
 Admitted.
 
-Corollary RTop_HeineBorel :
+Lemma metrizable_seq_compact_impl_compact X :
+  metrizable X -> seq_compact X -> compact X.
+Proof.
+  intros [d Hd0 Hd1] Hsc.
+  intros A HA0 HA1.
+  assert (exists δ, δ > 0 /\ forall U, (forall x0 x1, In U x0 -> In U x1 -> d x0 x1 < δ) -> exists V, In A V /\ Included U V).
+  { apply NNPP. intros Hδ.
+    assert (forall n, exists U, (forall x0 x1, In U x0 -> In U x1 -> d x0 x1 < / INR n) /\
+                        forall V, In A V -> ~ Included U V).
+    { admit. }
+    admit.
+  }
+Admitted.
+
+Definition locally_compact_at (X : TopologicalSpace) (x : X) :=
+  exists U, neighborhood U x /\ compact U.
+Definition locally_compact (X : TopologicalSpace) :=
+  forall x, locally_compact_at X x.
+
+Require Import Homeomorphisms.
+
+Definition embedding {X Y : TopologicalSpace} (f : X -> Y) :=
+  @homeomorphism X (Im Full_set f)
+    (fun x => exist (Im Full_set f) (f x)
+             (Im_intro _ _ Full_set _ _ (@Full_intro _ _) _ eq_refl)).
+
+Lemma locally_compact_Hausdorff_compactification_unique
+  (X Y0 Y1 : TopologicalSpace)
+  (f0 : X -> Y0) (f1 : X -> Y1) y0 y1 :
+  embedding f0 -> embedding f1 ->
+  Complement (Im Full_set f0) = Singleton y0 ->
+    Complement (Im Full_set f1) = Singleton y1 ->
+    compact Y0 -> Hausdorff Y0 ->
+    compact Y1 -> Hausdorff Y1 ->
+    exists g : Y0 -> Y1,
+      homeomorphism g /\
+        (forall x, g (f0 x) = f1 x) /\
+        (g y0 = y1).
+Proof.
+  intros.
+  admit.
+Admitted.
+
+(* one-point compactification, Munkres Theorem 29.1 *)
+Theorem locally_compact_Hausdorff_char_compactification (X : TopologicalSpace) :
+  Hausdorff X /\ locally_compact X <->
+    exists (Y : TopologicalSpace) (f : X -> Y) y,
+      embedding f /\
+        Complement (Im Full_set f) = Singleton y /\
+        compact Y /\ Hausdorff Y.
+Proof.
+  split.
+  - intros [XHaus Xlc].
+    unshelve eexists {| point_set := option X;
+                       open U := (exists V, U = Im V Some) \/ (exists C : Ensemble X,
+                                                            compact C /\ U = Complement (Im C Some));
+                     |}, Some, None.
+    { simpl. intros.
+      admit.
+    }
+    { simpl.
+      admit.
+    }
+    { simpl.
+      right.
+      exists Empty_set.
+      admit.
+    }
+    simpl.
+    split; [|split; [|split]].
+    + admit.
+    + apply Extensionality_Ensembles; split; red; intros.
+      * destruct x; try constructor.
+        unfold In, Complement in H.
+        contradict H.
+        exists p; constructor.
+      * inversion H; subst; clear H.
+        intros ?.
+        inversion H; subst; clear H.
+        discriminate.
+    + admit.
+    + admit.
+  - intros [Y [f [y [Hf0 [Hf1 [HYc HYH]]]]]].
+    split.
+    + admit.
+    + admit.
+Admitted.
+
+Theorem RTop_HeineBorel :
   HeineBorel RTop R_metric.
+Proof.
+  intros K [HK0 HK1].
+  apply metrizable_seq_compact_impl_compact.
+  { admit. }
+  (* apply Bolzano-Weierstrass *)
+Admitted.
+
+Theorem Rn_HeineBorel (n : nat) :
+  HeineBorel (Rn_space n) (Rn_metric n).
 Proof.
 Admitted.
 
