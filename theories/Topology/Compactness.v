@@ -685,3 +685,25 @@ Proof.
   apply compact_closed; auto.
   apply compact_image_ens; assumption.
 Qed.
+
+Lemma compact_inhabited_dec (X : TopologicalSpace) :
+  compact X -> inhabited X \/ ~ inhabited X.
+Proof.
+  intros Hcomp.
+  specialize (Hcomp (fun U => open U /\ Inhabited U)) as [Fam [H0 [H1 H2]]].
+  { intros ? []; auto. }
+  { extensionality_ensembles; try constructor.
+    exists Full_set; constructor.
+    - apply open_full.
+    - exists x. constructor.
+  }
+  destruct H0.
+  - right. intros ?.
+    destruct H as [x].
+    rewrite empty_family_union in H2.
+    pose proof (Full_intro _ x).
+    rewrite <- H2 in H. contradiction.
+  - left.
+    specialize (H1 x ltac:(right; reflexivity)) as [].
+    destruct H3. constructor. exact x0.
+Qed.
