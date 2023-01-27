@@ -3,7 +3,7 @@ From Coq Require Import Arith ArithRing FunctionalExtensionality Lia
     Program.Subset ClassicalChoice.
 From ZornsLemma Require Import InfiniteTypes CSB DecidableDec
     DependentTypeChoice Finite_sets.
-From ZornsLemma Require Export FiniteTypes IndexedFamilies.
+From ZornsLemma Require Export FiniteTypes IndexedFamilies WellOrders_new.
 
 Local Close Scope Q_scope.
 
@@ -11,6 +11,22 @@ Set Asymmetric Patterns.
 
 Inductive CountableT (X : Type) : Prop :=
   | intro_nat_injection (f : X -> nat) : injective f -> CountableT X.
+
+Lemma CountableT_infinite_bijection (X : Type) (f : X -> nat) :
+  ~ FiniteT X ->
+  injective f -> exists h : { x | Im Full_set f x } -> nat, bijective h.
+Proof.
+  intros.
+  pose proof (wo_subset_internal_ordinal_Simulation lt (Im Full_set f)).
+  simpl in H1.
+  match goal with
+  | H : Simulation _ _ ?f |- exists _ : _ -> _, _ =>
+      exists f
+  end.
+  split.
+  { eapply WO_Simulation_injective; eauto; typeclasses eauto. }
+  admit.
+Admitted.
 
 Lemma CountableT_is_FiniteT_or_countably_infinite (X : Type) :
   CountableT X -> {FiniteT X} + {exists f : X -> nat, bijective f}.
@@ -25,9 +41,19 @@ apply exclusive_dec.
 - destruct (classic (FiniteT X)).
   + left; trivial.
   + right.
-    apply infinite_nat_inj in H0.
-    destruct H, H0 as [g].
-    now apply CSB with f g.
+    destruct H as [f Hf].
+    destruct (CountableT_infinite_bijection _ f H0 Hf) as [g Hg].
+    exists (fun x => g (exist _ (f x) (Im_intro _ _ _ _ _ (Full_intro _ _) _ eq_refl))).
+    apply bijective_compose; auto.
+    apply bijective_impl_invertible in Hg.
+    split; intros ?.
+    * intros ? ?.
+      apply subset_eq in H.
+      simpl in H. apply Hf in H.
+      assumption.
+    * destruct y. destruct i.
+      exists x. apply subset_eq.
+      simpl. congruence.
 Qed.
 
 Lemma nat_countable : CountableT nat.

@@ -185,7 +185,7 @@ Lemma finite_intersections_len_S_exists
 Proof.
 generalize dependent U.
 generalize dependent n.
-apply (well_founded_ind Wf_nat.lt_wf (fun n =>
+apply (Wf.well_founded_ind Wf_nat.lt_wf (fun n =>
   forall U,
     In (finite_intersections_len F (S n)) U ->
   exists V W,

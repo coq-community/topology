@@ -1925,113 +1925,6 @@ Proof.
     assumption.
 Qed.
 
-Section simulation_glueing.
-  Context {X Y : Type} R0 R1 `{HR : WellOrder X R0}
-    `{HR1 : WeaklyExtensional Y R1}.
-  Variable H : forall x : X,
-      { f : { x0  : X | In (closed_initial_segment R0 x) x0 } -> Y |
-        Simulation (rel_restriction R0 _) R1 f }.
-
-  Lemma simulation_glueing_compat (x0 x1 : X) :
-    R0 x0 x1 ->
-    forall x Hx0 Hx1,
-      proj1_sig (H x0) (exist _ x Hx0) = proj1_sig (H x1) (exist _ x Hx1).
-  Proof.
-    intros. simpl in *.
-    unshelve erewrite (@simulation_uniqueness
-                         _ _ (rel_restriction R0 _) R1 (proj1_sig (H x0))
-                         (compose (proj1_sig (H x1)) (fun x2 => exist _ (proj1_sig x2) _)));
-      try typeclasses eauto.
-    { simpl. intros ?.
-      pose proof (proj2_sig x2).
-      red in H2.
-      apply H2.
-      transitivity x1; auto.
-    }
-    { simpl.
-      unfold compose.
-      simpl.
-      rewrite (proof_irrelevance _ Hx1 (fun H1 => Hx0 (transitivity H0 H1))).
-      reflexivity.
-    }
-    - apply (proj2_sig (H _)).
-    - eapply Simulation_compose; try apply (proj2_sig (H _)).
-      simpl.
-      apply rel_restriction_inclusion_Simulation;
-        try typeclasses eauto.
-  Qed.
-
-  Lemma simulation_glueing_compat0 (x0 x1 : X) :
-    ~ R0 x1 x0 ->
-    forall x Hx0 Hx1,
-      proj1_sig (H x0) (exist _ x Hx0) = proj1_sig (H x1) (exist _ x Hx1).
-  Proof.
-    intros. simpl in *.
-    unshelve erewrite (@simulation_uniqueness
-                         _ _ (rel_restriction R0 _) R1 (proj1_sig (H x0))
-                         (compose (proj1_sig (H x1)) (fun x2 => exist _ (proj1_sig x2) _)));
-      try typeclasses eauto.
-    { simpl. intros ?.
-      pose proof (proj2_sig x2).
-      red in H2.
-      apply Connected_Classical_le in H2 as [|];
-        try typeclasses eauto.
-      - apply H0; transitivity (proj1_sig x2); auto.
-      - rewrite H2 in *. contradiction.
-    }
-    { simpl.
-      unfold compose.
-      simpl.
-      match goal with
-      | |- proj1_sig _ (exist _ _ ?a) =
-            proj1_sig _ (exist _ _ ?b) =>
-          replace a with b;
-          try reflexivity
-      end.
-      apply proof_irrelevance.
-    }
-    - apply (proj2_sig (H _)).
-    - eapply Simulation_compose; try apply (proj2_sig (H _)).
-      simpl.
-      apply rel_restriction_inclusion_Simulation; auto;
-        try typeclasses eauto.
-  Qed.
-
-  Lemma simulation_glueing :
-    Simulation
-      R0 R1
-      (fun x : X => proj1_sig (H x)
-                   (exist _ x (@wf_irrefl X R0 _ _))).
-  Proof.
-    constructor.
-    - (* RelationPreserve *)
-      intros x0 x1 Hxx.
-      unshelve erewrite (simulation_glueing_compat x0 x1 Hxx).
-      { intros ?. apply asymmetry in Hxx; auto. }
-      simpl.
-      apply (@sim_preserves _ _ _ _ _ (proj2_sig (H x1))).
-      assumption.
-    - (* RelationReflect *)
-      intros x0 x1 Hxx.
-      apply NNPP.
-      intros Hx0.
-      unfold complement in Hxx.
-      unshelve erewrite (simulation_glueing_compat0 x1 x0 _ _ _ _) in Hxx;
-        auto.
-      apply (@sim_reflects _ _ _ _ _ (proj2_sig (H x0))) in Hxx.
-      contradiction.
-    - intros.
-      destruct (@simulation _ _ _ _ _ (proj2_sig (H x)) (exist _ x (wf_irrefl x)) t);
-        auto.
-      subst.
-      exists (proj1_sig x0).
-      unshelve erewrite (simulation_glueing_compat0 (proj1_sig x0) x _ _ _ _).
-      { apply (proj2_sig x0). }
-      { apply (proj2_sig x0). }
-      destruct x0. simpl. reflexivity.
-  Qed.
-End simulation_glueing.
-
 (** ** Disjoint union of well-orders
 Recall that [Coq.Relation_Operators.le_AsB] denotes the disjoint union
 of two relations. *)
@@ -2667,3 +2560,147 @@ Proof.
     destruct (PeanoNat.Nat.lt_trichotomy x y) as [|[|]]; auto;
       apply Heq in H; do 2 red in H; lia.
 Qed.
+
+Section simulation_glueing.
+  Context {T : Type} {R : T -> _}
+    {HR : WellOrder R}.
+
+  Definition rel_restriction_simulation_downwards_closed
+    (U : Ensemble T) {HU : DownwardsClosed R U}:
+    Simulation (rel_restriction R U) R (@proj1_sig T U).
+  Proof.
+    split.
+    - firstorder.
+    - firstorder.
+    - intros [x Hx] t.
+      simpl.
+      intros Ht.
+      specialize (HU x Hx t Ht).
+      exists (exist _ t HU).
+      reflexivity.
+  Qed.
+End simulation_glueing.
+Section simulation_glueing.
+  Context {X Y : Type} R0 R1 {HR0 : @WellOrder X R0}
+    {HR1 : @WellOrder Y R1}.
+
+  Theorem simulation_glueing
+    (H : forall x : X,
+        { f | Simulation (rel_restriction R0 (closed_initial_segment R0 x)) R1 f} ) :
+    Simulation R0 R1 (fun x => proj1_sig (H x) (exist _ x (@wf_irrefl X R0 _ _))).
+  Proof.
+    split.
+    - intros x0 x1 Hx.
+      admit.
+    - intros x0 x1 Hx.
+      admit.
+    - intros.
+      admit.
+  Abort.
+End simulation_glueing.
+Section simulation_glueing.
+  Context {X Y : Type} R0 R1 `{HR : WellOrder X R0}
+    `{HR1 : WeaklyExtensional Y R1}.
+  Variable H : forall x : X,
+      { f : { x0  : X | In (closed_initial_segment R0 x) x0 } -> Y |
+        Simulation (rel_restriction R0 _) R1 f }.
+
+  Lemma simulation_glueing_compat (x0 x1 : X) :
+    R0 x0 x1 ->
+    forall x Hx0 Hx1,
+      proj1_sig (H x0) (exist _ x Hx0) = proj1_sig (H x1) (exist _ x Hx1).
+  Proof.
+    intros. simpl in *.
+    unshelve erewrite (@simulation_uniqueness
+                         _ _ (rel_restriction R0 _) R1 (proj1_sig (H x0))
+                         (compose (proj1_sig (H x1)) (fun x2 => exist _ (proj1_sig x2) _)));
+      try typeclasses eauto.
+    { simpl. intros ?.
+      pose proof (proj2_sig x2).
+      red in H2.
+      apply H2.
+      transitivity x1; auto.
+    }
+    { simpl.
+      unfold compose.
+      simpl.
+      rewrite (proof_irrelevance _ Hx1 (fun H1 => Hx0 (transitivity H0 H1))).
+      reflexivity.
+    }
+    - apply (proj2_sig (H _)).
+    - eapply Simulation_compose; try apply (proj2_sig (H _)).
+      simpl.
+      apply rel_restriction_inclusion_Simulation;
+        try typeclasses eauto.
+  Qed.
+
+  Lemma simulation_glueing_compat0 (x0 x1 : X) :
+    ~ R0 x1 x0 ->
+    forall x Hx0 Hx1,
+      proj1_sig (H x0) (exist _ x Hx0) = proj1_sig (H x1) (exist _ x Hx1).
+  Proof.
+    intros. simpl in *.
+    unshelve erewrite (@simulation_uniqueness
+                         _ _ (rel_restriction R0 _) R1 (proj1_sig (H x0))
+                         (compose (proj1_sig (H x1)) (fun x2 => exist _ (proj1_sig x2) _)));
+      try typeclasses eauto.
+    { simpl. intros ?.
+      pose proof (proj2_sig x2).
+      red in H2.
+      apply Connected_Classical_le in H2 as [|];
+        try typeclasses eauto.
+      - apply H0; transitivity (proj1_sig x2); auto.
+      - rewrite H2 in *. contradiction.
+    }
+    { simpl.
+      unfold compose.
+      simpl.
+      match goal with
+      | |- proj1_sig _ (exist _ _ ?a) =
+            proj1_sig _ (exist _ _ ?b) =>
+          replace a with b;
+          try reflexivity
+      end.
+      apply proof_irrelevance.
+    }
+    - apply (proj2_sig (H _)).
+    - eapply Simulation_compose; try apply (proj2_sig (H _)).
+      simpl.
+      apply rel_restriction_inclusion_Simulation; auto;
+        try typeclasses eauto.
+  Qed.
+
+  Lemma simulation_glueing :
+    Simulation
+      R0 R1
+      (fun x : X => proj1_sig (H x)
+                   (exist _ x (@wf_irrefl X R0 _ _))).
+  Proof.
+    constructor.
+    - (* RelationPreserve *)
+      intros x0 x1 Hxx.
+      unshelve erewrite (simulation_glueing_compat x0 x1 Hxx).
+      { intros ?. apply asymmetry in Hxx; auto. }
+      simpl.
+      apply (@sim_preserves _ _ _ _ _ (proj2_sig (H x1))).
+      assumption.
+    - (* RelationReflect *)
+      intros x0 x1 Hxx.
+      apply NNPP.
+      intros Hx0.
+      unfold complement in Hxx.
+      unshelve erewrite (simulation_glueing_compat0 x1 x0 _ _ _ _) in Hxx;
+        auto.
+      apply (@sim_reflects _ _ _ _ _ (proj2_sig (H x0))) in Hxx.
+      contradiction.
+    - intros.
+      destruct (@simulation _ _ _ _ _ (proj2_sig (H x)) (exist _ x (wf_irrefl x)) t);
+        auto.
+      subst.
+      exists (proj1_sig x0).
+      unshelve erewrite (simulation_glueing_compat0 (proj1_sig x0) x _ _ _ _).
+      { apply (proj2_sig x0). }
+      { apply (proj2_sig x0). }
+      destruct x0. simpl. reflexivity.
+  Qed.
+End simulation_glueing.
