@@ -368,18 +368,16 @@ destruct (H (Im Full_set (fun y => inverse_image (subspace_inc _)
         exists (Rmax x0 (x+1)).
         intros.
         destruct H6.
-        * apply Rlt_le_trans with x0.
-          ** apply H3 with x1; trivial.
-          ** unfold Rmax.
-             destruct Rle_dec; auto with real.
+        * specialize (H3 x1 b); intuition.
+          apply Rlt_le_trans with x0; auto.
+          apply Rmax_l.
         * destruct H6.
           rewrite H5 in H7.
           destruct H7.
           destruct H6.
           apply Rlt_le_trans with (x+1).
           ** apply H6.
-          ** unfold Rmax.
-             destruct Rle_dec; auto with real. }
+          ** apply Rmax_r. }
   destruct H3 as [a].
   exists a.
   red. intros.
