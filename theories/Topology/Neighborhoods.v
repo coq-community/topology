@@ -5,7 +5,7 @@ Definition open_neighborhood {X:TopologicalSpace}
   (U:Ensemble X) (x:X) :=
   open U /\ In U x.
 
-Hint Unfold open_neighborhood : topology.
+Global Hint Unfold open_neighborhood : topology.
 
 Definition neighborhood {X:TopologicalSpace}
   (N:Ensemble X) (x:X) :=
@@ -50,7 +50,7 @@ Lemma open_char_neighborhood: forall {X:TopologicalSpace} (U : Ensemble X),
 Proof.
   split.
   - intros.
-    exists U. intuition.
+    exists U. auto with relations topology.
   - intros.
     assert (U = FamilyUnion (fun V => open V /\ Included V U)).
     2: {

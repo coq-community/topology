@@ -1,4 +1,4 @@
-From Coq Require Import Reals Lra ClassicalChoice.
+From Coq Require Import Reals Lia Lra ClassicalChoice.
 From Coq Require Export Qreals.
 Require Import RationalsInReals.
 Local Close Scope Q_scope.
@@ -43,10 +43,11 @@ Proof.
 intros.
 destruct x as [m n].
 destruct y as [m' n'].
-destruct (le_or_lt n n').
+destruct (Nat.le_gt_cases n n').
 - destruct (dr_incr_denom m n n') as [m0]; trivial.
-  destruct (le_or_lt m0 m').
-  + destruct (le_lt_or_eq _ _ H1).
+  destruct (Nat.le_gt_cases m0 m').
+  + apply Nat.lt_eq_cases in H1.
+    destruct H1.
     * left.
       apply dr_lt_wd with
           (m_over_2_to_n m0 n') (m_over_2_to_n m' n'); trivial.
@@ -55,7 +56,7 @@ destruct (le_or_lt n n').
     * right; left.
       apply dr_eq_trans with (m_over_2_to_n m0 n').
       -- apply dr_eq_sym; trivial.
-      -- rewrite H2; apply dr_eq_refl.
+      -- rewrite H1; apply dr_eq_refl.
   + right; right.
     apply dr_lt_wd with
         (m_over_2_to_n m' n') (m_over_2_to_n m0 n'); trivial.
@@ -63,8 +64,9 @@ destruct (le_or_lt n n').
     * apply dr_eq_refl.
 - assert (n' <= n) by auto with arith.
   destruct (dr_incr_denom m' n' n) as [m0]; trivial.
-  destruct (le_or_lt m m0).
-  + destruct (le_lt_or_eq _ _ H2).
+  destruct (Nat.le_gt_cases m m0).
+  + apply Nat.lt_eq_cases in H2.
+    destruct H2.
     * left.
       apply dr_lt_wd with
           (m_over_2_to_n m n) (m_over_2_to_n m0 n).
@@ -73,7 +75,7 @@ destruct (le_or_lt n n').
       -- trivial.
     * right; left.
       apply dr_eq_trans with (m_over_2_to_n m0 n); trivial.
-      rewrite H3; apply dr_eq_refl.
+      rewrite H2; apply dr_eq_refl.
   + right; right.
     apply dr_lt_wd with
         (m_over_2_to_n m0 n) (m_over_2_to_n m n); trivial.
@@ -492,7 +494,7 @@ assert ((m >= nat_of_P (pos_power2 n))%nat) by
 red in H3.
 assert ((nat_of_P (pos_power2 n) < m \/
         (nat_of_P (pos_power2 n) = m))%nat) by
-  now apply le_lt_or_eq.
+  now apply Nat.lt_eq_cases.
 rewrite H1.
 replace 1 with (Q2R (dr2Q (m_over_2_to_n 1 0))).
 - match goal with |- ?a >= ?b =>

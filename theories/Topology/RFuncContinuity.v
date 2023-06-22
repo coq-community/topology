@@ -311,14 +311,13 @@ assert (forall x:R, -1 < x / (1 + Rabs x) < 1).
   { pose proof (Rabs_pos x). lra. }
   apply and_comm, Rabs_def2.
   unfold Rdiv.
-  rewrite Rabs_mult, Rabs_Rinv.
-  - rewrite (Rabs_right (1 + Rabs x)); [ | now left ].
-    pattern 1 at 2.
-    replace 1 with ((1 + Rabs x) * / (1 + Rabs x)) by (field; lra).
-    apply Rmult_lt_compat_r.
-    + now apply Rinv_0_lt_compat.
-    + lra.
-  - lra. }
+  rewrite Rabs_mult, Rabs_Rinv; try lra.
+  rewrite (Rabs_right (1 + Rabs x)); [ | now left ].
+  pattern 1 at 2.
+  replace 1 with ((1 + Rabs x) * / (1 + Rabs x)) by (field; lra).
+  apply Rmult_lt_compat_r.
+  + now apply Rinv_0_lt_compat.
+  + lra. }
 assert (forall x:point_set RTop, In U (x / (1 + Rabs x))).
 { intros.
   now constructor. }
@@ -392,8 +391,6 @@ exists (fun x => (subspace_inc U x) / (1 - Rabs (subspace_inc U x))).
     * assert (/ (1-x) > 0) by
         now apply Rinv_0_lt_compat, Rgt_minus.
       unfold Rdiv.
-      red in H4.
-      apply Rge_le in r.
       apply Rle_ge.
       replace 0 with (0 * / (1-x)); auto with real.
 Qed.
@@ -404,13 +401,9 @@ Proof.
   destruct (classic (x <= y)).
   - rewrite Rmin_left; try assumption.
     rewrite Rabs_minus_sym.
-    rewrite Rabs_pos_eq.
-    2: { lra. }
-    lra.
+    rewrite Rabs_pos_eq; lra.
   - rewrite Rmin_right; try lra.
-    rewrite Rabs_pos_eq.
-    2: { lra. }
-    lra.
+    rewrite Rabs_pos_eq; lra.
 Qed.
 
 Lemma Rmax_using_Rabs x y :
@@ -419,13 +412,9 @@ Proof.
   destruct (classic (x <= y)).
   - rewrite Rmax_right; try assumption.
     rewrite Rabs_minus_sym.
-    rewrite Rabs_pos_eq.
-    2: { lra. }
-    lra.
+    rewrite Rabs_pos_eq; lra.
   - rewrite Rmax_left; try lra.
-    rewrite Rabs_pos_eq.
-    2: { lra. }
-    lra.
+    rewrite Rabs_pos_eq; lra.
 Qed.
 
 Lemma Rmin_continuous : continuous_2arg Rmin (X:=RTop) (Y:=RTop) (Z:=RTop).

@@ -4,6 +4,7 @@ Require Export Completeness.
 Require Import Description.
 Require Import Max.
 Require Import Psatz.
+Require Import Lra.
 From Coq Require ProofIrrelevance.
 
 Section UniformTopology.
@@ -169,7 +170,7 @@ unshelve refine (let H1 := _ in let H2 := _ in ex_intro _
       (MetricTopology_metrized _ d d_metric) nat_DS
       (fun n:nat => proj1_sig (f n) x) x0 n).
     destruct (H7 eps H6) as [i0].
-    pose (N' := max N i0).
+    pose (N' := Nat.max N i0).
     apply Rle_lt_trans with (d (fN x) (proj1_sig (f N') x) +
                              d x0 (proj1_sig (f N') x)).
     { rewrite metric_sym with (x:=x0) (y:=proj1_sig (f N') x); trivial.
@@ -180,11 +181,10 @@ unshelve refine (let H1 := _ in let H2 := _ in ex_intro _
     assert (d (proj1_sig (f N) x) (proj1_sig (f N') x) < 1).
     { rewrite metric_sym; trivial.
       apply H5.
-      apply le_max_l.
+      lia.
     }
     assert (d x0 (proj1_sig (f N') x) < eps).
-    { apply H8.
-      apply le_max_r.
+    { apply H8. simpl. lia.
     }
     auto with real.
   }
@@ -220,26 +220,22 @@ unshelve refine (let H1 := _ in let H2 := _ in ex_intro _
     (MetricTopology_metrized _ d d_metric) nat_DS
     (fun n:nat => proj1_sig (f n) x0) x1 n).
   destruct (H9 eps0 H8) as [N'].
-  pose (N'' := max N N').
+  pose (N'' := Nat.max N N').
   apply Rle_lt_trans with (d x1 (proj1_sig (f N'') x0) +
                            d (proj1_sig (f N'') x0) (proj1_sig (f j) x0)).
   { repeat rewrite <- Heqfj; simpl.
     apply d_metric.
   }
   assert (d x1 (proj1_sig (f N'') x0) < eps0).
-  { apply H10.
-    apply le_max_r.
+  { apply H10. simpl. lia.
   }
-  assert (d (proj1_sig (f N'') x0) (proj1_sig (f j) x0) < eps/2).
-  { apply Rle_lt_trans with (uniform_metric (f N'') (f j)).
-    - unfold uniform_metric; destruct (f N'') as [f1];
-        destruct (f j) as [f2]; destruct sup; simpl.
-      apply i0; exists x0; trivial.
-    - apply H5; trivial.
-      apply le_max_l.
-  }
-  rewrite (Rplus_comm (eps/2) eps0).
-  auto with real.
+  cut (d (proj1_sig (f N'') x0) (proj1_sig (f j) x0) < eps/2); [lra|].
+  apply Rle_lt_trans with (uniform_metric (f N'') (f j)).
+  + unfold uniform_metric; destruct (f N'') as [f1];
+    destruct (f j) as [f2]; destruct sup; simpl.
+    apply i0; exists x0; trivial.
+  + apply H5; trivial.
+    lia.
 Qed.
 
 End UniformTopology.
@@ -348,15 +344,15 @@ replace (fun f:uniform_space d y0 => continuous (proj1_sig f)
                                      (Y:=MetricTopology d d_metric)) with
   (IndexedIntersection (fun (x0:point_set X) (f:uniform_space d y0) =>
          continuous_at (proj1_sig f) x0 (Y:=MetricTopology d d_metric))).
-{ apply (@closed_indexed_intersection (UniformTopology d y0 d_metric X_inh)).
-  apply continuous_functions_at_point_closed_in_uniform_metric.
+{ apply (@closed_indexed_intersection (UniformTopology d y0 d_metric X_inh)),
+  continuous_functions_at_point_closed_in_uniform_metric.
 }
 apply Extensionality_Ensembles; split; intros f ?.
 - destruct H.
-  apply pointwise_continuity; trivial.
-- constructor; intros x.
-  unfold In in H |-*.
-  apply continuous_func_continuous_everywhere; trivial.
+  now apply pointwise_continuity.
+- constructor. intros x.
+  unfold In in *.
+  now apply continuous_func_continuous_everywhere.
 Qed.
 
 End UniformTopology_and_continuity.

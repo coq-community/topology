@@ -1,5 +1,5 @@
 From Coq Require Export Relation_Definitions QArith ZArith.
-From Coq Require Import Arith ArithRing FunctionalExtensionality
+From Coq Require Import Arith ArithRing FunctionalExtensionality Lia
     Program.Subset ClassicalChoice.
 From ZornsLemma Require Import InfiniteTypes CSB DecidableDec
     DependentTypeChoice Finite_sets.
@@ -50,37 +50,24 @@ assert (forall m n:nat, m<n ->
   induction H.
   + simpl.
     auto with arith.
-  + apply lt_trans with (sum_1_to_n m0); trivial.
+  + apply Nat.lt_trans with (sum_1_to_n m0); trivial.
     assert (sum_1_to_n m0 + 0 < sum_1_to_n m0 + S m0) by auto with arith.
     assert (sum_1_to_n m0 + 0 = sum_1_to_n m0) by auto with arith.
     now rewrite H1 in H0.
 - intros [x1 y1] [x2 y2] H0.
   case (lt_eq_lt_dec (x1+y1) (x2+y2)); intro.
   + case s; intro.
-    * assert (sum_1_to_n (x1+y1) + y1 < sum_1_to_n (x2+y2) + y2).
-      ** apply le_lt_trans with (sum_1_to_n (x1+y1) + (x1+y1)).
-         *** assert (sum_1_to_n (x1+y1) + (x1+y1) =
-               (sum_1_to_n (x1+y1) + y1) + x1);
-             [ ring | auto with arith ].
-         *** apply lt_le_trans with (sum_1_to_n (x2+y2));
-             [ apply H |];
-             auto with arith.
-      ** rewrite H0 in H1.
-         contradict H1.
-         auto with arith.
-    * assert (y1=y2).
-      ** rewrite e in H0.
-         now apply plus_reg_l in H0.
-      ** f_equal; trivial.
-         rewrite H1, plus_comm, (plus_comm x2 y2) in e.
-         now apply plus_reg_l in e.
-  + assert (sum_1_to_n (x2+y2) + y2 < sum_1_to_n (x1+y1) + y1).
-    * apply le_lt_trans with (sum_1_to_n (x2+y2) + (x2+y2)),
-            lt_le_trans with (sum_1_to_n (x1+y1));
+    * assert (sum_1_to_n (x1+y1) + y1 < sum_1_to_n (x2+y2) + y2); try lia.
+      apply Nat.le_lt_trans with (sum_1_to_n (x1+y1) + (x1+y1)); try lia.
+      apply Nat.lt_le_trans with (sum_1_to_n (x2+y2)); try lia.
+      apply H.
+      lia.
+    * assert (y1=y2) by (rewrite e in H0; lia).
+      f_equal; lia.
+  + cut (sum_1_to_n (x2+y2) + y2 < sum_1_to_n (x1+y1) + y1); try lia.
+    apply Nat.le_lt_trans with (sum_1_to_n (x2+y2) + (x2+y2)),
+          Nat.lt_le_trans with (sum_1_to_n (x1+y1));
         auto with arith.
-    * rewrite H0 in H1.
-      contradict H1.
-      auto with arith.
 Qed.
 
 Lemma countable_sum (X Y : Type) :
@@ -338,5 +325,5 @@ rewrite union_as_family_union.
 apply countable_family_union.
 - apply Finite_impl_Countable.
   apply finite_couple.
-- intros ? [|]; assumption.
+- now intros ? [|].
 Qed.

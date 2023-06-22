@@ -308,14 +308,14 @@ cut (forall (m n:nat) (x:X), (m <= n)%nat ->
         proj1_sig (extension_approximation_seq n) x) <=
   (2/3)^m - (2/3)^n).
 - intros.
-  destruct (le_or_lt m n).
+  destruct (Nat.le_gt_cases m n).
   + rewrite (Rabs_right ((2/3)^m - (2/3)^n)).
     { now apply H. }
     apply Rge_minus.
     cut ((2/3)^n <= (2/3)^m); auto with real.
     apply Rle_R1_pow; trivial.
     lra.
-  + apply lt_le_weak in H0.
+  + apply Nat.lt_le_incl in H0.
     rewrite (Rabs_left1 ((2/3)^m - (2/3)^n)).
     * replace (- ((2/3)^m - (2/3)^n)) with ((2/3)^n - (2/3)^m) by ring.
       rewrite Rabs_minus_sym.
@@ -500,7 +500,7 @@ destruct H1 as [N1].
 assert (Rabs (2/3) < 1).
 { rewrite Rabs_right; lra. }
 destruct (pow_lt_1_zero (2/3) H2 (eps/2) H0) as [N2].
-pose (N := max N1 N2).
+pose (N := Nat.max N1 N2).
 apply Rle_lt_trans with (R_metric (g (subspace_inc F x))
           (proj1_sig (extension_approximation_seq N) (subspace_inc F x)) +
   R_metric (proj1_sig (extension_approximation_seq N) (subspace_inc F x))
@@ -509,14 +509,14 @@ apply Rle_lt_trans with (R_metric (g (subspace_inc F x))
 replace (0+eps) with (eps/2+eps/2) by field.
 apply Rplus_lt_compat.
 - rewrite metric_sym; try apply R_metric_is_metric.
-  assert (DS_ord N1 N) by apply le_max_l.
+  assert (DS_ord N1 N) by apply Nat.le_max_l.
   apply Rle_lt_trans with (2:=H1 N H4).
   unfold uniform_metric; simpl; destruct sup; simpl.
   apply i.
   exists (subspace_inc F x).
   { constructor. }
   apply R_metric_is_metric.
-- assert ((N >= N2)%nat) by apply le_max_r.
+- assert ((N >= N2)%nat) by apply Nat.le_max_r.
   apply Rle_lt_trans with (2:=H3 N H4).
   rewrite Rabs_right.
   + destruct extension_approximation_seq as [h [? []]]; simpl.

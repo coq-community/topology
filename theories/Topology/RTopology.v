@@ -1,5 +1,5 @@
 Require Export TopologicalSpaces OrderTopology Completeness MetricSpaces.
-From Coq Require Import Lra.
+From Coq Require Import Lra Lia.
 From ZornsLemma Require Import EnsemblesTactics FiniteIntersections.
 Require Import RationalsInReals.
 Require Export Compactness Connectedness.
@@ -530,12 +530,12 @@ assert (exists y:R, forall n:nat, (n<N)%nat -> x n <= y).
   - destruct IHN as [y].
     exists (Rmax y (x N)).
     intros.
-    apply lt_n_Sm_le in H1.
-    destruct (le_lt_or_eq _ _ H1).
+    apply Nat.lt_succ_r, Nat.lt_eq_cases in H1.
+    destruct H1.
     + apply Rle_trans with y.
-      * now apply H0.
+      * apply H0. lia.
       * apply Rmax_l.
-    + rewrite H2.
+    + replace n with N by lia.
       apply Rmax_r. }
 destruct H1 as [y].
 exists (Rmax y (x N + 1)).
@@ -543,7 +543,7 @@ red. intros.
 destruct H2 as [n].
 rewrite H3.
 clear y0 H3.
-destruct (le_or_lt N n).
+destruct (Nat.le_gt_cases N n).
 - apply Rle_trans with (x N + 1).
   + assert (R_metric (x n) (x N) < 1).
     { apply H0; auto with arith. }

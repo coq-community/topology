@@ -2,6 +2,7 @@ From Coq Require Export Relation_Definitions.
 From ZornsLemma Require Import Relation_Definitions_Implicit.
 From Coq Require Import Classical.
 From Coq Require Import Arith.
+From Coq Require Import Lia.
 
 Record DirectedSet := {
   DS_set : Type;
@@ -107,13 +108,12 @@ Section nat_DS.
 
 Definition nat_DS : DirectedSet.
 refine (Build_DirectedSet nat le _ _).
-- constructor; red; intros; auto with arith.
-  now apply le_trans with y.
+- constructor; red; lia.
 - intros.
   case (lt_eq_lt_dec i j).
-  + exists j.
-    destruct s; auto with arith.
-    destruct e; auto with arith.
+  + intro s.
+    exists j.
+    destruct s; lia.
   + exists i; auto with arith.
 Defined.
 

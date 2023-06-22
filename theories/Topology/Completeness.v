@@ -111,7 +111,7 @@ destruct (H y) as [y0].
   apply @net_limit_in_closure with (I:=nat_DS) (x:=y); trivial.
   red; intros.
   exists i; split.
-  - apply le_refl.
+  - apply Nat.le_refl.
   - unfold y.
     destruct (x i); trivial. }
   exists (exist _ y0 H3).

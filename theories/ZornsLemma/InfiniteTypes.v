@@ -5,6 +5,7 @@ From Coq Require Import Arith.
 From Coq Require Import FunctionalExtensionality.
 From ZornsLemma Require Import EnsemblesSpec.
 From Coq Require Import FunctionalExtensionality.
+From Coq Require Import Lia.
 
 Lemma finite_nat_initial_segment: forall n:nat,
   FiniteT { m:nat | m < n }.
@@ -23,7 +24,7 @@ induction n.
 - replace [x:nat | S x <= S n] with (Add [x:nat | x < n] n).
   { constructor; trivial.
     intro. destruct H.
-    apply lt_irrefl in H. assumption.
+    apply Nat.lt_irrefl in H. assumption.
   }
   apply Extensionality_Ensembles; split; red; intros.
   + red; intros.
@@ -34,12 +35,12 @@ induction n.
     * intros.
       destruct H0.
       constructor.
-      apply le_refl.
+      lia.
   + destruct H.
     assert (x <= n); auto with arith.
-    apply le_lt_or_eq in H0.
+    apply Nat.lt_eq_cases in H0.
     case H0.
-    * left; constructor; trivial.
+    * left; now constructor.
     * right; auto with sets.
 Qed.
 
@@ -90,20 +91,15 @@ assert (forall (n:nat) (g:forall m:nat, m<n -> X),
 
     match goal with |- @Finite X ?S => assert (S =
       Im Full_set h) end.
-    - apply Extensionality_Ensembles; red; split; red; intros.
+    - apply Extensionality_Ensembles; red; split; red; intros; destruct H0.
       + destruct H0.
-        destruct H0.
-        exists (exist (fun m:nat => m < n) x0 x1).
-        * constructor.
-        * unfold h; simpl.
-          symmetry; assumption.
-      + destruct H0.
-        destruct x.
-        unfold h in H1; simpl in H1.
-        exists x; exists l; symmetry; assumption.
+        now exists (exist (fun m:nat => m < n) x0 x1).
+      + destruct x.
+        now exists x, l.
     - rewrite H0; apply FiniteT_img.
       + apply finite_nat_initial_segment.
-      + intros; apply classic.
+      + intros.
+        apply classic.
   }
   destruct (X0 _ H0).
   unfold In in n0.
@@ -136,8 +132,7 @@ exists f.
 red; intros m n ?.
 destruct (lt_eq_lt_dec m n) as [[Hlt|Heq]|Hlt]; trivial.
 - contradiction (H0 n m).
-- contradiction (H0 m n).
-  symmetry; assumption.
+- now contradiction (H0 m n).
 Qed.
 
 Lemma nat_infinite: ~ FiniteT nat.
