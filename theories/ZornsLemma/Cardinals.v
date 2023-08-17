@@ -12,6 +12,7 @@ From ZornsLemma Require Import EnsemblesImplicit.
 From ZornsLemma Require Import CountableTypes.
 From ZornsLemma Require Import FiniteTypes.
 From ZornsLemma Require Import InfiniteTypes.
+From ZornsLemma Require Import Powerset_facts.
 
 Inductive Cardinal : Type :=
   | cardinality: Type -> Cardinal.
@@ -219,7 +220,7 @@ Record partial_injection_ord (pi1 pi2:partial_injection) : Prop := {
 }.
 
 Lemma partial_injection_preord: preorder partial_injection_ord.
-Proof.
+Proof using Type.
 constructor.
 - red; intros.
   destruct x.
@@ -632,4 +633,171 @@ split.
   destruct (CSB _ _ f f0) as [f1]; auto.
   apply eq_cardinal_equiv.
   exists f1. assumption.
+Qed.
+
+Require Import WellOrders.
+Require Import WellOrders_new.
+
+Import Classical_Wf.
+
+Lemma le_well_order_le_cardinal {T0 T1} R0 R1 `{WellOrder T0 R0} `{WellOrder T1 R1} :
+  le_well_order R0 R1 ->
+  le_cardinal (cardinality T0) (cardinality T1).
+Proof.
+  intros [f Hf].
+  exists f.
+  eapply WO_Simulation_injective; eauto.
+Qed.
+
+Lemma lt_cardinal_lt_well_order
+  T0 T1 R0 R1 `{W0 : WellOrder T0 R0} `{W1 : WellOrder T1 R1} :
+  lt_cardinal (cardinality T0) (cardinality T1) ->
+  lt_well_order R0 R1.
+Proof.
+  intros Hlt.
+  destruct Hlt as [Hlt Hneq].
+  apply NNPP.
+  intros Hnot_lt.
+  contradict Hneq.
+  apply le_cardinal_antisym; try assumption.
+  apply lt_well_order_neg in Hnot_lt as Hle.
+  apply le_well_order_le_cardinal in Hle.
+  assumption.
+Qed.
+
+Definition initial_well_order {T0 R0} `(W0 : WellOrder T0 R0) : Prop :=
+  forall T1 R1 `(W1 : WellOrder T1 R1),
+    eq_cardinal (cardinality T0) (cardinality T1) ->
+    le_well_order R0 R1.
+
+Definition initial_well_order_packed (W : well_order_packed) : Prop :=
+  forall W0 : well_order_packed,
+    eq_cardinal (cardinality (wop_carrier W)) (cardinality (wop_carrier W0)) ->
+    le_well_order_packed W W0.
+
+Lemma initial_well_order_packed_is_iwo W :
+  initial_well_order_packed W ->
+  initial_well_order W.
+Proof.
+  intros H T R ?HR Heq.
+  apply (H {| wop_WO := HR |}) in Heq.
+  assumption.
+Qed.
+
+(** Equivalent to the axiom of choice, because it implies [well-orderable].
+This theorem could be restated in a way, that it assumes [T] to be
+well-orderable already.  *)
+Lemma initial_well_order_packed_exist (T : Type) :
+  exists W,
+    wop_carrier W = T /\
+    initial_well_order_packed W.
+Proof.
+  pose proof lt_well_order_packed_well_founded.
+  apply WF_implies_MEP in H.
+  red in H.
+  specialize (H (fun W => eq_cardinal (cardinality T) (cardinality (wop_carrier W)))).
+  destruct H as [W1].
+  { destruct (well_orderable_packed T) as [W HW].
+    exists W. red.
+    rewrite HW.
+    apply eq_cardinal_equiv.
+  }
+  unfold In in H.
+  destruct H.
+  (* now we need to pull back [R1] to [T] along the bijection of [H] *)
+  inversion H; subst; clear H.
+  assert (Simulation (rel_induce_preim (wop_rel W1) f) (wop_rel W1) f) as Hfsim.
+  { apply rel_induce_preim_Simulation.
+    intros. destruct H3 as [_ H3].
+    specialize (H3 y) as []. eauto.
+  }
+  unshelve eexists.
+  { unshelve refine {| wop_carrier := T;
+                       wop_rel := rel_induce_preim (wop_rel W1) f;
+                       wop_WO := rel_induce_preim_WellOrder (wop_rel W1) f _;
+                    |}.
+    apply bijective_impl_invertible.
+    assumption.
+  }
+  simpl.
+  split; auto.
+  red.
+  intros W HW.
+  simpl in *.
+  specialize (H0 W HW).
+  unshelve eapply lt_well_order_neg in H0;
+    try typeclasses eauto.
+  (* compose [f] with the map from [H0] *)
+  destruct H0 as [g].
+  exists (compose g f).
+  eapply Simulation_compose; eauto.
+Qed.
+
+Lemma initial_well_orders_exist (T : Type) :
+  exists R (H : @WellOrder T R),
+    initial_well_order H.
+Proof.
+  destruct (initial_well_order_packed_exist T) as [W [HW0 HW1]].
+  subst.
+  exists (wop_rel W), (wop_WO W).
+  auto using initial_well_order_packed_is_iwo.
+Qed.
+
+Theorem lt_cardinal_well_founded :
+  Wf.well_founded lt_cardinal.
+Proof.
+  apply MEP_implies_WF.
+  red.
+  intros.
+  destruct H.
+  destruct x.
+  pose (S0 := fun W : well_order_packed =>
+                In S (cardinality (wop_carrier W)) /\
+                  initial_well_order (wop_WO W)).
+  destruct (WF_implies_MEP _ _ lt_well_order_packed_well_founded S0)
+             as [W].
+  { destruct (initial_well_orders_exist T) as [R [Rwo]].
+    exists {| wop_WO := Rwo |}.
+    unfold In, S0.
+    simpl. tauto.
+  }
+  destruct H0.
+  unfold In, S0 in H0.
+  exists (cardinality (wop_carrier W)).
+  split; try tauto.
+  intros [T0].
+  destruct H0.
+  intros.
+  destruct (initial_well_orders_exist T0) as [R0 [R0wo]].
+  specialize (H1 {| wop_WO := R0wo |}).
+  unfold In, S0 in H1. simpl in H1.
+  specialize (H1 (conj H3 H4)).
+  unfold lt_well_order_packed in H1.
+  simpl in H1.
+  intros ?.
+  apply H1.
+  apply lt_cardinal_lt_well_order.
+  assumption.
+Qed.
+
+Lemma initial_well_order_lt_cardinal T0 T1 R0 R1 `{W0 : WellOrder T0 R0} `{W1 : WellOrder T1 R1} :
+  initial_well_order W0 ->
+  initial_well_order W1 ->
+  lt_well_order R0 R1 ->
+  lt_cardinal (cardinality T0) (cardinality T1).
+Proof.
+  intros Hinit0 Hinit1 Hlt.
+  split.
+  { destruct Hlt as [f [Hf Hf0]].
+    exists f.
+    eapply WO_Simulation_injective; eauto.
+  }
+  intros ?.
+  assert (le_well_order R1 R0).
+  { eapply Hinit1.
+    apply eq_cardinal_equiv.
+    assumption.
+  }
+  apply lt_well_order_impl_not_le in Hlt.
+  auto.
 Qed.
