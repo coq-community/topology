@@ -1,7 +1,8 @@
-Require Export TopologicalSpaces NeighborhoodBases.
-From ZornsLemma Require Export CountableTypes.
-From ZornsLemma Require Import DecidableDec EnsemblesSpec EnsemblesTactics FiniteIntersections InfiniteTypes.
-From Coq Require Import ClassicalChoice Program.Subset.
+From Topology Require Export TopologicalSpaces NeighborhoodBases Nets SubspaceTopology.
+From ZornsLemma Require Export CardinalsEns CountableTypes.
+From ZornsLemma Require Import Classical_Wf DecidableDec EnsemblesSpec
+  EnsemblesTactics FiniteIntersections InfiniteTypes.
+From Coq Require Import ClassicalChoice Program.Subset RelationClasses.
 
 Global Set Asymmetric Patterns.
 
@@ -34,8 +35,6 @@ split.
          auto with sets.
 - now apply countable_img.
 Qed.
-
-Require Export Nets.
 
 Lemma first_countable_sequence_closure:
   forall (X:TopologicalSpace) (S:Ensemble X) (x:point_set X),
@@ -110,6 +109,9 @@ Definition open_cover {X : TopologicalSpace} (F : Family X) : Prop :=
 Definition subcover {X : TopologicalSpace} (FS F : Family X) : Prop :=
   Included FS F /\ Included (FamilyUnion F) (FamilyUnion FS).
 
+(** we consistently write "Lindelof" instead of "Lindelöf" to
+    accomodate those people who do not have a letter "ö" handy on their
+    keyboards. *)
 Definition Lindelof (X : TopologicalSpace) : Prop :=
   forall cover:Family X,
     open_cover cover ->
@@ -195,17 +197,107 @@ destruct (choice (fun (U:{U:Ensemble X | In B U /\ Inhabited U})
       now pose proof (H1 (exist _ V H6)).
 Qed.
 
-Lemma second_countable_impl_Lindelof:
-  forall X:TopologicalSpace, second_countable X -> Lindelof X.
+Lemma weight_second_countable_char (X : TopologicalSpace) :
+  second_countable X <->
+    (forall Y (kappa : Ensemble Y),
+        weight X kappa -> le_cardinal_ens kappa (@Full_set nat)).
 Proof.
-intros X [B [HBbasis HBcountable]].
-red; intros cover Hcover.
+split.
+- intros [B [HBbasis HBcount]] **.
+  apply least_cardinal_ext_to_subset in H.
+  destruct H as [C [[HCbasis HCmin] HCcard]].
+  eapply le_cardinal_ens_Proper_l; eauto.
+  clear Y kappa HCcard.
+  specialize (HCmin B HBbasis).
+  apply Countable_as_le_cardinal_ens in HBcount.
+  eapply le_cardinal_ens_transitive; eauto.
+- intros.
+  destruct (weight_exists X) as [kappa [[B [HB0 HB1]]]].
+  red in HB0.
+  exists B; split; auto.
+  apply Countable_as_le_cardinal_ens.
+  apply H.
+  split.
+  + exists B; split; auto. reflexivity.
+  + intros.
+    specialize (H0 Y V H1).
+    clear H1.
+    apply eq_cardinal_ens_sym in HB1.
+    eapply le_cardinal_ens_Proper_l; eauto.
+Qed.
+
+(* As defined in the “Encyclopedia of General Topology”.
+   A cardinality [kappa] is a candidate for the Lindelöf degree of [X],
+   if for every open cover [cover] of [X] there is a subcover of
+   cardinality at most [kappa].
+ *)
+Definition Lindelof_degree_candidate (X : TopologicalSpace)
+  {Y : Type} (kappa : Ensemble Y) : Prop :=
+  forall cover : Family X,
+    open_cover cover ->
+    exists scover, subcover scover cover /\
+                le_cardinal_ens scover kappa.
+
+Lemma Lindelof_degree_candidate_upwards_closed
+  (X : TopologicalSpace) :
+  forall {Y0 Y1 : Type} (kappa : Ensemble Y0)
+    (lambda : Ensemble Y1),
+    Lindelof_degree_candidate X kappa ->
+    le_cardinal_ens kappa lambda ->
+    Lindelof_degree_candidate X lambda.
+Proof.
+  intros.
+  red. intros.
+  specialize (H cover H1).
+  destruct H as [scover []].
+  exists scover. split; try assumption.
+  eapply le_cardinal_ens_transitive; eauto.
+Qed.
+
+(* As defined in the “Encyclopedia of General Topology” *)
+(* The minimal "Lindelöf_degree_candidate" *)
+Definition Lindelof_degree (X : TopologicalSpace) {Y : Type} (kappa : Ensemble Y) : Prop :=
+  least_cardinal (@Lindelof_degree_candidate X) kappa.
+
+Lemma Lindelof_degree_Lindelof_char (X : TopologicalSpace) :
+  Lindelof X <-> Lindelof_degree_candidate X (@Full_set nat).
+Proof.
+unfold Lindelof, Lindelof_degree_candidate.
+split.
+- intros ? cover Hcover.
+  specialize (H cover Hcover) as [scover [? ?]].
+  exists scover.
+  split; try assumption.
+  apply Countable_as_le_cardinal_ens.
+  assumption.
+- intros ? cover Hcover.
+  specialize (H cover Hcover) as [scover []].
+  exists scover.
+  repeat split; try apply H.
+  apply Countable_as_le_cardinal_ens.
+  assumption.
+Qed.
+
+Lemma Lindelof_Lemma_technical:
+  (* given a topological space [X], a basis [B] on [X] *)
+  forall (X:TopologicalSpace) (B:Family X),
+    open_basis B ->
+    (* and an open cover [C] of [X] *)
+    forall C:Family X,
+      open_cover C ->
+      (* there exists a subcover [V] of cardinality
+         less than the cardinality of [B]. *)
+      exists V:Family X,
+        subcover V C /\
+          le_cardinal_ens V B.
+Proof.
+intros.
 pose (basis_elts_contained_in_cover_elt :=
   [ U:Ensemble X | In B U /\ Inhabited U /\
-    exists V:Ensemble X, In cover V /\ Included U V ]).
+    exists V:Ensemble X, In C V /\ Included U V ]).
 destruct (choice (fun (U:{U | In basis_elts_contained_in_cover_elt U})
-  (V:Ensemble X) => In cover V /\ Included (proj1_sig U) V))
-  as [choice_fun Hchoice].
+  (V:Ensemble X) => In C V /\ Included (proj1_sig U) V))
+  as [choice_fun Hcf].
 { intros.
   destruct x.
   simpl.
@@ -214,25 +306,89 @@ destruct (choice (fun (U:{U | In basis_elts_contained_in_cover_elt U})
 exists (Im Full_set choice_fun).
 repeat split.
 - red; intros.
-  inversion H; subst; clear H.
-  destruct (Hchoice x0).
-  assumption.
-- red; intros.
-  destruct H.
-  destruct (open_basis_cover B HBbasis x S) as [V [HV0 [HV1 HV2]]]; trivial.
-  { now apply Hcover. }
-  assert (In basis_elts_contained_in_cover_elt V).
+  destruct_ensembles_in.
+  subst.
+  apply Hcf.
+- intros x Hx.
+  destruct Hx.
+  destruct (open_basis_cover B H x S) as [V [? []]]; trivial.
+  { now apply H0. }
+  unshelve eexists (choice_fun (exist _ V _)).
   { constructor.
     repeat split; trivial.
     - now exists x.
     - exists S; now split.
   }
-  exists (choice_fun (exist _ V ltac:(eauto))).
-  * exists (exist _ V ltac:(eauto)); auto with sets.
-  * pose proof (Hchoice (exist _ V ltac:(eauto))) as [? ?].
-    simpl in *. auto.
-- apply countable_img, countable_type_ensemble.
-  apply countable_downward_closed with B; trivial.
-  red; intros.
-  now destruct H as [[]].
+  + apply Im_def.
+    constructor.
+  + apply Hcf. simpl.
+    assumption.
+- eapply le_cardinal_ens_transitive.
+  { apply le_cardinal_ens_Im. }
+  eapply le_cardinal_ens_Proper_l.
+  { apply eq_cardinal_ens_sym.
+    apply eq_cardinal_ens_sig.
+  }
+  apply le_cardinal_ens_Included.
+  firstorder.
 Qed.
+
+Corollary Lindelof_Lemma_technical' (X : TopologicalSpace)
+  (B : Family X) :
+  open_basis B ->
+  Lindelof_degree_candidate X B.
+Proof.
+  intros HB.
+  intros C HC.
+  apply Lindelof_Lemma_technical; auto.
+Qed.
+
+(* The Lindelöf degree of a space is less (or equal) to its weight. *)
+Theorem Lindelof_Lemma (X : TopologicalSpace) {Y0 Y1 : Type}
+  (kappa : Ensemble Y0) (lambda : Ensemble Y1) :
+  Lindelof_degree X kappa ->
+  weight X lambda ->
+  le_cardinal_ens kappa lambda.
+Proof.
+  intros [?Hkappa0 ?Hkappa0].
+  intros H.
+  apply least_cardinal_ext_to_subset in H.
+  destruct H as [B [[?HB0 ?HB0] ?Hlambda]].
+  eapply le_cardinal_ens_Proper_r; eauto.
+  clear Y1 lambda Hlambda.
+  apply Hkappa1.
+  clear Y0 kappa Hkappa0 Hkappa1.
+  apply Lindelof_Lemma_technical'; auto.
+Qed.
+
+Lemma Lindelof_degree_exists (X : TopologicalSpace) :
+  exists (Y : Type) (kappa : Ensemble Y), Lindelof_degree X kappa.
+Proof.
+  unfold Lindelof_degree.
+  apply least_cardinal_exists with (X := Ensemble X) (U := @open X).
+  apply Lindelof_Lemma_technical'.
+  firstorder.
+Qed.
+
+Lemma second_countable_impl_Lindelof:
+  forall X:TopologicalSpace, second_countable X -> Lindelof X.
+Proof.
+intros.
+rewrite weight_second_countable_char in H.
+apply Lindelof_degree_Lindelof_char.
+destruct (Lindelof_degree_exists X) as [Y0 [kappa ?Hk]].
+destruct (weight_exists X) as [lambda ?Hl].
+pose proof (Lindelof_Lemma X kappa lambda Hk Hl).
+specialize (H (Ensemble X) lambda Hl).
+eapply Lindelof_degree_candidate_upwards_closed.
+2: eapply H.
+eapply Lindelof_degree_candidate_upwards_closed.
+2: eapply H0.
+apply Hk.
+Qed.
+
+Definition Hereditary_Lindelof_degree (X : TopologicalSpace) {Y : Type} (kappa : Ensemble Y) : Prop :=
+  least_cardinal
+    (fun Y U =>
+       forall A : Ensemble X,
+         Lindelof_degree_candidate (SubspaceTopology A) U) kappa.
