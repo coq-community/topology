@@ -12,56 +12,66 @@ From ZornsLemma Require Import EnsemblesImplicit.
 From ZornsLemma Require Import CountableTypes.
 From ZornsLemma Require Import FiniteTypes.
 From ZornsLemma Require Import InfiniteTypes.
-
-Inductive Cardinal : Type :=
-  | cardinality: Type -> Cardinal.
+From Coq Require Import RelationClasses.
 
 Fixpoint n_element_set (n:nat) : Set :=
   match n with
   | O => False
   | S m => option (n_element_set m)
   end.
-Definition nat_to_cardinal (n:nat) :=
-  cardinality (n_element_set n).
 
-Definition aleph0 := cardinality nat.
+Definition eq_cardinal (A B : Type) : Prop :=
+  exists f : A -> B, bijective f.
+Definition le_cardinal (A B : Type) : Prop :=
+  exists f : A -> B, injective f.
 
-Inductive eq_cardinal : Cardinal -> Cardinal -> Prop :=
-  | bij_eq_cardinal: forall {X Y:Type} (f:X->Y),
-    bijective f -> eq_cardinal (cardinality X) (cardinality Y).
-Inductive le_cardinal : Cardinal -> Cardinal -> Prop :=
-  | inj_le_cardinal: forall {X Y:Type} (f:X->Y),
-    injective f -> le_cardinal (cardinality X) (cardinality Y).
-
-Definition lt_cardinal (kappa lambda:Cardinal) : Prop :=
+Definition lt_cardinal (kappa lambda:Type) : Prop :=
   le_cardinal kappa lambda /\ ~ eq_cardinal kappa lambda.
-Definition ge_cardinal (kappa lambda:Cardinal) : Prop :=
+Definition ge_cardinal (kappa lambda:Type) : Prop :=
   le_cardinal lambda kappa.
-Definition gt_cardinal (kappa lambda:Cardinal) : Prop :=
+Definition gt_cardinal (kappa lambda:Type) : Prop :=
   lt_cardinal lambda kappa.
 
-Lemma eq_cardinal_equiv: equivalence eq_cardinal.
+Global Instance eq_cardinal_equiv : Equivalence eq_cardinal.
 Proof.
-constructor.
-- red; intro.
-  destruct x.
-  exists id.
-  apply id_bijective.
-- red; intros.
-  destruct H.
-  inversion H0. subst.
-  exists (compose f0 f).
-  apply bijective_compose; auto.
-- red; intros.
-  destruct H.
-  apply bijective_impl_invertible in H.
-  destruct H as [g Hfg Hgf].
+split.
+- red; intro. exists id. apply id_bijective.
+- red; intros ? ? [f Hf].
+  apply bijective_impl_invertible in Hf.
+  destruct Hf as [g Hfg Hgf].
   exists g.
   apply invertible_impl_bijective.
   exists f; auto.
+- intros ? ? ? [f Hf] [g Hg].
+  exists (compose g f).
+  apply bijective_compose; auto.
 Qed.
 
-Lemma eq_cardinal_impl_le_cardinal: forall kappa lambda: Cardinal,
+Instance le_cardinal_preorder : PreOrder le_cardinal.
+Proof.
+split.
+- red; intro; exists id; apply id_bijective.
+- intros ? ? ? [f Hf] [g Hg].
+  exists (compose g f).
+  apply injective_compose; auto.
+Qed.
+
+Instance le_cardinal_PartialOrder :
+  PartialOrder eq_cardinal le_cardinal.
+Proof.
+split.
+- intros [f Hf]; split.
+  + exists f; apply Hf.
+  + apply bijective_impl_invertible in Hf.
+    destruct Hf as [g Hgf Hfg].
+    exists g. apply invertible_impl_bijective.
+    exists f; auto.
+- intros [[f Hf] [g Hg]].
+  apply CSB with (f := f) (g := g); auto.
+Qed.
+
+(*
+Lemma eq_cardinal_impl_le_cardinal: forall kappa lambda: Type,
   eq_cardinal kappa lambda -> le_cardinal kappa lambda.
 Proof.
 intros.
@@ -70,34 +80,7 @@ exists f.
 destruct H.
 assumption.
 Qed.
-
-Lemma le_cardinal_preorder: preorder le_cardinal.
-Proof.
-constructor.
-- red; intro.
-  destruct x.
-  exists id. firstorder.
-- red; intros.
-  destruct H.
-  inversion H0; subst; clear H0.
-  exists (compose f0 f).
-  apply injective_compose; auto.
-Qed.
-
-Lemma le_cardinal_antisym: forall kappa lambda:Cardinal,
-  le_cardinal kappa lambda -> le_cardinal lambda kappa ->
-  eq_cardinal kappa lambda.
-Proof.
-intros.
-destruct H.
-inversion H0.
-destruct H1.
-destruct H2.
-pose proof (CSB Y0 X0 f f0 H H3).
-destruct H1.
-exists x.
-assumption.
-Qed.
+*)
 
 Lemma cantor_diag: forall (X:Type) (f:X->(X->bool)),
   ~ surjective f.
@@ -150,27 +133,24 @@ unfold g in H1.
 contradiction P_neq_not_P with (f x x).
 Qed.
 
-Lemma cardinals_unbounded: forall kappa:Cardinal, exists lambda:Cardinal,
-  gt_cardinal lambda kappa.
+Lemma cardinals_unbounded: forall kappa:Type,
+  gt_cardinal (Ensemble kappa) kappa.
 Proof.
-destruct kappa.
-exists (cardinality (T->Prop)).
-red; red; split.
-- exists (@eq T).
+intros ?.
+split.
+- exists Singleton.
   red; intros.
-  rewrite H.
-  reflexivity.
-- intro.
-  inversion H.
-  destruct H0.
-  destruct H2.
-  contradiction (cantor_diag2 _ f).
+  apply Powerset_facts.Singleton_injective.
+  assumption.
+- intros [f Hf].
+  apply (cantor_diag2 _ f).
+  apply Hf.
 Qed.
 
 (* The results below require Axiom of Choice *)
 
 Lemma surj_le_cardinal: forall {X Y:Type} (f:X->Y),
-  surjective f -> le_cardinal (cardinality Y) (cardinality X).
+  surjective f -> le_cardinal Y X.
 Proof.
 intros.
 pose proof (choice (fun (y:Y) (x:X) => f x = y) H).
@@ -535,81 +515,68 @@ Qed.
 
 End le_cardinal_total.
 
-Corollary le_cardinal_total: forall kappa lambda:Cardinal,
+Corollary le_cardinal_total: forall kappa lambda:Type,
   le_cardinal kappa lambda \/ le_cardinal lambda kappa.
 Proof.
-intros [T0] [T1].
+intros T0 T1.
 destruct (types_comparable T0 T1) as [[f]|[f]];
   [left|right];
   exists f; assumption.
 Qed.
 
 Lemma CountableT_cardinality {X : Type} :
-  CountableT X <-> le_cardinal (cardinality X) aleph0.
+  CountableT X <-> le_cardinal X nat.
 Proof.
 split; intros.
 - destruct H.
   exists f. assumption.
-- inversion H; subst.
+- destruct H as [f].
   exists f. assumption.
 Qed.
 
 Lemma FiniteT_cardinality {X : Type} :
-  FiniteT X <-> lt_cardinal (cardinality X) aleph0.
+  FiniteT X <-> lt_cardinal X nat.
 Proof.
 split; intros.
 - constructor.
   + destruct (FiniteT_nat_embeds H) as [f].
     exists f. assumption.
-  + intro.
-    inversion H0; subst; clear H0.
-    destruct H3.
-    assert (FiniteT nat).
-    { apply surj_finite with X f; auto.
-      intros.
-      destruct (classic (y1 = y2)); tauto.
-    }
-    auto using nat_infinite.
-- inversion H; subst; clear H.
-  inversion H0; subst; clear H0.
+  + intros [f []].
+    apply nat_infinite.
+    apply surj_finite with (f := f); auto.
+    intros; apply classic.
+- destruct H as [[f Hf] H].
   apply NNPP. intro.
-  destruct (infinite_nat_inj _ H) as [g].
-  contradict H1.
-  pose (CSB X nat f g). intuition.
-  destruct H2 as [h].
-  exists h. assumption.
+  destruct (infinite_nat_inj _ H0) as [g].
+  contradict H.
+  apply CSB with (f := f) (g := g);
+    auto.
 Qed.
 
 Lemma cardinal_no_inj_equiv_lt_cardinal (A B : Type) :
   (forall f : A -> B, ~ injective f) <->
-  lt_cardinal (cardinality B) (cardinality A).
+  lt_cardinal B A.
 Proof.
 split.
 - intros.
   split.
   + (* |B| ≤ |A| *)
-    destruct (le_cardinal_total (cardinality B) (cardinality A)).
+    destruct (le_cardinal_total B A).
     { assumption. }
-    exfalso.
-    inversion H0; subst; clear H0.
-    apply (H f).
-    assumption.
+    destruct H0 as [f Hf].
+    specialize (H f Hf).
+    contradiction.
   + (* |B| ≠ |A| *)
     intro.
-    inversion H0; subst; clear H0.
-    apply bijective_impl_invertible in H3.
-    destruct H3.
+    destruct H0 as [f Hf].
+    apply bijective_impl_invertible in Hf.
+    destruct Hf as [g Hgf Hfg].
     pose proof (invertible_impl_bijective g).
-    destruct H2.
+    destruct H0 as [Hg0 Hg1].
     { exists f; assumption. }
-    apply (H g).
+    apply (H g Hg0).
+- intros [[f Hf]] g Hg.
+  contradict H.
+  apply CSB with (f := f) (g := g);
     assumption.
-- intros.
-  intro H0.
-  inversion H; clear H.
-  contradict H2.
-  inversion H1; subst; clear H1.
-  destruct (CSB _ _ f f0) as [f1]; auto.
-  apply eq_cardinal_equiv.
-  exists f1. assumption.
 Qed.
