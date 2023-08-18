@@ -1,6 +1,6 @@
 Require Export TopologicalSpaces.
 Require Import ClassicalChoice.
-From ZornsLemma Require Import EnsemblesSpec EnsemblesTactics.
+From ZornsLemma Require Import CardinalsEns EnsemblesSpec EnsemblesTactics.
 
 Section OpenBasis.
 
@@ -146,3 +146,28 @@ Qed.
 
 End BuildFromOpenBasis.
 
+(* The [weight] of a topological space is the least cardinality for
+   which there exists a basis on the space.
+   See for example:
+   https://encyclopediaofmath.org/wiki/Weight_of_a_topological_space
+   Some books, for example the “Encyclopedia of general topology”,
+   lets the weight be at least aleph0 to ensure that it is infinite. *)
+Definition weight (X : TopologicalSpace) {Y : Type} (kappa : Ensemble Y) :=
+  least_cardinal_ext (@open_basis X) kappa.
+
+Lemma weight_unique (X : TopologicalSpace) :
+  forall {Y0 Y1 : Type} (kappa : Ensemble Y0) (lambda : Ensemble Y1),
+    weight X kappa -> weight X lambda ->
+    eq_cardinal_ens kappa lambda.
+Proof.
+  intros.
+  eapply least_cardinal_unique; eauto.
+Qed.
+
+Lemma weight_exists (X : TopologicalSpace) :
+  exists (kappa : Family X), weight X kappa.
+Proof.
+  apply least_cardinal_ext_exists.
+  (* The family of open sets of [X] is a basis of [X]. *)
+  exists open. firstorder.
+Qed.
