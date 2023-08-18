@@ -50,32 +50,15 @@ constructor.
 - red; intros.
   destruct H.
   inversion H0. subst.
-  exists (fun x:X => f0 (f x)).
-  red; split.
-  + red; intros.
-    apply H.
-    apply H2.
-    assumption.
-  + red; intro.
-    destruct H.
-    destruct H2.
-    pose proof (H3 y).
-    destruct H4.
-    pose proof (H1 x).
-    destruct H5.
-    exists x0.
-    rewrite H5.
-    assumption.
+  exists (compose f0 f).
+  apply bijective_compose; auto.
 - red; intros.
   destruct H.
   apply bijective_impl_invertible in H.
-  destruct (function_inverse f H) as [finv].
-  destruct a.
-  exists finv.
+  destruct H as [g Hfg Hgf].
+  exists g.
   apply invertible_impl_bijective.
-  exists f.
-  + assumption.
-  + assumption.
+  exists f; auto.
 Qed.
 
 Lemma eq_cardinal_impl_le_cardinal: forall kappa lambda: Cardinal,
@@ -92,16 +75,13 @@ Lemma le_cardinal_preorder: preorder le_cardinal.
 Proof.
 constructor.
 - red; intro.
-  apply eq_cardinal_impl_le_cardinal.
-  apply (equiv_refl eq_cardinal_equiv).
+  destruct x.
+  exists id. firstorder.
 - red; intros.
   destruct H.
-  inversion H0.
-  exists (fun x:X => f0 (f x)).
-  red; intros.
-  apply H.
-  apply H2.
-  assumption.
+  inversion H0; subst; clear H0.
+  exists (compose f0 f).
+  apply injective_compose; auto.
 Qed.
 
 Lemma le_cardinal_antisym: forall kappa lambda:Cardinal,
