@@ -1,8 +1,8 @@
-Require Export Reals TopologicalSpaces NeighborhoodBases Nets Continuity CountabilityAxioms SupInf SeparatednessAxioms.
-Require Import RationalsInReals.
+From Topology Require Export TopologicalSpaces NeighborhoodBases Nets Continuity CountabilityAxioms SupInf SeparatednessAxioms.
+From Topology Require Import RationalsInReals.
 From ZornsLemma Require Export EnsemblesSpec.
 From ZornsLemma Require Import EnsemblesTactics DecidableDec.
-From Coq Require Import ClassicalChoice Program.Subset.
+From Coq Require Import Reals ClassicalChoice Program.Subset.
 From Coq Require Import Lra.
 
 Open Scope R_scope.
