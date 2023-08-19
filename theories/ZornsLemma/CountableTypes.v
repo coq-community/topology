@@ -226,6 +226,20 @@ intros.
 now apply FiniteT_impl_CountableT, Finite_ens_type.
 Qed.
 
+Corollary countable_empty {X : Type} :
+  Countable (@Empty_set X).
+Proof.
+  apply Finite_impl_Countable.
+  apply Empty_is_finite.
+Qed.
+
+Corollary countable_singleton {X : Type} (x : X) :
+  Countable (Singleton x).
+Proof.
+  apply Finite_impl_Countable.
+  apply Singleton_is_finite.
+Qed.
+
 Lemma positive_countable: CountableT positive.
 Proof.
 exists nat_of_P.
