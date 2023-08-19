@@ -185,7 +185,7 @@ Lemma finite_intersections_len_S_exists
 Proof.
 generalize dependent U.
 generalize dependent n.
-apply (well_founded_ind lt_wf (fun n =>
+apply (well_founded_ind Wf_nat.lt_wf (fun n =>
   forall U,
     In (finite_intersections_len F (S n)) U ->
   exists V W,
@@ -199,7 +199,7 @@ intros [|n] IH U H.
     constructor + rewrite Intersection_Full_set.
 - apply finite_intersections_len_SS_intersection in H.
   destruct H as [m [[|k] [V [W [HV [HW [eq1 eq2]]]]]]].
-  + rewrite Nat.add_0_r in eq2.
+  + rewrite PeanoNat.Nat.add_0_r in eq2.
     subst.
     now exists V, W.
   + apply IH in HV; [|lia].

@@ -1,4 +1,4 @@
-From Coq Require Export Relation_Definitions QArith ZArith.
+From Coq Require Import Relation_Definitions QArith ZArith.
 From Coq Require Import Arith ArithRing FunctionalExtensionality Lia
     Program.Subset ClassicalChoice.
 From ZornsLemma Require Import InfiniteTypes CSB DecidableDec
