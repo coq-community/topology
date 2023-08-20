@@ -4,27 +4,27 @@ From ZornsLemma Require Import EnsemblesSpec EnsemblesTactics.
 
 Section OpenBasis.
 
-Variable X : TopologicalSpace.
-Variable B : Family (point_set X).
+Context {X : TopologicalSpace}.
+Variable B : Family X.
 
 Record open_basis : Prop :=
   { open_basis_elements :
-     forall V:Ensemble (point_set X), In B V -> open V;
+     forall V:Ensemble X, In B V -> open V;
     open_basis_cover :
-     forall (x:point_set X) (U:Ensemble (point_set X)),
-        open U -> In U x -> exists V:Ensemble (point_set X),
+     forall (x:X) (U:Ensemble X),
+        open U -> In U x -> exists V:Ensemble X,
         In B V /\ Included V U /\ In V x
   }.
 
 Hypothesis Hbasis: open_basis.
 
 Lemma coverable_by_open_basis_impl_open:
-  forall U:Ensemble (point_set X),
-    (forall x:point_set X, In U x -> exists V:Ensemble (point_set X),
+  forall U:Ensemble X,
+    (forall x:X, In U x -> exists V:Ensemble X,
      In B V /\ Included V U /\ In V x) -> open U.
 Proof.
 intros.
-replace U with (FamilyUnion [ V:Ensemble (point_set X) |
+replace U with (FamilyUnion [ V:Ensemble X |
                           In B V /\ Included V U ]).
 - apply open_family_union.
   intros.
@@ -42,14 +42,9 @@ Qed.
 
 End OpenBasis.
 
-Arguments open_basis {X}.
-Arguments coverable_by_open_basis_impl_open {X}.
-Arguments open_basis_elements {X}.
-Arguments open_basis_cover {X}.
-
 Section BuildFromOpenBasis.
 
-Variable X : Type.
+Context {X : Type}.
 Variable B : Family X.
 
 Definition open_basis_cond :=
@@ -67,79 +62,62 @@ Inductive B_open : Ensemble X -> Prop :=
   | B_open_intro: forall F:Family X, Included F B ->
     B_open (FamilyUnion F).
 
-Definition Build_TopologicalSpace_from_open_basis : TopologicalSpace.
-refine (Build_TopologicalSpace X B_open _ _ _).
-- intros.
-  pose proof (choice (fun (x:{S:Ensemble X | In F S}) (F:Family X) =>
-    Included F B /\ proj1_sig x = FamilyUnion F)).
-  unshelve refine (let H1:=(H0 _) in _); [ | clearbody H1 ].
-  + intros.
-    destruct x.
-    pose proof (H x i).
-    destruct H1.
-    exists F0.
-    now split.
-  + clear H0.
-    destruct H1.
-    replace (FamilyUnion F) with (FamilyUnion (IndexedUnion x)).
-    * constructor.
-      red. intros.
-      destruct H1.
-      pose proof (H0 a).
-      destruct H2.
-      auto with sets.
-    * extensionality_ensembles.
-      ** destruct (H0 a), a.
-         simpl in H4.
-         exists x2; trivial.
-         rewrite H4.
-         now exists x1.
-      ** destruct (H0 (exist _ _ H1)).
-         simpl in H4.
-         rewrite H4 in H2.
-         destruct H2.
-         constructor 1 with S0; trivial.
-         now exists (exist _ _ H1).
-- intros.
-  replace (Intersection U V) with (FamilyUnion
-    [ S:Ensemble X | In B S /\ Included S (Intersection U V) ]).
-  + constructor.
-    red. intros.
-    destruct H1.
-    destruct H1.
-    auto.
-  + extensionality_ensembles.
-    * destruct H1.
-      auto.
-    * destruct H.
-      destruct H0.
-      destruct H1.
-      destruct H2.
-      pose proof (H _ H1).
-      pose proof (H0 _ H2).
-      pose proof (Hbasis _ _ H5 H6).
-      assert (In (Intersection S S0) x) by
-        now constructor.
-      apply H7 in H8.
-      clear H7.
-      destruct H8, H7 as [? [? ?]].
-      exists x0; trivial.
-      constructor.
-      split; trivial.
-      red. intros.
-      constructor.
-      ** exists S; trivial.
-         now destruct (H9 x1 H10).
-      ** destruct (H9 x1 H10).
-         econstructor; eassumption.
-- replace Full_set with (FamilyUnion B).
-  + constructor.
-    auto with sets.
-  + extensionality_ensembles.
-    * constructor.
-    * destruct (Hbasis_cover x), H.
-      now exists x0.
-Defined.
+Lemma B_open_alt (U : Ensemble X) :
+  U = FamilyUnion
+        (fun V : Ensemble X =>
+           In B V /\ Included V U) ->
+  B_open U.
+Proof.
+  intros. rewrite H.
+  constructor.
+  firstorder.
+Qed.
+
+Program Definition Build_TopologicalSpace_from_open_basis : TopologicalSpace :=
+  {| point_set := X;
+     open := B_open;
+  |}.
+Next Obligation.
+  apply B_open_alt.
+  extensionality_ensembles; auto.
+  specialize (H S H0).
+  inversion H; subst; clear H.
+  inversion H1; subst; clear H1.
+  exists S; auto.
+  split; auto.
+  clear x H3.
+  intros x Hx.
+  exists (FamilyUnion F0); auto.
+  exists S; auto.
+Qed.
+Next Obligation.
+  apply B_open_alt.
+  extensionality_ensembles; auto.
+  destruct H, H0, H1, H2.
+  pose proof (H _ H1).
+  pose proof (H0 _ H2).
+  pose proof (Hbasis _ _ H5 H6).
+  assert (In (Intersection S S0) x) by
+    now constructor.
+  apply H7 in H8.
+  clear H7.
+  destruct H8, H7 as [? [? ?]].
+  exists x0; trivial.
+  split; trivial.
+  red. intros.
+  constructor.
+  - exists S; trivial.
+    now destruct (H9 x1 H10).
+  - destruct (H9 x1 H10).
+    econstructor; eassumption.
+Qed.
+Next Obligation.
+  apply B_open_alt.
+  extensionality_ensembles.
+  - destruct (Hbasis_cover x), H.
+    now exists x0.
+  - constructor.
+Qed.
 
 Lemma Build_TopologicalSpace_from_open_basis_point_set:
   point_set Build_TopologicalSpace_from_open_basis = X.
@@ -168,8 +146,3 @@ Qed.
 
 End BuildFromOpenBasis.
 
-Arguments open_basis_cond {X}.
-Arguments open_basis_cover_cond {X}.
-Arguments Build_TopologicalSpace_from_open_basis {X}.
-Arguments Build_TopologicalSpace_from_open_basis_point_set {X}.
-Arguments Build_TopologicalSpace_from_open_basis_basis {X}.
