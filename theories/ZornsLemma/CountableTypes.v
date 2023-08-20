@@ -339,10 +339,37 @@ Lemma countable_union2
   Countable V ->
   Countable (Union U V).
 Proof.
-intros Hf Hg.
-rewrite union_as_family_union.
-apply countable_family_union.
-- apply Finite_impl_Countable.
-  apply finite_couple.
-- now intros ? [|].
+intros HU HV.
+assert (exists h : {x : X | In (Union U V) x} ->
+              {x : X | In U x} + {x : X | In V x},
+           injective h) as [h Hh].
+2: {
+  apply inj_countable with (f := h); auto.
+  apply countable_sum; assumption.
+}
+unshelve eexists
+  (fun p : { x : X | In (Union U V) x } =>
+     match (classic_dec (In U (proj1_sig p))) with
+     | left Hl =>
+         inl (exist U (proj1_sig p) Hl)
+     | right Hr =>
+         match (classic_dec (In V (proj1_sig p))) with
+         | left Hl =>
+             inr (exist V (proj1_sig p) Hl)
+         | right Hr0 =>
+             False_rect _ _
+         end
+     end).
+{ destruct (proj2_sig p); auto. }
+simpl in *.
+intros [x0 Hx0] [x1 Hx1] Hx.
+simpl in *.
+repeat
+  (try discriminate;
+   try (inversion Hx0; subst; contradiction);
+   try (inversion Hx1; subst; contradiction);
+   destruct (classic_dec _)).
+all: inversion Hx; subst; clear Hx;
+  destruct (proof_irrelevance _ Hx0 Hx1);
+  reflexivity.
 Qed.
