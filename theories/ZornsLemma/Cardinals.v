@@ -4,6 +4,7 @@ From Coq Require Import ProofIrrelevance.
 From Coq Require Import FunctionalExtensionality.
 From Coq Require Import Description.
 From ZornsLemma Require Export FunctionProperties.
+From ZornsLemma Require Import FunctionPropertiesEns.
 From ZornsLemma Require Import Relation_Definitions_Implicit.
 From ZornsLemma Require Import CSB.
 From ZornsLemma Require Import EnsemblesSpec.
@@ -70,17 +71,49 @@ split.
   apply CSB with (f := f) (g := g); auto.
 Qed.
 
-(*
 Lemma eq_cardinal_impl_le_cardinal: forall kappa lambda: Type,
   eq_cardinal kappa lambda -> le_cardinal kappa lambda.
 Proof.
-intros.
-destruct H.
-exists f.
-destruct H.
-assumption.
+intros ? ? [f Hf].
+exists f. apply Hf.
 Qed.
-*)
+
+(** This lemma is helpful, if one wants
+    to avoid using an axiom of choice. *)
+Lemma le_cardinal_img_inj_ens {X Y : Type} (Z : Type) (f : X -> Y) (U : Ensemble X) :
+  injective_ens f U ->
+  le_cardinal X Z ->
+  le_cardinal (sig (Im U f)) Z.
+Proof.
+  intros Hf [g Hg].
+  assert (forall p : { y : Y | In (Im U f) y },
+             { x : X | In U x /\ (proj1_sig p) = f x}) as H.
+  { intros [y Hy].
+    simpl.
+    apply constructive_definite_description.
+    inversion Hy; subst; clear Hy.
+    exists x; split; auto.
+    intros x' []; auto.
+  }
+  exists (compose g (fun p => proj1_sig (H p))).
+  apply injective_compose; auto.
+  clear g Hg.
+  intros p0 p1 Hp.
+  pose proof (proj2_sig (H p0)) as [Hp00 Hp01].
+  pose proof (proj2_sig (H p1)) as [Hp10 Hp11].
+  destruct p0 as [y0 Hy0], p1 as [y1 Hy1].
+  simpl in *. rewrite <- Hp in Hp11.
+  cut (y0 = y1); try congruence.
+  intros. destruct H0.
+  destruct (proof_irrelevance _ Hy0 Hy1).
+  reflexivity.
+Qed.
+
+Definition countable_img_inj {X Y : Type} (f : X -> Y) (U : Ensemble X) :
+  injective_ens f U ->
+  CountableT X ->
+  Countable (Im U f) :=
+  @le_cardinal_img_inj_ens X Y nat f U.
 
 Lemma cantor_diag: forall (X:Type) (f:X->(X->bool)),
   ~ surjective f.

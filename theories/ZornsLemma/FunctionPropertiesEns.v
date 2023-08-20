@@ -3,7 +3,7 @@
 
 From Coq Require Import ClassicalChoice Description Program.Subset.
 From ZornsLemma Require Import
-  Cardinals CountableTypes CSB DecidableDec EnsemblesImplicit
+  DecidableDec EnsemblesImplicit
   Families FunctionProperties Image InverseImage Powerset_facts
   Proj1SigInjective.
 From Coq Require Import RelationClasses.
@@ -74,6 +74,12 @@ Section FunctionPropertiesEns.
       }
       inversion H0; subst; clear H0.
       reflexivity.
+  Qed.
+
+  Lemma injective_injective_ens :
+    injective f -> injective_ens.
+  Proof.
+    intros Hf x0 x1 _ _; apply Hf; auto.
   Qed.
 
   Lemma surjective_ens_char
