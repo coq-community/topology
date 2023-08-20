@@ -1,3 +1,7 @@
+(** First introduces a predicate [CountableT : Type -> Prop] of countable types.
+    Then introduces a similar predicate [Countable : Ensemble X -> Prop] on ensembles.
+*)
+
 From Coq Require Import Relation_Definitions QArith ZArith.
 From Coq Require Import Arith ArithRing FunctionalExtensionality Lia
     Program.Subset ClassicalChoice.
@@ -133,9 +137,6 @@ induction H.
   apply H5.
 Qed.
 
-Definition Countable {X : Type} (S : Ensemble X) : Prop :=
-  CountableT {x:X | In S x}.
-
 Lemma inj_countable {X Y : Type} (f : X -> Y) :
   CountableT Y -> injective f -> CountableT X.
 Proof.
@@ -154,6 +155,69 @@ apply inj_countable with finv; trivial.
 intros x1 x2 ?.
 congruence.
 Qed.
+
+Lemma FiniteT_impl_CountableT (X : Type) :
+  FiniteT X -> CountableT X.
+Proof.
+intros.
+induction H.
+- exists (False_rect nat).
+  now intro.
+- destruct IHFiniteT.
+  exists (fun x => match x with
+    | Some x0 => S (f x0)
+    | None => 0
+  end).
+  intros [x1|] [x2|] H1;
+    injection H1 as H1 + discriminate H1 + trivial.
+  now destruct (H0 _ _ H1).
+- destruct IHFiniteT as [g],
+           H0 as [finv].
+  exists (fun y:Y => g (finv y)).
+  intros y1 y2 ?.
+  apply H1 in H3.
+  congruence.
+Qed.
+
+Lemma positive_countable: CountableT positive.
+Proof.
+exists nat_of_P.
+intros n1 n2 ?.
+now apply nat_of_P_inj.
+Qed.
+
+Lemma Z_countable: CountableT Z.
+Proof.
+destruct countable_nat_product as [f],
+         positive_countable as [g].
+exists (fun n:Z => match n with
+  | Z0 => f (0, 0)
+  | Zpos p => f (1, g p)
+  | Zneg p => f (2, g p)
+end).
+intros [|p1|p1] [|p2|p2] H1;
+  apply H in H1;
+  discriminate H1 + trivial;
+  injection H1 as H1; f_equal; auto.
+Qed.
+
+Lemma Q_countable: CountableT Q.
+Proof.
+destruct countable_nat_product as [f],
+         positive_countable as [g],
+         Z_countable as [h].
+exists (fun q:Q => match q with
+  n # d => f (h n, g d)
+end)%Q.
+intros [n1 d1] [n2 d2] ?.
+apply H in H2.
+injection H2 as H2.
+f_equal; auto.
+Qed.
+
+(** ** Countable ensembles *)
+Definition Countable {X : Type} (S : Ensemble X) : Prop :=
+  CountableT {x:X | In S x}.
 
 Lemma countable_downward_closed {X : Type} (S T : Ensemble X) :
   Countable T -> Included S T -> Countable S.
@@ -196,29 +260,6 @@ intros [? ?] [? ?].
 now apply subset_eq_compat.
 Qed.
 
-Lemma FiniteT_impl_CountableT (X : Type) :
-  FiniteT X -> CountableT X.
-Proof.
-intros.
-induction H.
-- exists (False_rect nat).
-  now intro.
-- destruct IHFiniteT.
-  exists (fun x => match x with
-    | Some x0 => S (f x0)
-    | None => 0
-  end).
-  intros [x1|] [x2|] H1;
-    injection H1 as H1 + discriminate H1 + trivial.
-  now destruct (H0 _ _ H1).
-- destruct IHFiniteT as [g],
-           H0 as [finv].
-  exists (fun y:Y => g (finv y)).
-  intros y1 y2 ?.
-  apply H1 in H3.
-  congruence.
-Qed.
-
 Lemma Finite_impl_Countable: forall {X : Type} (S : Ensemble X),
   Finite S -> Countable S.
 Proof.
@@ -238,42 +279,6 @@ Corollary countable_singleton {X : Type} (x : X) :
 Proof.
   apply Finite_impl_Countable.
   apply Singleton_is_finite.
-Qed.
-
-Lemma positive_countable: CountableT positive.
-Proof.
-exists nat_of_P.
-intros n1 n2 ?.
-now apply nat_of_P_inj.
-Qed.
-
-Lemma Z_countable: CountableT Z.
-Proof.
-destruct countable_nat_product as [f],
-         positive_countable as [g].
-exists (fun n:Z => match n with
-  | Z0 => f (0, 0)
-  | Zpos p => f (1, g p)
-  | Zneg p => f (2, g p)
-end).
-intros [|p1|p1] [|p2|p2] H1;
-  apply H in H1;
-  discriminate H1 + trivial;
-  injection H1 as H1; f_equal; auto.
-Qed.
-
-Lemma Q_countable: CountableT Q.
-Proof.
-destruct countable_nat_product as [f],
-         positive_countable as [g],
-         Z_countable as [h].
-exists (fun q:Q => match q with
-  n # d => f (h n, g d)
-end)%Q.
-intros [n1 d1] [n2 d2] ?.
-apply H in H2.
-injection H2 as H2.
-f_equal; auto.
 Qed.
 
 Lemma countable_family_union: forall {X:Type}
