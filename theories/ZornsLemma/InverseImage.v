@@ -286,7 +286,8 @@ Lemma inverse_image_add
   (T : Ensemble Y) :
   (forall x, g (f x) = x) ->
   (forall y, f (g y) = y) ->
-  inverse_image (inverse_image g) (Add F T) = Add (inverse_image (inverse_image g) F) (inverse_image f T).
+  inverse_image (inverse_image g) (Add F T) =
+    Add (inverse_image (inverse_image g) F) (inverse_image f T).
 Proof.
   intros Hgf Hfg.
   apply Extensionality_Ensembles.
@@ -376,20 +377,31 @@ split; red; intros;
   now constructor.
 Qed.
 
+(* this property is called "residuation" by some authors, especially
+   in order theory *)
+Lemma inverse_image_Im_adjoint {A B : Type}
+  (f : A -> B) (U : Ensemble A) (V : Ensemble B) :
+  Included (Im U f) V <-> Included U (inverse_image f V).
+Proof.
+  unfold Included, inverse_image.
+  firstorder.
+  - apply H, Im_def, H0.
+  - inversion H0; subst; clear H0.
+    specialize (H x0 H1).
+    destruct H.
+    assumption.
+Qed.
+
 Lemma image_inverse_image_included {X Y} (f : X -> Y) (U : Ensemble Y) :
   Included (Im (inverse_image f U) f) U.
 Proof.
-  intros ? ?.
-  inversion_ensembles_in.
-  subst. inversion_ensembles_in.
-  assumption.
+  rewrite inverse_image_Im_adjoint.
+  reflexivity.
 Qed.
 
 Lemma inverse_image_image_included {X Y} (f : X -> Y) (U : Ensemble X) :
   Included U (inverse_image f (Im U f)).
 Proof.
-  intros ? ?.
-  constructor.
-  apply Im_def.
-  assumption.
+  rewrite <- inverse_image_Im_adjoint.
+  reflexivity.
 Qed.
