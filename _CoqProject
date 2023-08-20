@@ -11,6 +11,7 @@ theories/Topology/Connectedness.v
 theories/Topology/Continuity.v
 theories/Topology/ContinuousFactorization.v
 theories/Topology/CountabilityAxioms.v
+theories/Topology/EuclideanSpaces.v
 theories/Topology/FilterLimits.v
 theories/Topology/FiltersAndNets.v
 theories/Topology/Homeomorphisms.v

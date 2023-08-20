@@ -1,6 +1,7 @@
 From Coq Require Import Classical.
 From Coq Require Export Finite_sets Finite_sets_facts.
-From ZornsLemma Require Import EnsemblesImplicit FiniteImplicit Powerset_facts.
+From ZornsLemma Require Import EnsemblesImplicit Families
+  FiniteImplicit Powerset_facts.
 
 Lemma finite_couple {X} (x y : X) :
   Finite (Couple x y).
@@ -56,4 +57,21 @@ Proof.
         exists x0; split; auto with sets.
       * inversion H5; subst; clear H5.
         exists x; auto with sets.
+Qed.
+
+(* note that the converse direction is not true.
+   Consider for example the intersection of the
+   open intervals [ (0, 1/n) ], which is empty and thus finite.
+   If you like, a non-empty intersection is achieved by
+   intersecting the intervals [ [0, 1/n) ].
+ *)
+Lemma FamilyIntersection_Finite (X : Type) (F : Family X) :
+  (exists U, In F U /\ Finite U) ->
+  Finite (FamilyIntersection F).
+Proof.
+  intros.
+  destruct H as [U [? ?]].
+  apply Finite_downward_closed with U; auto.
+  red; intros.
+  destruct H1. apply H1. assumption.
 Qed.

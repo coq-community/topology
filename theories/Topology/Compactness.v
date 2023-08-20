@@ -328,8 +328,7 @@ destruct (H _ (filter_to_net _ F)) as [x0].
 Qed.
 
 Lemma compact_closed: forall (X:TopologicalSpace)
-  (S:Ensemble X), Hausdorff X ->
-  compact (SubspaceTopology S) -> closed S.
+  (S:Ensemble X), Hausdorff X -> compact S -> closed S.
 Proof.
 intros.
 destruct (classic (Inhabited S)).
@@ -347,7 +346,7 @@ apply Extensionality_Ensembles; split; red; intros.
 }
 destruct (net_limits_determine_topology _ _ H2) as [I0 [y []]].
 pose (yS (i:DS_set I0) := exist (fun x:X => In S x) (y i) (H3 i)).
-assert (inhabited (SubspaceTopology S)).
+assert (inhabited S).
 { destruct H1.
   constructor.
   now exists x0.
@@ -357,8 +356,7 @@ assert (inhabited (DS_set I0)) as HinhI0.
   destruct (H4 Full_set) as [i0]; auto with topology.
   constructor.
 }
-pose proof (compact_impl_net_cluster_point
-  (SubspaceTopology S) H0 _ yS HinhI0).
+pose proof (compact_impl_net_cluster_point S H0 _ yS HinhI0).
 destruct H6 as [[x0]].
 apply net_cluster_point_impl_subnet_converges in H6.
 2: {
@@ -424,7 +422,7 @@ Proof.
 Qed.
 
 Lemma closed_compact: forall (X:TopologicalSpace) (S:Ensemble X),
-  compact X -> closed S -> compact (SubspaceTopology S).
+  compact X -> closed S -> compact S.
 Proof.
 intros.
 apply net_cluster_point_impl_compact.
@@ -639,8 +637,8 @@ Qed.
 Lemma compact_image_ens {X Y : TopologicalSpace} (f : X -> Y)
       (U : Ensemble X) :
   continuous f ->
-  compact (SubspaceTopology U) ->
-  compact (SubspaceTopology (Im U f)).
+  compact U ->
+  compact (Im U f).
 Proof.
   intros.
   unshelve eapply (@compact_image (SubspaceTopology U)).
@@ -674,7 +672,7 @@ Proof.
   exists g; auto.
   apply continuous_closed.
   intros.
-  assert (compact (SubspaceTopology U)) as HU_compact.
+  assert (compact U) as HU_compact.
   { apply closed_compact; auto. }
   replace (inverse_image g U) with (Im U f).
   2: {
@@ -684,4 +682,26 @@ Proof.
   }
   apply compact_closed; auto.
   apply compact_image_ens; assumption.
+Qed.
+
+Lemma compact_inhabited_dec (X : TopologicalSpace) :
+  compact X -> inhabited X \/ ~ inhabited X.
+Proof.
+  intros Hcomp.
+  specialize (Hcomp (fun U => open U /\ Inhabited U)) as [Fam [H0 [H1 H2]]].
+  { intros ? []; auto. }
+  { extensionality_ensembles; try constructor.
+    exists Full_set; constructor.
+    - apply open_full.
+    - exists x. constructor.
+  }
+  destruct H0.
+  - right. intros ?.
+    destruct H as [x].
+    rewrite empty_family_union in H2.
+    pose proof (Full_intro _ x).
+    rewrite <- H2 in H. contradiction.
+  - left.
+    specialize (H1 x ltac:(right; reflexivity)) as [].
+    destruct H3. constructor. exact x0.
 Qed.

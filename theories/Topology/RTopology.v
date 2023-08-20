@@ -278,7 +278,7 @@ split.
 Qed.
 
 Lemma R_closed_interval_compact: forall a b:R, a <= b ->
-  compact (SubspaceTopology ([x:RTop | a <= x <= b])).
+  compact [x:RTop | a <= x <= b].
 Proof.
 intros a b Hbound.
 apply net_cluster_point_impl_compact.
@@ -334,7 +334,7 @@ now constructor.
 Qed.
 
 Lemma R_compact_subset_bounded: forall A:Ensemble RTop,
-  compact (SubspaceTopology A) -> bound A.
+  compact A -> bound A.
 Proof.
 intros.
 destruct (H (Im Full_set (fun y => inverse_image (subspace_inc _)

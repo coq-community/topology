@@ -82,6 +82,20 @@ Proof.
     all: assumption.
 Qed.
 
+(* The inclusion [Intersection_Im] holds always.
+   The other inclusion is eqiuvalent to injectivity. *)
+Lemma Intersection_Im {X Y : Type} (f : X -> Y) (U V : Ensemble X) :
+  Included
+    (Im (Intersection U V) f)
+    (Intersection (Im U f) (Im V f)).
+Proof.
+  intros y Hy.
+  destruct Hy as [x Hx y Hy].
+  subst.
+  destruct Hx as [x HU HV].
+  split; exists x; auto.
+Qed.
+
 Lemma Im_id {X : Type} (U : Ensemble X) :
   Im U id = U.
 Proof.

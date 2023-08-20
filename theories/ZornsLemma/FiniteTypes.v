@@ -737,18 +737,125 @@ induction H.
     rewrite H2; reflexivity.
 Qed.
 
-Lemma FiniteT_has_nat_cardinal: forall X:Type, FiniteT X ->
-  exists! n:nat, cardinal _ (@Full_set X) n.
+Lemma injection_preserves_cardinal: forall (X Y:Type)
+  (f:X->Y) (n:nat) (S:Ensemble X), cardinal _ S n ->
+  injective f -> cardinal _ (Im S f) n.
+Proof.
+intros.
+induction H.
+- rewrite image_empty.
+  constructor.
+- rewrite Im_add.
+  constructor; trivial.
+  red; intro H3; inversion H3.
+  subst. apply H0 in H4. subst.
+  contradiction.
+Qed.
+
+Lemma FiniteT_dec_Ensemble_has_cardinal X U :
+  FiniteT X ->
+  (forall x, In U x \/ ~ In U x) ->
+  exists n, cardinal X U n.
+Proof.
+  intros.
+  generalize dependent U.
+  induction H.
+  - intros. exists 0.
+    pose proof (False_Ensembles_eq U Empty_set).
+    subst.
+    constructor.
+  - intros.
+    specialize (IHFiniteT
+                  (fun t : T =>
+                     In U (Some t))).
+    destruct IHFiniteT as [m].
+    { intros. unfold In at 1 3.
+      apply H0.
+    }
+    specialize (H0 None) as [|].
+    + exists (S m).
+      replace U with (Add (Im (fun t : T => In U (Some t)) Some) None).
+      1: constructor.
+      1: apply injection_preserves_cardinal.
+      * assumption.
+      * red; intros; congruence.
+      * intros ?. inversion H2; subst; clear H2. congruence.
+      * extensionality_ensembles; try (subst; assumption).
+        destruct x.
+        -- left. exists t; auto.
+        -- right. constructor.
+    + exists m.
+      replace U with (Im (fun t : T => In U (Some t)) Some).
+      1: apply injection_preserves_cardinal.
+      1: assumption.
+      1: red; intros; congruence.
+      extensionality_ensembles.
+      * subst. assumption.
+      * destruct x; try contradiction.
+        exists t; auto.
+  - intros.
+    specialize (IHFiniteT
+                  (fun x : X =>
+                     In U (f x))).
+    destruct IHFiniteT as [m].
+    { intros. unfold In at 1 3.
+      apply H1.
+    }
+    exists m.
+    replace U with (Im (fun x : X => In U (f x)) f).
+    1: apply injection_preserves_cardinal.
+    1: assumption.
+    + red; intros.
+      apply invertible_impl_bijective in H0.
+      destruct H0. apply H0 in H3. assumption.
+    + extensionality_ensembles.
+      * subst. assumption.
+      * destruct H0.
+        exists (g x); auto.
+        unfold In at 1. rewrite H4.
+        assumption.
+Qed.
+
+Corollary FiniteT_dec_Finite X (U : Ensemble X) :
+  FiniteT X ->
+  (forall x : X, In U x \/ ~ In U x) ->
+  Finite U.
+Proof.
+  intros.
+  apply FiniteT_dec_Ensemble_has_cardinal in H0;
+    try assumption.
+  destruct H0 as [n].
+  apply cardinal_finite with (n := n).
+  assumption.
+Qed.
+
+Corollary FiniteT_Finite X (U : Ensemble X) :
+  FiniteT X -> Finite U.
+Proof.
+  intros.
+  apply FiniteT_dec_Finite;
+    try assumption.
+  intros. apply classic.
+Qed.
+
+Corollary FiniteT_has_nat_cardinal' (X : Type) :
+  FiniteT X ->
+  exists n, cardinal X Full_set n.
+Proof.
+  intros.
+  apply FiniteT_dec_Ensemble_has_cardinal;
+    [assumption|].
+  intros. left. constructor.
+Qed.
+
+Corollary FiniteT_has_nat_cardinal (X : Type) :
+  FiniteT X ->
+  exists! n:nat, cardinal X (@Full_set X) n.
 Proof.
 intros.
 apply -> unique_existence; split.
-- apply finite_cardinal.
-  rewrite Im_Full_set_surj with id.
-  2: { apply id_bijective. }
-  apply FiniteT_img with (f:=fun x:X => x).
-  + assumption.
-  + intros.
-    case (finite_eq_dec X H y1 y2); tauto.
+- apply FiniteT_has_nat_cardinal'.
+  assumption.
 - red; intros.
   apply cardinal_unicity with X Full_set; trivial.
 Qed.
@@ -785,21 +892,6 @@ Proof.
 apply FiniteT_nat_cardinal_cond.
 rewrite (False_Ensembles_eq _ Empty_set).
 constructor.
-Qed.
-
-Lemma injection_preserves_cardinal: forall (X Y:Type)
-  (f:X->Y) (n:nat) (S:Ensemble X), cardinal _ S n ->
-  injective f -> cardinal _ (Im S f) n.
-Proof.
-intros.
-induction H.
-- rewrite image_empty.
-  constructor.
-- rewrite Im_add.
-  constructor; trivial.
-  red; intro H3; inversion H3.
-  subst. apply H0 in H4. subst.
-  contradiction.
 Qed.
 
 Lemma FiniteT_nat_cardinal_option:

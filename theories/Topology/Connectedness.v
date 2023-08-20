@@ -60,7 +60,7 @@ Qed.
 
 Lemma connected_union: forall {X:TopologicalSpace}
   {A:Type} (S:IndexedFamily A X),
-  (forall a:A, connected (SubspaceTopology (S a))) ->
+  (forall a:A, connected (S a)) ->
   Inhabited (IndexedIntersection S) ->
   IndexedUnion S = Full_set -> connected X.
 Proof.
@@ -186,14 +186,14 @@ Proof.
 Qed.
 
 Corollary connected_subspace_empty {X : TopologicalSpace} :
-  connected (@SubspaceTopology X Empty_set).
+  connected (@Empty_set X).
 Proof.
   apply connected_subsingleton.
   intros. destruct x as [? []].
 Qed.
 
 Corollary connected_subspace_singleton {X : TopologicalSpace} (x : X) :
-  connected (SubspaceTopology (Singleton x)).
+  connected (Singleton x).
 Proof.
   apply connected_subsingleton.
   intros [? []] [? []].

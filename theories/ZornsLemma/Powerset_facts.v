@@ -163,10 +163,22 @@ Proof.
   apply H. constructor.
 Qed.
 
-Lemma Singleton_injective {T : Type} : forall x y : T, Singleton x = Singleton y -> x = y.
+Lemma Singleton_injective {T : Type} :
+  forall x y : T, Singleton x = Singleton y -> x = y.
 Proof.
 intros.
 assert (In (Singleton x) x) by constructor.
 rewrite H in H0.
 now destruct H0.
+Qed.
+
+Definition Union_add_r := Union_add.
+
+Corollary Union_add_l {X : Type} (A B : Ensemble X) (x : X) :
+  Add (Union A B) x = Union (Add A x) B.
+Proof.
+  rewrite (Union_commutative _ (Add _ _)).
+  rewrite <- (Union_add_r _ _ A).
+  rewrite (Union_commutative _ B).
+  reflexivity.
 Qed.
