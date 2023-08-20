@@ -1,8 +1,9 @@
-Require Export TopologicalSpaces OrderTopology Completeness MetricSpaces.
+Require Export TopologicalSpaces OrderTopology MetricSpaces.
 From Coq Require Import Lra Lia.
 From ZornsLemma Require Import EnsemblesTactics FiniteIntersections.
 Require Import RationalsInReals.
-Require Export Compactness Connectedness.
+From Topology Require Export Completeness Connectedness.
+From Topology Require Export Compactness.
 
 Definition RTop := OrderTopology Rle.
 Definition R_metric (x y:R) : R := Rabs (y-x).
@@ -511,90 +512,82 @@ assert (x0 + r/2 <= x0) by now apply i.
 lra.
 Qed.
 
+Lemma R_bounded_char (U : Ensemble R) :
+  bounded R_metric U <-> Coq.Reals.Rtopology.bounded U.
+Proof.
+unfold bounded, Rtopology.bounded.
+split.
+- intros [x [r H]].
+  exists (x-r-1), (x+r+1).
+  intros y Hy.
+  specialize (H y Hy).
+  destruct H.
+  unfold R_metric in H.
+  unfold Rabs in H.
+  destruct (Rcase_abs _); lra.
+- intros [m [M H]].
+  exists ((m+M)/2), (M-m+1).
+  intros y Hy.
+  specialize (H y Hy).
+  constructor.
+  unfold R_metric, Rabs.
+  destruct (Rcase_abs _); lra.
+Qed.
+
 Lemma R_cauchy_sequence_bounded: forall x:nat->R,
   cauchy R_metric x -> bound (Im Full_set x).
 Proof.
-intros.
-destruct (H 1) as [N].
-{ lra. }
-assert (exists y:R, forall n:nat, (n<N)%nat -> x n <= y).
-{ clear H0.
-  induction N.
-  - exists 0.
-    intros.
-    contradict H0.
-    auto with arith.
-  - destruct IHN as [y].
-    exists (Rmax y (x N)).
-    intros.
-    apply Nat.lt_succ_r, Nat.lt_eq_cases in H1.
-    destruct H1.
-    + apply Rle_trans with y.
-      * apply H0. lia.
-      * apply Rmax_l.
-    + replace n with N by lia.
-      apply Rmax_r. }
-destruct H1 as [y].
-exists (Rmax y (x N + 1)).
-red. intros.
-destruct H2 as [n].
-rewrite H3.
-clear y0 H3.
-destruct (Nat.le_gt_cases N n).
-- apply Rle_trans with (x N + 1).
-  + assert (R_metric (x n) (x N) < 1).
-    { apply H0; auto with arith. }
-    apply Rabs_def2 in H4.
-    lra.
-  + apply Rmax_r.
-- apply Rle_trans with y; auto.
-  apply Rmax_l.
+intros x Hx.
+pose proof (cauchy_impl_bounded
+              R R_metric R_metric_is_metric x Hx)
+  as [p [r]].
+clear Hx.
+exists (p + r).
+intros y Hy.
+apply H in Hy.
+clear H x.
+destruct Hy.
+unfold R_metric, Rabs in H.
+destruct (Rcase_abs _); lra.
 Qed.
 
 Lemma R_cauchy_sequence_lower_bound: forall x:nat->R,
   cauchy R_metric x -> lower_bound (Im Full_set x).
 Proof.
-intros.
-assert (cauchy R_metric (fun n:nat => - x n)).
-{ red. intros.
-  destruct (H eps H0) as [N].
-  exists N.
-  intros.
-  replace (R_metric (- x m) (- x n)) with (R_metric (x m) (x n)).
-  - now apply H1.
-  - unfold R_metric.
-    replace (x n - x m) with (- (- x n - - x m)) by ring.
-    apply Rabs_Ropp. }
-destruct (R_cauchy_sequence_bounded _ H0) as [m].
-exists (-m).
-red. intros.
-cut (-x0 <= m).
-- intros. lra.
-- apply H1.
-  destruct H2 as [n].
-  exists n; trivial.
-  now f_equal.
+intros x Hx.
+pose proof (cauchy_impl_bounded
+              R R_metric R_metric_is_metric x Hx)
+  as [p [r]].
+clear Hx.
+exists (p - r).
+intros y Hy.
+apply H in Hy.
+clear H x.
+destruct Hy.
+unfold R_metric, Rabs in H.
+destruct (Rcase_abs _); lra.
 Qed.
 
 Lemma R_metric_complete: complete R_metric R_metric_is_metric.
 Proof.
 red. intros.
-destruct (R_cauchy_sequence_bounded _ H) as [b].
-destruct (R_cauchy_sequence_lower_bound _ H) as [a].
-destruct (bounded_real_net_has_cluster_point nat_DS x a b) as [x0].
-- intros;
-    split;
-    [ cut (x i >= a); auto with real; apply H1 | apply H0 ];
-    exists i;
-    trivial;
-    constructor.
-- exists x0.
-  apply cauchy_sequence_with_cluster_point_converges; trivial.
-  apply metric_space_net_cluster_point with R_metric;
-    try apply MetricTopology_metrized.
-  intros.
-  apply metric_space_net_cluster_point_converse with RTop; trivial.
-  apply RTop_metrization.
+pose proof (cauchy_impl_bounded _ _ R_metric_is_metric x H)
+  as [p [r Hpr]].
+destruct (bounded_real_net_has_cluster_point
+            nat_DS x (p - r) (p + r)) as [x0].
+{ intros n.
+  unshelve epose proof (Hpr (x n) _) as [].
+  { apply Im_def. constructor. }
+  unfold R_metric, Rabs in H0.
+  destruct (Rcase_abs _); lra.
+}
+exists x0.
+apply cauchy_sequence_with_cluster_point_converges; trivial.
+apply metric_space_net_cluster_point with R_metric;
+  try apply MetricTopology_metrized.
+intros.
+apply metric_space_net_cluster_point_converse with RTop; trivial.
+apply RTop_metrization.
 Qed.
 
 Lemma RTop_subbasis_rational_beams :

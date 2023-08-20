@@ -67,6 +67,52 @@ apply metric_space_net_limit with d.
       ** now apply H2.
 Qed.
 
+Lemma cauchy_impl_bounded (x : nat -> X) :
+  cauchy x -> bounded d (Im Full_set x).
+Proof.
+intros Hx.
+destruct (Hx 1) as [N HN].
+{ lra. }
+assert (exists r : R,
+         0 < r /\ forall n : nat, (n < N)%nat -> d (x N) (x n) <= r)
+         as [r [Hr0 Hr1]].
+{ (* this holds in all lattices, because only finitely
+     many points [x n] have to be considered. *)
+  clear HN Hx.
+  induction N.
+  { exists 1. split; intros.
+    - lra.
+    - lia.
+  }
+  destruct IHN as [r0 [Hr0 Hr1]].
+  exists (r0 + (d (x (S N)) (x N))).
+  split.
+  { pose proof (metric_nonneg X d d_metric (x (S N)) (x N)).
+    lra.
+  }
+  intros n Hn.
+  inversion Hn; subst; clear Hn.
+  - lra.
+  - unshelve epose proof (Hr1 n _) as Hr1.
+    { lia. }
+    pose proof (triangle_inequality
+                  X d d_metric (x (S N)) (x N) (x n)).
+    lra.
+}
+exists (x N), ((Rmax r 0) + 1).
+intros y Hy.
+inversion Hy; subst; clear Hy.
+rename x0 into n. clear Hx d_metric.
+constructor.
+destruct (le_or_lt N n).
+- apply Rlt_le_trans with 1; auto.
+  unfold Rmax.
+  destruct (Rle_dec _ _); lra.
+- specialize (Hr1 n H0).
+  unfold Rmax.
+  destruct (Rle_dec _ _); lra.
+Qed.
+
 Definition complete : Prop :=
   forall x:nat->X, cauchy x ->
     exists x0:X, net_limit x x0 (I:=nat_DS)

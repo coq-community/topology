@@ -92,6 +92,9 @@ End metric_topology.
 Arguments metric_topology_neighborhood_basis {X}.
 Arguments MetricTopology {X}.
 
+Definition bounded {X : Type} (d : X -> X -> R) (A : Ensemble X) :=
+  exists x r, Included A (open_ball d x r).
+
 Definition metrizes (X:TopologicalSpace)
   (d:X -> X -> R) : Prop :=
   forall x:X, open_neighborhood_basis
