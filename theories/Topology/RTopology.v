@@ -628,7 +628,29 @@ apply (second_countable_subbasis
 apply RTop_subbasis_rational_beams.
 Qed.
 
-Lemma RTop_separable: separable RTop.
+Lemma rationals_dense_in_RTop :
+  @dense RTop (Im Full_set Q2R).
 Proof.
-  apply second_countable_impl_separable, RTop_second_countable.
+  eapply meets_every_nonempty_open_nbhd_basis_equiv_dense.
+  { apply (fun x => RTop_metrization x). }
+  intros x U [] _.
+  destruct (rationals_dense_in_reals (x - r) (x + r)) as [q].
+  { lra. }
+  exists (Q2R q).
+  split.
+  - apply Im_def.
+    constructor.
+  - do 2 red.
+    constructor.
+    unfold R_metric.
+    apply Rabs_def1; lra.
+Qed.
+
+Lemma RTop_separable : separable RTop.
+Proof.
+  exists (Im Full_set Q2R); split.
+  2: exact rationals_dense_in_RTop.
+  apply countable_img.
+  apply countable_type_ensemble.
+  apply Q_countable.
 Qed.

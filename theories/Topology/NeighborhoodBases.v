@@ -75,6 +75,33 @@ constructor;
   + now destruct (open_neighborhood_basis_elements0 V H3).
 Qed.
 
+(** a set [S] is dense in a topological space [X]
+   iff for some/any nbhd-basis [B] of [X] it intersects
+   every element of [B] *)
+Lemma meets_every_nonempty_open_nbhd_basis_equiv_dense
+  {X : TopologicalSpace} (S : Ensemble X) (B : X -> Family X) :
+    (forall x, open_neighborhood_basis (B x) x) ->
+    (forall x U, In (B x) U -> Inhabited U -> Inhabited (Intersection S U)) <->
+    dense S.
+Proof.
+  intros.
+  split.
+  - intros.
+    apply meets_every_nonempty_open_impl_dense.
+    intros ? ? [x].
+    destruct (open_neighborhood_basis_cond _ _ (H x) U) as [V []].
+    1: split; assumption.
+    pose proof (open_neighborhood_basis_elements (B x) x (H x) V H3).
+    specialize (H0 x V) as [y]; try assumption.
+    1: exists x; apply H5.
+    destruct H0.
+    exists x0. auto with sets.
+  - intros.
+    apply dense_meets_every_nonempty_open with (U := U) in H0;
+      try assumption.
+    apply (open_neighborhood_basis_elements (B x) x (H x) U H1).
+Qed.
+
 Section build_from_open_neighborhood_bases.
 
 Variable X:Type.
