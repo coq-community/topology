@@ -527,11 +527,7 @@ Qed.
 Lemma CountableT_cardinality {X : Type} :
   CountableT X <-> le_cardinal X nat.
 Proof.
-split; intros.
-- destruct H.
-  exists f. assumption.
-- destruct H as [f].
-  exists f. assumption.
+  reflexivity.
 Qed.
 
 Lemma FiniteT_cardinality {X : Type} :

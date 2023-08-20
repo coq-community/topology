@@ -509,7 +509,7 @@ split.
       now rewrite metric_sym.
 - apply countable_img.
   destruct H0 as [h].
-  destruct Q_countable.
+  destruct Q_countable as [f Hf].
   destruct countable_nat_product as [g].
   red.
   match goal with |- CountableT ?T =>
@@ -524,11 +524,15 @@ split.
   destruct y as [[r2 x2] [[pos_r2 i2]]].
   apply subset_eq.
   simpl.
-  apply H4 in H5.
-  inversion H5; subst; clear H5.
-  apply H3 in H8. subst.
-  apply H0 in H7.
-  inversion H7; subst; clear H7.
+  repeat match goal with
+  | Hg : injective ?g,
+    Heq : ?g ?a = ?g ?b |- _ =>
+      apply Hg in Heq
+  | Heq : (_, _) = (_, _) |- _ =>
+      inversion Heq; subst; clear Heq
+  | Heq : exist _ _ _ = exist _ _ _ |- _ =>
+      inversion Heq; subst; clear Heq
+  end.
   reflexivity.
 Qed.
 

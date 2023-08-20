@@ -13,8 +13,8 @@ Local Close Scope Q_scope.
 
 Set Asymmetric Patterns.
 
-Inductive CountableT (X : Type) : Prop :=
-  | intro_nat_injection (f : X -> nat) : injective f -> CountableT X.
+Definition CountableT (X : Type) : Prop :=
+  exists f : X -> nat, injective f.
 
 Lemma CountableT_is_FiniteT_or_countably_infinite (X : Type) :
   CountableT X -> {FiniteT X} + {exists f : X -> nat, bijective f}.
@@ -30,14 +30,13 @@ apply exclusive_dec.
   + left; trivial.
   + right.
     apply infinite_nat_inj in H0.
-    destruct H, H0 as [g].
+    destruct H as [f], H0 as [g].
     now apply CSB with f g.
 Qed.
 
 Lemma nat_countable : CountableT nat.
 Proof.
-apply intro_nat_injection with (fun n => n).
-now intros [|m] [|n].
+exists id. apply id_bijective.
 Qed.
 
 Lemma countable_nat_product: CountableT (nat * nat).
@@ -114,7 +113,7 @@ induction H.
   red; intros.
   extensionality f.
   destruct f.
-- destruct (countable_product (T -> Y) Y); trivial.
+- destruct (countable_product (T -> Y) Y) as [f]; trivial.
   exists (fun g =>
     f (fun x => g (Some x), g None)).
   intros g1 g2 ?.
@@ -126,7 +125,7 @@ induction H.
   intros.
   pose proof (equal_f H4).
   apply H5.
-- destruct H1, IHFiniteT.
+- destruct H1 as [f1], IHFiniteT as [f0].
   exists (fun h => f0 (fun x => h (f x))).
   intros h1 h2 ?.
   apply H3 in H4.
@@ -163,7 +162,7 @@ intros.
 induction H.
 - exists (False_rect nat).
   now intro.
-- destruct IHFiniteT.
+- destruct IHFiniteT as [f].
   exists (fun x => match x with
     | Some x0 => S (f x0)
     | None => 0
@@ -291,7 +290,7 @@ destruct (choice_on_dependent_type (fun (a : { U | In F U })
                                (f:{x:X | In (proj1_sig a) x} -> nat) =>
   injective f)) as [choice_fun_inj].
 { intros [U].
-  destruct (H0 U); try assumption.
+  destruct (H0 U) as [f]; try assumption.
   now exists f.
 }
 destruct (choice (fun (x:{x:X | In (FamilyUnion F) x}) (a: { U | In F U }) =>

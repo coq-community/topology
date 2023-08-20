@@ -268,7 +268,7 @@ apply countable_indexed_union.
 - apply nat_countable.
 - intro n.
   induction n.
-  + apply intro_nat_injection with (fun x => 0).
+  + exists (fun x => 0).
     intros [U HU] [V HV] eq.
     apply proj1_sig_injective.
     simpl.
