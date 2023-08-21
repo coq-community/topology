@@ -13,10 +13,10 @@ Section WeakTopology.
 Variable X:Type.
 Variable A:Type.
 Variable Y:A->TopologicalSpace.
-Variable f:forall a:A, X->point_set (Y a).
+Variable f:forall a:A, X->Y a.
 
 Inductive weak_topology_subbasis : Family X :=
-  | intro_fa_inv_image: forall (a:A) (V:Ensemble (point_set (Y a))),
+  | intro_fa_inv_image: forall (a:A) (V:Ensemble (Y a)),
     open V -> In weak_topology_subbasis (inverse_image (f a) V).
 
 Definition WeakTopology : TopologicalSpace :=
@@ -52,7 +52,7 @@ induction H4.
 Qed.
 
 Lemma weak_topology_continuous_char (W : TopologicalSpace)
-      (g : (point_set W) -> (point_set (WeakTopology))) :
+      (g : W -> WeakTopology) :
       continuous g <-> (forall a, continuous (compose (f a) g)).
 Proof.
 split.
@@ -128,13 +128,11 @@ End WeakTopology.
 Arguments WeakTopology {X} {A} {Y}.
 Arguments weak_topology_subbasis {X} {A} {Y}.
 
-Require Import ClassicalChoice.
-
 Section WeakTopology1.
 
 Variable X:Type.
 Variable Y:TopologicalSpace.
-Variable f:X->point_set Y.
+Variable f:X->Y.
 
 Definition WeakTopology1 := WeakTopology (True_rect f).
 
@@ -146,7 +144,7 @@ Qed.
 
 Lemma weak_topology1_topology:
   forall U:Ensemble X, @open WeakTopology1 U <->
-  exists V:Ensemble (point_set Y), open V /\ U = inverse_image f V.
+  exists V:Ensemble Y, open V /\ U = inverse_image f V.
 Proof.
 split.
 2: {
@@ -169,7 +167,7 @@ split.
 apply Extensionality_Ensembles; split; red.
 - assert (forall U:Ensemble X,
     In (finite_intersections (weak_topology_subbasis (True_rect f))) U ->
-    exists V:Ensemble (point_set Y), open V /\ U = inverse_image f V).
+    exists V:Ensemble Y, open V /\ U = inverse_image f V).
   { clear U HU.
     intros U HU.
     induction HU.
@@ -211,7 +209,7 @@ Qed.
 
 Lemma weak_topology1_topology_closed:
   forall U:Ensemble X, @closed WeakTopology1 U <->
-  exists V:Ensemble (point_set Y), closed V /\ U = inverse_image f V.
+  exists V:Ensemble Y, closed V /\ U = inverse_image f V.
 Proof.
 unfold closed.
 split.
