@@ -8,6 +8,7 @@ From ZornsLemma Require Export Families.
 From ZornsLemma Require Export FiniteTypes.
 From ZornsLemma Require Export IndexedFamilies.
 From ZornsLemma Require Export CountableTypes.
+From ZornsLemma Require Import InverseImage.
 From ZornsLemma Require Import Proj1SigInjective.
 From ZornsLemma Require Export Powerset_facts.
 
@@ -289,6 +290,25 @@ apply countable_indexed_union.
   Unshelve.
   destruct (snd (g U)).
   now apply finite_intersections_len_1_in.
+Qed.
+
+(* this works, essentially because [inverse_image f] is a
+   semilattice-homomorphism for the semilattices with [Intersection].
+   note that the converse does not hold.
+ *)
+Lemma finite_intersections_Im_inverse_image {X Y : Type} (f : Y -> X)
+  (F : Family X) (U : Ensemble X) :
+  In (finite_intersections F) U ->
+  In (finite_intersections (Im F (inverse_image f))) (inverse_image f U).
+Proof.
+  intros H.
+  induction H.
+  - rewrite inverse_image_full.
+    constructor.
+  - apply FiniteIntersections.intro_S.
+    apply Im_def. assumption.
+  - rewrite inverse_image_intersection.
+    apply FiniteIntersections.intro_intersection; auto.
 Qed.
 
 End Lemmas.

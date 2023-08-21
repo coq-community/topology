@@ -1,4 +1,5 @@
-From ZornsLemma Require Import DecidableDec Proj1SigInjective.
+From ZornsLemma Require Import CardinalsEns DecidableDec
+  FiniteIntersections Proj1SigInjective.
 From Topology Require Export TopologicalSpaces.
 From Topology Require Import WeakTopology.
 
@@ -62,6 +63,72 @@ Proof.
     apply H. repeat split; try assumption.
     intros ? ?. inversion H2; subst; clear H2.
     apply H1. assumption.
+Qed.
+
+(* Corresponds to Lemma 16.1 in Munkres. *)
+Lemma subspace_basis (B : Family X) :
+  open_basis B ->
+  open_basis (Im B (inverse_image subspace_inc)).
+Proof.
+  intros.
+  constructor.
+  - intros.
+    inversion H0; subst; clear H0.
+    apply subspace_inc_continuous.
+    apply H. assumption.
+  - intros.
+    rewrite subspace_open_char in H0.
+    destruct H0 as [V []]. subst.
+    pose proof (open_basis_cover B H (proj1_sig x) V H0).
+    destruct H2 as [V0 [? []]].
+    { destruct H1. assumption. }
+    exists (inverse_image subspace_inc V0).
+    repeat split.
+    + eexists V0; auto.
+    + apply H3. apply H5.
+    + apply H4.
+Qed.
+
+Lemma subspace_subbasis (B : Family X) :
+  subbasis B ->
+  subbasis (Im B (fun Bx => inverse_image subspace_inc Bx)).
+Proof.
+  intros. constructor.
+  - intros.
+    inversion H0; subst; clear H0.
+    apply subspace_inc_continuous.
+    apply subbasis_elements in H1; assumption.
+  - intros U x HUx HU.
+    rewrite subspace_open_char in HU.
+    destruct HU as [V [HV HUV]].
+    subst.
+    inversion HUx; subst; clear HUx.
+    apply subbasis_cover with (SB := B) (x := subspace_inc x)
+      in HV as [W [HWx [HWfin HWV]]]; auto.
+    exists (inverse_image subspace_inc W); repeat split; auto.
+    + apply finite_intersections_Im_inverse_image.
+      assumption.
+    + destruct H1. auto.
+Qed.
+
+(** the weight of a subspace never exceeds the weight of the ambient
+    space *)
+Corollary subspace_weight_le_space {Y0 Y1 : Type} (kappa : Ensemble Y0)
+  (lambda : Ensemble Y1) :
+  weight X kappa -> weight SubspaceTopology lambda ->
+  le_cardinal_ens lambda kappa.
+Proof.
+  intros HX HS.
+  destruct HX as [[BX [HBX0 HBX1]] HBX2].
+  destruct HS as [[BS [HBS0 HBS1]] HBS2].
+  apply le_cardinal_ens_transitive
+    with (V := (Im BX (inverse_image subspace_inc))).
+  - apply HBS2.
+    eexists; split.
+    2: reflexivity.
+    apply subspace_basis. assumption.
+  - eapply le_cardinal_ens_Proper_r; eauto.
+    apply le_cardinal_ens_Im.
 Qed.
 
 End Subspace.
