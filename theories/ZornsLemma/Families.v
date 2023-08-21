@@ -1,5 +1,6 @@
 From Coq Require Import Classical_Prop.
 From Coq Require Import Classical_sets.
+From Coq Require Import Morphisms.
 From ZornsLemma Require Export EnsemblesSpec EnsemblesTactics.
 From ZornsLemma Require Import Image ImageImplicit.
 From ZornsLemma Require Import EnsemblesImplicit.
@@ -23,6 +24,14 @@ Inductive FamilyIntersection: Ensemble T :=
     In FamilyIntersection x.
 
 End Families.
+
+Instance FamilyUnion_Proper {X : Type} :
+  Proper (Same_set ==> Same_set) (@FamilyUnion X).
+Proof.
+  intros F0 F1 HF.
+  split; intros x Hx; destruct Hx as [S x HFS HSx];
+    exists S; firstorder.
+Qed.
 
 Section FamilyFacts.
 

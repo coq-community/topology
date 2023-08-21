@@ -34,6 +34,22 @@ End metric.
 
 Arguments metric {X}.
 
+Definition isometry {X Y : Type}
+  (d0 : X -> X -> R) (d1 : Y -> Y -> R) (f : X -> Y) : Prop :=
+  forall x1 x2 : X, d1 (f x1) (f x2) = d0 x1 x2.
+
+Lemma isometry_injective {X Y : Type} d0 d1 (f : X -> Y) :
+  metric d0 ->
+  metric d1 ->
+  isometry d0 d1 f ->
+  injective f.
+Proof.
+  intros Hd0 Hd1 Hf x0 x1 Hx.
+  eapply metric_strict; eauto.
+  rewrite <- Hf, Hx.
+  apply metric_zero; auto.
+Qed.
+
 Section metric_topology.
 
 Context {X:Type}.

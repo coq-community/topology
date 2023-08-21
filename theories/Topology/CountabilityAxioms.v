@@ -1,8 +1,10 @@
-From Topology Require Export TopologicalSpaces NeighborhoodBases Nets SubspaceTopology.
+From Topology Require Export TopologicalSpaces NeighborhoodBases Nets
+  SubspaceTopology.
 From ZornsLemma Require Export CardinalsEns CountableTypes.
 From ZornsLemma Require Import Classical_Wf DecidableDec EnsemblesSpec
   EnsemblesTactics FiniteIntersections InfiniteTypes.
-From Coq Require Import ClassicalChoice Program.Subset RelationClasses.
+From Coq Require Import ClassicalChoice Description Program.Subset
+  RelationClasses.
 
 Global Set Asymmetric Patterns.
 

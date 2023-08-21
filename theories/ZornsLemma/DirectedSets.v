@@ -65,6 +65,15 @@ Definition exists_arbitrarily_large (P: DS_set I -> Prop) :=
   forall i:DS_set I, exists j:DS_set I,
   DS_ord i j /\ P j.
 
+Lemma exists_arbitrarily_large_all (P : DS_set I -> Prop) :
+  (forall i : DS_set I, P i) ->
+  exists_arbitrarily_large P.
+Proof.
+  intros HP i.
+  exists i; split; auto.
+  apply DS_ord_cond.
+Qed.
+
 Lemma not_eal_eventually_not: forall (P: DS_set I -> Prop),
   ~ exists_arbitrarily_large P ->
   eventually (fun i:DS_set I => ~ P i).
