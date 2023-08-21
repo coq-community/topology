@@ -156,65 +156,57 @@ split.
   apply weak_topology1_makes_continuous_func.
   assumption.
 }
-intros.
-red in H.
-simpl in H.
-destruct H.
-assert (forall U:Ensemble X,
-  In (finite_intersections (weak_topology_subbasis (True_rect f))) U ->
-  exists V:Ensemble (point_set Y), open V /\ U = inverse_image f V).
-{ intros.
-  induction H0.
-  - exists Full_set.
-    split.
-    + apply open_full.
-    + symmetry. apply inverse_image_full.
-  - destruct H0.
-    destruct a.
-    simpl.
-    exists V.
-    split; trivial.
-  - destruct IHfinite_intersections as [V1 [? ?]].
-    destruct IHfinite_intersections0 as [V2 [? ?]].
-    exists (Intersection V1 V2).
-    split.
-    + auto with topology.
-    + rewrite H3; rewrite H5.
-      rewrite inverse_image_intersection.
-      trivial.
-}
-destruct (choice (fun (U:{U:Ensemble X | In F U}) (V:Ensemble (point_set Y))
-  => open V /\ proj1_sig U = inverse_image f V)) as [choice_fun].
-{ intros.
-  destruct x as [U].
-  simpl.
-  apply H0; auto with sets.
-}
-exists (IndexedUnion choice_fun).
+
+intros HU.
+exists (FamilyUnion
+     (fun V : Ensemble Y =>
+        open V /\ Included (inverse_image f V) U)).
 split.
-{ apply open_indexed_union.
-  apply H1.
+{ apply open_family_union.
+  intros S [HS0 HS1].
+  assumption.
 }
-apply Extensionality_Ensembles; split; red; intros.
-- destruct H2.
+apply Extensionality_Ensembles; split; red.
+- assert (forall U:Ensemble X,
+    In (finite_intersections (weak_topology_subbasis (True_rect f))) U ->
+    exists V:Ensemble (point_set Y), open V /\ U = inverse_image f V).
+  { clear U HU.
+    intros U HU.
+    induction HU.
+    - exists Full_set.
+      split.
+      + apply open_full.
+      + symmetry. apply inverse_image_full.
+    - destruct H.
+      destruct a.
+      simpl.
+      exists V.
+      split; trivial.
+    - destruct IHHU as [V1 [? ?]].
+      destruct IHHU0 as [V2 [? ?]].
+      exists (Intersection V1 V2).
+      split.
+      + auto with topology.
+      + subst.
+        symmetry.
+        apply inverse_image_intersection.
+  }
+  intros x HUx.
   constructor.
-  exists (exist _ S H2).
-  pose proof (H1 (exist _ S H2)).
-  destruct H4.
-  simpl in H5.
-  rewrite H5 in H3.
-  destruct H3.
-  exact H3.
-- destruct H2.
-  inversion H2.
-  pose proof (H1 a).
-  destruct H5.
-  destruct a as [U].
-  exists U; trivial.
-  simpl in H6.
-  rewrite H6.
-  constructor.
-  exact H3.
+  destruct HU.
+  destruct HUx.
+  specialize (H0 S H1).
+  specialize (H S H0) as [V []].
+  subst. destruct H2.
+  exists V; auto.
+  split; auto.
+  intros y Hy.
+  exists (inverse_image f V); auto.
+- intros x HVx.
+  destruct HVx.
+  inversion H; subst; clear H.
+  destruct H0.
+  apply H0. constructor. assumption.
 Qed.
 
 Lemma weak_topology1_topology_closed:
