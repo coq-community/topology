@@ -539,7 +539,7 @@ Lemma R_cauchy_sequence_bounded: forall x:nat->R,
 Proof.
 intros x Hx.
 pose proof (cauchy_impl_bounded
-              R R_metric R_metric_is_metric x Hx)
+              R_metric R_metric_is_metric x Hx)
   as [p [r]].
 clear Hx.
 exists (p + r).
@@ -556,7 +556,7 @@ Lemma R_cauchy_sequence_lower_bound: forall x:nat->R,
 Proof.
 intros x Hx.
 pose proof (cauchy_impl_bounded
-              R R_metric R_metric_is_metric x Hx)
+              R_metric R_metric_is_metric x Hx)
   as [p [r]].
 clear Hx.
 exists (p - r).
@@ -568,26 +568,26 @@ unfold R_metric, Rabs in H.
 destruct (Rcase_abs _); lra.
 Qed.
 
-Lemma R_metric_complete: complete R_metric R_metric_is_metric.
+Lemma R_metric_complete: complete R_metric.
 Proof.
-red. intros.
-pose proof (cauchy_impl_bounded _ _ R_metric_is_metric x H)
+rewrite @complete_net_limit_char with (X := RTop).
+2: apply RTop_metrization.
+intros x Hx.
+pose proof (cauchy_impl_bounded _ R_metric_is_metric x Hx)
   as [p [r Hpr]].
 destruct (bounded_real_net_has_cluster_point
             nat_DS x (p - r) (p + r)) as [x0].
 { intros n.
-  unshelve epose proof (Hpr (x n) _) as [].
+  unshelve epose proof (Hpr (x n) _) as [Hn].
   { apply Im_def. constructor. }
-  unfold R_metric, Rabs in H0.
+  unfold R_metric, Rabs in Hn.
   destruct (Rcase_abs _); lra.
 }
 exists x0.
-apply cauchy_sequence_with_cluster_point_converges; trivial.
-apply metric_space_net_cluster_point with R_metric;
-  try apply MetricTopology_metrized.
-intros.
-apply metric_space_net_cluster_point_converse with RTop; trivial.
-apply RTop_metrization.
+eapply cauchy_sequence_with_cluster_point_converges;
+  eauto.
+- apply R_metric_is_metric.
+- apply RTop_metrization.
 Qed.
 
 Lemma RTop_subbasis_rational_beams :
