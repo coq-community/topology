@@ -401,17 +401,13 @@ refine (proj1_sig (proj1_sig (constructive_definite_description
                     R_metric_is_metric X_nonempty)) _))).
 apply -> unique_existence.
 split.
-- assert (complete (uniform_metric R_metric (fun _:X => 0)
-                      R_metric_is_metric X_nonempty)
-            (uniform_metric_is_metric _ _ _ _ _ _)).
-  { apply uniform_metric_complete.
-    exact R_metric_complete. }
-  apply H.
-  exact extension_approximation_seq_cauchy.
+- unshelve eapply
+    (proj1 (@complete_net_limit_char _ _ _)).
+  4: exact extension_approximation_seq_cauchy.
+  + apply MetricTopology_metrized.
+  + apply uniform_metric_complete, R_metric_complete.
 - apply Hausdorff_impl_net_limit_unique.
-  apply T3_sep_impl_Hausdorff.
-  apply normal_sep_impl_T3_sep.
-  apply metrizable_impl_normal_sep.
+  apply metrizable_Hausdorff.
   exists (uniform_metric R_metric (fun _:X => 0)
             R_metric_is_metric X_nonempty).
   + apply (uniform_metric_is_metric _ _ R_metric (fun _:X => 0)

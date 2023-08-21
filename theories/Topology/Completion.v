@@ -33,7 +33,7 @@ Section Completion.
   Lemma completion_exists_nondense :
     exists (Y : Type) (d' : Y -> Y -> R) (d'_metric : metric d')
       (i : X -> Y),
-      isometry d d' i /\ complete d' d'_metric.
+      isometry d d' i /\ complete d'.
   Proof.
     destruct (classic (inhabited X)).
     2: {
@@ -82,7 +82,7 @@ Section Completion.
       (d' : Y -> Y -> R) (d'_metric : metric d'),
       metrizes Y d' /\
         dense (Im Full_set i) /\
-        isometry d d' i /\ complete d' d'_metric.
+        isometry d d' i /\ complete d'.
   Proof.
     intros.
     (* first of all, it suffices to construct a (Y, d') without the
@@ -117,7 +117,10 @@ Section Completion.
     2: {
       apply
         (@closed_subset_of_complete_is_complete
-           Y d' d'_metric F d'_comp (closure_closed _)).
+           (MetricTopology d' d'_metric) d' d'_metric
+           (MetricTopology_metrized _ d' d'_metric)
+           F d'_comp (closure_closed _)
+        ).
     }
     pose proof (@dense_in_closure
                   (MetricTopology d' d'_metric) (Im Full_set i)).

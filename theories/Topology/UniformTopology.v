@@ -143,10 +143,14 @@ Definition UniformTopology_metrizable :
   metrizable UniformTopology :=
   MetricTopology_metrizable _ _ _.
 
-Lemma uniform_metric_complete: complete d d_metric ->
-  complete uniform_metric uniform_metric_is_metric.
+Lemma uniform_metric_complete: complete d ->
+  complete uniform_metric.
 Proof.
 intros.
+rewrite @complete_net_limit_char with (X := MetricTopology d d_metric) in H.
+2: apply MetricTopology_metrized.
+rewrite @complete_net_limit_char with (X := UniformTopology).
+2: apply MetricTopology_metrized.
 assert (forall y:Net nat_DS (MetricTopology d d_metric), cauchy d y ->
   { y0:Y | net_limit y y0 }) as cauchy_limit.
 { intros.
@@ -159,7 +163,7 @@ assert (forall y:Net nat_DS (MetricTopology d d_metric), cauchy d y ->
     apply metrizable_impl_normal_sep.
     exists d; trivial; apply MetricTopology_metrized.
 }
-red; intros f ?.
+intros f ?.
 unshelve refine (let H1 := _ in let H2 := _ in ex_intro _
   (exist _ (fun x:X => proj1_sig (cauchy_limit
                   (fun n:nat => proj1_sig (f n) x) (H1 x))) H2) _); [ | clearbody H1 | clearbody H1 H2 ].

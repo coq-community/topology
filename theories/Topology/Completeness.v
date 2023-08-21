@@ -4,69 +4,18 @@ Require Import Psatz.
 From Coq Require Import ProofIrrelevance.
 
 Section Completeness.
-
-Variable X:Type.
-Variable d:X->X->R.
-Hypothesis d_metric: metric d.
+Context {X : Type}.
+Variable (d : X -> X -> R) (d_metric : metric d).
 
 Definition cauchy (x:nat->X) : Prop :=
   forall eps:R, eps > 0 -> exists N:nat, forall m n:nat,
     (m >= N)%nat -> (n >= N)%nat -> d (x m) (x n) < eps.
 
-Lemma convergent_sequence_is_cauchy:
-  forall (x:Net nat_DS (MetricTopology d d_metric))
-    (x0:point_set (MetricTopology d d_metric)),
-  net_limit x x0 -> cauchy x.
-Proof.
-intros.
-destruct (MetricTopology_metrized X d d_metric x0).
-red; intros.
-destruct (H (open_ball d x0 (eps/2))) as [N].
-- Opaque In. apply open_neighborhood_basis_elements. Transparent In.
-  constructor.
-  lra.
-- constructor.
-  rewrite metric_zero; trivial.
-  lra.
-- simpl in N.
-  exists N.
-  intros.
-  destruct (H1 m H2).
-  destruct (H1 n H3).
-  apply Rle_lt_trans with (d x0 (x m) + d x0 (x n)).
-  + rewrite (metric_sym _ _ d_metric x0 (x m)); trivial.
-    now apply triangle_inequality.
-  + lra.
-Qed.
-
-Lemma cauchy_sequence_with_cluster_point_converges:
-  forall (x:Net nat_DS (MetricTopology d d_metric))
-    (x0:point_set (MetricTopology d d_metric)),
-  cauchy x -> net_cluster_point x x0 -> net_limit x x0.
-Proof.
-intros.
-apply metric_space_net_limit with d.
-- apply MetricTopology_metrized.
-- intros.
-  red; intros.
-  destruct (H (eps/2)) as [N].
-  + lra.
-  + pose (U := open_ball d x0 (eps/2)).
-    assert (open_neighborhood U x0 (X:=MetricTopology d d_metric)).
-  { apply MetricTopology_metrized.
-    constructor.
-    lra. }
-    destruct H3.
-    destruct (H0 U H3 H4 N) as [m [? []]].
-    simpl in H5.
-    exists N; intros n ?.
-    simpl in H7.
-    apply Rle_lt_trans with (d x0 (x m) + d (x m) (x n)).
-    * now apply triangle_inequality.
-    * cut (d (x m) (x n) < eps/2).
-      ** lra.
-      ** now apply H2.
-Qed.
+Definition complete : Prop :=
+  forall x:nat -> X, cauchy x ->
+    exists x0 : X, forall eps:R,
+      eps > 0 -> for large i:DS_set nat_DS,
+      d x0 (x i) < eps.
 
 Lemma cauchy_impl_bounded (x : nat -> X) :
   cauchy x -> bounded d (Im Full_set x).
@@ -113,109 +62,184 @@ destruct (le_or_lt N n).
   unfold Rmax.
   destruct (Rle_dec _ _); lra.
 Qed.
+End Completeness.
 
-Definition complete : Prop :=
-  forall x:nat->X, cauchy x ->
-    exists x0:X, net_limit x x0 (I:=nat_DS)
-      (X:=MetricTopology d d_metric).
+Section Completeness.
+Context (X:TopologicalSpace)
+  (d:X->X->R) (d_metric: metric d) (d_metrizes: metrizes X d).
+
+Lemma complete_net_limit_char :
+  complete d <->
+  forall x:nat -> X, cauchy d x ->
+    exists x0:X, net_limit x x0 (I:=nat_DS).
+Proof.
+  split; intros Hcomp;
+    intros x Hx; specialize (Hcomp x Hx) as [x0 Hx0];
+    exists x0.
+  - eapply metric_space_net_limit; eauto.
+  - intros eps Heps.
+    eapply metric_space_net_limit_converse in Hx0;
+      eauto.
+Qed.
+
+Lemma convergent_sequence_is_cauchy:
+  forall (x:Net nat_DS X)
+    (x0:point_set X),
+  net_limit x x0 -> cauchy d x.
+Proof.
+intros.
+destruct (d_metrizes x0).
+red; intros.
+destruct (H (open_ball d x0 (eps/2))) as [N].
+- Opaque In. apply open_neighborhood_basis_elements. Transparent In.
+  constructor.
+  lra.
+- constructor.
+  rewrite metric_zero; trivial.
+  lra.
+- simpl in N.
+  exists N.
+  intros.
+  destruct (H1 m H2).
+  destruct (H1 n H3).
+  apply Rle_lt_trans with (d x0 (x m) + d x0 (x n)).
+  + rewrite (metric_sym _ _ d_metric x0 (x m)); trivial.
+    now apply triangle_inequality.
+  + lra.
+Qed.
+
+Lemma cauchy_sequence_with_cluster_point_converges:
+  forall (x:Net nat_DS X) (x0:point_set X),
+  cauchy d x -> net_cluster_point x x0 -> net_limit x x0.
+Proof.
+intros x x0 Hx Hx0.
+apply metric_space_net_limit with d; auto.
+intros.
+red; intros.
+destruct (Hx (eps/2)) as [N HN].
+{ lra. }
+pose (U := open_ball d x0 (eps/2)).
+assert (open_neighborhood U x0) as [HU0 HU1].
+{ unfold U.
+  split; auto.
+  - apply metric_space_open_ball_open; auto.
+  - apply metric_open_ball_In; auto; lra.
+}
+destruct (Hx0 U HU0 HU1 N) as [m [Hm [Hxm]]].
+simpl in m, Hm.
+exists N; intros n Hn.
+simpl in n, Hn.
+apply Rle_lt_trans with (d x0 (x m) + d (x m) (x n)).
+- now apply triangle_inequality.
+- cut (d (x m) (x n) < eps/2).
+  + lra.
+  + now apply HN.
+Qed.
 
 End Completeness.
 
-Arguments cauchy {X}.
-Arguments complete {X}.
-
 Section closed_subset_of_complete.
-
-Variable X:Type.
-Variable d:X->X->R.
-Hypothesis d_metric:metric d.
-Variable F:Ensemble X.
+Context {X : TopologicalSpace}
+  (d : X -> X -> R) (d_metric : metric d)
+  (d_metrizes : metrizes X d)
+  (F : Ensemble X).
 
 Let FT := { x:X | In F x }.
 Let d_restriction := fun x y:FT => d (proj1_sig x) (proj1_sig y).
 Let d_restriction_metric :=
       MetricSpaces.d_restriction_metric d d_metric F.
 
-Lemma closed_subset_of_complete_is_complete:
-  complete d d_metric ->
-  closed F (X:=MetricTopology d d_metric) ->
-  complete d_restriction d_restriction_metric.
+Lemma cauchy_restriction (x : nat -> X)
+  (HUx : forall n , In F (x n)) (Hx : cauchy d x) :
+  cauchy d_restriction (fun n => exist F (x n) (HUx n)).
 Proof.
-intros.
-red; intros.
+  intros eps Heps.
+  destruct (Hx eps Heps) as [N HN].
+  exists N; intros.
+  unfold d_restriction.
+  simpl. auto.
+Qed.
+
+Lemma closed_subset_of_complete_is_complete:
+  complete d ->
+  closed F ->
+  complete d_restriction.
+Proof.
+intros Hcomp HF.
+apply (complete_net_limit_char
+         (SubspaceTopology F) d_restriction).
+{ apply metric_space_subspace_topology_metrizes;
+    auto.
+}
+rewrite complete_net_limit_char in Hcomp;
+  auto.
+intros x Hx.
 pose (y := fun n:nat => proj1_sig (x n)).
-destruct (H y) as [y0].
-- red; intros.
-  destruct (H1 eps H2) as [N].
+destruct (Hcomp y) as [y0 Hy0].
+{ red; intros eps Heps.
+  destruct (Hx eps Heps) as [N].
   now exists N.
-- intros.
-  assert (In F y0).
-{ rewrite <- (closure_fixes_closed _ H0); trivial.
-  apply @net_limit_in_closure with (I:=nat_DS) (x:=y); trivial.
-  red; intros.
-  exists i; split.
-  - apply Nat.le_refl.
-  - unfold y.
-    destruct (x i); trivial. }
-  exists (exist _ y0 H3).
+}
+- assert (In F y0) as HFy0.
+  { rewrite <- (closure_fixes_closed _ HF); trivial.
+    apply @net_limit_in_closure with (I:=nat_DS) (x:=y); trivial.
+    apply exists_arbitrarily_large_all.
+    intros ?.
+    apply proj2_sig.
+  }
+  exists (exist _ y0 HFy0).
   apply metric_space_net_limit with d_restriction.
-  + apply MetricTopology_metrized.
+  + apply metric_space_subspace_topology_metrizes; auto.
   + intros.
     unfold d_restriction; simpl.
-    apply metric_space_net_limit_converse with
-      (MetricTopology d d_metric); trivial.
-    apply MetricTopology_metrized.
+    apply metric_space_net_limit_converse; auto.
 Qed.
 
 Lemma complete_subset_is_closed:
-  complete d_restriction d_restriction_metric ->
-  closed F (X:=MetricTopology d d_metric).
+  complete d_restriction ->
+  closed F.
 Proof.
 intros.
-cut (Included (closure F (X:=MetricTopology d d_metric)) F).
-- intros.
-  assert (closure F (X:=MetricTopology d d_metric) = F).
-{ apply Extensionality_Ensembles.
-  split; trivial; apply closure_inflationary. }
+cut (Included (closure F) F).
+{ intros.
+  assert (closure F = F) as H1.
+  { apply Extensionality_Ensembles.
+    split; trivial; apply closure_inflationary.
+  }
   rewrite <- H1; apply closure_closed.
-- red; intros.
-  assert (exists y:Net nat_DS (MetricTopology d d_metric),
-    (forall n:nat, In F (y n)) /\ net_limit y x).
+}
+red; intros.
+(* consider a sequence [y] in [X] which converges to [x] and lies
+   completely in [F] *)
+assert (exists y:Net nat_DS X,
+  (forall n:nat, In F (y n)) /\ net_limit y x) as [y [HyF Hyx]].
 { apply first_countable_sequence_closure; trivial.
   apply metrizable_impl_first_countable.
-  exists d; trivial; apply MetricTopology_metrized. }
-  destruct H1 as [y []].
-  pose (y' := ((fun n:nat => exist _ (y n) (H1 n)) :
-               Net nat_DS (MetricTopology d_restriction d_restriction_metric))).
-  assert (cauchy d y).
-{ apply convergent_sequence_is_cauchy with d_metric x; trivial. }
-  assert (cauchy d_restriction y').
-{ red; intros.
-  destruct (H3 eps H4) as [N].
-  exists N; intros.
-  unfold d_restriction; unfold y'; simpl.
-  now apply H5. }
-  destruct (H _ H4) as [[x0]].
-  cut (net_limit y x0 (I:=nat_DS) (X:=MetricTopology d d_metric)).
-  + intros.
-    assert (x = x0).
-  { assert (uniqueness (net_limit y (I:=nat_DS)
-                            (X:=MetricTopology d d_metric))).
-  { apply Hausdorff_impl_net_limit_unique.
-    apply T3_sep_impl_Hausdorff.
-    apply normal_sep_impl_T3_sep.
-    apply metrizable_impl_normal_sep.
-    exists d; trivial.
-    apply MetricTopology_metrized. }
-    now apply H7. }
-    now rewrite H7.
-  + apply metric_space_net_limit with d.
-    * apply MetricTopology_metrized.
-    * exact (metric_space_net_limit_converse
-        (MetricTopology d_restriction d_restriction_metric)
-        d_restriction (MetricTopology_metrized _ d_restriction
-                             d_restriction_metric)
-        nat_DS y' (exist _ x0 i) H5).
+  exists d; trivial.
+}
+(* consider [y] as sequence [y'] in the subspace of [F] *)
+pose (y' := ((fun n:nat => exist _ (y n) (HyF n)) :
+              Net nat_DS (SubspaceTopology F))).
+(* since [y] converges, it is cauchy. Hence [y'] is cauchy as well. *)
+assert (cauchy d_restriction y') as Hy'.
+{ apply cauchy_restriction; auto.
+  apply convergent_sequence_is_cauchy with x;
+    trivial.
+}
+(* since [F] is complete, the sequence [y'] has a limit [x0]. *)
+destruct (H y' Hy') as [[x0 Hx0] Hy'x0].
+(* we claim that [y] also converges to [x0] *)
+cut (net_limit y x0).
+- intros Hyx0.
+  assert (x = x0).
+  { eapply Hausdorff_impl_net_limit_unique;
+      eauto.
+    apply metrizable_Hausdorff.
+    exists d; auto.
+  }
+  congruence.
+- apply metric_space_net_limit with d;
+    auto.
 Qed.
 
 End closed_subset_of_complete.
