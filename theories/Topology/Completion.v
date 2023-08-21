@@ -2,164 +2,139 @@ From Coq Require Import Description ProofIrrelevance Psatz.
 From Topology Require Export Completeness.
 From Topology Require Import UniformTopology RTopology.
 
-Lemma completion_exists: forall (X:Type) (d:X->X->R) (d_metric:metric d),
-  exists Y:Type, exists i:X->Y, exists d':Y->Y->R,
-  exists d'_metric:metric d',
-  injective i /\ dense (Im Full_set i) (X:=MetricTopology d' d'_metric) /\
-  (forall x1 x2:X, d' (i x1) (i x2) = d x1 x2) /\
-  complete d' d'_metric.
-Proof.
-intros.
-(* first of all, it suffices to construct a (Y, d') without the
-   density condition; then the restriction of d' to the closure of X
-   is again complete, and X is dense in it *)
-cut (exists Y:Type, exists i:X->Y, exists d':Y->Y->R,
-  exists d'_metric:metric d', injective i /\
-  (forall x1 x2:X, d' (i x1) (i x2) = d x1 x2) /\
-  complete d' d'_metric).
-- intros.
-  destruct H as [Y [i [d' [d'_metric [? []]]]]].
-  pose (F := closure (Im Full_set i) (X:=MetricTopology d' d'_metric)).
-  exists {y:Y | In F y}.
-  assert (forall x:X, In F (i x)).
-  { intros.
-    apply closure_inflationary.
-    exists x; trivial.
-    constructor.
-  }
-  exists (fun x:X => exist _ (i x) (H2 x)).
-  exists (fun y1 y2 => d' (proj1_sig y1) (proj1_sig y2)).
-  assert (d'_metric0 : metric (fun (y1 y2:{y:Y | In F y}) =>
-                         d' (proj1_sig y1) (proj1_sig y2))).
-  { constructor; try destruct x; try destruct y; try destruct z; simpl;
-      try apply d'_metric.
-    intros.
-    apply ProofIrrelevance.ProofIrrelevanceTheory.subset_eq_compat.
-    now apply d'_metric.
-  }
-  exists d'_metric0.
-  repeat split.
-  + red; intros.
-    injection H3; intros.
-    apply H; trivial.
-  + red.
-    apply Extensionality_Ensembles; split; red; intros.
-    { constructor. }
-    simpl in x.
-    destruct x.
-    clear H3.
-    generalize i0.
-    apply first_countable_sequence_closure in i0.
-    * destruct i0, H3.
-      assert (forall n:nat, { x:X | x0 n = i x }).
-      { intros.
-        apply constructive_definite_description.
-        apply -> unique_existence.
-        split.
-        - destruct (H3 n).
-          now exists x1.
-        - red; intros.
-          apply H.
-          now rewrite H5 in H6.
-      }
-      assert (forall n:nat, In F (i (proj1_sig (X0 n)))).
-      { intros. apply H2. }
-      intros.
-      apply (@net_limit_in_closure nat_DS
-        (MetricTopology _ d'_metric0)
-        _ (fun n:nat => exist _ (i (proj1_sig (X0 n))) (H5 n))).
-      -- red; intros.
-         exists i1.
-         split.
-         ++ simpl; auto with arith.
-         ++ exists (proj1_sig (X0 i1)).
-            ** constructor.
-            ** now apply subset_eq_compat.
-      -- pose proof (metric_space_net_limit_converse (MetricTopology d' d'_metric) d'
-           (MetricTopology_metrized _ d' d'_metric) nat_DS x0 x H4).
-         apply metric_space_net_limit with (1:=MetricTopology_metrized _ _ d'_metric0).
-         (*
-         destruct (metric_space_net_limit (MetricTopology d' d'_metric)
-           d' (MetricTopology_metrized _ d' d'_metric) nat_DS x0 x).
-         pose proof (H6 H4); clear H6 H7.
-         apply <- (metric_space_net_limit (MetricTopology _ d'_metric0)
-           _ (MetricTopology_metrized _ _ d'_metric0) nat_DS). *)
-         intros.
-         destruct (H6 eps H7).
-         exists x1.
-         intros.
-         simpl.
-         destruct (X0 j).
-         simpl.
-         rewrite <- e.
-         now apply H8.
-    * apply metrizable_impl_first_countable.
-      exists d'; trivial.
-      apply MetricTopology_metrized.
-  + intros.
-    now simpl.
-  + apply (closed_subset_of_complete_is_complete Y d' d'_metric F);
-      trivial.
-    apply closure_closed.
-- destruct (classic (inhabited X)).
-  + destruct H as [x0].
+Section Completion.
+  Context {X : TopologicalSpace}
+    (d : X -> X -> R) (d_metric : metric d)
+    (d_metrizes : metrizes X d).
 
+  Local Lemma Rabs_bound (a b : R) :
+    (- b <= a <= b) <-> Rabs a <= b.
+  Proof.
+    split.
+    - intros. unfold Rabs.
+      destruct (Rcase_abs _); lra.
+    - intros. unfold Rabs in *.
+      destruct (Rcase_abs _); lra.
+  Qed.
+
+  Local Lemma metric_alternate_triangle_ineq (x y z : X) :
+    R_metric (d x z) (d y z) <= d x y.
+  Proof.
+    unfold R_metric.
+    rewrite <- Rabs_bound.
+    pose proof (triangle_inequality
+                 X d d_metric x y z).
+    pose proof (triangle_inequality
+                 X d d_metric y x z).
+    rewrite (metric_sym _ _ d_metric y x) in H0.
+    lra.
+  Qed.
+
+  Lemma completion_exists_nondense :
+    exists (Y : Type) (d' : Y -> Y -> R) (d'_metric : metric d')
+      (i : X -> Y),
+      isometry d d' i /\ complete d' d'_metric.
+  Proof.
+    destruct (classic (inhabited X)).
+    2: {
+      unshelve eexists False, (False_rect _), _, _.
+      3: split.
+      - constructor; intros; contradiction.
+      - intros x; apply H; constructor; apply x.
+      - intros ? ?; contradict H; constructor; auto.
+      - intros x; contradiction (x 0%nat).
+    }
+    destruct H as [x0].
     (* we now construct Y as the uniform space of functions X->R,
        with base point "distance from x0"; the embedding of X into this
-       space is to send x to "distance from x" *)
-    assert (forall x y z:X, R_metric (d x z) (d y z) <= d x y).
-  { unfold R_metric.
-    assert (forall a b:R, -b <= a -> a <= b -> Rabs a <= b).
-  { intros.
-    unfold Rabs.
-    destruct Rcase_abs; lra. }
-    intros.
-    apply H.
-    - assert (d x z <= d x y + d y z) by apply d_metric.
-      lra.
-    - rewrite (metric_sym _ _ d_metric x y).
-      assert (d y z <= d y x + d x z) by apply d_metric.
-      lra. }
-    exists (uniform_space R_metric (d x0)).
-    unshelve refine (let H0:=_ in ex_intro _ (fun x:X => exist _ (d x) (H0 x)) _).
+       space is to send x to "distance from x".
+       We do not use the Cauchy completion, because Coq deals badly with quotients.
+     *)
+    exists (uniform_space R_metric (d x0)),
+      (uniform_metric R_metric (d x0) R_metric_is_metric (inhabits x0)),
+      (uniform_metric_is_metric _ _ _ _ _ _).
+    unshelve refine (let H0:=_ in ex_intro _ (fun x:X => exist _ (d x) (H0 x)) _);
+      [|split].
     * intros.
       exists (d x0 x).
-      red; intros.
-      destruct H0.
-      rewrite H1; trivial.
-    * exists (uniform_metric R_metric (d x0) R_metric_is_metric
-        (inhabits x0)).
-      exists (uniform_metric_is_metric _ _ _ _ _ _).
-      repeat split.
-      ** red; intros.
-         injection H1; intros.
-         apply d_metric.
-         rewrite H2; apply d_metric.
+      intros x1 Hx1.
+      destruct Hx1. subst.
+      apply metric_alternate_triangle_ineq.
+    * red; intros x1 x2.
+      unfold uniform_metric.
+      destruct sup as [? i]; simpl.
+      apply Rle_antisym; apply i.
+      -- red; intros x3 Hx3.
+         destruct Hx3. subst.
+         apply metric_alternate_triangle_ineq.
+      -- exists x1; [constructor|].
+         rewrite metric_zero; auto.
+         rewrite (metric_sym _ _ d_metric x2 x1).
+         unfold R_metric.
+         rewrite Rminus_0_r.
+         symmetry; apply Rabs_right, metric_nonneg, d_metric.
+    * apply uniform_metric_complete.
+      apply R_metric_complete.
+  Qed.
 
-      ** intros.
-         unfold uniform_metric; destruct sup; simpl.
-         apply Rle_antisym; apply i.
-         *** red; intros.
-             destruct H1.
-             rewrite H2; apply H.
-         *** exists x1.
-             { constructor. }
-             rewrite metric_zero; trivial.
-             unfold R_metric.
-             rewrite (metric_sym _ _ d_metric x2 x1).
-             rewrite Rminus_0_r.
-             symmetry; apply Rabs_right, metric_nonneg, d_metric.
-      ** apply uniform_metric_complete.
-         exact R_metric_complete.
-  + exists False, (fun x:X => H (inhabits x)), (False_rect _).
-    assert (metric (False_rect (False->R))).
-  { constructor; intros; destruct x. }
-    exists H0.
+  Theorem completion_exists:
+    exists (Y:TopologicalSpace) (i : X -> Y)
+      (d' : Y -> Y -> R) (d'_metric : metric d'),
+      metrizes Y d' /\
+        dense (Im Full_set i) /\
+        isometry d d' i /\ complete d' d'_metric.
+  Proof.
+    intros.
+    (* first of all, it suffices to construct a (Y, d') without the
+       density condition; then the restriction of d' to the closure of X
+       is again complete, and X is dense in it *)
+    destruct completion_exists_nondense as [Y [d' [d'_metric [i [Hi_iso d'_comp]]]]].
+    pose (F := closure (Im Full_set i) (X:=MetricTopology d' d'_metric)).
+    exists (SubspaceTopology F).
+    assert (forall x:X, In F (i x)) as HFi.
+    { intros.
+      apply closure_inflationary.
+      exists x; trivial.
+      constructor.
+    }
+    exists (fun x:X => exist _ (i x) (HFi x)).
+    pose (d'' := fun y1 y2 : SubspaceTopology F=> d' (proj1_sig y1) (proj1_sig y2)).
+    exists d''.
+    assert (d'_metric0 : metric d'').
+    { apply d_restriction_metric. assumption. }
+    assert (d'_metrizes0 : metrizes _ d'').
+    { apply metric_space_subspace_topology_metrizes;
+        auto.
+      apply MetricTopology_metrized.
+    }
+    exists d'_metric0.
+    split; auto.
     repeat split.
-    * red; intros x y H1.
-      contradiction (H (inhabits x)).
-    * intros.
-      contradiction (H (inhabits x2)).
-    * red; intros.
-      contradiction (x O).
-Qed.
+    2: {
+      intros ? ?. simpl.
+      apply Hi_iso.
+    }
+    2: {
+      apply
+        (@closed_subset_of_complete_is_complete
+           Y d' d'_metric F d'_comp (closure_closed _)).
+    }
+    pose proof (@dense_in_closure
+                  (MetricTopology d' d'_metric) (Im Full_set i)).
+    match goal with
+    | H : dense ?a |- dense ?b =>
+        replace b with a; auto
+    end.
+    apply Extensionality_Ensembles; split; red.
+    - intros [x Hx0] [Hx1].
+      simpl in Hx1.
+      inversion Hx1; subst; clear Hx1.
+      exists x0; auto.
+      apply subset_eq_compat; auto.
+    - intros [x Hx0] ?.
+      inversion H0; subst; clear H0.
+      constructor. simpl.
+      exists x0; [constructor|].
+      inversion H2; subst; clear H2; auto.
+  Qed.
+End Completion.
