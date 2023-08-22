@@ -570,8 +570,9 @@ Qed.
 
 Lemma R_metric_complete: complete R_metric.
 Proof.
-rewrite @complete_net_limit_char with (X := RTop).
-2: apply RTop_metrization.
+apply complete_cauchy_cluster_points with (X := RTop).
+1: apply R_metric_is_metric.
+1: apply RTop_metrization.
 intros x Hx.
 pose proof (cauchy_impl_bounded _ R_metric_is_metric x Hx)
   as [p [r Hpr]].
@@ -583,11 +584,7 @@ destruct (bounded_real_net_has_cluster_point
   unfold R_metric, Rabs in Hn.
   destruct (Rcase_abs _); lra.
 }
-exists x0.
-eapply cauchy_sequence_with_cluster_point_converges;
-  eauto.
-- apply R_metric_is_metric.
-- apply RTop_metrization.
+exists x0. assumption.
 Qed.
 
 Lemma RTop_subbasis_rational_beams :
