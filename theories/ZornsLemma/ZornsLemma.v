@@ -5,6 +5,7 @@ From ZornsLemma Require Import Relation_Definitions_Implicit.
 From Coq Require Export Ensembles.
 From ZornsLemma Require Import EnsemblesImplicit.
 From Coq Require Import ProofIrrelevance.
+From Coq Require Import PropExtensionalityFacts.
 From ZornsLemma Require Import InverseImage.
 From ZornsLemma Require Export EnsemblesSpec.
 From ZornsLemma Require Import Quotients.
@@ -301,6 +302,15 @@ constructor.
   now split.
 Qed.
 
+Local Lemma propositional_extensionality
+  (P Q : Prop) (H : P <-> Q) : P = Q.
+Proof.
+  apply PredExt_imp_PropExt; auto.
+  intros.
+  apply Extensionality_Ensembles.
+  firstorder.
+Qed.
+
 Lemma ZornsLemmaForPreorders: exists x:T, premaximal x.
 Proof.
 pose (Requiv (x y:T) := R x y /\ R y x).
@@ -311,24 +321,16 @@ let Hnew:=fresh"_H" in
      let inducedR := induced_function2arg R H H Hnew in
      let inducedR_prop := induced_function2arg_correct R H H Hnew in _).
 - intros.
-  assert (True_rect (R a1 b1) = True_rect (R a2 b2)).
-  + apply Extensionality_Ensembles; split; red; intros.
-    * destruct x.
-      red in H2.
-      simpl in H2.
-      red; simpl.
-      apply preord_trans with a1; trivial.
-      ** apply H0.
-      ** apply preord_trans with b1; trivial.
-         apply H1.
-    * destruct x.
-      red in H2; simpl in H2.
-      red; simpl.
-      apply preord_trans with a2; trivial.
-      ** apply H0.
-      ** apply preord_trans with b2; trivial.
-         apply H1.
-  + now assert (True_rect (R a1 b1) I = True_rect (R a2 b2) I) by now rewrite H2.
+  apply propositional_extensionality.
+  split; intros H2.
+  + apply preord_trans with a1; auto.
+    * apply H0.
+    * apply preord_trans with b1; auto.
+      apply H1.
+  + apply preord_trans with a2; auto.
+    * apply H0.
+    * apply preord_trans with b2; auto.
+      apply H1.
 - clearbody inducedR_prop.
   fold inducedR in inducedR_prop.
   assert (exists x:Rquo, maximal inducedR x).
