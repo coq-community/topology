@@ -181,9 +181,8 @@ red.
 rewrite Complement_FamilyIntersection.
 apply open_family_union.
 intros.
-destruct H0.
-pose proof (H _ H0).
-rewrite Complement_Complement in H1; assumption.
+destruct H0. subst.
+apply H, H0.
 Qed.
 
 Lemma closed_indexed_intersection: forall {X:TopologicalSpace}
@@ -243,9 +242,8 @@ refine (Build_TopologicalSpace X
 - intros.
   rewrite Complement_FamilyUnion.
   apply closedP_family_intersection.
-  destruct 1.
-  rewrite <- Complement_Complement.
-  apply H; trivial.
+  destruct 1. subst.
+  auto.
 - intros.
   rewrite Complement_Intersection.
   apply closedP_union2; trivial.

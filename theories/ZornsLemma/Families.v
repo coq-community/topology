@@ -90,8 +90,7 @@ Qed.
 
 Lemma Complement_FamilyIntersection: forall F:Family T,
     Complement (FamilyIntersection F) =
-    FamilyUnion [ S:Ensemble T |
-                  In F (Complement S)].
+    FamilyUnion (Im F Complement).
 Proof.
 intros.
 apply Extensionality_Ensembles; split; red; intros.
@@ -104,35 +103,31 @@ apply Extensionality_Ensembles; split; red; intros.
   red; intro.
   contradict H0.
   exists (Complement S).
-  + constructor. rewrite Complement_Complement. assumption.
+  + apply Im_def. assumption.
   + assumption.
 - destruct H.
-  red; red; intro.
-  destruct H1.
+  inversion H; subst; clear H.
+  intros ?.
   destruct H.
-  pose proof (H1 _ H).
-  contradiction.
+  firstorder.
 Qed.
 
 Lemma Complement_FamilyUnion: forall F:Family T,
     Complement (FamilyUnion F) =
-    FamilyIntersection [ S:Ensemble T |
-                         In F (Complement S) ].
+    FamilyIntersection (Im F Complement).
 Proof.
 intros.
 apply Extensionality_Ensembles; split; red; intros.
-- constructor. intros.
-  destruct H0.
-  apply NNPP. red; intro.
-  red in H; red in H. contradict H.
-  exists (Complement S); assumption.
-- red; red. intro.
-  destruct H.
-  destruct H0.
-  specialize (H (Complement S)).
-  apply H.
-  2: { assumption. }
-  constructor. rewrite Complement_Complement.
+- constructor. intros S HS.
+  destruct HS as [U HU S]. subst.
+  intros HUx. apply H.
+  exists U; auto.
+- destruct H as [x Hx].
+  intros Hx0.
+  destruct Hx0.
+  specialize (Hx (Complement S)).
+  apply Hx; auto.
+  apply Im_def.
   assumption.
 Qed.
 
