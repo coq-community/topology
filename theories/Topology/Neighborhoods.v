@@ -45,6 +45,17 @@ repeat split; trivial.
 - apply interior_deflationary.
 Qed.
 
+Lemma neighborhood_upward_closed
+  {X : TopologicalSpace} (x : X) (U V : Ensemble X) :
+  Included U V ->
+  neighborhood U x ->
+  neighborhood V x.
+Proof.
+  intros HUV [W []]. exists W; auto.
+  split; auto.
+  transitivity U; auto.
+Qed.
+
 Lemma open_char_neighborhood: forall {X:TopologicalSpace} (U : Ensemble X),
     open U <-> forall x, In U x -> neighborhood U x.
 Proof.

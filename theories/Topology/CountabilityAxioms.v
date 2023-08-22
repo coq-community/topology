@@ -100,6 +100,29 @@ destruct (choice (fun (n:nat) (x:point_set X) => In (U n) x /\
       apply H9, H4.
 Qed.
 
+(** in a first-countable space, a set is closed if it contains all its
+  limits of sequences. *)
+Corollary first_countable_sequence_closed
+  {X : TopologicalSpace} (S : Ensemble X) :
+  first_countable X ->
+  (forall (x : Net nat_DS X) (x0 : X),
+      (forall n : nat, In S (x n)) ->
+      net_limit x x0 -> In S x0) ->
+  closed S.
+Proof.
+  intros.
+  replace S with (closure S).
+  { apply closure_closed. }
+  apply Extensionality_Ensembles; split; red.
+  2: apply closure_inflationary.
+  intros x Hx.
+  apply first_countable_sequence_closure in Hx;
+    auto.
+  clear H.
+  destruct Hx as [x0 [Hx0 Hx1]].
+  eapply H0; eauto.
+Qed.
+
 Definition separable (X : TopologicalSpace) : Prop :=
   exists S : Ensemble X,
     Countable S /\ dense S.

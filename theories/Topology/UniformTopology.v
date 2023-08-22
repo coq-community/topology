@@ -38,6 +38,33 @@ refine (match f, g with exist f0 Hf, exist g0 Hg =>
   exists (d (f0 x0) (g0 x0)); exists x0; trivial; constructor.
 Defined.
 
+Lemma uniform_metric_bound_below (f g : uniform_space) (x : X) :
+  d (proj1_sig f x) (proj1_sig g x) <= uniform_metric f g.
+Proof.
+  unfold uniform_metric.
+  destruct f as [f Hf]; destruct g as [g Hg];
+    destruct sup.
+  simpl.
+  apply i.
+  exists x; trivial; constructor.
+Qed.
+
+Lemma uniform_metric_lt (f g : uniform_space) (r : R) :
+  uniform_metric f g < r ->
+  forall x : X, d (proj1_sig f x) (proj1_sig g x) < r.
+Proof.
+  intros Hfg x.
+  destruct f as [f Hf], g as [g Hg].
+  simpl.
+  unfold uniform_metric in Hfg.
+  destruct sup as [d_fg].
+  simpl in *.
+  eapply Rle_lt_trans; eauto.
+  clear r Hfg.
+  apply i.
+  exists x; auto with sets.
+Qed.
+
 Lemma uniform_metric_is_metric: metric uniform_metric.
 Proof.
 constructor; intros.
@@ -112,6 +139,10 @@ Qed.
 Definition UniformTopology : TopologicalSpace :=
   MetricTopology uniform_metric uniform_metric_is_metric.
 
+Definition UniformTopology_metrizable :
+  metrizable UniformTopology :=
+  MetricTopology_metrizable _ _ _.
+
 Lemma uniform_metric_complete: complete d d_metric ->
   complete uniform_metric uniform_metric_is_metric.
 Proof.
@@ -137,11 +168,7 @@ unshelve refine (let H1 := _ in let H2 := _ in ex_intro _
   destruct (H0 eps H1) as [N].
   exists N; intros.
   apply Rle_lt_trans with (uniform_metric (f m) (f n)).
-  + unfold uniform_metric.
-    destruct (f m) as [f0 Hf]; destruct (f n) as [g0 Hg]; destruct sup.
-    simpl.
-    apply i.
-    exists x; trivial; constructor.
+  + apply uniform_metric_bound_below.
   + apply H2; trivial.
 - assert (1 > 0) by (red; auto with real).
   destruct (H0 1 H2) as [N].
@@ -151,14 +178,7 @@ unshelve refine (let H1 := _ in let H2 := _ in ex_intro _
   assert (forall (n:nat) (x:X), (n >= N)%nat -> d (proj1_sig (f n) x)
                                                  (proj1_sig (f N) x) < 1).
   { intros.
-    apply Rle_lt_trans with (uniform_metric (f n) (f N)).
-    - unfold uniform_metric; destruct (f n) as [f0 Hf];
-        destruct (f N) as [g0 Hg]; destruct sup; simpl.
-      apply i0.
-      exists x; trivial.
-      constructor.
-    - apply H3; trivial.
-      constructor.
+    apply uniform_metric_lt; auto.
   }
   assert (forall x:X,
     d (fN x) (proj1_sig (cauchy_limit _ (H1 x))) <= 1).
@@ -260,79 +280,63 @@ Lemma continuous_functions_at_point_closed_in_uniform_metric:
     (X:=UniformTopology d y0 d_metric X_inh).
 Proof.
 intros.
-match goal with |- @closed ?X ?F => cut (Included (@closure X F) F) end.
-{ intros.
-  match type of H with | Included ?A ?B => assert (A=B) end.
-  { apply Extensionality_Ensembles; split; trivial;
-      apply closure_inflationary.
-  }
-  rewrite <- H0; apply closure_closed.
+apply first_countable_sequence_closed.
+{ apply metrizable_impl_first_countable.
+  apply UniformTopology_metrizable.
 }
-red; intros f0 ?.
-red.
-apply first_countable_sequence_closure in H.
-- destruct H as [f []].
+intros f f0 Hf Hf0.
+(* we need to show that [f0] is continuous.
+   we switch to the def. of continuity which uses the nbhd. basis.
+   We do this to be able to work with the definition of [UniformTopology].
+*)
+pose proof (MetricTopology_metrized _ d d_metric
+  (proj1_sig f0 x0)) as Hf0_nbhd_basis.
+apply open_neighborhood_basis_is_neighborhood_basis in Hf0_nbhd_basis.
+apply continuous_at_neighborhood_basis with (1:=Hf0_nbhd_basis).
+clear Hf0_nbhd_basis.
+
+intros V HV.
+destruct HV as [r Hr].
+assert (r/3>0) as Hr3 by lra.
+destruct (metric_space_net_limit_converse _ _
+  (MetricTopology_metrized _ _
+     (uniform_metric_is_metric X Y d y0 d_metric X_inh))
+  nat_DS f f0 Hf0 (r/3) Hr3) as [N HN].
+assert (neighborhood
+  (inverse_image (proj1_sig (f N))
+     (open_ball d (proj1_sig (f N) x0) (r/3))) x0) as Hx0_nbhd.
+{ apply Hf.
   pose proof (MetricTopology_metrized _ d d_metric
-    (proj1_sig f0 x0)).
-  apply open_neighborhood_basis_is_neighborhood_basis in H1.
-  apply continuous_at_neighborhood_basis with (1:=H1).
-  intros.
-  destruct H2.
-  assert (r/3>0) by lra.
-  destruct (metric_space_net_limit_converse _ _
-    (MetricTopology_metrized _ _
-       (uniform_metric_is_metric _ _ d y0 d_metric X_inh))
-    nat_DS f f0 H0 (r/3) H3) as [N].
-  assert (neighborhood
-    (inverse_image (proj1_sig (f N))
-       (open_ball d (proj1_sig (f N) x0) (r/3))) x0).
-  { apply H.
-    pose proof (MetricTopology_metrized _ d d_metric
-      (proj1_sig (f N) x0)).
-    apply open_neighborhood_basis_is_neighborhood_basis in H5.
-    apply H5.
-    constructor; trivial.
-  }
-  match goal with H5:neighborhood ?U x0 |- neighborhood ?V x0 =>
-    cut (Included U V) end.
-  { intros.
-    destruct H5 as [U []].
-    exists U; auto with sets.
-  }
-  red; intros.
-  destruct H6.
-  destruct H6.
-  constructor.
-  constructor.
-  apply Rle_lt_trans with
-    (d (proj1_sig f0 x0) (proj1_sig (f N) x0) +
-     d (proj1_sig (f N) x0) (proj1_sig f0 x)).
-  + apply d_metric.
-  + apply Rle_lt_trans with
-      (d (proj1_sig f0 x0) (proj1_sig (f N) x0) +
-       d (proj1_sig (f N) x0) (proj1_sig (f N) x) +
-       d (proj1_sig (f N) x) (proj1_sig f0 x)).
-    * assert (d (proj1_sig (f N) x0) (proj1_sig f0 x) <=
-              d (proj1_sig (f N) x0) (proj1_sig (f N) x) +
-              d (proj1_sig (f N) x) (proj1_sig f0 x)) by apply d_metric.
-      lra.
-    * assert (forall x':point_set X,
-        d (proj1_sig f0 x') (proj1_sig (f N) x') < r/3).
-      { intros.
-        apply Rle_lt_trans with (uniform_metric d y0 d_metric X_inh f0 (f N)).
-        - unfold uniform_metric; destruct f0 as [f0]; destruct (f N) as [fN];
-            destruct sup; simpl.
-          apply i.
-          exists x'; auto with sets.
-        - apply H4; simpl; auto with arith.
-      }
-      rewrite (metric_sym _ d d_metric (proj1_sig (f N) x) (proj1_sig f0 x)).
-      pose proof (H7 x0); pose proof (H7 x).
-      lra.
-- apply metrizable_impl_first_countable.
-  exists (uniform_metric d y0 d_metric X_inh).
-  + exact (uniform_metric_is_metric _ _ d y0 d_metric X_inh).
-  + apply MetricTopology_metrized.
+    (proj1_sig (f N) x0)) as Hnbhd.
+  apply open_neighborhood_basis_is_neighborhood_basis in Hnbhd.
+  apply Hnbhd.
+  constructor; trivial.
+}
+eapply neighborhood_upward_closed; eauto.
+clear Hx0_nbhd.
+
+intros x [[Hx]].
+constructor.
+constructor.
+apply Rle_lt_trans with
+  (d (proj1_sig f0 x0) (proj1_sig (f N) x0) +
+   d (proj1_sig (f N) x0) (proj1_sig f0 x)).
+{ apply d_metric. }
+apply Rle_lt_trans with
+  (d (proj1_sig f0 x0) (proj1_sig (f N) x0) +
+   d (proj1_sig (f N) x0) (proj1_sig (f N) x) +
+   d (proj1_sig (f N) x) (proj1_sig f0 x)).
+{ assert (d (proj1_sig (f N) x0) (proj1_sig f0 x) <=
+          d (proj1_sig (f N) x0) (proj1_sig (f N) x) +
+          d (proj1_sig (f N) x) (proj1_sig f0 x)) by apply d_metric.
+  lra.
+}
+rewrite (metric_sym _ d d_metric (proj1_sig (f N) x) (proj1_sig f0 x)).
+pose proof (uniform_metric_lt X Y d y0 d_metric X_inh
+              f0 (f N) _ (HN N ltac:(reflexivity)) x0).
+pose proof (uniform_metric_lt X Y d y0 d_metric X_inh
+              f0 (f N) _ (HN N ltac:(reflexivity)) x).
+lra.
 Qed.
 
 Lemma continuous_functions_closed_in_uniform_metric:
@@ -353,6 +357,38 @@ apply Extensionality_Ensembles; split; intros f ?.
 - constructor. intros x.
   unfold In in *.
   now apply continuous_func_continuous_everywhere.
+Qed.
+
+Lemma bounded_functions_closed_in_uniform_metric:
+  closed (fun f:uniform_space d y0 =>
+            bounded d (Im Full_set (proj1_sig f)))
+    (X:=UniformTopology d y0 d_metric X_inh).
+Proof.
+apply first_countable_sequence_closed.
+{ apply metrizable_impl_first_countable.
+  apply UniformTopology_metrizable.
+}
+intros f f0 Hf0 Hf1.
+unfold In in Hf0.
+pose proof
+  (metric_space_net_limit_converse
+     _ _ (MetricTopology_metrized _ _
+            (uniform_metric_is_metric _ _ _ y0 d_metric X_inh))
+     nat_DS f f0 Hf1 1 ltac:(lra)) as [N HN].
+clear Hf1.
+specialize (Hf0 N) as [y1 [r Hr]].
+exists y1, (r+1).
+intros y Hy.
+destruct Hy as [x Hx]; subst.
+specialize (Hr (proj1_sig (f N) x)) as [HfN].
+{ apply Im_def; auto. }
+constructor.
+specialize (HN N ltac:(reflexivity)).
+pose proof (uniform_metric_lt _ _ _ _ _ _ _ _ _ HN x).
+pose proof (triangle_inequality
+              _ d d_metric y1 (proj1_sig (f N) x) (proj1_sig f0 x)).
+rewrite metric_sym in H; auto.
+lra.
 Qed.
 
 End UniformTopology_and_continuity.
