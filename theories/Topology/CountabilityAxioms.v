@@ -131,7 +131,7 @@ Definition open_cover {X : TopologicalSpace} (F : Family X) : Prop :=
   (forall U, In F U -> open U) /\ (FamilyUnion F = Full_set).
 
 (* [FS] is a subcover of [F] *)
-Definition subcover {X : TopologicalSpace} (FS F : Family X) : Prop :=
+Definition subcover {X : Type} (FS F : Family X) : Prop :=
   Included FS F /\ Included (FamilyUnion F) (FamilyUnion FS).
 
 (** we consistently write "Lindelof" instead of "Lindelöf" to
