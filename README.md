@@ -168,3 +168,9 @@ In alphabetical order, except where related files are grouped together:
 - `WellOrders.v` - some basic properties of well-orders, including a proof that Zorn's Lemma implies the well-ordering principle
 
 - `ZornsLemma.v` - proof that choice implies Zorn's Lemma
+
+## Bibliography
+- Cunningham, D. W. (2016). "Set theory : a first course". Cambridge University Press. ISBN: 9781107120327
+- Munkres, J. R. (2000). "Topology" (2nd ed.). Prentice-Hall. ISBN: 9780131816299
+- Pradic, C. and Brown, C. E. (2019). "Cantor-Bernstein implies Excluded Middle". arXiv: https://arxiv.org/abs/1904.09193
+- Preuss, G. (1975). "Allgemeine Topologie" (2., korr. Aufl.). Springer. ISBN: 3540074279
