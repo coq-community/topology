@@ -136,6 +136,20 @@ apply Rle_lt_trans with (d x0 (x m) + d (x m) (x n)).
   + now apply HN.
 Qed.
 
+Corollary complete_cauchy_cluster_points :
+  (forall x:nat -> X, cauchy d x ->
+      exists x0:X, net_cluster_point x x0 (I:=nat_DS)) ->
+  complete d.
+Proof.
+  intros H.
+  apply complete_net_limit_char.
+  intros x Hx.
+  specialize (H x Hx) as [x0 Hx0].
+  exists x0.
+  apply cauchy_sequence_with_cluster_point_converges;
+    auto.
+Qed.
+
 End Completeness.
 
 Section closed_subset_of_complete.
