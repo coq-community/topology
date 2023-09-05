@@ -23,7 +23,9 @@ From ZornsLemma Require Import
   CountableTypes
   CSB
   DecidableDec
+  Families
   Finite_sets
+  FiniteTypes
   FunctionProperties
   FunctionPropertiesEns
   InverseImage

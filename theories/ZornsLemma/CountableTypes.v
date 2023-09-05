@@ -18,11 +18,10 @@ From ZornsLemma Require Import
   DecidableDec
   DependentTypeChoice
   Finite_sets
-  FunctionPropertiesEns
-  InfiniteTypes.
-From ZornsLemma Require Export
   FiniteTypes
-  IndexedFamilies.
+  FunctionPropertiesEns
+  IndexedFamilies
+  InfiniteTypes.
 
 Local Close Scope Q_scope.
 
