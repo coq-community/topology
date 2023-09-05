@@ -24,6 +24,26 @@ Proof.
   contradiction.
 Qed.
 
+(** the [T0_sep] property is hereditary *)
+Lemma T0_sep_Subspace {X : TopologicalSpace} (A : Ensemble X) :
+  T0_sep X -> T0_sep (SubspaceTopology A).
+Proof.
+  intros HX [x Hx] [y Hy] Hxy.
+  specialize (HX x y) as
+    [[U [HU0 [HU1 HU2]]]|[U [HU0 [HU1 HU2]]]];
+    [|left|right].
+  { intros ?. subst.
+    destruct (PI.proof_irrelevance _ Hx Hy).
+    contradiction.
+  }
+  all: exists (inverse_image (subspace_inc A) U);
+         (split; [|split]).
+  1, 4: apply subspace_inc_continuous;
+    assumption.
+  1, 4: constructor; simpl; assumption.
+  1, 2: intros [H0]; simpl in H0; auto.
+Qed.
+
 Definition T1_sep (X:TopologicalSpace) : Prop :=
   forall x:point_set X, closed (Singleton x).
 
@@ -51,6 +71,26 @@ Proof.
       constructor.
 Qed.
 
+(** the [T1_sep] property is hereditary *)
+Lemma T1_sep_Subspace {X : TopologicalSpace} (A : Ensemble X) :
+  T1_sep X -> T1_sep (SubspaceTopology A).
+Proof.
+  intros HX [x Hx].
+  apply subspace_closed_char.
+  specialize (HX x).
+  exists (Singleton x).
+  split; auto.
+  apply Extensionality_Ensembles; split.
+  - intros y Hy.
+    destruct Hy.
+    constructor. simpl.
+    constructor.
+  - intros [y Hy] [Hy0].
+    simpl in Hy0. destruct Hy0.
+    destruct (PI.proof_irrelevance _ Hx Hy).
+    constructor.
+Qed.
+
 Definition Hausdorff (X:TopologicalSpace) : Prop :=
   forall x y:point_set X, x <> y ->
     exists U:Ensemble (point_set X),
@@ -73,6 +113,30 @@ Proof.
       trivial.
     erewrite <- inverse_image_intersection, <- inverse_image_empty.
     now f_equal.
+Qed.
+
+(** the [Hausdorff] property is hereditary *)
+Lemma Hausdorff_Subspace {X : TopologicalSpace} (A : Ensemble X) :
+  Hausdorff X ->
+  Hausdorff (SubspaceTopology A).
+Proof.
+  intros HX.
+  intros [x Hx] [y Hy] H.
+  specialize (HX x y) as [U [V [HU [HV [HUx [HVx HUV]]]]]].
+  { intros ?. subst. apply H.
+    apply subset_eq. reflexivity.
+  }
+  exists (inverse_image (subspace_inc _) U).
+  exists (inverse_image (subspace_inc _) V).
+  repeat split.
+  1,2: apply subspace_inc_continuous.
+  all: try assumption.
+  extensionality_ensembles.
+  assert (In Empty_set (subspace_inc A x0)).
+  { rewrite <- HUV.
+    split; assumption.
+  }
+  contradiction.
 Qed.
 
 Definition T3_sep (X:TopologicalSpace) : Prop :=
@@ -107,6 +171,35 @@ Proof.
        now rewrite Hfg.
      * erewrite <- inverse_image_intersection, <- inverse_image_empty.
        now f_equal.
+Qed.
+
+(** the [T3_sep] property is hereditary *)
+Lemma T3_sep_Subspace {X : TopologicalSpace} (A : Ensemble X) :
+  T3_sep X -> T3_sep (SubspaceTopology A).
+Proof.
+  intros [HX0 HX1].
+  split.
+  { apply T1_sep_Subspace. assumption. }
+  intros [x Hx] F HF HFx.
+  apply subspace_closed_char in HF as [G [HG HG0]].
+  subst.
+  assert (~ In G x) as HGx.
+  { intros HGx. apply HFx.
+    constructor. simpl.
+    assumption.
+  }
+  clear HFx.
+  specialize (HX1 x G HG HGx) as [U [V [HU [HV [HUx [HVG HUV]]]]]].
+  exists (inverse_image (subspace_inc A) U),
+    (inverse_image (subspace_inc A) V).
+  repeat split.
+  - apply subspace_inc_continuous; assumption.
+  - apply subspace_inc_continuous; assumption.
+  - simpl. assumption.
+  - apply HVG. destruct H. assumption.
+  - rewrite <- inverse_image_intersection.
+    rewrite HUV.
+    apply inverse_image_empty.
 Qed.
 
 Definition normal_sep (X:TopologicalSpace) : Prop :=
@@ -287,26 +380,3 @@ destruct H2 as [J [x' [? ?]]].
 Qed.
 
 End Hausdorff_and_nets.
-
-Lemma Hausdorff_Subspace {X : TopologicalSpace} (A : Ensemble X) :
-  Hausdorff X ->
-  Hausdorff (SubspaceTopology A).
-Proof.
-  intros HX.
-  intros [x Hx] [y Hy] H.
-  specialize (HX x y) as [U [V [HU [HV [HUx [HVx HUV]]]]]].
-  { intros ?. subst. apply H.
-    apply subset_eq. reflexivity.
-  }
-  exists (inverse_image (subspace_inc _) U).
-  exists (inverse_image (subspace_inc _) V).
-  repeat split.
-  1,2: apply subspace_inc_continuous.
-  all: try assumption.
-  extensionality_ensembles.
-  assert (In Empty_set (subspace_inc A x0)).
-  { rewrite <- HUV.
-    split; assumption.
-  }
-  contradiction.
-Qed.
