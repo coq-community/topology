@@ -16,6 +16,7 @@ theories/Topology/FilterLimits.v
 theories/Topology/FiltersAndNets.v
 theories/Topology/Homeomorphisms.v
 theories/Topology/InteriorsClosures.v
+theories/Topology/Manifolds.v
 theories/Topology/MetricSpaces.v
 theories/Topology/NeighborhoodBases.v
 theories/Topology/Neighborhoods.v
