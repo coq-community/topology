@@ -141,12 +141,34 @@ Proof.
   - right. assumption.
 Qed.
 
+Lemma intersection_as_family_intersection
+  (U V : Ensemble T) :
+  Intersection U V = FamilyIntersection (Couple U V).
+Proof.
+  apply Extensionality_Ensembles; split; red.
+  - intros _ [x Hx0 Hx1]. constructor.
+    intros _ [|]; assumption.
+  - intros _ [x Hx].
+    split; apply Hx; clear Hx; constructor.
+Qed.
+
 Lemma family_union_singleton
   (S : Ensemble T) :
   FamilyUnion (Singleton S) = S.
 Proof.
 now extensionality_ensembles;
   try econstructor.
+Qed.
+
+Lemma family_intersection_singleton (S : Ensemble T) :
+  FamilyIntersection (Singleton S) = S.
+Proof.
+  apply Extensionality_Ensembles; split.
+  - intros _ [x Hx].
+    apply Hx. constructor.
+  - intros x Hx.
+    constructor. intros U HU.
+    destruct HU; assumption.
 Qed.
 End FamilyFacts.
 
@@ -167,6 +189,22 @@ apply Extensionality_Ensembles; split; red; intros.
   subst.
   apply Im_def.
   exists x0; auto.
+Qed.
+
+Lemma family_union_add {X : Type} (F : Family X) (U : Ensemble X) :
+  FamilyUnion (Add F U) = Union (FamilyUnion F) U.
+Proof.
+  apply Extensionality_Ensembles; split; red.
+  - intros x Hx.
+    destruct Hx as [A x HA Hx].
+    destruct HA as [A HA|A HA].
+    + left. exists A; auto.
+    + destruct HA. right. assumption.
+  - intros x Hx.
+    destruct Hx as [x Hx|x Hx].
+    + destruct Hx as [A x HA Hx].
+      exists A; auto. left; auto.
+    + exists U; auto. right. constructor.
 Qed.
 
 Lemma family_intersection_add {X : Type} (F : Family X) (U : Ensemble X) :

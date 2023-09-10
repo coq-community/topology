@@ -197,6 +197,43 @@ Proof.
   apply H. constructor.
 Qed.
 
+Lemma Strict_Included_char {X : Type} (U V : Ensemble X) :
+  Strict_Included U V <->
+    (Included U V /\ exists x, In V x /\ ~ In U x).
+Proof.
+  split.
+  - intros [H0 H1].
+    split; auto.
+    apply NNPP.
+    intros Hn. contradict H1.
+    apply Extensionality_Ensembles; split; auto; clear H0.
+    intros x HVx. apply NNPP.
+    intros HUx. contradict Hn.
+    exists x; split; auto.
+  - intros [H0 H1].
+    split; auto.
+    intros ?; subst.
+    destruct H1 as [? []]; auto.
+Qed.
+
+Corollary Strict_Included_Union_l {X : Type} (U V : Ensemble X) :
+  Strict_Included U (Union U V) ->
+  exists x : X, In V x /\ ~ In U x.
+Proof.
+  rewrite Strict_Included_char.
+  intros [H0 [x [Hx0 Hx1]]].
+  destruct Hx0 as [x Hx0|x Hx0]; try contradiction.
+  exists x; split; auto.
+Qed.
+
+Corollary Strict_Included_Union_r {X : Type} (U V : Ensemble X) :
+  Strict_Included V (Union U V) ->
+  exists x : X, In U x /\ ~ In V x.
+Proof.
+  rewrite Union_commutative.
+  apply Strict_Included_Union_l.
+Qed.
+
 Lemma Singleton_injective {T : Type} :
   forall x y : T, Singleton x = Singleton y -> x = y.
 Proof.

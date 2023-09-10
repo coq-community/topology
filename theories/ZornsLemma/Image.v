@@ -104,16 +104,75 @@ Proof.
   - exists x; auto.
 Qed.
 
+Lemma Im_singleton {X Y : Type} (f : X -> Y) (x : X) :
+  Im (Singleton x) f = Singleton (f x).
+Proof.
+  apply Extensionality_Ensembles; split.
+  - intros y Hy.
+    destruct Hy as [x0 Hx0]; subst.
+    destruct Hx0; constructor.
+  - intros y Hy.
+    destruct Hy.
+    apply Im_def.
+    constructor.
+Qed.
+
+Lemma Im_compose {X Y Z : Type} (f : X -> Y) (g : Y -> Z)
+  (U : Ensemble X) :
+  Im U (compose g f) =
+    Im (Im U f) g.
+Proof.
+  apply Extensionality_Ensembles; split.
+  - intros z Hz.
+    destruct Hz as [x Hx z Hz].
+    subst. unfold compose.
+    do 2 apply Im_def.
+    assumption.
+  - intros z Hz.
+    destruct Hz as [y Hy z Hz].
+    subst.
+    destruct Hy as [x Hx y Hy].
+    subst.
+    unfold compose.
+    exists x; auto.
+Qed.
+
+Lemma Im_injective {X Y : Type} (f : X -> Y) (U V : Ensemble X) :
+  injective f ->
+  Im U f = Im V f -> U = V.
+Proof.
+  intros Hf HUV.
+  apply Extensionality_Ensembles; split;
+    intros x Hx.
+  - assert (In (Im V f) (f x)).
+    { rewrite <- HUV.
+      apply Im_def.
+      assumption.
+    }
+    inversion H; subst; clear H.
+    apply Hf in H1; subst.
+    assumption.
+  - assert (In (Im U f) (f x)).
+    { rewrite HUV.
+      apply Im_def.
+      assumption.
+    }
+    inversion H; subst; clear H.
+    apply Hf in H1; subst.
+    assumption.
+Qed.
+
 Lemma Im_compose_inj_surj {X Y Z : Type} (f : X -> Y) (g : Y -> Z) :
   injective g -> Im Full_set (compose g f) = Im Full_set g ->
   surjective f.
 Proof.
-  intros ? ? ?.
-  assert (In (Im Full_set g) (g y)).
-  { apply Im_def. constructor. }
-  rewrite <- H0 in H1.
-  inversion H1; subst; clear H1.
-  unfold compose in H3.
-  exists x. apply H in H3.
-  congruence.
+  intros Hg H0 y.
+  rewrite Im_compose in H0.
+  apply Im_injective in H0; auto.
+  clear g Hg.
+  assert (In (Im Full_set f) y).
+  { rewrite H0. constructor. }
+  clear H0.
+  inversion H; subst; clear H.
+  exists x; reflexivity.
 Qed.

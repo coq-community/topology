@@ -221,6 +221,15 @@ apply closure_minimal.
   auto with sets.
 Qed.
 
+Lemma closure_full :
+  closure (@Full_set X) = Full_set.
+Proof.
+  apply Extensionality_Ensembles; split; red; intros.
+  { constructor. }
+  apply closure_inflationary.
+  assumption.
+Qed.
+
 Lemma closure_complement: forall S:Ensemble X,
   closure (Complement S) = Complement (interior S).
 Proof.
@@ -346,6 +355,12 @@ Qed.
 
 Definition dense (S:Ensemble X) : Prop :=
   closure S = Full_set.
+
+Corollary dense_full :
+  dense (@Full_set X).
+Proof.
+  apply closure_full.
+Qed.
 
 Lemma dense_meets_every_nonempty_open:
   forall S:Ensemble X, dense S ->
