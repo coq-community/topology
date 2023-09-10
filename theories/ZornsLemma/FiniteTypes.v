@@ -922,8 +922,8 @@ intros.
 apply FiniteT_nat_cardinal_cond.
 apply invertible_impl_bijective in Hinv.
 destruct Hinv as [g_inj g_surj].
-rewrite Im_Full_set_surj with g.
-2: { assumption. }
+rewrite Im_Full_set_surj in g_surj.
+rewrite g_surj.
 apply injection_preserves_cardinal; trivial.
 apply FiniteT_nat_cardinal_def.
 Qed.

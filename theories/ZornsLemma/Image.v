@@ -13,14 +13,21 @@ destruct x.
 Qed.
 
 Lemma Im_Full_set_surj {X Y : Type} (f : X -> Y) :
-  surjective f ->
+  surjective f <->
   Full_set = Im Full_set f.
 Proof.
-intros. apply Extensionality_Ensembles; split; red; intros.
-2: { constructor. }
-destruct (H x) as [y].
-subst. apply Im_def.
-constructor.
+  split.
+  - intros H.
+    apply Extensionality_Ensembles; split; red; intros x ?.
+    2: { constructor. }
+    destruct (H x) as [y].
+    subst. apply Im_def.
+    constructor.
+  - intros H y.
+    assert (In (Im Full_set f) y) as Hy.
+    { rewrite <- H. constructor. }
+    inversion Hy; subst; clear Hy.
+    eexists; reflexivity.
 Qed.
 
 Lemma Im_monotonous {X Y : Type} (f : X -> Y) (U V : Ensemble X) :
@@ -162,7 +169,7 @@ Proof.
     assumption.
 Qed.
 
-Lemma Im_compose_inj_surj {X Y Z : Type} (f : X -> Y) (g : Y -> Z) :
+Corollary Im_compose_inj_surj {X Y Z : Type} (f : X -> Y) (g : Y -> Z) :
   injective g -> Im Full_set (compose g f) = Im Full_set g ->
   surjective f.
 Proof.
@@ -170,9 +177,6 @@ Proof.
   rewrite Im_compose in H0.
   apply Im_injective in H0; auto.
   clear g Hg.
-  assert (In (Im Full_set f) y).
-  { rewrite H0. constructor. }
-  clear H0.
-  inversion H; subst; clear H.
-  exists x; reflexivity.
+  apply Im_Full_set_surj.
+  congruence.
 Qed.
