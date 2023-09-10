@@ -168,15 +168,3 @@ Proof.
     apply Hf in H1; subst.
     assumption.
 Qed.
-
-Corollary Im_compose_inj_surj {X Y Z : Type} (f : X -> Y) (g : Y -> Z) :
-  injective g -> Im Full_set (compose g f) = Im Full_set g ->
-  surjective f.
-Proof.
-  intros Hg H0 y.
-  rewrite Im_compose in H0.
-  apply Im_injective in H0; auto.
-  clear g Hg.
-  apply Im_Full_set_surj.
-  congruence.
-Qed.
