@@ -1,5 +1,7 @@
 From Coq Require Import
-  Program.Subset.
+  Morphisms
+  Program.Subset
+  RelationClasses.
 From Topology Require Export
   Nets.
 From Topology Require Import
@@ -7,13 +9,14 @@ From Topology Require Import
   SubspaceTopology.
 
 Definition T0_sep (X:TopologicalSpace) : Prop :=
-  forall x y:point_set X, x <> y ->
-  (exists U:Ensemble (point_set X), open U /\ In U x /\ ~ In U y) \/
-  (exists U:Ensemble (point_set X), open U /\ ~ In U x /\ In U y).
+  forall x y:X, x <> y ->
+  (exists U:Ensemble X, open U /\ In U x /\ ~ In U y) \/
+  (exists U:Ensemble X, open U /\ ~ In U x /\ In U y).
 
 Lemma topological_property_T0_sep : topological_property T0_sep.
 Proof.
-  intros X Y f [g Hcont_f Hcont_g Hgf Hfg] Hsep x y neq.
+  apply Build_topological_property.
+  intros X Y f Hcont_f g Hcont_g Hfg Hsep x y neq.
   destruct (Hsep (g x) (g y)) as [[U [Hopen [Hin H']]] | [U [Hopen [H' Hin]]]];
   [ shelve | left | right ];
     exists (inverse_image g U);
@@ -23,7 +26,7 @@ Proof.
   Unshelve.
   intro contra.
   eapply f_equal in contra.
-  rewrite Hfg, Hfg in contra.
+  rewrite (proj2 Hfg), (proj2 Hfg) in contra.
   contradiction.
 Qed.
 
@@ -48,30 +51,20 @@ Proof.
 Qed.
 
 Definition T1_sep (X:TopologicalSpace) : Prop :=
-  forall x:point_set X, closed (Singleton x).
+  forall x:X, closed (Singleton x).
 
 Lemma topological_property_T1_sep : topological_property T1_sep.
 Proof.
-  intros X Y f [g Hcont_f Hcont_g Hgf Hfg] Hsep x.
-  replace (Singleton x) with (inverse_image g (Singleton (g x))).
-  - red.
-    rewrite <- inverse_image_complement.
-    apply Hcont_g.
-    apply Hsep.
-  - apply Extensionality_Ensembles.
-    split;
-      red;
-      intros.
-    + destruct H.
-      inversion H.
-      eapply f_equal in H1.
-      rewrite Hfg, Hfg in H1.
-      subst.
-      constructor.
-    + inversion H.
-      subst.
-      constructor.
-      constructor.
+  apply Build_topological_property.
+  intros X Y f Hcont_f g Hcont_g Hfg Hsep x.
+  rewrite <- (proj1 (injective_inverse_image_Singleton g)).
+  2: {
+    apply invertible_impl_bijective.
+    exists f; apply Hfg.
+  }
+  apply continuous_closed.
+  { apply Hcont_g. }
+  apply Hsep.
 Qed.
 
 (** the [T1_sep] property is hereditary *)
@@ -95,9 +88,9 @@ Proof.
 Qed.
 
 Definition Hausdorff (X:TopologicalSpace) : Prop :=
-  forall x y:point_set X, x <> y ->
-    exists U:Ensemble (point_set X),
-    exists V:Ensemble (point_set X),
+  forall x y:X, x <> y ->
+    exists U:Ensemble X,
+    exists V:Ensemble X,
   open U /\ open V /\ In U x /\ In V y /\
   Intersection U V = Empty_set.
 Definition T2_sep := Hausdorff.
@@ -105,17 +98,19 @@ Definition T2_sep := Hausdorff.
 Definition topological_property_Hausdorff :
   topological_property Hausdorff.
 Proof.
-  intros X Y f [g Hcont_f Hcont_g Hgf Hfg] Hhaus x y neq.
+  apply Build_topological_property.
+  intros X Y f Hcont_f g Hcont_g Hfg Hhaus x y neq.
   destruct (Hhaus (g x) (g y)) as [U [V [HopenU [HopenV [HinU [HinV eq]]]]]].
-  - intro contra.
+  { intro contra.
     eapply f_equal in contra.
-    now rewrite Hfg, Hfg in contra.
-  - exists (inverse_image g U), (inverse_image g V).
-    repeat split;
-      try apply Hcont_g;
-      trivial.
-    erewrite <- inverse_image_intersection, <- inverse_image_empty.
-    now f_equal.
+    now rewrite (proj2 Hfg), (proj2 Hfg) in contra.
+  }
+  exists (inverse_image g U), (inverse_image g V).
+  repeat split;
+    try apply Hcont_g;
+    trivial.
+  erewrite <- inverse_image_intersection, <- inverse_image_empty.
+  now f_equal.
 Qed.
 
 (** the [Hausdorff] property is hereditary *)
@@ -144,36 +139,35 @@ Qed.
 
 Definition T3_sep (X:TopologicalSpace) : Prop :=
   T1_sep X /\
-  forall (x:point_set X) (F:Ensemble (point_set X)),
-  closed F -> ~ In F x -> exists U:Ensemble (point_set X),
-                          exists V:Ensemble (point_set X),
+  forall (x:X) (F:Ensemble X),
+  closed F -> ~ In F x -> exists U:Ensemble X,
+                          exists V:Ensemble X,
         open U /\ open V /\ In U x /\ Included F V /\
         Intersection U V = Empty_set.
 
 Lemma topological_property_T3_sep : topological_property T3_sep.
 Proof.
-  intros X Y f Hf [HT1 H].
-  split.
-  - eapply topological_property_T1_sep.
-    + exact Hf.
-    + assumption.
-  - destruct Hf as [g Hcont_f Hcont_g Hgf Hfg].
-    intros y F Hcl Hn.
-    destruct (H (g y) (inverse_image f F)) as [U [V [HopenU [HopenV [HinU [Hincl eq]]]]]].
-    + red.
-      rewrite <- inverse_image_complement.
-      now apply Hcont_f.
-    + intros [contra].
-      now rewrite Hfg in contra.
-    + exists (inverse_image g U), (inverse_image g V).
-      repeat split;
-        try apply Hcont_g;
-        trivial.
-     * apply Hincl.
-       constructor.
-       now rewrite Hfg.
-     * erewrite <- inverse_image_intersection, <- inverse_image_empty.
-       now f_equal.
+  apply topological_property_and.
+  { apply topological_property_T1_sep. }
+  apply proper_sym_impl_iff.
+  { typeclasses eauto. }
+  intros X Y HXY H.
+  destruct HXY as [f [Hcont_f [g [Hcont_g Hfg]]]].
+  intros y F Hcl Hn.
+  specialize (H (g y) (inverse_image f F)) as [U [V [HopenU [HopenV [HinU [Hincl eq]]]]]].
+  { now apply continuous_closed. }
+  { intros [contra].
+    now rewrite (proj2 Hfg) in contra.
+  }
+  exists (inverse_image g U), (inverse_image g V).
+  repeat split;
+    try apply Hcont_g;
+    trivial.
+  - apply Hincl.
+    constructor.
+    now rewrite (proj2 Hfg).
+  - erewrite <- inverse_image_intersection, <- inverse_image_empty.
+    now f_equal.
 Qed.
 
 (** the [T3_sep] property is hereditary *)
@@ -207,12 +201,40 @@ Qed.
 
 Definition normal_sep (X:TopologicalSpace) : Prop :=
   T1_sep X /\
-  forall (F G:Ensemble (point_set X)),
+  forall (F G:Ensemble X),
   closed F -> closed G -> Intersection F G = Empty_set ->
-  exists U:Ensemble (point_set X), exists V:Ensemble (point_set X),
+  exists U:Ensemble X, exists V:Ensemble X,
   open U /\ open V /\ Included F U /\ Included G V /\
   Intersection U V = Empty_set.
 Definition T4_sep := normal_sep.
+
+Lemma topological_property_T4_sep : topological_property T4_sep.
+Proof.
+  apply topological_property_and.
+  { apply topological_property_T1_sep. }
+  apply proper_sym_impl_iff.
+  { typeclasses eauto. }
+  intros X Y HXY H.
+  intros F G HF_closed HG_closed HFG.
+  destruct HXY as [f [Hcont_f [g [Hcont_g Hfg]]]].
+  specialize (H (inverse_image f F) (inverse_image f G))
+    as [U [V [HU_open [HV_open [HFU [HGV HUV]]]]]].
+  { now apply continuous_closed. }
+  { now apply continuous_closed. }
+  { erewrite <- inverse_image_intersection, <- inverse_image_empty.
+    now f_equal.
+  }
+  exists (inverse_image g U), (inverse_image g V).
+  repeat split;
+    try apply Hcont_g;
+    trivial.
+  - apply HFU. constructor.
+    now rewrite (proj2 Hfg).
+  - apply HGV. constructor.
+    now rewrite (proj2 Hfg).
+  - erewrite <- inverse_image_intersection, <- inverse_image_empty.
+    now f_equal.
+Qed.
 
 Lemma T1_sep_impl_T0_sep: forall X:TopologicalSpace,
   T1_sep X -> T0_sep X.
@@ -316,8 +338,8 @@ Qed.
 
 Lemma Hausdorff_impl_net_limit_is_unique_cluster_point:
   forall {X:TopologicalSpace} {I:DirectedSet} (x:Net I X)
-    (x0:point_set X), Hausdorff X -> net_limit x x0 ->
-    forall y:point_set X, net_cluster_point x y -> y = x0.
+    (x0:X), Hausdorff X -> net_limit x x0 ->
+    forall y:X, net_cluster_point x y -> y = x0.
 Proof.
 intros.
 destruct (net_cluster_point_impl_subnet_converges _ _ x y H1) as
@@ -333,7 +355,7 @@ Qed.
 
 Lemma net_limit_is_unique_cluster_point_impl_Hausdorff:
   forall (X:TopologicalSpace),
-  (forall (I:DirectedSet) (x:Net I X) (x0 y:point_set X),
+  (forall (I:DirectedSet) (x:Net I X) (x0 y:X),
   net_limit x x0 -> net_cluster_point x y ->
   y = x0) -> Hausdorff X.
 Proof.
