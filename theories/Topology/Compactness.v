@@ -616,27 +616,31 @@ Qed.
 Lemma topological_property_compact :
   topological_property compact.
 Proof.
-  intros X Y f [g Hcont_f Hcont_g Hgf Hfg] Hcomp F H eq.
+  apply Build_topological_property.
+  intros X Y f Hcont_f g Hcont_g Hfg Hcomp F H eq.
   destruct (Hcomp (inverse_image (inverse_image g) F)) as [F' [H1 [H2 H3]]].
   - intros.
-    rewrite <- (inverse_image_id_comp Hgf).
+    rewrite <- (inverse_image_id_comp (proj1 Hfg)).
     apply Hcont_f, H.
     now destruct H0.
   - erewrite <- inverse_image_full,
-             <- (inverse_image_id_comp Hgf (FamilyUnion _)).
+             <- (inverse_image_id_comp (proj1 Hfg) (FamilyUnion _)).
     f_equal.
-    now rewrite <- (inverse_image_family_union F Hgf),
-               inverse_image_id_comp.
+    erewrite <- inverse_image_family_union.
+    2, 3: apply Hfg.
+    rewrite inverse_image_id_comp; auto.
+    apply Hfg.
   - exists (inverse_image (inverse_image f) F').
     split; [|split].
     + apply injective_finite_inverse_image; auto.
       apply inverse_image_surjective_injective.
       apply invertible_impl_bijective.
-      exists g; assumption.
+      exists g; apply Hfg.
     + intros S [Hin].
       destruct (H2 _ Hin) as [H0].
-      now rewrite inverse_image_id_comp in H0.
-    + rewrite <- (inverse_image_family_union _ Hfg Hgf), H3.
+      rewrite inverse_image_id_comp in H0; auto.
+      apply Hfg.
+    + rewrite <- (inverse_image_family_union _ (proj2 Hfg) (proj1 Hfg)), H3.
       apply inverse_image_full.
 Qed.
 
@@ -684,7 +688,8 @@ Proof.
   intros.
   apply bijective_impl_invertible in H1.
   destruct H1 as [g Hgf Hfg].
-  exists g; auto.
+  split; auto.
+  exists g. repeat split; auto.
   apply continuous_closed.
   intros.
   assert (compact (SubspaceTopology U)) as HU_compact.
