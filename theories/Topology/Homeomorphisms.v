@@ -1,30 +1,29 @@
-From Coq Require Export
-  Relation_Definitions.
-From ZornsLemma Require Import
-  EnsemblesTactics
-  Relation_Definitions_Implicit.
+From Coq Require Import
+  Morphisms.
 From Topology Require Export
   TopologicalSpaces
   Continuity.
+From Coq Require Import
+  RelationClasses.
 
-Inductive homeomorphism {X Y:TopologicalSpace}
-  (f:X -> Y) : Prop :=
-| intro_homeomorphism: forall g:Y -> X,
-  continuous f -> continuous g ->
-  (forall x:X, g (f x) = x) ->
-  (forall y:Y, f (g y) = y) -> homeomorphism f.
+Definition homeomorphism {X Y : TopologicalSpace}
+  (f : X -> Y) : Prop :=
+  continuous f /\
+  exists g : Y -> X,
+    continuous g /\
+      inverse_map f g.
 
 Lemma homeomorphism_is_invertible: forall {X Y:TopologicalSpace}
   (f:X -> Y),
   homeomorphism f -> invertible f.
 Proof.
 intros.
-destruct H as [g].
-exists g; trivial.
+destruct H as [_ [g]].
+unfold inverse_map in *.
+exists g; tauto.
 Qed.
 
-Definition open_map {X Y:TopologicalSpace}
-  (f:X -> Y) : Prop :=
+Definition open_map {X Y:TopologicalSpace} (f:X -> Y) : Prop :=
 forall U:Ensemble X, open U -> open (Im U f).
 
 Lemma homeomorphism_is_open_map: forall {X Y:TopologicalSpace}
@@ -32,52 +31,117 @@ Lemma homeomorphism_is_open_map: forall {X Y:TopologicalSpace}
   homeomorphism f -> open_map f.
 Proof.
 intros.
-destruct H as [g].
+destruct H as [Hf [g [Hg]]].
 red; intros.
-rewrite inverse_map_image_inverse_image with f g U.
-{ apply H0, H3. }
-split; assumption.
+erewrite inverse_map_image_inverse_image;
+  eauto.
 Qed.
 
 Lemma invertible_open_map_is_homeomorphism: forall {X Y:TopologicalSpace}
   (f:X -> Y),
   invertible f -> continuous f -> open_map f -> homeomorphism f.
 Proof.
-intros.
+intros. split; auto.
 destruct H as [g].
-exists g; trivial.
-red.
-intros.
-rewrite <- inverse_map_image_inverse_image with f g V.
-{ apply H1, H3. }
-split; assumption.
+exists g; split; [|split]; try tauto.
+intros U HU.
+erewrite <- inverse_map_image_inverse_image;
+  eauto. split; auto.
+Qed.
+
+(** every continuous self-inverse map is a homeomorphism *)
+Lemma homeomorphism_cont_involution (X : TopologicalSpace)
+  (f : X -> X) :
+  continuous f -> (forall x, f (f x) = x) -> homeomorphism f.
+Proof.
+  intros Hf Hff.
+  split; auto.
+  exists f; split; auto.
+  split; auto.
 Qed.
 
 Lemma homeomorphism_id (X : TopologicalSpace) : homeomorphism (@id X).
 Proof.
-  exists id; auto using continuous_identity.
+  apply homeomorphism_cont_involution; auto.
+  apply continuous_identity.
 Qed.
 
-Inductive homeomorphic (X Y:TopologicalSpace) : Prop :=
-| intro_homeomorphic: forall f:X -> point_set Y,
-    homeomorphism f -> homeomorphic X Y.
+Lemma homeomorphism_compose {X Y Z : TopologicalSpace}
+  (f : X -> Y) (g : Y -> Z) :
+  homeomorphism f -> homeomorphism g ->
+  homeomorphism (compose g f).
+Proof.
+  intros [Hf [f0 [Hf0 Hff]]] [Hg [g0 [Hg0 Hgg]]].
+  split.
+  { unfold compose. apply continuous_composition; auto. }
+  exists (compose f0 g0). split.
+  { unfold compose. apply continuous_composition; auto. }
+  apply inverse_map_compose; auto.
+Qed.
 
-Lemma homeomorphic_equiv: equivalence homeomorphic.
+Definition homeomorphic (X Y : TopologicalSpace) : Prop :=
+  exists f : X -> Y, homeomorphism f.
+
+Instance homeomorphic_Equivalence : Equivalence homeomorphic.
 Proof.
 constructor.
 - eexists; eapply homeomorphism_id.
-- intros X Y Z ? ?.
-  destruct H as [f [finv]].
-  destruct H0 as [g [ginv]].
-  exists (fun x => g (f x)), (fun z => finv (ginv z));
-    congruence || now apply continuous_composition.
-- intros X Y ?.
-  destruct H as [f [finv]].
-  now exists finv, f.
+- intros X Y [f Hf].
+  destruct Hf as [Hf [g [Hg Hfg]]].
+  exists g. split; auto.
+  exists f; split; auto.
+  apply inverse_map_sym; auto.
+- intros X Y Z [f Hf] [g Hg].
+  exists (compose g f).
+  apply homeomorphism_compose; assumption.
 Qed.
 
+(** To prove `topological_property` it is helpful to use
+  `Coq.Classes.Morphisms.proper_sym_impl_iff` *)
 Definition topological_property (P : TopologicalSpace -> Prop) :=
-  forall (X Y : TopologicalSpace) (f : X -> Y),
-    homeomorphism f -> P X -> P Y.
+  Proper (homeomorphic ==> iff) P.
 
-Global Hint Unfold topological_property : homeo.
+(** a lemma to prove [topological_property] more easily, with less
+  boilerplate *)
+Lemma Build_topological_property (P : TopologicalSpace -> Prop) :
+  (forall (X Y : TopologicalSpace)
+     (f : X -> Y) (Hf : continuous f)
+     (g : Y -> X) (Hg : continuous g)
+     (Hfg : inverse_map f g) (HX : P X), P Y) ->
+  topological_property P.
+Proof.
+  intros H.
+  apply proper_sym_impl_iff.
+  { typeclasses eauto. }
+  intros X Y [f [Hf [g [Hg Hfg]]]].
+  exact (H X Y f Hf g Hg Hfg).
+Qed.
+
+Lemma topological_property_Proper (P Q : TopologicalSpace -> Prop) :
+  (forall X : TopologicalSpace, P X <-> Q X) ->
+  topological_property P -> topological_property Q.
+Proof.
+  intros HPQ HP X Y HXY.
+  rewrite <- !HPQ.
+  exact (HP X Y HXY).
+Qed.
+
+Lemma topological_property_and (P Q : TopologicalSpace -> Prop) :
+  topological_property P -> topological_property Q ->
+  topological_property (fun X => P X /\ Q X).
+Proof.
+  intros HP HQ X Y HXY.
+  specialize (HP X Y HXY).
+  specialize (HQ X Y HXY).
+  tauto.
+Qed.
+
+Lemma topological_property_or (P Q : TopologicalSpace -> Prop) :
+  topological_property P -> topological_property Q ->
+  topological_property (fun X => P X \/ Q X).
+Proof.
+  intros HP HQ X Y HXY.
+  specialize (HP X Y HXY).
+  specialize (HQ X Y HXY).
+  tauto.
+Qed.

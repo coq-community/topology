@@ -715,34 +715,37 @@ pose (U := characteristic_function_to_ensemble
 pose proof (open_interval_homeomorphic_to_real_line).
 fold U in H2.
 simpl in H2.
-destruct H2 as [a [b]].
+destruct H2 as [a [Ha [b [Hb Hab]]]].
 pose (f0 := fun x:SubspaceTopology F => subspace_inc U (a (f x))).
 destruct (open_bounded_Tietze_extension_theorem X F f0) as [g0 [? []]];
   trivial.
-- unfold f0.
+{ unfold f0.
   apply continuous_composition.
-  + apply subspace_inc_continuous.
-  + now apply continuous_composition.
-- intros.
+  - apply subspace_inc_continuous.
+  - now apply continuous_composition.
+}
+{ intros.
   unfold f0.
   destruct (a (f x)).
   now destruct i.
-- assert (forall x:X, In U (g0 x)).
-  { intros.
-    constructor.
-    apply H8. }
-  pose (g0_U := continuous_factorization g0 U H9).
-  assert (continuous g0_U) by
-    now apply factorization_is_continuous.
-  exists (fun x:X => b (g0_U x)).
-  split.
-  { now apply continuous_composition. }
-  intros.
-  unfold g0_U, continuous_factorization.
-  generalize (H9 (subspace_inc F x)).
-  rewrite H7.
-  intros.
-  replace (exist _ (f0 x) i) with (a (f x)) by
-    now apply (proj1_sig_injective (In U)).
+}
+assert (forall x:X, In U (g0 x)) as HUg0.
+{ intros.
+  constructor.
   apply H4.
+}
+pose (g0_U := continuous_factorization g0 U HUg0).
+assert (continuous g0_U) by
+  now apply factorization_is_continuous.
+exists (fun x:X => b (g0_U x)).
+split.
+{ now apply continuous_composition. }
+intros.
+unfold g0_U, continuous_factorization.
+generalize (HUg0 (subspace_inc F x)).
+rewrite H3.
+intros.
+replace (exist _ (f0 x) i) with (a (f x)) by
+  now apply (proj1_sig_injective (In U)).
+apply Hab.
 Qed.
