@@ -384,14 +384,3 @@ Proof.
   apply injective_finite_inverse_image_Singleton.
   assumption.
 Qed.
-
-Corollary inverse_image_finite {X Y : Type} (f : X -> Y) (F : Family X) :
-  surjective f ->
-  Finite F ->
-  Finite (inverse_image (inverse_image f) F).
-Proof.
-  intros Hf H.
-  apply injective_finite_inverse_image; auto.
-  apply inverse_image_surjective_injective.
-  assumption.
-Qed.

@@ -64,7 +64,8 @@ apply H in eqF.
 - destruct eqF as [F' [H1 [H2 H3]]].
   exists (inverse_image (inverse_image (quotient_projection R)) F').
   repeat split.
-  + apply inverse_image_finite; trivial.
+  + apply injective_finite_inverse_image; auto.
+    apply inverse_image_surjective_injective.
     apply quotient_projection_surjective'.
   + intros U [H4].
     apply H2 in H4.

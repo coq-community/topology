@@ -616,10 +616,10 @@ Proof.
                inverse_image_id_comp.
   - exists (inverse_image (inverse_image f) F').
     split; [|split].
-    + apply inverse_image_finite; trivial.
-      intro y.
-      exists (g y).
-      now rewrite Hfg.
+    + apply injective_finite_inverse_image; auto.
+      apply inverse_image_surjective_injective.
+      apply invertible_impl_bijective.
+      exists g; assumption.
     + intros S [Hin].
       destruct (H2 _ Hin) as [H0].
       now rewrite inverse_image_id_comp in H0.
