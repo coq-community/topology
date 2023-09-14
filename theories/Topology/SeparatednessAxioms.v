@@ -60,7 +60,7 @@ Proof.
   rewrite <- (proj1 (injective_inverse_image_Singleton g)).
   2: {
     apply invertible_impl_bijective.
-    exists f; apply Hfg.
+    exists f. apply inverse_map_sym, Hfg.
   }
   apply continuous_closed.
   { apply Hcont_g. }

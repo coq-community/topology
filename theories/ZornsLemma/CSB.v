@@ -203,11 +203,21 @@ unfold CSB_bijection2; case (classic_dec (Y_even y)).
   + trivial.
 Qed.
 
+Theorem CSB_inverse_map :
+  exists (h0 : X -> Y) (h1 : Y -> X),
+    inverse_map h0 h1.
+Proof.
+  exists CSB_bijection, CSB_bijection2.
+  split.
+  - exact CSB_comp1.
+  - exact CSB_comp2.
+Qed.
+
 Theorem CSB: exists h:X->Y, bijective h.
 Proof.
 exists CSB_bijection.
 apply invertible_impl_bijective.
-exists CSB_bijection2.
+exists CSB_bijection2. split.
 - exact CSB_comp1.
 - exact CSB_comp2.
 Qed.
