@@ -32,12 +32,13 @@ Proof.
     + destruct (p None) eqn:?.
       * right. intros. destruct o; auto.
       * left. exists None. assumption.
-  - specialize (IHFiniteT (fun x => p (f x))) as [[o]|].
+  - destruct H0 as [f Hf].
+    specialize (IHFiniteT (fun x => p (f x))) as [[o]|].
     + left. exists (f o). assumption.
     + right. intros.
-      destruct H0 as [g].
-      rewrite <- (H2 o).
-      apply H1.
+      destruct Hf as [g Hfg].
+      rewrite <- (proj2 Hfg o).
+      apply H0.
 Qed.
 
 (* Lemma 7 of the above paper. *)

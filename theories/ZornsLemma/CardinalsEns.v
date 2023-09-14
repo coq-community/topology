@@ -794,9 +794,10 @@ Proof.
           exists n. subst. unfold f0.
           apply subset_eq. reflexivity.
       }
-      destruct H as [g Hg0 Hg1].
-      eapply bij_finite with (f := g); eauto.
-      eexists; eauto.
+      destruct H as [g Hg0].
+      eapply bij_finite with _.
+      2: exists g, f0; split; apply Hg0.
+      assumption.
   - (* <- *)
     intros [[[H0 H1]|[f [Hf0 Hf1]]] H2].
     { specialize (H0 0). contradiction. }

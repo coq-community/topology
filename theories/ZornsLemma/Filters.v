@@ -41,10 +41,11 @@ induction H.
   apply filter_intersection.
   + apply IHFiniteT; auto.
   + apply H0.
-- rewrite IndexedIntersection_surj_fn with S f.
+- destruct H1 as [f Hf].
+  rewrite IndexedIntersection_surj_fn with S f.
   2: {
-    apply invertible_impl_bijective in H1.
-    apply H1.
+    apply invertible_impl_bijective.
+    assumption.
   }
   apply IHFiniteT; auto.
 Qed.

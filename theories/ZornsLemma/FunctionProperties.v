@@ -14,17 +14,8 @@ Definition inverse_map {X Y : Type}
   (forall x, g (f x) = x) /\
     (forall y, f (g y) = y).
 
-Inductive invertible {X Y : Type} (f : X -> Y) : Prop :=
-| intro_invertible (g : Y -> X) :
-  (forall x : X, g (f x) = x) ->
-  (forall y : Y, f (g y) = y) ->
-  invertible f.
-
-Lemma invertible_char {X Y : Type} (f : X -> Y) :
-  invertible f <-> exists g : Y -> X, inverse_map f g.
-Proof.
-  firstorder.
-Qed.
+Definition invertible {X Y:Type} (f:X->Y) : Prop :=
+  exists g : Y -> X, inverse_map f g.
 
 Lemma inverse_map_sym {X Y : Type}
   (f : X -> Y) (g : Y -> X) :
@@ -45,16 +36,15 @@ transitivity (g0 (f (g1 y))).
 Qed.
 
 Lemma unique_inverse: forall {X Y:Type} (f:X->Y), invertible f ->
-  exists! g:Y->X, inverse_map f g.
+  exists! g:Y->X, inverse_map f g. 
 Proof.
 intros X Y f [g Hfg].
 exists g.
 split.
-{ split; assumption. }
-intros h [].
+{ assumption. }
+intros h Hfh.
 extensionality y.
-symmetry.
-eapply inverse_map_unique; firstorder.
+eapply inverse_map_unique; eassumption.
 Qed.
 
 Definition function_inverse {X Y:Type} (f:X->Y)
@@ -83,7 +73,7 @@ assert (forall y:Y, {x:X | f x = y}).
 pose (g := fun y:Y => proj1_sig (X0 y)).
 pose proof (fun y:Y => proj2_sig (X0 y)).
 simpl in H1.
-exists g.
+exists g. split.
 - intro.
   apply H.
   unfold g; rewrite H1.
@@ -96,7 +86,7 @@ Lemma invertible_impl_bijective: forall {X Y:Type} (f:X->Y),
   invertible f -> bijective f.
 Proof.
 intros.
-destruct H as [g].
+destruct H as [g []].
 split.
 - red; intros.
   congruence.
@@ -162,9 +152,8 @@ Lemma invertible_compose {X Y Z : Type} (f : X -> Y) (g : Y -> Z) :
   invertible f -> invertible g -> invertible (compose g f).
 Proof.
 intros [f0 Hf] [g0 Hg].
-apply invertible_char.
 exists (compose f0 g0).
-apply inverse_map_compose; split; assumption.
+apply inverse_map_compose; assumption.
 Qed.
 
 Lemma surjective_compose_conv {X Y Z : Type} (f : X -> Y) (g : Y -> Z) :
