@@ -16,8 +16,6 @@ From ZornsLemma Require Export
 From Coq Require Import
   RelationClasses.
 
-Definition eq_cardinal (A B : Type) : Prop :=
-  exists f : A -> B, bijective f.
 Definition le_cardinal (A B : Type) : Prop :=
   exists f : A -> B, injective f.
 
@@ -27,21 +25,6 @@ Definition ge_cardinal (kappa lambda:Type) : Prop :=
   le_cardinal lambda kappa.
 Definition gt_cardinal (kappa lambda:Type) : Prop :=
   lt_cardinal lambda kappa.
-
-Global Instance eq_cardinal_equiv : Equivalence eq_cardinal.
-Proof.
-split.
-- red; intro. exists id. apply id_bijective.
-- red; intros ? ? [f Hf].
-  apply bijective_impl_invertible in Hf.
-  destruct Hf as [g Hfg Hgf].
-  exists g.
-  apply invertible_impl_bijective.
-  exists f; auto.
-- intros ? ? ? [f Hf] [g Hg].
-  exists (compose g f).
-  apply bijective_compose; auto.
-Qed.
 
 #[export]
 Instance le_cardinal_preorder : PreOrder le_cardinal.
@@ -59,20 +42,20 @@ Instance le_cardinal_PartialOrder :
 Proof.
 split.
 - intros [f Hf]; split.
-  + exists f; apply Hf.
-  + apply bijective_impl_invertible in Hf.
-    destruct Hf as [g Hgf Hfg].
+  + exists f. apply invertible_impl_bijective; assumption.
+  + destruct Hf as [g Hfg].
     exists g. apply invertible_impl_bijective.
-    exists f; auto.
+    exists f. apply inverse_map_sym.
+    assumption.
 - intros [[f Hf] [g Hg]].
-  apply CSB with (f := f) (g := g); auto.
+  apply CSB_inverse_map with (f := f) (g := g); auto.
 Qed.
 
 Lemma eq_cardinal_impl_le_cardinal: forall kappa lambda: Type,
   eq_cardinal kappa lambda -> le_cardinal kappa lambda.
 Proof.
 intros ? ? [f Hf].
-exists f. apply Hf.
+exists f. apply invertible_impl_bijective; auto.
 Qed.
 
 (** This lemma is helpful, if one wants
@@ -174,6 +157,7 @@ split.
   assumption.
 - intros [f Hf].
   apply (cantor_diag2 _ f).
+  apply invertible_impl_bijective.
   apply Hf.
 Qed.
 
@@ -564,18 +548,17 @@ Lemma FiniteT_cardinality {X : Type} :
   FiniteT X <-> lt_cardinal X nat.
 Proof.
 split; intros.
-- constructor.
+- split.
   + destruct (FiniteT_nat_embeds H) as [f].
     exists f. assumption.
-  + intros [f []].
+  + intros H0.
     apply nat_infinite.
-    apply surj_finite with (f := f); auto.
-    intros; apply classic.
+    apply bij_finite with X; assumption.
 - destruct H as [[f Hf] H].
   apply NNPP. intro.
   destruct (infinite_nat_inj _ H0) as [g].
   contradict H.
-  apply CSB with (f := f) (g := g);
+  apply CSB_inverse_map with (f := f) (g := g);
     auto.
 Qed.
 
@@ -594,15 +577,13 @@ split.
     contradiction.
   + (* |B| ≠ |A| *)
     intro.
-    destruct H0 as [f Hf].
-    apply bijective_impl_invertible in Hf.
-    destruct Hf as [g Hgf Hfg].
+    destruct H0 as [f [g [Hgf Hfg]]].
     pose proof (invertible_impl_bijective g).
     destruct H0 as [Hg0 Hg1].
-    { exists f; assumption. }
+    { exists f; split; assumption. }
     apply (H g Hg0).
 - intros [[f Hf]] g Hg.
   contradict H.
-  apply CSB with (f := f) (g := g);
+  apply CSB_inverse_map with (f := f) (g := g);
     assumption.
 Qed.

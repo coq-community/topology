@@ -88,10 +88,10 @@ induction H.
 - rewrite IndexedIntersection_option_Intersection.
   constructor 3; auto.
   constructor 2; trivial.
-- rewrite IndexedIntersection_surj_fn with V f.
+- destruct H1 as [f Hf].
+  rewrite IndexedIntersection_surj_fn with V f.
   2: {
-    apply invertible_impl_bijective in H1.
-    destruct H1. assumption.
+    apply invertible_impl_bijective; auto.
   }
   apply IHFiniteT.
   auto.

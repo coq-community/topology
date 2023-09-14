@@ -38,8 +38,9 @@ apply exclusive_dec.
 - intro.
   destruct H0 as [? [f ?]].
   contradiction nat_infinite.
-  apply bij_finite with _ f; trivial.
-  apply bijective_impl_invertible; trivial.
+  apply bijective_impl_invertible in H1.
+  apply bij_finite with X; auto.
+  exists f; auto.
 - destruct (classic (FiniteT X)).
   + left; trivial.
   + right.
@@ -139,15 +140,16 @@ induction H.
   intros.
   pose proof (equal_f H4).
   apply H5.
-- destruct H1 as [f1], IHFiniteT as [f0].
+- destruct H1 as [f [f1 Hf]].
+  destruct IHFiniteT as [f0 Hf0].
   exists (fun h => f0 (fun x => h (f x))).
   intros h1 h2 ?.
-  apply H3 in H4.
-  pose proof (equal_f H4).
-  simpl in H5.
+  apply Hf0 in H1.
+  pose proof (equal_f H1).
+  simpl in H2.
   extensionality y.
-  rewrite <- (H2 y).
-  apply H5.
+  rewrite <- (proj2 Hf y).
+  apply H2.
 Qed.
 
 Lemma inj_countable {X Y : Type} (f : X -> Y) :
@@ -185,10 +187,11 @@ induction H.
     injection H1 as H1 + discriminate H1 + trivial.
   now destruct (H0 _ _ H1).
 - destruct IHFiniteT as [g],
-           H0 as [finv].
+           H0 as [f [finv]].
   exists (fun y:Y => g (finv y)).
   intros y1 y2 ?.
-  apply H1 in H3.
+  apply H1 in H2.
+  destruct H0.
   congruence.
 Qed.
 

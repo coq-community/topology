@@ -25,14 +25,9 @@ assert (inhabited (forall S:Ensemble X, Finite S ->
     assert (x = Full_set).
     { apply Extensionality_Ensembles; red; split; auto with sets. }
     subst.
-    contradiction H.
-    apply bij_finite with (f:=@proj1_sig _ (fun x:X => In Full_set x)).
-    { apply Finite_ens_type; assumption. }
-    exists (fun x:X => exist _ x (Full_intro _ x)).
-    - destruct x; simpl.
-      generalize (Full_intro X x).
-      intro i0; destruct (proof_irrelevance _ i i0); trivial.
-    - trivial.
+    contradict H.
+    apply Finite_full_impl_FiniteT.
+    assumption.
   }
   clear H0.
   destruct H1.
