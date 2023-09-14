@@ -3,6 +3,7 @@ From ZornsLemma Require Import EnsemblesImplicit.
 From ZornsLemma Require Export Families.
 From ZornsLemma Require Export IndexedFamilies.
 From ZornsLemma Require Export FiniteTypes.
+From ZornsLemma Require Import FiniteIntersections.
 From ZornsLemma Require Import EnsemblesSpec.
 From ZornsLemma Require Import Powerset_facts.
 
@@ -53,52 +54,25 @@ destruct H0.
 rewrite H1; apply H.
 Qed.
 
+Lemma open_finite_intersections (X : TopologicalSpace) :
+  Included (finite_intersections (@open X)) open.
+Proof.
+  intros U HU.
+  induction HU; auto.
+  { apply open_full. }
+  apply open_intersection2; assumption.
+Qed.
+
 Lemma open_finite_indexed_intersection:
   forall {X:TopologicalSpace} {A:Type}
     (F:IndexedFamily A X),
     FiniteT A -> (forall a:A, open (F a)) ->
     open (IndexedIntersection F).
 Proof.
-intros.
-induction H.
-- rewrite empty_indexed_intersection.
-  apply open_full.
-- assert (IndexedIntersection F = Intersection
-    (IndexedIntersection (fun x:T => F (Some x)))
-    (F None)).
-  { apply Extensionality_Ensembles; split; red; intros.
-    - destruct H1.
-      constructor.
-      + constructor.
-        intros; apply H1.
-      + apply H1.
-    - destruct H1.
-      destruct H1.
-      constructor.
-      destruct a.
-      + apply H1.
-      + apply H2.
-  }
-  rewrite H1.
-  apply open_intersection2.
-  + apply IHFiniteT.
-    intros; apply H0.
-  + apply H0.
-- destruct H1.
-  assert (IndexedIntersection F =
-    IndexedIntersection (fun x:X0 => F (f x))).
-  { apply Extensionality_Ensembles; split; red; intros.
-    - constructor.
-      destruct H3.
-      intro; apply H3.
-    - constructor.
-      destruct H3.
-      intro; rewrite <- H2 with a.
-      apply H3.
-  }
-  rewrite H3.
-  apply IHFiniteT.
-  intro; apply H0.
+intros X A F HA HF.
+apply open_finite_intersections.
+apply finite_indexed_intersection_is_finite_intersection;
+  assumption.
 Qed.
 
 Lemma open_finite_family_intersection:
