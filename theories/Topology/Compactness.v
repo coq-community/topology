@@ -687,7 +687,7 @@ Lemma compact_hausdorff_homeo {X Y : TopologicalSpace} (f : X -> Y) :
 Proof.
   intros.
   apply bijective_impl_invertible in H1.
-  destruct H1 as [g Hgf Hfg].
+  destruct H1 as [g [Hgf Hfg]].
   split; auto.
   exists g. repeat split; auto.
   apply continuous_closed.

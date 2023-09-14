@@ -18,9 +18,8 @@ Lemma homeomorphism_is_invertible: forall {X Y:TopologicalSpace}
   homeomorphism f -> invertible f.
 Proof.
 intros.
-destruct H as [_ [g]].
-unfold inverse_map in *.
-exists g; tauto.
+destruct H as [_ [g []]].
+exists g; assumption.
 Qed.
 
 Definition open_map {X Y:TopologicalSpace} (f:X -> Y) : Prop :=
@@ -37,16 +36,31 @@ erewrite inverse_map_image_inverse_image;
   eauto.
 Qed.
 
+Lemma inverse_open_map_continuous
+  {X Y : TopologicalSpace} (f : X -> Y) (g : Y -> X) :
+  inverse_map f g ->
+  open_map f <-> continuous g.
+Proof.
+  intros Hfg.
+  split.
+  - (* -> *)
+    intros Hf U HU.
+    erewrite <- inverse_map_image_inverse_image;
+      eauto.
+  - (* <- *)
+    intros Hg U HU.
+    erewrite inverse_map_image_inverse_image;
+      eauto.
+Qed.
+
 Lemma invertible_open_map_is_homeomorphism: forall {X Y:TopologicalSpace}
   (f:X -> Y),
   invertible f -> continuous f -> open_map f -> homeomorphism f.
 Proof.
-intros. split; auto.
-destruct H as [g].
-exists g; split; [|split]; try tauto.
-intros U HU.
-erewrite <- inverse_map_image_inverse_image;
-  eauto. split; auto.
+intros X Y f [g Hfg] Hfcont Hfopen.
+split; auto.
+exists g; split; auto.
+eapply inverse_open_map_continuous; eassumption.
 Qed.
 
 (** every continuous self-inverse map is a homeomorphism *)
