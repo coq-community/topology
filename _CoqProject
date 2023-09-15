@@ -62,7 +62,6 @@ theories/ZornsLemma/FunctionPropertiesEns.v
 theories/ZornsLemma/Image.v
 theories/ZornsLemma/ImageImplicit.v
 theories/ZornsLemma/IndexedFamilies.v
-theories/ZornsLemma/InfiniteTypes.v
 theories/ZornsLemma/InverseImage.v
 theories/ZornsLemma/Ordinals.v
 theories/ZornsLemma/Powerset_facts.v

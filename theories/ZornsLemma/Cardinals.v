@@ -1,23 +1,19 @@
-From Coq Require Export
+From Coq Require Import
   ClassicalChoice
   Description
   FunctionalExtensionality
-  ProofIrrelevance
-  Relation_Definitions.
-From ZornsLemma Require Export
-  CountableTypes
+  ProofIrrelevance.
+From ZornsLemma Require Import
   CSB
-  FiniteTypes
-  InfiniteTypes
   FunctionProperties
   FunctionPropertiesEns
-  Relation_Definitions_Implicit
   ZornsLemma.
-From Coq Require Import
-  RelationClasses.
+From Coq Require Import RelationClasses.
 
 Definition le_cardinal (A B : Type) : Prop :=
   exists f : A -> B, injective f.
+Definition eq_cardinal (X Y : Type) : Prop :=
+  exists (f : X -> Y) (g : Y -> X), inverse_map f g.
 
 Definition lt_cardinal (kappa lambda:Type) : Prop :=
   le_cardinal kappa lambda /\ ~ eq_cardinal kappa lambda.
@@ -34,6 +30,18 @@ split.
 - intros ? ? ? [f Hf] [g Hg].
   exists (compose g f).
   apply injective_compose; auto.
+Qed.
+
+#[export]
+Instance eq_cardinal_equiv : Equivalence eq_cardinal.
+Proof.
+split.
+- red; intro. exists id, id. apply id_inverse_map.
+- red; intros ? ? [f [g Hfg]].
+  exists g, f. apply inverse_map_sym. assumption.
+- intros ? ? ? [f Hf] [g Hg].
+  exists (compose g f).
+  apply invertible_compose; assumption.
 Qed.
 
 #[export]
@@ -88,12 +96,6 @@ Proof.
   destruct (proof_irrelevance _ Hy0 Hy1).
   reflexivity.
 Qed.
-
-Definition countable_img_inj {X Y : Type} (f : X -> Y) (U : Ensemble X) :
-  injective_ens f U ->
-  CountableT X ->
-  Countable (Im U f) :=
-  @le_cardinal_img_inj_ens X Y nat f U.
 
 Lemma cantor_diag: forall (X:Type) (f:X->(X->bool)),
   ~ surjective f.
@@ -536,30 +538,6 @@ intros T0 T1.
 destruct (types_comparable T0 T1) as [[f]|[f]];
   [left|right];
   exists f; assumption.
-Qed.
-
-Lemma CountableT_cardinality {X : Type} :
-  CountableT X <-> le_cardinal X nat.
-Proof.
-  reflexivity.
-Qed.
-
-Lemma FiniteT_cardinality {X : Type} :
-  FiniteT X <-> lt_cardinal X nat.
-Proof.
-split; intros.
-- split.
-  + destruct (FiniteT_nat_embeds H) as [f].
-    exists f. assumption.
-  + intros H0.
-    apply nat_infinite.
-    apply bij_finite with X; assumption.
-- destruct H as [[f Hf] H].
-  apply NNPP. intro.
-  destruct (infinite_nat_inj _ H0) as [g].
-  contradict H.
-  apply CSB_inverse_map with (f := f) (g := g);
-    auto.
 Qed.
 
 Lemma cardinal_no_inj_equiv_lt_cardinal (A B : Type) :
