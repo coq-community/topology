@@ -283,6 +283,23 @@ Proof.
     assumption.
 Qed.
 
+Lemma inverse_map_image_inverse_image {X Y : Type}
+  (f : X -> Y) (g : Y -> X) :
+  inverse_map f g ->
+  forall (U : Ensemble X),
+    Im U f = inverse_image g U.
+Proof.
+  intros [Hfg0 Hfg1] U.
+  apply Extensionality_Ensembles; split; red.
+  - intros y Hy.
+    destruct Hy as [x Hx y Hy].
+    subst. constructor.
+    congruence.
+  - intros y [Hy].
+    rewrite <- Hfg1.
+    apply Im_def. assumption.
+Qed.
+
 Lemma inverse_image_image_surjective_locally {X Y} (f : X -> Y) (T : Ensemble Y) :
   (forall y, In T y -> exists x, f x = y) ->
   Im (inverse_image f T) f = T.

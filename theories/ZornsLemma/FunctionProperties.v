@@ -9,32 +9,56 @@ Definition surjective {X Y:Type} (f:X->Y) :=
 Definition bijective {X Y:Type} (f:X->Y) :=
   injective f /\ surjective f.
 
-Inductive invertible {X Y:Type} (f:X->Y) : Prop :=
-  | intro_invertible: forall g:Y->X,
-  (forall x:X, g (f x) = x) -> (forall y:Y, f (g y) = y) ->
+Definition inverse_map {X Y : Type}
+  (f : X -> Y) (g : Y -> X) :=
+  (forall x, g (f x) = x) /\
+    (forall y, f (g y) = y).
+
+Inductive invertible {X Y : Type} (f : X -> Y) : Prop :=
+| intro_invertible (g : Y -> X) :
+  (forall x : X, g (f x) = x) ->
+  (forall y : Y, f (g y) = y) ->
   invertible f.
 
-Lemma unique_inverse: forall {X Y:Type} (f:X->Y), invertible f ->
-  exists! g:Y->X, (forall x:X, g (f x) = x) /\
-             (forall y:Y, f (g y) = y).
+Lemma invertible_char {X Y : Type} (f : X -> Y) :
+  invertible f <-> exists g : Y -> X, inverse_map f g.
 Proof.
-intros.
-destruct H.
+  firstorder.
+Qed.
+
+Lemma inverse_map_sym {X Y : Type}
+  (f : X -> Y) (g : Y -> X) :
+  inverse_map f g -> inverse_map g f.
+Proof.
+unfold inverse_map. tauto.
+Qed.
+
+Lemma inverse_map_unique {X Y : Type}
+  (f : X -> Y) (g0 g1 : Y -> X) :
+  inverse_map f g0 -> inverse_map f g1 ->
+  forall y : Y, g0 y = g1 y.
+Proof.
+intros Hg0 Hg1 y.
+transitivity (g0 (f (g1 y))).
+- rewrite (proj2 Hg1). reflexivity.
+- rewrite (proj1 Hg0). reflexivity.
+Qed.
+
+Lemma unique_inverse: forall {X Y:Type} (f:X->Y), invertible f ->
+  exists! g:Y->X, inverse_map f g.
+Proof.
+intros X Y f [g Hfg].
 exists g.
-red; split.
-{ tauto. }
-intros.
-destruct H1.
+split.
+{ split; assumption. }
+intros h [].
 extensionality y.
-transitivity (g (f (x' y))).
-- rewrite H2. reflexivity.
-- rewrite H. reflexivity.
+symmetry.
+eapply inverse_map_unique; firstorder.
 Qed.
 
 Definition function_inverse {X Y:Type} (f:X->Y)
-  (i:invertible f) : { g:Y->X | (forall x:X, g (f x) = x) /\
-                                (forall y:Y, f (g y) = y) }
-  :=
+  (i:invertible f) : { g:Y->X | inverse_map f g } :=
      (constructive_definite_description _
       (unique_inverse f i)).
 
@@ -72,7 +96,7 @@ Lemma invertible_impl_bijective: forall {X Y:Type} (f:X->Y),
   invertible f -> bijective f.
 Proof.
 intros.
-destruct H.
+destruct H as [g].
 split.
 - red; intros.
   congruence.
@@ -88,6 +112,12 @@ intros.
 red; split; red; intros.
 - assumption.
 - exists y. reflexivity.
+Qed.
+
+Lemma id_inverse_map (X : Type) :
+  inverse_map (@id X) (@id X).
+Proof.
+  split; reflexivity.
 Qed.
 
 Lemma injective_compose {X Y Z : Type} (f : X -> Y) (g : Y -> Z) :
@@ -120,14 +150,21 @@ split.
 - apply surjective_compose; assumption.
 Qed.
 
+Lemma inverse_map_compose {X Y Z : Type}
+  (f0 : X -> Y) (f1 : Y -> X) (g0 : Y -> Z) (g1 : Z -> Y) :
+  inverse_map f0 f1 -> inverse_map g0 g1 ->
+  inverse_map (compose g0 f0) (compose f1 g1).
+Proof.
+unfold inverse_map, compose; intuition; congruence.
+Qed.
+
 Lemma invertible_compose {X Y Z : Type} (f : X -> Y) (g : Y -> Z) :
   invertible f -> invertible g -> invertible (compose g f).
 Proof.
-intros.
-destruct H as [f'], H0 as [g'].
-exists (compose f' g'); intros; unfold compose.
-- rewrite H0. apply H.
-- rewrite H1. apply H2.
+intros [f0 Hf] [g0 Hg].
+apply invertible_char.
+exists (compose f0 g0).
+apply inverse_map_compose; split; assumption.
 Qed.
 
 Lemma surjective_compose_conv {X Y Z : Type} (f : X -> Y) (g : Y -> Z) :

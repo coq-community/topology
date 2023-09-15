@@ -9,10 +9,10 @@ From Topology Require Export
 
 Inductive homeomorphism {X Y:TopologicalSpace}
   (f:X -> Y) : Prop :=
-| intro_homeomorphism: forall g:Y -> point_set X,
+| intro_homeomorphism: forall g:Y -> X,
   continuous f -> continuous g ->
-  (forall x:point_set X, g (f x) = x) ->
-  (forall y:point_set Y, f (g y) = y) -> homeomorphism f.
+  (forall x:X, g (f x) = x) ->
+  (forall y:Y, f (g y) = y) -> homeomorphism f.
 
 Lemma homeomorphism_is_invertible: forall {X Y:TopologicalSpace}
   (f:X -> Y),
@@ -34,14 +34,9 @@ Proof.
 intros.
 destruct H as [g].
 red; intros.
-assert (Im U f = inverse_image g U).
-{ extensionality_ensembles.
-  - subst.
-    constructor.
-    now rewrite H1.
-  - exists (g x); auto. }
-rewrite H4.
-auto.
+rewrite inverse_map_image_inverse_image with f g U.
+{ apply H0, H3. }
+split; assumption.
 Qed.
 
 Lemma invertible_open_map_is_homeomorphism: forall {X Y:TopologicalSpace}
@@ -53,13 +48,9 @@ destruct H as [g].
 exists g; trivial.
 red.
 intros.
-assert (inverse_image g V = Im V f).
-{ extensionality_ensembles.
-  - exists (g x); auto.
-  - constructor.
-    now rewrite H5, H. }
-rewrite H4.
-auto.
+rewrite <- inverse_map_image_inverse_image with f g V.
+{ apply H1, H3. }
+split; assumption.
 Qed.
 
 Lemma homeomorphism_id (X : TopologicalSpace) : homeomorphism (@id X).
