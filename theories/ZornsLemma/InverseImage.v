@@ -279,55 +279,6 @@ Proof.
     assumption.
 Qed.
 
-Lemma inverse_image_singleton
-  {X Y : Type}
-  (f : X -> Y)
-  (g : Y -> X)
-  (T : Ensemble Y) :
-  (forall x, g (f x) = x) ->
-  (forall y, f (g y) = y) ->
-  inverse_image (inverse_image g) (Singleton T) = Singleton (inverse_image f T).
-Proof.
-  intros Hgf Hfg.
-  rewrite inverse_image_fun.
-  apply Extensionality_Ensembles.
-  split;
-    red;
-    intros;
-    inversion H;
-    subst;
-    red;
-    rewrite inverse_image_id_comp;
-    constructor + assumption.
-Qed.
-
-Lemma inverse_image_add
-  {X Y : Type}
-  (f : X -> Y)
-  (g : Y -> X)
-  (F : Family Y)
-  (T : Ensemble Y) :
-  (forall x, g (f x) = x) ->
-  (forall y, f (g y) = y) ->
-  inverse_image (inverse_image g) (Add F T) =
-    Add (inverse_image (inverse_image g) F) (inverse_image f T).
-Proof.
-  intros Hgf Hfg.
-  apply Extensionality_Ensembles.
-  rewrite inverse_image_fun, inverse_image_fun.
-  split;
-    red;
-    intros;
-    inversion H;
-    subst;
-    (left;
-     assumption) +
-    (right;
-     inversion H0;
-     rewrite inverse_image_id_comp;
-     constructor + assumption).
-Qed.
-
 Lemma inverse_image_image_surjective_locally {X Y} (f : X -> Y) (T : Ensemble Y) :
   (forall y, In T y -> exists x, f x = y) ->
   Im (inverse_image f T) f = T.
