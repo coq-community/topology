@@ -123,6 +123,13 @@ Proof.
   intros ?; constructor.
 Qed.
 
+Lemma injective_ens_empty
+  {X Y : Type} (f : X -> Y) :
+  injective_ens f Empty_set.
+Proof.
+  intros ? ? ?. contradiction.
+Qed.
+
 Lemma bijective_ens_id {A : Type} (U : Ensemble A) :
   bijective_ens id U U.
 Proof.
@@ -166,9 +173,9 @@ Proof.
   subst. rewrite Hgf; auto.
 Qed.
 
-Lemma bijective_ens_impl_invertible_ens_dec
+Lemma bijective_impl_invertible_ens_dec
   {A B : Type} (f : A -> B) (U : Ensemble A) (V : Ensemble B)
-  (a0 : A) (HV : forall b : B, {In V b} + {~ In V b}) :
+  (a0 : A) (HV : forall b : B, In V b \/ ~ In V b) :
   range f U V ->
   bijective_ens f U V ->
   exists g : B -> A, inverse_pair_ens f g U V.
@@ -203,8 +210,8 @@ Lemma bijective_ens_impl_invertible_ens
   bijective_ens f U V ->
   exists g : B -> A, inverse_pair_ens f g U V.
 Proof.
-  apply bijective_ens_impl_invertible_ens_dec; auto.
-  intros ?. apply classic_dec.
+  apply bijective_impl_invertible_ens_dec; auto.
+  intros ?. apply classic.
 Qed.
 
 Lemma inverse_pair_ens_range_bijective_ens
@@ -257,6 +264,17 @@ Section compose.
     specialize (Hf y Hy) as [x [Hx Hxy]].
     subst.
     exists x; split; auto.
+  Qed.
+
+  Lemma bijective_ens_compose (f : A -> B) (g : B -> C) :
+    range f U V ->
+    bijective_ens f U V -> bijective_ens g V W ->
+    bijective_ens (compose g f) U W.
+  Proof.
+    intros Hf [Hf0 Hf1] [Hg0 Hg1].
+    split.
+    - eapply injective_ens_compose; eauto.
+    - eapply surjective_ens_compose; eauto.
   Qed.
 End compose.
 
@@ -410,4 +428,20 @@ Proof.
     specialize (Hg y) as [? _].
     specialize (H Hy) as [? _].
     congruence.
+Qed.
+
+Lemma image_surjective_ens_range {X Y : Type}
+  (f : X -> Y) (U : Ensemble X) (V : Ensemble Y) :
+  range f U V ->
+  surjective_ens f U V ->
+  V = Im U f.
+Proof.
+  intros Hf0 Hf1.
+  apply Extensionality_Ensembles; split.
+  - intros y Hy.
+    specialize (Hf1 y Hy) as [x [Hx Hxy]]; subst.
+    apply Im_def. assumption.
+  - intros y Hy.
+    destruct Hy as [x Hx y Hy].
+    subst. apply Hf0. assumption.
 Qed.
