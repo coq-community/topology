@@ -15,12 +15,6 @@ From ZornsLemma Require Import FiniteTypes.
 From ZornsLemma Require Import InfiniteTypes.
 From Coq Require Import RelationClasses.
 
-Fixpoint n_element_set (n:nat) : Set :=
-  match n with
-  | O => False
-  | S m => option (n_element_set m)
-  end.
-
 Definition eq_cardinal (A B : Type) : Prop :=
   exists f : A -> B, bijective f.
 Definition le_cardinal (A B : Type) : Prop :=
