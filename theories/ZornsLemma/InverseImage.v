@@ -1,8 +1,8 @@
-From ZornsLemma Require Export FunctionProperties.
-From Coq Require Export Ensembles.
-From ZornsLemma Require Import EnsemblesImplicit.
-From ZornsLemma Require Export EnsemblesSpec.
-From ZornsLemma Require Import IndexedFamilies.
+From ZornsLemma Require Export
+  FunctionProperties.
+From ZornsLemma Require Import
+  IndexedFamilies
+  Powerset_facts.
 
 Definition inverse_image {X Y:Type} (f:X->Y) (T:Ensemble Y) : Ensemble X :=
   [ x:X | In T (f x) ].
@@ -256,6 +256,29 @@ split; red; intros;
   eassumption + now destruct H1.
 Qed.
 
+Lemma injective_inverse_image_Singleton {X Y : Type}
+  (f : X -> Y) :
+  injective f <->
+  forall x, inverse_image f (Singleton (f x)) = Singleton x.
+Proof.
+  split.
+  - intros Hf x.
+    apply Extensionality_Ensembles; split.
+    + intros x0 Hx0.
+      destruct Hx0.
+      apply Singleton_inv in H.
+      apply Hf in H. subst. constructor.
+    + intros x0 Hx0.
+      destruct Hx0.
+      constructor.
+      constructor.
+  - intros Hf x0 x1 Hx.
+    apply Singleton_inv.
+    rewrite <- Hf.
+    constructor. apply Singleton_intro.
+    assumption.
+Qed.
+
 Lemma inverse_image_singleton
   {X Y : Type}
   (f : X -> Y)
@@ -342,23 +365,6 @@ destruct HU.
 inversion H0.
 subst.
 now rewrite inverse_image_image_surjective.
-Qed.
-
-Lemma inverse_image_finite {X Y : Type} (f : X -> Y) (F : Family X) :
-  surjective f ->
-  Finite F ->
-  Finite (inverse_image (inverse_image f) F).
-Proof.
-intros Hf H.
-induction H.
-- rewrite inverse_image_empty.
-  constructor.
-- unfold Add.
-  rewrite inverse_image_union2.
-  pose proof (Singleton_is_finite _ (Im x f)).
-  now eapply Union_preserves_Finite,
-             Finite_downward_closed,
-             inverse_image_surjective_singleton.
 Qed.
 
 Lemma inverse_image_surjective_injective

@@ -3,10 +3,17 @@
    Associativity, idempotence, commutativity, complements, distributivity, …
 *)
 
-From Coq.Sets Require Export Powerset_facts.
-From ZornsLemma Require Export EnsemblesImplicit EnsemblesTactics.
-From ZornsLemma Require Import FunctionProperties.
-From Coq Require Import Classical_Prop RelationClasses.
+From Coq Require Export
+  Sets.Classical_sets
+  Sets.Powerset_facts.
+From ZornsLemma Require Export
+  EnsemblesImplicit
+  EnsemblesTactics.
+From ZornsLemma Require Import
+  FunctionProperties.
+
+(* must be imported after [FunctionProperties] *)
+From Coq Require Import RelationClasses.
 
 Global Instance Included_PreOrder {X : Type} :
   PreOrder (@Included X).

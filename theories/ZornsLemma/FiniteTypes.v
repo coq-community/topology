@@ -1,16 +1,17 @@
-From Coq Require Export Ensembles.
-From ZornsLemma Require Import EnsemblesImplicit.
-From ZornsLemma Require Export Image.
-From ZornsLemma Require Import ImageImplicit.
-From Coq Require Export Finite_sets.
-From ZornsLemma Require Export FunctionProperties.
-From ZornsLemma Require Import DecidableDec.
+From Coq Require Import
+  Description
+  FunctionalExtensionality
+  Lia.
+From ZornsLemma Require Import
+  DecidableDec
+  Finite_sets
+  FunctionProperties
+  Image
+  IndexedFamilies
+  Powerset_facts.
+(* load ProofIrrelevance last, so [proof_irrelevance] is not provided
+  by [classic] *)
 From Coq Require Import ProofIrrelevance.
-From Coq Require Import Description.
-From ZornsLemma Require Import Powerset_facts.
-From Coq Require Import FunctionalExtensionality.
-From ZornsLemma Require Import FiniteImplicit Finite_sets.
-From Coq Require Import Lia PeanoNat.
 
 Set Asymmetric Patterns.
 
@@ -1088,4 +1089,45 @@ replace (fun _ => _) with (fun m => m < S n).
 { apply finite_nat_initial_segment_ens. }
 apply Extensionality_Ensembles; split; intros m Hm;
   cbv in *; lia.
+Qed.
+
+Lemma finite_indexed_union {A T : Type} {F : IndexedFamily A T} :
+  FiniteT A ->
+  (forall a, Finite (F a)) ->
+  Finite (IndexedUnion F).
+Proof.
+intro H.
+induction H;
+  intros.
+- replace (IndexedUnion F) with (@Empty_set T).
+  + constructor.
+  + extensionality_ensembles.
+    destruct a.
+- replace (IndexedUnion F) with (Union (IndexedUnion (fun t => In (F (Some t)))) (F None)).
+  + apply Union_preserves_Finite.
+    * apply IHFiniteT.
+      intro.
+      apply H0.
+    * apply H0.
+  + extensionality_ensembles.
+    * econstructor.
+      eassumption.
+    * econstructor.
+      eassumption.
+    * destruct a.
+      ** left.
+         econstructor.
+         eassumption.
+      ** now right.
+- replace (IndexedUnion F) with (IndexedUnion (fun x => F (f x))).
+  + apply IHFiniteT.
+    intro.
+    apply H1.
+  + extensionality_ensembles.
+    * econstructor.
+      eassumption.
+    * destruct H0.
+      rewrite <- (H3 a) in H2.
+      econstructor.
+      eassumption.
 Qed.

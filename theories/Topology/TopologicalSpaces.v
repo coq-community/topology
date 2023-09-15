@@ -1,11 +1,10 @@
-From Coq Require Export Ensembles.
-From ZornsLemma Require Import EnsemblesImplicit.
-From ZornsLemma Require Export Families.
-From ZornsLemma Require Export IndexedFamilies.
-From ZornsLemma Require Export FiniteTypes.
-From ZornsLemma Require Import FiniteIntersections.
-From ZornsLemma Require Import EnsemblesSpec.
-From ZornsLemma Require Import Powerset_facts.
+From ZornsLemma Require Import
+  FiniteIntersections
+  Powerset_facts.
+From ZornsLemma Require Export
+  Families
+  FiniteTypes
+  IndexedFamilies.
 
 Record TopologicalSpace : Type := {
   point_set :> Type;

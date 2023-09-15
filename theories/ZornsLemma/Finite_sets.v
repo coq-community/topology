@@ -1,9 +1,19 @@
-From Coq Require Import Classical Lia List.
-From Coq Require Export Finite_sets Finite_sets_facts.
-From ZornsLemma Require Import EnsemblesImplicit Families
-  FiniteImplicit Powerset_facts.
-From ZornsLemma Require Import ReverseMath.AddSubtract.
-Import ListNotations.
+From Coq Require Import
+  Classical
+  Lia.
+From Coq Require Export
+  Finite_sets
+  Finite_sets_facts.
+From ZornsLemma Require Import
+  DecidableDec
+  EnsemblesImplicit
+  Families
+  FiniteImplicit
+  Powerset_facts
+  Image
+  InverseImage.
+From ZornsLemma Require Import
+  ReverseMath.AddSubtract.
 
 Lemma Finite_eqdec {X : Type} (U : Ensemble X) :
   Finite U ->
@@ -263,4 +273,54 @@ Proof.
   1: apply nat_Finite_impl_bounded.
   apply Finite_nat_bounded_dec.
   intros ?. apply classic.
+Qed.
+
+Lemma injective_finite_inverse_image_Singleton
+  {X Y : Type} (f : X -> Y) (y : Y) :
+  injective f ->
+  Finite (inverse_image f (Singleton y)).
+Proof.
+  intros Hf.
+  destruct (classic (exists x : X, f x = y)) as [H|H].
+  - destruct H as [x Hx].
+    subst.
+    rewrite (proj1 (injective_inverse_image_Singleton f) Hf x).
+    apply Singleton_is_finite.
+  - replace (inverse_image _ _) with (@Empty_set X).
+    { constructor. }
+    apply Extensionality_Ensembles; split.
+    { intros ? ?; contradiction. }
+    intros x Hx.
+    destruct Hx.
+    contradict H.
+    exists x. destruct H0.
+    reflexivity.
+Qed.
+
+Lemma injective_finite_inverse_image
+  {X Y : Type} (f : X -> Y) (U : Ensemble Y) :
+  injective f ->
+  Finite U ->
+  Finite (inverse_image f U).
+Proof.
+  intros Hf HU.
+  induction HU.
+  { rewrite inverse_image_empty. constructor. }
+  unfold Add.
+  rewrite inverse_image_union.
+  apply Union_preserves_Finite; auto.
+  clear IHHU.
+  apply injective_finite_inverse_image_Singleton.
+  assumption.
+Qed.
+
+Corollary inverse_image_finite {X Y : Type} (f : X -> Y) (F : Family X) :
+  surjective f ->
+  Finite F ->
+  Finite (inverse_image (inverse_image f) F).
+Proof.
+  intros Hf H.
+  apply injective_finite_inverse_image; auto.
+  apply inverse_image_surjective_injective.
+  assumption.
 Qed.

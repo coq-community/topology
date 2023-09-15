@@ -1,6 +1,8 @@
-From ZornsLemma Require Import EnsemblesTactics.
-Require Export TopologicalSpaces.
-From ZornsLemma Require Export EnsemblesSpec.
+From ZornsLemma Require Import
+  EnsemblesTactics
+  Powerset_facts.
+From Topology Require Export
+  TopologicalSpaces.
 
 Section interior_closure.
 

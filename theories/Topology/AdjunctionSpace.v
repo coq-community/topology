@@ -1,5 +1,9 @@
-From ZornsLemma Require Import InverseImage Powerset_facts Quotients.
-Require Export QuotientTopology.
+From ZornsLemma Require Import
+  InverseImage
+  Powerset_facts
+  Quotients.
+From Topology Require Import TopologicalSpaces.
+From Topology Require Export QuotientTopology.
 
 Section AdjunctionSpace.
 

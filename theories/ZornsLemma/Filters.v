@@ -1,6 +1,7 @@
-From ZornsLemma Require Import DecidableDec FiniteIntersections.
-From ZornsLemma Require Export Families.
-From ZornsLemma Require Import EnsemblesSpec.
+From ZornsLemma Require Import
+  DecidableDec
+  FiniteIntersections
+  FunctionProperties.
 
 Record Filter (X:Type) : Type := {
   filter_family: Family X;
