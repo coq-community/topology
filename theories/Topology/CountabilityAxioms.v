@@ -12,8 +12,7 @@ From ZornsLemma Require Export
 From ZornsLemma Require Import
   Classical_Wf
   DecidableDec
-  FiniteIntersections
-  InfiniteTypes.
+  FiniteIntersections.
 From Coq Require Import
   RelationClasses.
 
