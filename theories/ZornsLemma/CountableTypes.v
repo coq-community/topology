@@ -14,21 +14,22 @@ From Coq Require Import
   QArith
   ZArith.
 From ZornsLemma Require Import
+  Cardinals
+  CardinalsEns
   CSB
   DecidableDec
   DependentTypeChoice
   Finite_sets
   FiniteTypes
   FunctionPropertiesEns
-  IndexedFamilies
-  InfiniteTypes.
+  IndexedFamilies.
 
 Local Close Scope Q_scope.
 
 Set Asymmetric Patterns.
 
 Definition CountableT (X : Type) : Prop :=
-  exists f : X -> nat, injective f.
+  le_cardinal X nat.
 
 Lemma CountableT_is_FiniteT_or_countably_infinite (X : Type) :
   CountableT X -> {FiniteT X} + {exists f : X -> nat, bijective f}.
@@ -388,4 +389,29 @@ repeat
 all: inversion Hx; subst; clear Hx;
   destruct (proof_irrelevance _ Hx0 Hx1);
   reflexivity.
+Qed.
+
+Definition countable_img_inj {X Y : Type} (f : X -> Y) (U : Ensemble X) :
+  injective_ens f U ->
+  CountableT X ->
+  Countable (Im U f) :=
+  @le_cardinal_img_inj_ens X Y nat f U.
+
+Lemma Countable_as_le_cardinal_ens {X : Type} (U : Ensemble X) :
+  Countable U <-> le_cardinal_ens U (@Full_set nat).
+Proof.
+  split.
+  - intros [f Hf].
+    pose proof (eq_cardinal_ens_sig U).
+    eapply le_cardinal_ens_Proper_l; eauto.
+    right. exists f. split; [|firstorder].
+    intros ? ?. constructor.
+  - intros [[]|[f [_ Hf]]].
+    { contradict (H 0). }
+    exists (fun p => f (proj1_sig p)).
+    intros [x0 H0] [x1 H1] Hx.
+    simpl in Hx.
+    specialize (Hf x0 x1 H0 H1 Hx).
+    apply subset_eq_compat.
+    assumption.
 Qed.

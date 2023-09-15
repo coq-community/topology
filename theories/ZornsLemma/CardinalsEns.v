@@ -20,12 +20,9 @@ From Coq Require Import
   Program.Subset.
 From ZornsLemma Require Import
   Cardinals
-  CountableTypes
   CSB
   DecidableDec
   Families
-  Finite_sets
-  FiniteTypes
   FunctionProperties
   FunctionPropertiesEns
   InverseImage
@@ -746,110 +743,6 @@ Proof.
   intros ?. apply classic.
 Qed.
 
-Lemma Finite_as_lt_cardinal_ens
-  {X : Type} (U : Ensemble X) :
-  Finite U <-> lt_cardinal_ens U (@Full_set nat).
-Proof.
-  split.
-  - (* -> *)
-    (* this proof directly constructs a function [X -> nat] using [classic_dec].
-       Another proof would do induction over [Finite X] and construct the
-       function [X -> nat] inductively *)
-    intros HU.
-    split.
-    + apply Finite_ens_type in HU.
-      apply FiniteT_nat_embeds in HU.
-      destruct HU as [f Hf].
-      right.
-      exists (fun x : X =>
-           match classic_dec (In U x) with
-           | left Hx => f (exist U x Hx)
-           | right _ => 0
-           end).
-      split.
-      * apply range_full.
-      * intros x0 x1 Hx0 Hx1.
-        destruct (classic_dec _); try contradiction.
-        destruct (classic_dec _); try contradiction.
-        intros Hx.
-        apply Hf in Hx.
-        inversion Hx; subst; clear Hx.
-        reflexivity.
-    + intros [[_ H]|H].
-      { exact (H 0 ltac:(constructor)). }
-      destruct H as [f [Hf0 Hf1]].
-      red in Hf0.
-      apply InfiniteTypes.nat_infinite.
-      apply Finite_ens_type in HU.
-      pose (f0 := fun n : nat => exist U (f n) (Hf0 n ltac:(constructor))).
-      assert (invertible f0).
-      { apply bijective_impl_invertible.
-        split.
-        - intros n0 n1 Hn.
-          inversion Hn; subst; clear Hn.
-          apply Hf1 in H0; auto; constructor.
-        - intros [x Hx].
-          destruct Hf1 as [_ Hf1].
-          specialize (Hf1 x Hx) as [n [_ Hn]].
-          exists n. subst. unfold f0.
-          apply subset_eq. reflexivity.
-      }
-      destruct H as [g Hg0].
-      eapply bij_finite with _.
-      2: exists g, f0; split; apply Hg0.
-      assumption.
-  - (* <- *)
-    intros [[[H0 H1]|[f [Hf0 Hf1]]] H2].
-    { specialize (H0 0). contradiction. }
-    destruct (classic (exists n : nat, forall x : X, In U x -> f x < n)).
-    2: {
-      contradict H2.
-      assert (eq_cardinal_ens (Im U f) (@Full_set nat)).
-      { apply nat_unbounded_impl_countably_infinite.
-        intros n. apply NNPP.
-        intros Hn. contradict H.
-        exists (S n). intros x Hx.
-        apply NNPP. intros Hx0.
-        contradict Hn. exists (f x).
-        split.
-        { apply Im_def; auto. }
-        lia.
-      }
-      apply eq_cardinal_ens_Im_injective in Hf1.
-      apply eq_cardinal_ens_sym.
-      eapply eq_cardinal_ens_trans; eauto.
-    }
-    destruct H as [n Hn].
-    (* [n] is an upper bound of the image of [U] under [f] *)
-    assert (Finite (Im U f)).
-    { apply nat_Finite_bounded_char.
-      exists n. intros m Hm.
-      destruct Hm as [x Hx m Hm]; subst.
-      apply Hn; auto.
-    }
-    apply Finite_injective_image with f;
-      auto.
-Qed.
-
-Lemma Countable_as_le_cardinal_ens {X : Type} (U : Ensemble X) :
-  Countable U <-> le_cardinal_ens U (@Full_set nat).
-Proof.
-  split.
-  - intros [f Hf].
-    pose proof (eq_cardinal_ens_sig U).
-    eapply le_cardinal_ens_Proper_l; eauto.
-    right. exists f. split; [|firstorder].
-    intros ? ?. constructor.
-  - intros [[]|[f [_ Hf]]].
-    { contradict (H 0). }
-    exists (fun p => f (proj1_sig p)).
-    intros [x0 H0] [x1 H1] Hx.
-    simpl in Hx.
-    specialize (Hf x0 x1 H0 H1 Hx).
-    apply subset_eq_compat.
-    assumption.
-Qed.
-
 (** for each point in [U] at most one point lands in [inverse_image f U] *)
 Lemma inverse_image_injective_cardinal_le
   {X Y : Type} (f : X -> Y) (U : Ensemble Y) :
@@ -862,19 +755,6 @@ Proof.
   - apply range_char_inverse_image.
     reflexivity.
   - apply injective_injective_ens, Hf.
-Qed.
-
-Corollary injective_finite_inverse_image
-  {X Y : Type} (f : X -> Y) (U : Ensemble Y) :
-  injective f ->
-  Finite U ->
-  Finite (inverse_image f U).
-Proof.
-  intros Hf HU.
-  apply Finite_as_lt_cardinal_ens.
-  apply Finite_as_lt_cardinal_ens in HU.
-  apply (inverse_image_injective_cardinal_le f U) in Hf.
-  eapply le_lt_cardinal_ens_transitive; eauto.
 Qed.
 
 (** ** Definitions concerning least cardinals *)

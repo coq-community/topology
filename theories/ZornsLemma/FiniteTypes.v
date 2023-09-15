@@ -1,15 +1,22 @@
 From Coq Require Import
   Arith
+  ClassicalChoice
   Description
   FunctionalExtensionality
-  Lia.
+  Lia
+  Program.Subset.
 From ZornsLemma Require Import
+  Cardinals
+  CardinalsEns
+  CSB
   DecidableDec
   FiniteImplicit
   Finite_sets
   FunctionProperties
+  FunctionPropertiesEns
   Image
   IndexedFamilies
+  InverseImage
   Powerset_facts.
 (* load ProofIrrelevance last, so [proof_irrelevance] is not provided
   by [classic]. Similarly [RelationClasses] must provide [Equivalence] *)
@@ -18,20 +25,6 @@ From Coq Require Import
   RelationClasses.
 
 Set Asymmetric Patterns.
-
-Definition eq_cardinal (X Y : Type) : Prop :=
-  exists (f : X -> Y) (g : Y -> X), inverse_map f g.
-
-Instance eq_cardinal_equiv : Equivalence eq_cardinal.
-Proof.
-split.
-- red; intro. exists id, id. apply id_inverse_map.
-- red; intros ? ? [f [g Hfg]].
-  exists g, f. apply inverse_map_sym. assumption.
-- intros ? ? ? [f Hf] [g Hg].
-  exists (compose g f).
-  apply invertible_compose; assumption.
-Qed.
 
 Inductive FiniteT : Type -> Prop :=
   | empty_finite: FiniteT False
@@ -1230,6 +1223,122 @@ apply Extensionality_Ensembles; split; intros m Hm;
   cbv in *; lia.
 Qed.
 
+Lemma infinite_nat_inj: forall X:Type, ~ FiniteT X ->
+  exists f:nat->X, injective f.
+Proof.
+intros.
+assert (inhabited (forall S:Ensemble X, Finite S ->
+  { x:X | ~ In S x})).
+{ pose proof (choice (fun (x:{S:Ensemble X | Finite S}) (y:X) =>
+    ~ In (proj1_sig x) y)).
+  simpl in H0.
+  match type of H0 with | ?A -> ?B => assert B end.
+  { apply H0.
+    intros.
+    apply NNPP.
+    red; intro.
+    pose proof (not_ex_not_all _ _ H1); clear H1.
+    destruct x.
+    assert (x = Full_set).
+    { apply Extensionality_Ensembles; red; split; auto with sets. }
+    subst.
+    contradict H.
+    apply Finite_full_impl_FiniteT.
+    assumption.
+  }
+  clear H0.
+  destruct H1.
+  exists.
+  intros.
+  exists (x (exist _ S H1)).
+  exact (H0 (exist _ S H1)).
+}
+destruct H0.
+
+assert (forall (n:nat) (g:forall m:nat, m<n -> X),
+  { x:X | forall (m:nat) (Hlt:m<n), g m Hlt <> x }).
+{ intros.
+  assert (Finite (fun x:X => exists m:nat, exists Hlt:m<n,
+             g m Hlt = x)).
+  { pose (h := fun x:{m:nat | m<n} =>
+      g (proj1_sig x) (proj2_sig x)).
+
+    match goal with |- @Finite X ?S => assert (S =
+      Im Full_set h) end.
+    - apply Extensionality_Ensembles; red; split; red; intros; destruct H0.
+      + destruct H0.
+        now exists (exist (fun m:nat => m < n) x0 x1).
+      + destruct x.
+        now exists x, l.
+    - rewrite H0; apply FiniteT_img.
+      + apply finite_nat_initial_segment.
+      + intros.
+        apply classic.
+  }
+  destruct (X0 _ H0).
+  unfold In in n0.
+  exists x.
+  intros; red; intro.
+  contradiction n0; exists m; exists Hlt; exact H1.
+}
+pose (f := Fix Wf_nat.lt_wf (fun n:nat => X)
+  (fun (n:nat) (g:forall m:nat, m<n->X) => proj1_sig (X1 n g))).
+simpl in f.
+assert (forall n m:nat, m<n -> f m <> f n).
+{ pose proof (Fix_eq Wf_nat.lt_wf (fun n:nat => X)
+    (fun (n:nat) (g:forall m:nat, m<n->X) => proj1_sig (X1 n g))).
+  fold f in H0.
+  simpl in H0.
+  match type of H0 with | ?A -> ?B => assert (B) end.
+  - apply H0.
+    intros.
+    replace f0 with g.
+    { reflexivity. }
+    extensionality y; extensionality p; symmetry; apply H1.
+  - intros.
+    specialize (H1 n).
+    destruct X1 in H1.
+    simpl in H1.
+    destruct H1.
+    auto.
+}
+exists f.
+red; intros m n ?.
+destruct (Compare_dec.lt_eq_lt_dec m n) as [[Hlt|Heq]|Hlt]; trivial.
+- contradiction (H0 n m).
+- now contradiction (H0 m n).
+Qed.
+
+Lemma nat_infinite: ~ FiniteT nat.
+Proof.
+red; intro.
+assert (surjective S).
+{ apply finite_inj_surj; trivial.
+  red; intros.
+  injection H0; trivial.
+}
+destruct (H0 0).
+discriminate H1.
+Qed.
+
+Lemma FiniteT_cardinality {X : Type} :
+  FiniteT X <-> lt_cardinal X nat.
+Proof.
+split; intros.
+- split.
+  + destruct (FiniteT_nat_embeds H) as [f].
+    exists f. assumption.
+  + intros H0.
+    apply nat_infinite.
+    apply bij_finite with X; assumption.
+- destruct H as [[f Hf] H].
+  apply NNPP. intro.
+  destruct (infinite_nat_inj _ H0) as [g].
+  contradict H.
+  apply CSB_inverse_map with (f := f) (g := g);
+    auto.
+Qed.
+
 Lemma finite_indexed_union {A T : Type} {F : IndexedFamily A T} :
   FiniteT A ->
   (forall a, Finite (F a)) ->
@@ -1266,8 +1375,105 @@ induction H;
   + extensionality_ensembles.
     * econstructor.
       eassumption.
-    * destruct Hf as [g [Hgf Hfg]].
-      rewrite <- (Hfg a) in H0.
-      econstructor.
-      eassumption.
+    * destruct Hf as [g Hfg].
+      exists (g a). rewrite (proj2 Hfg).
+      assumption.
+Qed.
+
+(** The following proofs are in this file, because they require
+  [FiniteT]. *)
+Lemma Finite_as_lt_cardinal_ens
+  {X : Type} (U : Ensemble X) :
+  Finite U <-> lt_cardinal_ens U (@Full_set nat).
+Proof.
+  split.
+  - (* -> *)
+    (* this proof directly constructs a function [X -> nat] using [classic_dec].
+       Another proof would do induction over [Finite X] and construct the
+       function [X -> nat] inductively *)
+    intros HU.
+    split.
+    + apply Finite_ens_type in HU.
+      apply FiniteT_nat_embeds in HU.
+      destruct HU as [f Hf].
+      right.
+      exists (fun x : X =>
+           match classic_dec (In U x) with
+           | left Hx => f (exist U x Hx)
+           | right _ => 0
+           end).
+      split.
+      * apply range_full.
+      * intros x0 x1 Hx0 Hx1.
+        destruct (classic_dec _); try contradiction.
+        destruct (classic_dec _); try contradiction.
+        intros Hx.
+        apply Hf in Hx.
+        inversion Hx; subst; clear Hx.
+        reflexivity.
+    + intros [[_ H]|H].
+      { exact (H 0 ltac:(constructor)). }
+      destruct H as [f [Hf0 Hf1]].
+      red in Hf0.
+      apply nat_infinite.
+      apply Finite_ens_type in HU.
+      pose (f0 := fun n : nat => exist U (f n) (Hf0 n ltac:(constructor))).
+      assert (invertible f0).
+      { apply bijective_impl_invertible.
+        split.
+        - intros n0 n1 Hn.
+          inversion Hn; subst; clear Hn.
+          apply Hf1 in H0; auto; constructor.
+        - intros [x Hx].
+          destruct Hf1 as [_ Hf1].
+          specialize (Hf1 x Hx) as [n [_ Hn]].
+          exists n. subst. unfold f0.
+          apply subset_eq. reflexivity.
+      }
+      destruct H as [g Hg0].
+      apply bij_finite with (sig U).
+      { assumption. }
+      exists g, f0. apply inverse_map_sym, Hg0.
+  - (* <- *)
+    intros [[[H0 H1]|[f [Hf0 Hf1]]] H2].
+    { specialize (H0 0). contradiction. }
+    destruct (classic (exists n : nat, forall x : X, In U x -> f x < n)).
+    2: {
+      contradict H2.
+      assert (eq_cardinal_ens (Im U f) (@Full_set nat)).
+      { apply nat_unbounded_impl_countably_infinite.
+        intros n. apply NNPP.
+        intros Hn. contradict H.
+        exists (S n). intros x Hx.
+        apply NNPP. intros Hx0.
+        contradict Hn. exists (f x).
+        split.
+        { apply Im_def; auto. }
+        lia.
+      }
+      apply eq_cardinal_ens_Im_injective in Hf1.
+      apply eq_cardinal_ens_sym.
+      eapply eq_cardinal_ens_trans; eauto.
+    }
+    destruct H as [n Hn].
+    (* [n] is an upper bound of the image of [U] under [f] *)
+    apply Finite_injective_image with f;
+      auto.
+    apply nat_Finite_bounded_char.
+    exists n. intros m Hm.
+    destruct Hm as [x Hx m Hm]; subst.
+    apply Hn; auto.
+Qed.
+
+Corollary injective_finite_inverse_image
+  {X Y : Type} (f : X -> Y) (U : Ensemble Y) :
+  injective f ->
+  Finite U ->
+  Finite (inverse_image f U).
+Proof.
+  intros Hf HU.
+  apply Finite_as_lt_cardinal_ens.
+  apply Finite_as_lt_cardinal_ens in HU.
+  apply (inverse_image_injective_cardinal_le f U) in Hf.
+  eapply le_lt_cardinal_ens_transitive; eauto.
 Qed.
