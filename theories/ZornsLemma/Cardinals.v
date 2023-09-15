@@ -1,22 +1,19 @@
-From Coq Require Export Relation_Definitions.
-From Coq Require Import ClassicalChoice.
-From Coq Require Import ProofIrrelevance.
-From Coq Require Import FunctionalExtensionality.
-From Coq Require Import Description.
-From ZornsLemma Require Export FunctionProperties.
-From ZornsLemma Require Import FunctionPropertiesEns.
-From ZornsLemma Require Import Relation_Definitions_Implicit.
-From ZornsLemma Require Import CSB.
-From ZornsLemma Require Import EnsemblesSpec.
-From ZornsLemma Require Import ZornsLemma.
-From ZornsLemma Require Import EnsemblesImplicit.
-From ZornsLemma Require Import CountableTypes.
-From ZornsLemma Require Import FiniteTypes.
-From ZornsLemma Require Import InfiniteTypes.
+From Coq Require Import
+  ClassicalChoice
+  Description
+  FunctionalExtensionality
+  ProofIrrelevance.
+From ZornsLemma Require Import
+  CSB
+  FunctionProperties
+  FunctionPropertiesEns
+  ZornsLemma.
 From Coq Require Import RelationClasses.
 
 Definition le_cardinal (A B : Type) : Prop :=
   exists f : A -> B, injective f.
+Definition eq_cardinal (X Y : Type) : Prop :=
+  exists (f : X -> Y) (g : Y -> X), inverse_map f g.
 
 Definition lt_cardinal (kappa lambda:Type) : Prop :=
   le_cardinal kappa lambda /\ ~ eq_cardinal kappa lambda.
@@ -32,6 +29,17 @@ split.
 - intros ? ? ? [f Hf] [g Hg].
   exists (compose g f).
   apply injective_compose; auto.
+Qed.
+
+Instance eq_cardinal_equiv : Equivalence eq_cardinal.
+Proof.
+split.
+- red; intro. exists id, id. apply id_inverse_map.
+- red; intros ? ? [f [g Hfg]].
+  exists g, f. apply inverse_map_sym. assumption.
+- intros ? ? ? [f Hf] [g Hg].
+  exists (compose g f).
+  apply invertible_compose; assumption.
 Qed.
 
 Instance le_cardinal_PartialOrder :
@@ -85,12 +93,6 @@ Proof.
   destruct (proof_irrelevance _ Hy0 Hy1).
   reflexivity.
 Qed.
-
-Definition countable_img_inj {X Y : Type} (f : X -> Y) (U : Ensemble X) :
-  injective_ens f U ->
-  CountableT X ->
-  Countable (Im U f) :=
-  @le_cardinal_img_inj_ens X Y nat f U.
 
 Lemma cantor_diag: forall (X:Type) (f:X->(X->bool)),
   ~ surjective f.
@@ -533,30 +535,6 @@ intros T0 T1.
 destruct (types_comparable T0 T1) as [[f]|[f]];
   [left|right];
   exists f; assumption.
-Qed.
-
-Lemma CountableT_cardinality {X : Type} :
-  CountableT X <-> le_cardinal X nat.
-Proof.
-  reflexivity.
-Qed.
-
-Lemma FiniteT_cardinality {X : Type} :
-  FiniteT X <-> lt_cardinal X nat.
-Proof.
-split; intros.
-- split.
-  + destruct (FiniteT_nat_embeds H) as [f].
-    exists f. assumption.
-  + intros H0.
-    apply nat_infinite.
-    apply bij_finite with X; assumption.
-- destruct H as [[f Hf] H].
-  apply NNPP. intro.
-  destruct (infinite_nat_inj _ H0) as [g].
-  contradict H.
-  apply CSB_inverse_map with (f := f) (g := g);
-    auto.
 Qed.
 
 Lemma cardinal_no_inj_equiv_lt_cardinal (A B : Type) :

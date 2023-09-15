@@ -1,7 +1,8 @@
 From ZornsLemma Require Export Families.
 From ZornsLemma Require Import
   EnsemblesImplicit
-  FunctionProperties.
+  FunctionProperties
+  ImageImplicit.
 
 Set Implicit Arguments.
 
@@ -124,11 +125,13 @@ Lemma IndexedIntersection_surj_fn
   surjective f ->
   IndexedIntersection V = IndexedIntersection (fun x => V (f x)).
 Proof.
-intros.
-apply Extensionality_Ensembles; split; red; intros.
-- destruct H0. constructor. intros. apply H0.
-- destruct H0. constructor. intros. destruct (H a).
-  subst. apply H0.
+intros Hf.
+apply Extensionality_Ensembles; split.
+- intros x Hx. destruct Hx as [x Hx].
+  constructor. intros b. apply Hx.
+- intros x Hx. destruct Hx as [x Hx].
+  constructor. intros a.
+  specialize (Hf a) as [b Hb]. subst. apply Hx.
 Qed.
 
 Lemma image_indexed_union (X Y I : Type) (F : IndexedFamily I X) (f : X -> Y) :
