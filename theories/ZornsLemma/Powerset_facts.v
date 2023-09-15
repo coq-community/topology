@@ -263,3 +263,12 @@ Proof.
   rewrite H.
   reflexivity.
 Qed.
+
+Lemma Subtract_not_in {X : Type} (U : Ensemble X) (x : X) :
+  ~ In (Subtract U x) x.
+Proof.
+  intros H.
+  destruct H.
+  contradict H0.
+  constructor.
+Qed.
