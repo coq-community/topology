@@ -9,12 +9,13 @@ From ZornsLemma Require Import
   EnsemblesImplicit
   Families
   FiniteImplicit
+  FunctionPropertiesEns
   Powerset_facts
   Image
-  InverseImage.
-From ZornsLemma Require Import
+  InverseImage
   ReverseMath.AddSubtract.
 
+(** ** Properties of Finite ensembles *)
 Lemma Finite_eqdec {X : Type} (U : Ensemble X) :
   Finite U ->
   forall x y : X, In U x -> In U y -> x = y \/ x <> y.
@@ -129,14 +130,6 @@ Proof.
     apply Finite_downward_closed_dec with V; assumption.
 Qed.
 
-Lemma finite_couple {X} (x y : X) :
-  Finite (Couple x y).
-Proof.
-  rewrite <- Couple_as_union.
-  apply Union_preserves_Finite.
-  all: apply Singleton_is_finite.
-Qed.
-
 (* This is like a choice property for finite sets. And [P] is about pairs, so
    that's the meaning of the name. It is similar to
    [FiniteTypes.finite_choice]. *)
@@ -185,6 +178,15 @@ Proof.
         exists x; auto with sets.
 Qed.
 
+(** ** Constructing finite ensembles *)
+Lemma finite_couple {X} (x y : X) :
+  Finite (Couple x y).
+Proof.
+  rewrite <- Couple_as_union.
+  apply Union_preserves_Finite.
+  all: apply Singleton_is_finite.
+Qed.
+
 (* note that the converse direction is not true.
    Consider for example the intersection of the
    open intervals [ (0, 1/n) ], which is empty and thus finite.
@@ -200,6 +202,79 @@ Proof.
   apply Finite_downward_closed with U; auto.
   red; intros.
   destruct H1. apply H1. assumption.
+Qed.
+
+(** ** Finite and functions *)
+Lemma Finite_injective_image_dec {X Y : Type} (f : X -> Y)
+  (U : Ensemble X)
+  (HUdec : forall x y : X, In U x -> In U y -> x = y \/ x <> y) :
+  injective_ens f U -> Finite (Im U f) -> Finite U.
+Proof.
+  intros Hf Himg.
+  remember (Im U f) as V.
+  revert U Hf HUdec HeqV.
+  induction Himg as [|? ? ? y HAy].
+  { intros U Hf HUdec HeqV.
+    replace U with (@Empty_set X).
+    { constructor. }
+    apply Extensionality_Ensembles; split.
+    1: intros ? ?; contradiction.
+    intros x Hx.
+    apply (Im_def U f) in Hx.
+    rewrite <- HeqV in Hx.
+    contradiction.
+  }
+  intros U Hf HUdec HeqV.
+  assert (exists x, In U x /\ f x = y) as [x [Hx Hxy]].
+  { apply Im_inv. rewrite <- HeqV. right. constructor. }
+  subst.
+  replace U with (Add (Subtract U x) x).
+  2: {
+    symmetry.
+    apply Extensionality_Ensembles.
+    (* here we use [HUdec] *)
+    apply Add_Subtract_discouraging.
+    split; auto.
+  }
+  constructor.
+  2: apply Subtract_not_in.
+  apply IHHimg.
+  { intros x0 x1 Hx0 Hx1 Hxx.
+    destruct Hx0, Hx1.
+    apply Hf; assumption.
+  }
+  { intros x0 x1 Hx0 Hx1.
+    destruct Hx0, Hx1.
+    apply HUdec; assumption.
+  }
+  apply Extensionality_Ensembles; split.
+  - intros y Hy.
+    pose proof (Add_intro1 _ A (f x) y Hy) as Hy0.
+    rewrite HeqV in Hy0.
+    destruct Hy0 as [x0 Hx0 y Hy0].
+    subst. apply Im_def.
+    split; auto. intros ?.
+    destruct H. auto.
+  - intros y Hy.
+    destruct Hy as [x0 Hx0 y Hy].
+    subst. destruct Hx0.
+    pose proof (Im_def _ f x0 H).
+    rewrite <- HeqV in H1.
+    inversion H1; subst; clear H1; auto.
+    inversion H2; subst; clear H2.
+    (* here we use injectivity of [f] *)
+    apply Hf in H3; auto.
+    subst. contradict H0; constructor.
+Qed.
+
+Lemma Finite_injective_image {X Y : Type} (f : X -> Y)
+  (U : Ensemble X) :
+  injective_ens f U -> Finite (Im U f) -> Finite U.
+Proof.
+  intros Hf Himg.
+  apply Finite_injective_image_dec with f; auto.
+  intros ? ? ? ?.
+  apply classic.
 Qed.
 
 (** ** Finite subsets of [nat] *)
