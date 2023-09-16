@@ -1,7 +1,18 @@
-From Coq Require Import ClassicalChoice Program.Subset.
-From ZornsLemma Require Import EnsemblesTactics Finite_sets Powerset_facts.
-From Topology Require Export TopologicalSpaces Nets FilterLimits Homeomorphisms SeparatednessAxioms SubspaceTopology.
-From Topology Require Import FiltersAndNets.
+From Coq Require Import
+  ClassicalChoice
+  Program.Subset.
+From ZornsLemma Require Import
+  Finite_sets
+  Powerset_facts.
+From Topology Require Export
+  FilterLimits
+  Homeomorphisms
+  Nets
+  SeparatednessAxioms
+  SubspaceTopology.
+From Topology Require Import
+  FiltersAndNets.
+
 Set Asymmetric Patterns.
 
 Definition compact (X:TopologicalSpace) :=

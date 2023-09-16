@@ -1,7 +1,10 @@
-From Coq Require Import Program.Subset.
-From Topology Require Export Nets.
-From Topology Require Import Homeomorphisms SubspaceTopology.
-From ZornsLemma Require Import EnsemblesTactics.
+From Coq Require Import
+  Program.Subset.
+From Topology Require Export
+  Nets.
+From Topology Require Import
+  Homeomorphisms
+  SubspaceTopology.
 
 Definition T0_sep (X:TopologicalSpace) : Prop :=
   forall x y:point_set X, x <> y ->

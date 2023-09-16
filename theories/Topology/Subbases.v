@@ -1,8 +1,9 @@
-Require Export TopologicalSpaces.
-Require Export OpenBases.
-From ZornsLemma Require Export FiniteTypes.
-From ZornsLemma Require Export EnsemblesSpec.
-From ZornsLemma Require Import FiniteIntersections.
+From ZornsLemma Require Export
+  FiniteTypes.
+From ZornsLemma Require Import
+  FiniteIntersections.
+From Topology Require Export
+  OpenBases.
 
 Section Subbasis.
 

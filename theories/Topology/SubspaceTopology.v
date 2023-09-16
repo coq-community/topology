@@ -1,7 +1,12 @@
-From ZornsLemma Require Import CardinalsEns DecidableDec
-  FiniteIntersections Proj1SigInjective.
-From Topology Require Export TopologicalSpaces.
-From Topology Require Import WeakTopology.
+From ZornsLemma Require Import
+  CardinalsEns
+  DecidableDec
+  FiniteIntersections
+  Proj1SigInjective.
+From Topology Require Export
+  TopologicalSpaces.
+From Topology Require Import
+  WeakTopology.
 
 Section Subspace.
 

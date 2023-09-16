@@ -1,6 +1,9 @@
-Require Export TopologicalSpaces.
-Require Import ClassicalChoice.
-From ZornsLemma Require Import CardinalsEns EnsemblesSpec EnsemblesTactics.
+From Coq Require Import
+  ClassicalChoice.
+From ZornsLemma Require Import
+  CardinalsEns.
+From Topology Require Export
+  TopologicalSpaces.
 
 Section OpenBasis.
 

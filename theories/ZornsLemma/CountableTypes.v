@@ -2,12 +2,27 @@
     Then introduces a similar predicate [Countable : Ensemble X -> Prop] on ensembles.
 *)
 
-From Coq Require Import Relation_Definitions QArith ZArith.
-From Coq Require Import Arith ArithRing FunctionalExtensionality Lia
-    Program.Subset ClassicalChoice Description.
-From ZornsLemma Require Import InfiniteTypes CSB DecidableDec
-    DependentTypeChoice Finite_sets FunctionPropertiesEns.
-From ZornsLemma Require Export FiniteTypes IndexedFamilies.
+From Coq Require Import
+  Arith
+  ArithRing
+  ClassicalChoice
+  Description
+  FunctionalExtensionality
+  Lia
+  Relation_Definitions
+  Program.Subset
+  QArith
+  ZArith.
+From ZornsLemma Require Import
+  CSB
+  DecidableDec
+  DependentTypeChoice
+  Finite_sets
+  FunctionPropertiesEns
+  InfiniteTypes.
+From ZornsLemma Require Export
+  FiniteTypes
+  IndexedFamilies.
 
 Local Close Scope Q_scope.
 

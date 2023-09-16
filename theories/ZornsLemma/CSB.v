@@ -1,7 +1,10 @@
-From ZornsLemma Require Export FunctionProperties.
-From ZornsLemma Require Import DecidableDec.
-From Coq Require Import Description.
-From Coq Require Import Classical.
+From Coq Require Import
+  Classical
+  Description.
+From ZornsLemma Require Export
+  FunctionProperties.
+From ZornsLemma Require Import
+  DecidableDec.
 
 (* CSB = Cantor-Schroeder-Bernstein theorem *)
 

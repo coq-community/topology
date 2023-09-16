@@ -4,12 +4,19 @@
     that occur with the approach of [ZornsLemma.Cardinals].
 *)
 
-From Coq Require Import ClassicalChoice Description Program.Subset.
+From Coq Require Import
+  ClassicalChoice
+  Description
+  Program.Subset.
 From ZornsLemma Require Import
-  Cardinals CountableTypes CSB DecidableDec EnsemblesImplicit
-  Families FunctionProperties FunctionPropertiesEns Image InverseImage
-  Powerset_facts Proj1SigInjective.
-From Coq Require Import RelationClasses.
+  Cardinals
+  CountableTypes
+  CSB
+  FunctionPropertiesEns
+  Powerset_facts
+  Proj1SigInjective.
+From Coq Require Import
+  RelationClasses.
 
 Definition eq_cardinal_ens {A B : Type}
   (U : Ensemble A) (V : Ensemble B) : Prop :=

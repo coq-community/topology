@@ -1,6 +1,11 @@
-From ZornsLemma Require Import EnsemblesTactics.
-Require Export TopologicalSpaces.
-Require Export Continuity.
+From Coq Require Export
+  Relation_Definitions.
+From ZornsLemma Require Import
+  EnsemblesTactics
+  Relation_Definitions_Implicit.
+From Topology Require Export
+  TopologicalSpaces
+  Continuity.
 
 Inductive homeomorphism {X Y:TopologicalSpace}
   (f:X -> Y) : Prop :=
@@ -65,9 +70,6 @@ Qed.
 Inductive homeomorphic (X Y:TopologicalSpace) : Prop :=
 | intro_homeomorphic: forall f:X -> point_set Y,
     homeomorphism f -> homeomorphic X Y.
-
-Require Export Relation_Definitions.
-From ZornsLemma Require Import Relation_Definitions_Implicit.
 
 Lemma homeomorphic_equiv: equivalence homeomorphic.
 Proof.

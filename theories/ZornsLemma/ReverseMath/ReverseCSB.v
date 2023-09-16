@@ -3,15 +3,15 @@
    Also noteworthy: https://mathoverflow.net/questions/225819/how-strong-is-cantor-bernstein-schr%C3%B6der
 *)
 
-From ZornsLemma Require Import
-  FiniteTypes
-  FunctionProperties.
 From Coq Require Import
   FunctionalExtensionality
   Lia
   PeanoNat
   ProofIrrelevance
   ProofIrrelevanceFacts.
+From ZornsLemma Require Import
+  FiniteTypes
+  FunctionProperties.
 From Coq Require Import
   RelationClasses.
 
