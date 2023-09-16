@@ -1,4 +1,5 @@
 From Coq Require Import
+  Arith
   Description
   FunctionalExtensionality
   Lia.

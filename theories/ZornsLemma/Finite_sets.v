@@ -289,16 +289,12 @@ Proof.
   }
   replace (fun _ => _) with (Add (fun m => m < n) n).
   { constructor; auto.
-    intros ?. red in H.
-    apply Nat.lt_irrefl in H.
-    auto.
+    intros ?. red in H. lia.
   }
   clear IHn.
   apply Extensionality_Ensembles; split; intros m Hm.
   - inversion Hm; subst; clear Hm.
-    + cbv in *.
-      apply Nat.le_le_succ_r.
-      assumption.
+    + cbv in *. lia.
     + inversion H; subst; clear H.
       constructor.
   - cbv in *.
@@ -337,7 +333,7 @@ Proof.
   - apply (finite_nat_initial_segment_ens n).
   - auto.
   - intros ? ? ? ?.
-    destruct (Nat.eq_dec x y); [left|right]; auto.
+    destruct (PeanoNat.Nat.eq_dec x y); [left|right]; auto.
   - now intros m Hm; red; auto.
 Qed.
 

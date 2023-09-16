@@ -3,10 +3,17 @@
    Also noteworthy: https://mathoverflow.net/questions/225819/how-strong-is-cantor-bernstein-schr%C3%B6der
 *)
 
-From ZornsLemma Require Import FiniteTypes FunctionProperties.
-From Coq Require Import FunctionalExtensionality ProofIrrelevanceFacts.
-From Coq Require Import PeanoNat ProofIrrelevance.
-From Coq Require Import RelationClasses.
+From ZornsLemma Require Import
+  FiniteTypes
+  FunctionProperties.
+From Coq Require Import
+  FunctionalExtensionality
+  Lia
+  PeanoNat
+  ProofIrrelevance
+  ProofIrrelevanceFacts.
+From Coq Require Import
+  RelationClasses.
 
 (* Definition 6 of the above paper *)
 Definition OmniscientT (O : Type) : Prop :=
@@ -109,7 +116,8 @@ Proof.
   simpl in *. red in H0, H1.
   rewrite Nat.ltb_irrefl in *.
   symmetry in H0.
-  apply Nat.ltb_ge in H0, H1.
+  apply Nat.ltb_ge in H0.
+  apply Nat.ltb_ge in H1.
   apply Nat.le_antisymm; assumption.
 Qed.
 
