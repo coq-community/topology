@@ -13,7 +13,10 @@
 *)
 
 From Coq Require Import
-     Relation_Definitions Sets.Ensembles Sets.Finite_sets Sets.Image.
+  Relation_Definitions
+  Sets.Ensembles
+  Sets.Finite_sets
+  Sets.Image.
 
 Arguments reflexive : clear implicits.
 Arguments transitive : clear implicits.
@@ -61,6 +64,7 @@ Arguments Extensionality_Ensembles : clear implicits.
 Arguments Empty_set : clear implicits.
 Arguments Full_set : clear implicits.
 
+Arguments cardinal : clear implicits.
 Arguments Finite : clear implicits.
 
 Arguments Im : clear implicits.

@@ -740,8 +740,8 @@ induction H.
 Qed.
 
 Lemma injection_preserves_cardinal: forall (X Y:Type)
-  (f:X->Y) (n:nat) (S:Ensemble X), cardinal _ S n ->
-  injective f -> cardinal _ (Im S f) n.
+  (f:X->Y) (n:nat) (S:Ensemble X), cardinal S n ->
+  injective f -> cardinal (Im S f) n.
 Proof.
 intros.
 induction H.
@@ -754,10 +754,11 @@ induction H.
   contradiction.
 Qed.
 
-Lemma FiniteT_dec_Ensemble_has_cardinal X U :
+Lemma FiniteT_dec_Ensemble_has_cardinal
+  {X : Type} (U : Ensemble X) :
   FiniteT X ->
   (forall x, In U x \/ ~ In U x) ->
-  exists n, cardinal X U n.
+  exists n, cardinal U n.
 Proof.
   intros.
   generalize dependent U.
@@ -842,7 +843,7 @@ Qed.
 
 Corollary FiniteT_has_nat_cardinal' (X : Type) :
   FiniteT X ->
-  exists n, cardinal X Full_set n.
+  exists n, cardinal (@Full_set X) n.
 Proof.
   intros.
   apply FiniteT_dec_Ensemble_has_cardinal;
@@ -852,7 +853,7 @@ Qed.
 
 Corollary FiniteT_has_nat_cardinal (X : Type) :
   FiniteT X ->
-  exists! n:nat, cardinal X (@Full_set X) n.
+  exists! n:nat, cardinal (@Full_set X) n.
 Proof.
 intros.
 apply -> unique_existence; split.
@@ -866,7 +867,7 @@ Definition FiniteT_nat_cardinal (X:Type) (H:FiniteT X) : nat :=
   proj1_sig (constructive_definite_description _
               (FiniteT_has_nat_cardinal X H)).
 Lemma FiniteT_nat_cardinal_def: forall (X:Type) (H:FiniteT X),
-  cardinal _ (@Full_set X) (FiniteT_nat_cardinal X H).
+  cardinal (@Full_set X) (FiniteT_nat_cardinal X H).
 Proof.
 intros; unfold FiniteT_nat_cardinal.
 destruct constructive_definite_description.
@@ -874,7 +875,7 @@ assumption.
 Qed.
 Lemma FiniteT_nat_cardinal_cond: forall (X:Type) (H:FiniteT X)
   (n:nat),
-  cardinal _ (@Full_set X) n ->
+  cardinal (@Full_set X) n ->
   FiniteT_nat_cardinal X H = n.
 Proof.
 intros.
