@@ -5,3 +5,5 @@
  (flags (:standard
      -w -deprecated-hint-rewrite-without-locality
      -w -deprecated-instance-without-locality)))
+
+(include_subdirs qualified)

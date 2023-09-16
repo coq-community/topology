@@ -2,6 +2,9 @@
  (name Topology)
  (package coq-topology)
  (synopsis "General topology in Coq")
+ (theories ZornsLemma)
  (flags (:standard
      -w -deprecated-hint-rewrite-without-locality
      -w -deprecated-instance-without-locality)))
+
+(include_subdirs qualified)
