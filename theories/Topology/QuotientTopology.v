@@ -7,18 +7,18 @@ From Topology Require Import
   CountabilityAxioms
   StrongTopology.
 
-Definition QuotientTopology {X : TopologicalSpace} (R : Relation (point_set X)) :
+Definition QuotientTopology {X : TopologicalSpace} (R : Relation X) :
   TopologicalSpace := StrongTopology (True_rect (quotient_projection R)).
 
-Lemma quotient_projection_continuous {X : TopologicalSpace} (R : Relation (point_set X)) :
+Lemma quotient_projection_continuous {X : TopologicalSpace} (R : Relation X) :
   @continuous X (QuotientTopology R) (quotient_projection R).
 Proof.
 intros U HU.
 now apply strong_topology_makes_continuous_funcs with (a:=I) in HU.
 Qed.
 
-Lemma quotient_projection_open_iff {X : TopologicalSpace} (R : Relation (point_set X))
-  (U : Ensemble (point_set (QuotientTopology R))) :
+Lemma quotient_projection_open_iff {X : TopologicalSpace} (R : Relation X)
+  (U : Ensemble (QuotientTopology R)) :
   open (inverse_image (quotient_projection R) U) <-> open U.
 Proof.
 split.
@@ -34,7 +34,7 @@ destruct (quotient_projection_surjective y).
 now exists x.
 Qed.
 
-Lemma quotient_connected {X : TopologicalSpace} (R : Relation (point_set X)) :
+Lemma quotient_connected {X : TopologicalSpace} (R : Relation X) :
   connected X -> connected (QuotientTopology R).
 Proof.
 intros H U [H1 H2].
@@ -53,7 +53,7 @@ destruct (H (inverse_image (quotient_projection R) U)).
   + now rewrite inverse_image_full.
 Qed.
 
-Lemma quotient_compact {X : TopologicalSpace} (R : Relation (point_set X)) :
+Lemma quotient_compact {X : TopologicalSpace} (R : Relation X) :
   compact X -> compact (QuotientTopology R).
 Proof.
 intros H F HF eqF.
@@ -88,7 +88,7 @@ apply H in eqF.
   now apply quotient_projection_open_iff, HF.
 Qed.
 
-Lemma quotient_separable {X : TopologicalSpace} (R : Relation (point_set X)) :
+Lemma quotient_separable {X : TopologicalSpace} (R : Relation X) :
   separable X -> separable (QuotientTopology R).
 Proof.
 intros [S [HC HD]].
