@@ -3,22 +3,31 @@ From Topology Require Export TopologicalSpaces InteriorsClosures Continuity.
 
 Set Asymmetric Patterns.
 
-Section Net.
+Definition Net (I : DirectedSet) (X : Type) : Type :=
+  DS_set I -> X.
 
+Inductive Subnet {I : DirectedSet} {X : Type}
+  (x : Net I X) {J : DirectedSet} : Net J X -> Prop :=
+| intro_subnet: forall h:DS_set J -> DS_set I,
+    (forall j1 j2:DS_set J,
+        DS_ord j1 j2 -> DS_ord (h j1) (h j2)) ->
+    (exists arbitrarily large i:DS_set I,
+      exists j:DS_set J, h j = i) ->
+    Subnet x (fun j:DS_set J => x (h j)).
+
+Section Net.
 Variable I:DirectedSet.
 Variable X:TopologicalSpace.
 
-Definition Net := DS_set I -> X.
-
-Definition net_limit (x:Net) (x0:X) : Prop :=
+Definition net_limit (x:Net I X) (x0:X) : Prop :=
   forall U:Ensemble X, open U -> In U x0 ->
   for large i:DS_set I, In U (x i).
 
-Definition net_cluster_point (x:Net) (x0:X) : Prop :=
+Definition net_cluster_point (x:Net I X) (x0:X) : Prop :=
   forall U:Ensemble X, open U -> In U x0 ->
   exists arbitrarily large i:DS_set I, In U (x i).
 
-Lemma net_limit_is_cluster_point: forall (x:Net) (x0:X),
+Lemma net_limit_is_cluster_point: forall (x:Net I X) (x0:X),
   net_limit x x0 -> net_cluster_point x x0.
 Proof.
 intros.
@@ -33,7 +42,7 @@ now apply H2.
 Qed.
 
 Lemma net_limit_in_closure: forall (S:Ensemble X)
-  (x:Net) (x0:X),
+  (x:Net I X) (x0:X),
   (exists arbitrarily large i:DS_set I, In S (x i)) ->
   net_limit x x0 -> In (closure S) x0.
 Proof.
@@ -51,7 +60,7 @@ contradiction (H3 x2);
 Qed.
 
 Lemma net_cluster_point_in_closure: forall (S:Ensemble X)
-  (x:Net) (x0:X),
+  (x:Net I X) (x0:X),
   (for large i:DS_set I, In S (x i)) ->
   net_cluster_point x x0 -> In (closure S) x0.
 Proof.
@@ -265,16 +274,8 @@ Variable X:TopologicalSpace.
 Variable I:DirectedSet.
 Variable x:Net I X.
 
-Inductive Subnet {J:DirectedSet} : Net J X -> Prop :=
-  | intro_subnet: forall h:DS_set J -> DS_set I,
-    (forall j1 j2:DS_set J, DS_ord j1 j2 ->
-       DS_ord (h j1) (h j2)) ->
-    (exists arbitrarily large i:DS_set I,
-       exists j:DS_set J, h j = i) ->
-    Subnet (fun j:DS_set J => x (h j)).
-
 Lemma subnet_limit: forall (x0:X) {J:DirectedSet}
-  (y:Net J X), net_limit x x0 -> Subnet y ->
+  (y:Net J X), net_limit x x0 -> Subnet x y ->
   net_limit y x0.
 Proof.
 intros.
@@ -294,7 +295,7 @@ Qed.
 
 Lemma subnet_cluster_point: forall (x0:X) {J:DirectedSet}
   (y:Net J X), net_cluster_point y x0 ->
-  Subnet y -> net_cluster_point x x0.
+  Subnet x y -> net_cluster_point x x0.
 Proof.
 intros.
 destruct H0 as [h h_increasing h_dominant].
@@ -392,7 +393,7 @@ Definition cluster_point_subnet : Net
   x (cps_i iU).
 
 Lemma cluster_point_subnet_is_subnet:
-  Subnet cluster_point_subnet.
+  Subnet x cluster_point_subnet.
 Proof.
 constructor.
 - intros.
@@ -432,7 +433,7 @@ Qed.
 
 Lemma net_cluster_point_impl_subnet_converges:
   exists J:DirectedSet, exists y:Net J X,
-  Subnet y /\ net_limit y x0.
+  Subnet x y /\ net_limit y x0.
 Proof.
 exists cluster_point_subnet_DS.
 exists cluster_point_subnet.
