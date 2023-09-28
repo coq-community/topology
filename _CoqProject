@@ -4,6 +4,7 @@
 -arg -w -arg -deprecated-hint-rewrite-without-locality
 -arg -w -arg -deprecated-instance-without-locality
 
+theories/Topology/AdjunctionSpace.v
 theories/Topology/Compactness.v
 theories/Topology/Completeness.v
 theories/Topology/Completion.v
@@ -23,7 +24,6 @@ theories/Topology/OpenBases.v
 theories/Topology/OrderTopology.v
 theories/Topology/ProductTopology.v
 theories/Topology/QuotientTopology.v
-theories/Topology/AdjunctionSpace.v
 theories/Topology/RationalsInReals.v
 theories/Topology/RFuncContinuity.v
 theories/Topology/RTopology.v
