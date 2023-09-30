@@ -53,7 +53,8 @@ to all previous styles. It is defined by
   the full path to each imported file.
   This prevents ambiguities.
 * Start with imports from `Coq`, then other libraries if necessary,
-  then imports from the current library.
+  then imports from the current library. Put `Require Import` before
+  `Require Export`.
   This allows the definitions of the current library to overwrite
   other libraries.
   If for some reason a file needs to overwrite previous imports, put
