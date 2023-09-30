@@ -2,7 +2,6 @@ From ZornsLemma Require Import
   FiniteIntersections
   Powerset_facts.
 From ZornsLemma Require Export
-  Families
   FiniteTypes
   IndexedFamilies.
 

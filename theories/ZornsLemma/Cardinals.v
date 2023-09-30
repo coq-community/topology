@@ -7,7 +7,6 @@ From ZornsLemma Require Export FunctionProperties.
 From ZornsLemma Require Import FunctionPropertiesEns.
 From ZornsLemma Require Import Relation_Definitions_Implicit.
 From ZornsLemma Require Import CSB.
-From ZornsLemma Require Import EnsemblesSpec.
 From ZornsLemma Require Import ZornsLemma.
 From ZornsLemma Require Import EnsemblesImplicit.
 From ZornsLemma Require Import CountableTypes.

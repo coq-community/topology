@@ -1,7 +1,7 @@
 From Coq Require Export Relation_Definitions.
 From Coq Require Import Classical Description
      FunctionalExtensionality ProofIrrelevance.
-From ZornsLemma Require Import Classical_Wf EnsemblesSpec
+From ZornsLemma Require Import Classical_Wf
      Relation_Definitions_Implicit ZornsLemma.
 
 Section WellOrder.

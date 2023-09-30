@@ -1,7 +1,7 @@
 From Coq Require Import Classical_Prop.
 From Coq Require Import Classical_sets.
 From Coq Require Import Morphisms.
-From ZornsLemma Require Export EnsemblesSpec EnsemblesTactics.
+From ZornsLemma Require Export EnsemblesTactics.
 From ZornsLemma Require Import Image ImageImplicit.
 From ZornsLemma Require Import EnsemblesImplicit.
 From Coq Require Export Ensembles.

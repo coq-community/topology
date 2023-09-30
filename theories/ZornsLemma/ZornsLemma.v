@@ -7,7 +7,6 @@ From ZornsLemma Require Import EnsemblesImplicit.
 From Coq Require Import ProofIrrelevance.
 From Coq Require Import PropExtensionalityFacts.
 From ZornsLemma Require Import InverseImage.
-From ZornsLemma Require Export EnsemblesSpec.
 From ZornsLemma Require Import Quotients.
 
 Section ZL'.

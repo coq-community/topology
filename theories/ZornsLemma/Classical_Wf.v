@@ -1,9 +1,9 @@
-From Coq Require Import Classical.
-From Coq Require Export Ensembles.
-From ZornsLemma Require Import EnsemblesImplicit.
-From Coq Require Export Relation_Definitions.
-From ZornsLemma Require Import Relation_Definitions_Implicit.
-From ZornsLemma Require Import EnsemblesSpec.
+From Coq Require Import
+  Classical
+  Ensembles
+  Relation_Definitions.
+From ZornsLemma Require Import
+  EnsemblesImplicit.
 
 Section MinimalElements.
 
@@ -75,25 +75,22 @@ Qed.
 (* This fact holds constructively. *)
 Lemma MEP_implies_WF: minimal_element_property -> well_founded R.
 Proof.
-intros MEP. red. intros.
-constructor. intros.
+intros MEP. red. intros a.
+constructor. intros y H.
 unshelve epose proof (MEP_inh_impl_LEM MEP _) as LEM.
 { eauto. }
 destruct (LEM (Acc R y)) as [|]; try assumption.
 exfalso.
-assert (Inhabited [x:T | ~ Acc R x]) as HInh.
-{ exists y.
-  constructor; assumption.
-}
-apply MEP in HInh as [? [[?] ?]].
-contradict H1.
+assert (Inhabited (fun x => ~ Acc R x)) as HInh.
+{ exists y. assumption. }
+apply MEP in HInh as [x [Hx0 Hx]].
+unfold In in Hx0.
+contradict Hx0.
 constructor.
-intros.
+intros y0 Hy0x.
 destruct (LEM (Acc R y0)) as [|]; try assumption.
 exfalso.
-apply H2 with y0.
-- constructor; assumption.
-- assumption.
+apply Hx with y0; assumption.
 Qed.
 
 End MinimalElements.

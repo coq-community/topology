@@ -2,7 +2,6 @@ From ZornsLemma Require Export EnsemblesImplicit.
 From Coq Require Export Utf8.
 From ZornsLemma Require Export Families.
 From ZornsLemma Require Export IndexedFamilies.
-From ZornsLemma Require Import EnsemblesSpec.
 
 Notation "x ∈ S" := (In S x) (at level 75).
 Notation "S ∩ T" := (Intersection S T)

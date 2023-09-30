@@ -27,20 +27,17 @@ Lemma coverable_by_open_basis_impl_open:
      In B V /\ Included V U /\ In V x) -> open U.
 Proof.
 intros.
-replace U with (FamilyUnion [ V:Ensemble X |
-                          In B V /\ Included V U ]).
+replace U with (FamilyUnion (fun V => In B V /\ Included V U)).
 - apply open_family_union.
   intros.
   destruct H0.
-  destruct H0.
   now apply open_basis_elements.
 - extensionality_ensembles.
-  + destruct H0.
-    auto with sets.
+  + auto with sets.
   + destruct (H x H0) as [V].
     destruct H1 as [? [? ?]].
     exists V; auto.
-    constructor; auto.
+    split; auto.
 Qed.
 
 End OpenBasis.

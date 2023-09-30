@@ -1,12 +1,9 @@
 From Coq Require Import
   Arith
   ClassicalChoice
-  FunctionalExtensionality
-  Lia.
-From ZornsLemma Require Export FiniteTypes.
+  FunctionalExtensionality.
 From ZornsLemma Require Import
-  EnsemblesImplicit
-  EnsemblesSpec
+  FiniteTypes
   FunctionProperties.
 
 Lemma infinite_nat_inj: forall X:Type, ~ FiniteT X ->

@@ -1,6 +1,7 @@
 From ZornsLemma Require Export
   FunctionProperties.
 From ZornsLemma Require Import
+  EnsemblesSpec
   IndexedFamilies
   Powerset_facts.
 
