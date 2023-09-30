@@ -795,16 +795,13 @@ apply Rle_antisym.
     simpl in H2.
     assert (In (interior (Complement S)) x).
     { exists (open_ball d x eps).
-      - red. split.
-        destruct (d_metrizes_X x).
-        destruct (open_neighborhood_basis_elements (open_ball d x eps)).
-        + constructor. lra.
-        + split; trivial.
-          red. intros y ?.
-          destruct H4.
-          red; red; intro.
-          contradiction (H2 y).
-          now split.
+      - constructor. split.
+        { auto using metric_space_open_ball_open. }
+        intros y [Hy].
+        intros HSy.
+        specialize (H2 y).
+        contradict H2.
+        split; assumption.
       - constructor.
         now rewrite metric_zero. }
     rewrite interior_complement in H1.
