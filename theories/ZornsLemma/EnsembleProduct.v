@@ -1,6 +1,7 @@
 From ZornsLemma Require Import EnsemblesImplicit InverseImage.
 
-Definition EnsembleProduct {X Y : Type} (SX : Ensemble X) (SY : Ensemble Y) : Ensemble (X * Y) :=
+Definition EnsembleProduct {X Y : Type}
+  (SX : Ensemble X) (SY : Ensemble Y) : Ensemble (X * Y) :=
   fun p => In SX (fst p) /\ In SY (snd p).
 
 Lemma EnsembleProduct_Full {X Y : Type} :
@@ -29,7 +30,8 @@ Proof.
   - destruct H.
 Qed.
 
-Lemma EnsembleProduct_Union {X Y : Type} (U0 U1 : Ensemble X) (V0 V1 : Ensemble Y) :
+Lemma EnsembleProduct_Union {X Y : Type}
+  (U0 U1 : Ensemble X) (V0 V1 : Ensemble Y) :
   Included (Union (EnsembleProduct U0 V0) (EnsembleProduct U1 V1))
            (EnsembleProduct (Union U0 U1) (Union V0 V1)).
 Proof.
@@ -39,7 +41,8 @@ Proof.
   - split; right; assumption.
 Qed.
 
-Lemma EnsembleProduct_Intersection {X Y : Type} (U0 U1 : Ensemble X) (V0 V1 : Ensemble Y) :
+Lemma EnsembleProduct_Intersection {X Y : Type}
+  (U0 U1 : Ensemble X) (V0 V1 : Ensemble Y) :
   Intersection (EnsembleProduct U0 V0) (EnsembleProduct U1 V1) =
   EnsembleProduct (Intersection U0 U1) (Intersection V0 V1).
 Proof.
@@ -79,7 +82,8 @@ Proof.
     destruct x. split; assumption.
 Qed.
 
-Lemma EnsembleProduct_Included {X Y : Type} (U0 U1 : Ensemble X) (V0 V1 : Ensemble Y) :
+Lemma EnsembleProduct_Included {X Y : Type}
+  (U0 U1 : Ensemble X) (V0 V1 : Ensemble Y) :
   Included U0 U1 -> Included V0 V1 ->
   Included (EnsembleProduct U0 V0) (EnsembleProduct U1 V1).
 Proof.
@@ -88,7 +92,8 @@ Proof.
   split; auto.
 Qed.
 
-Lemma EnsembleProduct_Complement {X Y : Type} (U : Ensemble X) (V : Ensemble Y) :
+Lemma EnsembleProduct_Complement {X Y : Type}
+  (U : Ensemble X) (V : Ensemble Y) :
   Complement (EnsembleProduct U V) =
   Union (EnsembleProduct Full_set (Complement V))
         (EnsembleProduct (Complement U) Full_set).
@@ -106,7 +111,8 @@ Proof.
     + destruct x, H. cbv. intuition.
 Qed.
 
-Lemma EnsembleProduct_Union_dist {X Y : Type} (U : Ensemble X) (V0 V1 : Ensemble Y) :
+Lemma EnsembleProduct_Union_dist {X Y : Type}
+  (U : Ensemble X) (V0 V1 : Ensemble Y) :
   Union (EnsembleProduct U V0) (EnsembleProduct U V1) =
   EnsembleProduct U (Union V0 V1).
 Proof.
@@ -122,7 +128,8 @@ Proof.
     + right. split; assumption.
 Qed.
 
-Lemma EnsembleProduct_Intersection_dist {X Y : Type} (U : Ensemble X) (V0 V1 : Ensemble Y) :
+Lemma EnsembleProduct_Intersection_dist {X Y : Type}
+  (U : Ensemble X) (V0 V1 : Ensemble Y) :
   Intersection (EnsembleProduct U V0) (EnsembleProduct U V1) =
   EnsembleProduct U (Intersection V0 V1).
 Proof.
