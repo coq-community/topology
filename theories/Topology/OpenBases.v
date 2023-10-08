@@ -1,7 +1,7 @@
 From Coq Require Import
   ClassicalChoice.
 From ZornsLemma Require Import
-  CardinalsEns.
+  Cardinals.
 From Topology Require Export
   TopologicalSpaces.
 
