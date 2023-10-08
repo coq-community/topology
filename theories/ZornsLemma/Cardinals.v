@@ -2,4 +2,5 @@
 From ZornsLemma Require Export
   Cardinals.Cardinals
   Cardinals.CardinalsEns
-  Cardinals.CSB.
+  Cardinals.CSB
+  Cardinals.Diagonalization.
