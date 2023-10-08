@@ -1,6 +1,7 @@
 (** ** Definitions concerning least cardinals *)
 From ZornsLemma Require Import
   Cardinals.CardinalsEns
+  Cardinals.Comparability
   Families
   Image.
 
