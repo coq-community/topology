@@ -19,6 +19,7 @@ From ZornsLemma Require Import
   DependentTypeChoice
   Finite_sets
   FiniteTypes
+  FunctionProperties
   FunctionPropertiesEns
   IndexedFamilies.
 
@@ -30,16 +31,13 @@ Definition CountableT (X : Type) : Prop :=
   le_cardinal X nat.
 
 Lemma CountableT_is_FiniteT_or_countably_infinite (X : Type) :
-  CountableT X -> {FiniteT X} + {exists f : X -> nat, bijective f}.
+  CountableT X -> {FiniteT X} + {eq_cardinal X nat}.
 Proof.
 intros.
 apply exclusive_dec.
-- intro.
-  destruct H0 as [? [f ?]].
+- intros [].
   contradiction nat_infinite.
-  apply bijective_impl_invertible in H1.
   apply bij_finite with X; auto.
-  exists f; auto.
 - destruct (classic (FiniteT X)).
   + left; trivial.
   + right.
