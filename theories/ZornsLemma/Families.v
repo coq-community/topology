@@ -241,3 +241,19 @@ split.
 - intros. extensionality_ensembles.
   rewrite <- H. exists U; assumption.
 Qed.
+
+Lemma FamilyUnion_In_Included {X : Type}
+  (F : Family X) (U : Ensemble X) :
+  In F U -> Included U (FamilyUnion F).
+Proof.
+  intros HU x Hx.
+  exists U; assumption.
+Qed.
+
+Lemma FamilyIntersection_In_Included {X : Type}
+  (F : Family X) (U : Ensemble X) :
+  In F U -> Included (FamilyIntersection F) U.
+Proof.
+  intros HU x Hx.
+  destruct Hx. apply H, HU.
+Qed.
