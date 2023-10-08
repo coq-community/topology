@@ -20,7 +20,6 @@ From Coq Require Import
   Program.Subset.
 From ZornsLemma Require Import
   Cardinals.Cardinals
-  Cardinals.CSB
   DecidableDec
   Families
   FunctionProperties
@@ -302,91 +301,6 @@ Lemma le_cardinal_ens_Included {X : Type}
   le_cardinal_ens U V.
 Proof.
   right. exists id. firstorder.
-Qed.
-
-Theorem CSB_ens {X Y : Type}
-  (U : Ensemble X) (V : Ensemble Y)
-  (f : X -> Y) (g : Y -> X) :
-  range f U V ->
-  range g V U ->
-  injective_ens f U ->
-  injective_ens g V ->
-  exists h : X -> Y,
-    range h U V /\
-      bijective_ens h U V.
-Proof.
-  intros.
-  assert (exists h0 : sig U -> sig V, bijective h0)
-    as [h0 Hh].
-  { apply CSB with (f := range_restr f U V H)
-                   (g := range_restr g V U H0);
-      apply injective_ens_char; assumption.
-  }
-  destruct (classic (inhabited Y)).
-  2: {
-    assert (X -> False) as HX.
-    { intros x.
-      apply H3. constructor.
-      apply (f x).
-    }
-    exists (fun x => False_rect Y (HX x)).
-    repeat split; intros ? ?; try contradiction.
-    contradict H3; constructor; auto.
-  }
-  clear f g H H0 H1 H2.
-  destruct H3 as [y0].
-  exists (sig_fn_extend (compose (@proj1_sig Y V) h0) y0).
-  assert (range (compose (proj1_sig (P:=V)) h0)
-                Full_set V).
-  { apply (range_compose _ Full_set).
-    - apply range_full.
-    - intros ? _. apply proj2_sig.
-  }
-  split; [|split].
-  - apply sig_fn_extend_range; assumption.
-  - apply sig_fn_extend_injective_ens.
-    apply injective_compose.
-    + apply Hh.
-    + intros ? ?. apply proj1_sig_injective.
-  - apply sig_fn_extend_surjective_ens.
-    intros y Hy.
-    destruct Hh as [_ Hh].
-    specialize (Hh (exist V y Hy)) as [[x Hx0] Hx1].
-    exists (exist U x Hx0); split; [constructor|].
-    unfold compose. rewrite Hx1.
-    reflexivity.
-Qed.
-
-Corollary le_cardinal_ens_antisymmetry
-  {X Y : Type} (U : Ensemble X) (V : Ensemble Y) :
-  le_cardinal_ens U V ->
-  le_cardinal_ens V U ->
-  eq_cardinal_ens U V.
-Proof.
-  intros [H|[f [Hf0 Hf1]]].
-  { left. assumption. }
-  intros [H|[g [Hg0 Hg1]]].
-  { apply eq_cardinal_ens_sym.
-    left. assumption.
-  }
-  right.
-  apply (CSB_ens _ _ f g); assumption.
-Qed.
-
-Lemma le_lt_cardinal_ens_transitive {X Y Z : Type}
-  (U : Ensemble X) (V : Ensemble Y) (W : Ensemble Z) :
-  le_cardinal_ens U V ->
-  lt_cardinal_ens V W ->
-  lt_cardinal_ens U W.
-Proof.
-  intros HUV [HVW HVWn].
-  split.
-  { eapply le_cardinal_ens_transitive; eauto. }
-  intros Heq.
-  contradict HVWn.
-  apply eq_cardinal_ens_sym in Heq.
-  apply le_cardinal_ens_antisymmetry; auto.
-  eapply le_cardinal_ens_Proper_l; eauto.
 Qed.
 
 Lemma le_cardinal_ens_surj {X Y : Type}

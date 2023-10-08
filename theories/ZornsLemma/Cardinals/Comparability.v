@@ -13,6 +13,8 @@ From ZornsLemma Require Import
   Cardinals.CardinalsEns
   Cardinals.CSB
   Families
+  FunctionProperties
+  Image
   ZornsLemma.
 
 Section le_cardinal_total.

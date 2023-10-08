@@ -4,7 +4,6 @@ From Coq Require Import
   FunctionalExtensionality
   ProofIrrelevance.
 From ZornsLemma Require Import
-  Cardinals.CSB
   FunctionProperties
   FunctionPropertiesEns
   ZornsLemma.
@@ -42,21 +41,6 @@ split.
 - intros ? ? ? [f Hf] [g Hg].
   exists (compose g f).
   apply invertible_compose; assumption.
-Qed.
-
-#[export]
-Instance le_cardinal_PartialOrder :
-  PartialOrder eq_cardinal le_cardinal.
-Proof.
-split.
-- intros [f Hf]; split.
-  + exists f. apply invertible_impl_bijective; assumption.
-  + destruct Hf as [g Hfg].
-    exists g. apply invertible_impl_bijective.
-    exists f. apply inverse_map_sym.
-    assumption.
-- intros [[f Hf] [g Hg]].
-  apply CSB_inverse_map with (f := f) (g := g); auto.
 Qed.
 
 Lemma eq_cardinal_impl_le_cardinal: forall kappa lambda: Type,
