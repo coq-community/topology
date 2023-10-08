@@ -148,24 +148,24 @@ Proof.
 Qed.
 
 (** ** Locally inverse functions *)
-Definition inverse_pair_ens {A B : Type}
+Definition inverse_map_ens {A B : Type}
   (f : A -> B) (g : B -> A)
   (U : Ensemble A) (V : Ensemble B) : Prop :=
   (forall a : A, In U a -> g (f a) = a) /\
     (forall b : B, In V b -> f (g b) = b).
 
-Lemma inverse_pair_ens_sym
+Lemma inverse_map_ens_sym
   {A B : Type} (f : A -> B) (g : B -> A) U V :
-  inverse_pair_ens f g U V ->
-  inverse_pair_ens g f V U.
+  inverse_map_ens f g U V ->
+  inverse_map_ens g f V U.
 Proof.
   firstorder.
 Qed.
 
-Lemma inverse_pair_ens_surjective_ens_range {A B : Type}
+Lemma inverse_map_ens_surjective_ens_range {A B : Type}
   (f : A -> B) (g : B -> A) U V :
   surjective_ens f U V ->
-  inverse_pair_ens f g U V ->
+  inverse_map_ens f g U V ->
   range g V U.
 Proof.
   intros Hf_surj [Hgf Hfg] b Hb.
@@ -178,7 +178,7 @@ Lemma bijective_impl_invertible_ens_dec
   (a0 : A) (HV : forall b : B, In V b \/ ~ In V b) :
   range f U V ->
   bijective_ens f U V ->
-  exists g : B -> A, inverse_pair_ens f g U V.
+  exists g : B -> A, inverse_map_ens f g U V.
 Proof.
   intros Hf [Hf0 Hf1].
   assert (forall b : B,
@@ -208,16 +208,16 @@ Lemma bijective_ens_impl_invertible_ens
   (a0 : A) :
   range f U V ->
   bijective_ens f U V ->
-  exists g : B -> A, inverse_pair_ens f g U V.
+  exists g : B -> A, inverse_map_ens f g U V.
 Proof.
   apply bijective_impl_invertible_ens_dec; auto.
   intros ?. apply classic.
 Qed.
 
-Lemma inverse_pair_ens_range_bijective_ens
+Lemma inverse_map_ens_range_bijective_ens
   {A B : Type} (f : A -> B) (g : B -> A) (U : Ensemble A) (V : Ensemble B) :
   range f U V ->
-  inverse_pair_ens f g U V ->
+  inverse_map_ens f g U V ->
   bijective_ens g V U.
 Proof.
   intros Hf_range Hfg.

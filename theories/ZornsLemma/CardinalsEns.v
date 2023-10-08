@@ -8,7 +8,7 @@
     a type are inhabited or not.
 
     Similarly, we can not define [eq_cardinal_ens] via
-    [inverse_pair_ens], because that leads to a notion incompatible
+    [inverse_map_ens], because that leads to a notion incompatible
     with [le_cardinal_ens].  Namely it would reqiure classical logic
     to prove [eq_cardinal_ens -> le_cardinal_ens].
 *)
@@ -89,9 +89,9 @@ Proof.
     pose proof (bijective_impl_invertible_ens_dec
                   f U V a0 HVdec Hf0 Hf1) as [g Hfg].
     exists g. split.
-    + apply (inverse_pair_ens_surjective_ens_range f); auto.
+    + apply (inverse_map_ens_surjective_ens_range f); auto.
       apply Hf1.
-    + apply (inverse_pair_ens_range_bijective_ens f); auto.
+    + apply (inverse_map_ens_range_bijective_ens f); auto.
 Qed.
 
 Lemma eq_cardinal_ens_sym {A B : Type}
