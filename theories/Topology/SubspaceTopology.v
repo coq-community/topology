@@ -1,5 +1,5 @@
 From ZornsLemma Require Import
-  CardinalsEns
+  Cardinals
   DecidableDec
   FiniteIntersections
   Proj1SigInjective.
