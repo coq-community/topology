@@ -7,7 +7,7 @@ From Topology Require Export
   Nets
   SubspaceTopology.
 From ZornsLemma Require Export
-  CardinalsEns
+  Cardinals
   CountableTypes.
 From ZornsLemma Require Import
   Classical_Wf

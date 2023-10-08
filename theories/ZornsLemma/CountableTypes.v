@@ -15,8 +15,6 @@ From Coq Require Import
   ZArith.
 From ZornsLemma Require Import
   Cardinals
-  CardinalsEns
-  CSB
   DecidableDec
   DependentTypeChoice
   Finite_sets

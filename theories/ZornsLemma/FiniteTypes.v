@@ -7,8 +7,6 @@ From Coq Require Import
   Program.Subset.
 From ZornsLemma Require Import
   Cardinals
-  CardinalsEns
-  CSB
   DecidableDec
   FiniteImplicit
   Finite_sets
