@@ -38,10 +38,11 @@ theories/Topology/UrysohnsLemma.v
 theories/Topology/WeakTopology.v
 theories/Topology/Examples/S1.v
 theories/ZornsLemma/Cardinals.v
-theories/ZornsLemma/CardinalsEns.v
+theories/ZornsLemma/Cardinals/Cardinals.v
+theories/ZornsLemma/Cardinals/CardinalsEns.v
+theories/ZornsLemma/Cardinals/CSB.v
 theories/ZornsLemma/Classical_Wf.v
 theories/ZornsLemma/CountableTypes.v
-theories/ZornsLemma/CSB.v
 theories/ZornsLemma/DecidableDec.v
 theories/ZornsLemma/DependentTypeChoice.v
 theories/ZornsLemma/DirectedSets.v

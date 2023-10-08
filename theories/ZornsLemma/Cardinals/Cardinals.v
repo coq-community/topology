@@ -4,7 +4,7 @@ From Coq Require Import
   FunctionalExtensionality
   ProofIrrelevance.
 From ZornsLemma Require Import
-  CSB
+  Cardinals.CSB
   FunctionProperties
   FunctionPropertiesEns
   ZornsLemma.

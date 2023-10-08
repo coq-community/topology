@@ -19,8 +19,8 @@ From Coq Require Import
   PeanoNat
   Program.Subset.
 From ZornsLemma Require Import
-  Cardinals
-  CSB
+  Cardinals.Cardinals
+  Cardinals.CSB
   DecidableDec
   Families
   FunctionProperties
