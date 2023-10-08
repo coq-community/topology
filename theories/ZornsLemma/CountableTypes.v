@@ -21,7 +21,8 @@ From ZornsLemma Require Import
   FiniteTypes
   FunctionProperties
   FunctionPropertiesEns
-  IndexedFamilies.
+  IndexedFamilies
+  InverseImage.
 
 Local Close Scope Q_scope.
 
@@ -410,4 +411,373 @@ Proof.
     specialize (Hf x0 x1 H0 H1 Hx).
     apply subset_eq_compat.
     assumption.
+Qed.
+
+(** ** Unbounded subsets of [nat] are countably infinite *)
+Lemma nat_minimal_element_property_dec
+  (U : Ensemble nat) (HUdec : forall n : nat, In U n \/ ~ In U n)
+  (HUinh : Inhabited U) :
+  exists m : nat, In U m /\ forall n : nat, In U n -> m <= n.
+Proof.
+  destruct HUinh as [N HN].
+  revert U HUdec HN.
+  induction N.
+  { intros.
+    exists 0. split; auto. lia.
+  }
+  intros U HUdec HN.
+  destruct (HUdec 0) as [HU0|HU0].
+  { exists 0. split; auto. lia. }
+  specialize (IHN (compose U S)) as [m [Hm0 Hm1]];
+    auto.
+  { intros ?. apply HUdec. }
+  destruct (HUdec m) as [HUm|HUm].
+  { exists m; split; auto; intros n Hn.
+    destruct n; try contradiction.
+    apply Hm1 in Hn. lia.
+  }
+  exists (S m). split; auto.
+  intros n Hn.
+  destruct n; try contradiction.
+  apply le_n_S.
+  apply Hm1.
+  assumption.
+Qed.
+
+Lemma nat_bounded_ens_has_max_dec
+  (U : Ensemble nat)
+  (HUdec : forall n : nat, In U n \/ ~ In U n)
+  (N : nat) :
+  (forall n : nat, In U n -> n < N) ->
+  Inhabited U ->
+  exists n : nat, In U n /\
+             forall m : nat, In U m -> m <= n.
+Proof.
+  intros HN HU.
+  induction N.
+  { destruct HU as [u Hu].
+    specialize (HN u Hu). lia.
+  }
+  clear HU.
+  specialize (HUdec N) as [HN0|HN0].
+  - exists N; split; auto.
+    intros m Hm. specialize (HN m Hm).
+    lia.
+  - apply IHN.
+    intros n Hn.
+    specialize (HN n Hn).
+    assert (n <> N).
+    { intros ?; congruence. }
+    lia.
+Qed.
+
+(** if a set [U] has an element [o] and an injective function [succ]
+  (possibly defined on a larger set than [U]) such that
+  [o] is not in the image of [succ], and
+  [U] satisfies an induction principle, then [U] is countably infinite *)
+Lemma peano_ensemble_countably_infinite {X : Type}
+  (U : Ensemble X) (o : X) (succ : X -> X) :
+  In U o ->
+  (forall x : X, In U x -> In U (succ x)) ->
+  injective_ens succ U ->
+  (forall x : X, In U x -> o <> succ x) ->
+  (forall P : Ensemble X,
+      P o ->
+      (forall x, In U x -> P x -> P (succ x)) ->
+      forall x, In U x -> P x) ->
+  eq_cardinal_ens (@Full_set nat) U.
+Proof.
+  intros HUo HUsucc Hsucc_inj Hsucc_o HUind.
+  right.
+  pose (g := fix g (n : nat) : { n : X | In U n } :=
+       match n with
+       | O => exist U o HUo
+       | S n => exist U (succ (proj1_sig (g n)))
+                 (HUsucc (proj1_sig (g n)) (proj2_sig (g n)))
+       end).
+  exists (fun n => proj1_sig (g n)).
+  split; [|split].
+  - intros x Hx.
+    clear Hx.
+    induction x.
+    { simpl. assumption. }
+    simpl. apply HUsucc, IHx.
+  - intros x0 x1 Hx0 Hx1 Hx.
+    clear Hx0 Hx1.
+    revert x1 Hx.
+    induction x0; intros x1 Hx.
+    { simpl in Hx.
+      destruct x1.
+      { reflexivity. }
+      simpl in Hx.
+      apply Hsucc_o in Hx; try contradiction.
+      apply proj2_sig.
+    }
+    simpl in Hx.
+    destruct x1.
+    { simpl in Hx.
+      symmetry in Hx.
+      apply Hsucc_o in Hx; try contradiction.
+      apply proj2_sig.
+    }
+    simpl in Hx.
+    apply Hsucc_inj in Hx; try now apply proj2_sig.
+    apply IHx0 in Hx. congruence.
+  - red. apply HUind.
+    + exists 0. split; constructor.
+    + intros x Hx [y [Hy Hy0]].
+      subst.
+      exists (S y); split; [constructor|].
+      simpl. reflexivity.
+Qed.
+
+Theorem nat_unbounded_impl_countably_infinite_dec
+  (U : Ensemble nat) (HU : forall n : nat, exists m : nat, In U m /\ n < m)
+  (HUdec : forall n : nat, In U n \/ ~ In U n) :
+  eq_cardinal_ens U (@Full_set nat).
+Proof.
+  (* we use [nat_minimal_element_property_dec] to note that [U] is
+     well-founded by [lt].
+     Then show:
+     Hu: the set [U] has a least element [u]
+     Hf: the set [U] has a "successor" function [f]
+     Hfu: [u] is not in the image of [f]
+     Hf_inj: the function [f] is injective on [U]
+     HU0: every element of [U] is either [u] or lies in the image of [f]
+
+     Combine these in [peano_ensemble_countably_infinite]
+     to obtain a bijection (even an order-isomorphism)
+     between [U] and [Full_set].
+   *)
+  assert (exists u : nat, In U u /\ (forall n : nat, In U n -> u <= n)) as Hu.
+  { specialize (HU 0) as [m [Hm0 Hm1]].
+    apply nat_minimal_element_property_dec; auto.
+    exists m. assumption.
+  }
+  assert (exists f : nat -> nat,
+           (forall n : nat,
+             In U n ->
+             In U (f n)) /\
+             (forall n : nat,
+                 In U n ->
+                 n < f n) /\
+             (forall n : nat,
+                 In U n ->
+                 forall m : nat,
+                   In U m ->
+                   n < m -> f n <= m)) as Hf.
+  { cut (forall n : nat,
+            { fn : nat |
+              (In U n ->
+               In U fn /\ n < fn /\
+                 forall m : nat, In U m -> n < m -> fn <= m) /\
+                (~ In U n -> fn = 0) }).
+    { intros F.
+      exists (fun n => proj1_sig (F n)).
+      repeat split; intros n Hn;
+        pose proof (proj1 (proj2_sig (F n)) Hn) as [Hn0 [Hn1 Hn2]];
+        auto.
+    }
+    intros n.
+    apply constructive_definite_description.
+    destruct (HUdec n) as [Hn0|Hn0].
+    2: {
+      exists 0. repeat split; try contradiction.
+      intuition.
+    }
+    destruct
+      (nat_minimal_element_property_dec
+         (fun m => In U m /\ n < m)) as [k [[Hk0 Hk1] Hk2]].
+    { unfold In.
+      intros m.
+      destruct (Nat.lt_ge_cases n m).
+      2: {
+        right. intros []. lia.
+      }
+      specialize (HUdec m) as [|].
+      - left; tauto.
+      - right; intros []; tauto.
+    }
+    { destruct (HU n) as [m Hm].
+      exists m. assumption.
+    }
+    exists k. repeat split; try tauto.
+    { firstorder. }
+    intros l [Hl _].
+    specialize (Hl Hn0) as [Hl0 [Hl1 Hl2]].
+    specialize (Hk2 l (conj Hl0 Hl1)).
+    specialize (Hl2 k Hk0 Hk1).
+    lia.
+  }
+  destruct Hu as [u [Hu0 Hu1]].
+  destruct Hf as [f [Hf0 [Hf1 Hf2]]].
+  assert (forall x : nat, In U x -> u <> f x) as Hfu.
+  { intros x Hx.
+    specialize (Hu1 x Hx).
+    specialize (Hf1 x Hx).
+    lia.
+  }
+  (* show that [f] is injective on [U] *)
+  assert (injective_ens f U) as Hf_inj.
+  { intros x0 x1 Hx0 Hx1 Hx.
+    destruct (Nat.lt_trichotomy x0 x1) as [Hxx|[Hxx|Hxx]]; auto.
+    - specialize (Hf2 x0 Hx0 x1 Hx1 Hxx).
+      specialize (Hf1 x1 Hx1). lia.
+    - specialize (Hf2 x1 Hx1 x0 Hx0 Hxx).
+      specialize (Hf1 x0 Hx0). lia.
+  }
+  assert (forall x : nat,
+             In U x -> x = u \/ exists y : nat, In U y /\ x = f y) as HU0.
+  { intros x Hx.
+    destruct (Nat.eq_dec x u); auto.
+    right.
+    (* [y] must be the greatest element of [U] which satisfies [y < x]. *)
+    unshelve epose proof (nat_bounded_ens_has_max_dec
+                            (fun y => In U y /\ y < x) _ x)
+      as [y Hy].
+    - intros k. unfold In.
+      destruct (Nat.lt_ge_cases k x).
+      2: {
+        right. intros []. lia.
+      }
+      specialize (HUdec k) as [|].
+      + left; tauto.
+      + right; intros []; tauto.
+    - intros k [Hk0 Hk1]. auto.
+    - exists u. split; auto.
+      specialize (Hu1 x Hx). lia.
+    - exists y. split; try apply Hy.
+      destruct Hy as [[Hy0 Hy1] Hy2].
+      unfold In at 1 in Hy2.
+      apply Nat.le_antisymm.
+      2: now apply Hf2; auto.
+      apply Nat.nlt_ge.
+      intros Hfy.
+      specialize (Hy2 (f y) (conj (Hf0 y Hy0) Hfy)).
+      specialize (Hf1 y Hy0).
+      lia.
+  }
+  assert (forall P : (forall x : nat, Prop),
+             P u ->
+             (forall (x : nat) (Hx : In U x),
+                 P x -> P (f x)) ->
+             forall (x : nat), In U x -> P x) as HUind.
+  { intros P HP0 HP1 x.
+    apply (Wf_nat.lt_wf_rect x (fun x => In U x -> P x)).
+    clear x.
+    intros x Hind Hx.
+    destruct (HU0 x Hx) as [Hx0|[y [Hy Hy0]]]; subst; auto.
+  }
+  apply eq_cardinal_ens_sym_dec.
+  { left. constructor. apply 0. }
+  { assumption. }
+  apply peano_ensemble_countably_infinite with u f;
+    auto.
+Qed.
+
+Lemma nat_unbounded_impl_countably_infinite
+  (U : Ensemble nat) (HU : forall n : nat, exists m : nat, In U m /\ n < m) :
+  eq_cardinal_ens U (@Full_set nat).
+Proof.
+  apply nat_unbounded_impl_countably_infinite_dec;
+    auto.
+  intros ?. apply classic.
+Qed.
+
+(** The following proofs are in this file, because they require
+  [FiniteT] and [nat_unbounded_impl_countably_infinite]. *)
+Lemma Finite_as_lt_cardinal_ens
+  {X : Type} (U : Ensemble X) :
+  Finite U <-> lt_cardinal_ens U (@Full_set nat).
+Proof.
+  split.
+  - (* -> *)
+    (* this proof directly constructs a function [X -> nat] using [classic_dec].
+       Another proof would do induction over [Finite X] and construct the
+       function [X -> nat] inductively *)
+    intros HU.
+    split.
+    + apply Finite_ens_type in HU.
+      apply FiniteT_nat_embeds in HU.
+      destruct HU as [f Hf].
+      right.
+      exists (fun x : X =>
+           match classic_dec (In U x) with
+           | left Hx => f (exist U x Hx)
+           | right _ => 0
+           end).
+      split.
+      * apply range_full.
+      * intros x0 x1 Hx0 Hx1.
+        destruct (classic_dec _); try contradiction.
+        destruct (classic_dec _); try contradiction.
+        intros Hx.
+        apply Hf in Hx.
+        inversion Hx; subst; clear Hx.
+        reflexivity.
+    + intros [[_ H]|H].
+      { exact (H 0 ltac:(constructor)). }
+      destruct H as [f [Hf0 Hf1]].
+      red in Hf0.
+      apply nat_infinite.
+      apply Finite_ens_type in HU.
+      pose (f0 := fun n : nat => exist U (f n) (Hf0 n ltac:(constructor))).
+      assert (invertible f0).
+      { apply bijective_impl_invertible.
+        split.
+        - intros n0 n1 Hn.
+          inversion Hn; subst; clear Hn.
+          apply Hf1 in H0; auto; constructor.
+        - intros [x Hx].
+          destruct Hf1 as [_ Hf1].
+          specialize (Hf1 x Hx) as [n [_ Hn]].
+          exists n. subst. unfold f0.
+          apply subset_eq. reflexivity.
+      }
+      destruct H as [g Hg0].
+      apply bij_finite with (sig U).
+      { assumption. }
+      exists g, f0. apply inverse_map_sym, Hg0.
+  - (* <- *)
+    intros [[[H0 H1]|[f [Hf0 Hf1]]] H2].
+    { specialize (H0 0). contradiction. }
+    destruct (classic (exists n : nat, forall x : X, In U x -> f x < n)).
+    2: {
+      contradict H2.
+      assert (eq_cardinal_ens (Im U f) (@Full_set nat)).
+      { apply nat_unbounded_impl_countably_infinite.
+        intros n. apply NNPP.
+        intros Hn. contradict H.
+        exists (S n). intros x Hx.
+        apply NNPP. intros Hx0.
+        contradict Hn. exists (f x).
+        split.
+        { apply Im_def; auto. }
+        lia.
+      }
+      apply eq_cardinal_ens_Im_injective in Hf1.
+      apply eq_cardinal_ens_sym.
+      eapply eq_cardinal_ens_trans; eauto.
+    }
+    destruct H as [n Hn].
+    (* [n] is an upper bound of the image of [U] under [f] *)
+    apply Finite_injective_image with f;
+      auto.
+    apply nat_Finite_bounded_char.
+    exists n. intros m Hm.
+    destruct Hm as [x Hx m Hm]; subst.
+    apply Hn; auto.
+Qed.
+
+Corollary injective_finite_inverse_image
+  {X Y : Type} (f : X -> Y) (U : Ensemble Y) :
+  injective f ->
+  Finite U ->
+  Finite (inverse_image f U).
+Proof.
+  intros Hf HU.
+  apply Finite_as_lt_cardinal_ens.
+  apply Finite_as_lt_cardinal_ens in HU.
+  apply (inverse_image_injective_cardinal_le f U) in Hf.
+  eapply le_lt_cardinal_ens_transitive; eauto.
 Qed.
