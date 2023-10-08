@@ -464,15 +464,6 @@ Proof.
     intros ? ?. apply proj1_sig_injective.
 Qed.
 
-Theorem le_cardinal_ens_total {X Y : Type} (U : Ensemble X) (V : Ensemble Y) :
-  le_cardinal_ens U V \/ le_cardinal_ens V U.
-Proof.
-  destruct (types_comparable (sig U) (sig V)) as [[f Hf]|[f Hf]];
-    [left|right].
-  - eapply le_cardinal_ens_sig_injective; eauto.
-  - eapply le_cardinal_ens_sig_injective; eauto.
-Qed.
-
 Lemma nat_minimal_element_property_dec
   (U : Ensemble nat) (HUdec : forall n : nat, In U n \/ ~ In U n)
   (HUinh : Inhabited U) :
