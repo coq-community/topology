@@ -41,6 +41,7 @@ theories/ZornsLemma/Cardinals.v
 theories/ZornsLemma/Cardinals/Cardinals.v
 theories/ZornsLemma/Cardinals/CardinalsEns.v
 theories/ZornsLemma/Cardinals/CSB.v
+theories/ZornsLemma/Cardinals/Diagonalization.v
 theories/ZornsLemma/Classical_Wf.v
 theories/ZornsLemma/CountableTypes.v
 theories/ZornsLemma/DecidableDec.v
