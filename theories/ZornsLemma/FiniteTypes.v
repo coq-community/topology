@@ -6,7 +6,9 @@ From Coq Require Import
   Lia
   Program.Subset.
 From ZornsLemma Require Import
-  Cardinals
+  Cardinals.Cardinals
+  Cardinals.Combinatorics
+  Cardinals.CSB
   DecidableDec
   FiniteImplicit
   Finite_sets
