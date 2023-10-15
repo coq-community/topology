@@ -16,10 +16,6 @@ Definition eq_cardinal (X Y : Type) : Prop :=
 
 Definition lt_cardinal (kappa lambda:Type) : Prop :=
   le_cardinal kappa lambda /\ ~ eq_cardinal kappa lambda.
-Definition ge_cardinal (kappa lambda:Type) : Prop :=
-  le_cardinal lambda kappa.
-Definition gt_cardinal (kappa lambda:Type) : Prop :=
-  lt_cardinal lambda kappa.
 
 #[export]
 Instance le_cardinal_preorder : PreOrder le_cardinal.
