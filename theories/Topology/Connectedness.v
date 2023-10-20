@@ -117,18 +117,19 @@ Qed.
 Lemma topological_property_connected :
   topological_property connected.
 Proof.
-intros X Y f [g Hcont_f Hcont_g Hgf Hfg] Hconn S HS.
+apply Build_topological_property.
+intros X Y f Hf g Hg Hfg Hconn S HS.
 destruct (Hconn (inverse_image f S)) as [HfS|HfS];
 [ | left | right ];
   try extensionality_ensembles.
 - apply continuous_clopen; auto.
-- rewrite <- Hfg.
+- rewrite <- (proj2 Hfg).
   apply in_inverse_image.
   rewrite inverse_image_empty, <- HfS.
   constructor.
-  now rewrite Hfg.
+  now rewrite (proj2 Hfg).
 - constructor.
-- rewrite <- Hfg.
+- rewrite <- (proj2 Hfg).
   apply in_inverse_image.
   rewrite HfS.
   constructor.
