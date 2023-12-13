@@ -3,6 +3,7 @@
 -arg -set -arg "'Default Goal Selector=!'"
 
 theories/Topology/AdjunctionSpace.v
+theories/Topology/BanachFixedPoint.v
 theories/Topology/Compactness.v
 theories/Topology/Completeness.v
 theories/Topology/Completion.v
