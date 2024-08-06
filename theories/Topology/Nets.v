@@ -6,14 +6,17 @@ Set Asymmetric Patterns.
 Definition Net (I : DirectedSet) (X : Type) : Type :=
   DS_set I -> X.
 
-Inductive Subnet {I : DirectedSet} {X : Type}
-  (x : Net I X) {J : DirectedSet} : Net J X -> Prop :=
-| intro_subnet: forall h:DS_set J -> DS_set I,
-    (forall j1 j2:DS_set J,
-        DS_ord j1 j2 -> DS_ord (h j1) (h j2)) ->
-    (exists arbitrarily large i:DS_set I,
-      exists j:DS_set J, h j = i) ->
-    Subnet x (fun j:DS_set J => x (h j)).
+Definition Subnet {I : DirectedSet} {X : Type}
+  (x : Net I X) {J : DirectedSet} (y : Net J X) : Prop :=
+  exists (h : DS_set J -> DS_set I),
+    (* [h] is monotonous *)
+    (forall j1 j2 : DS_set J,
+        DS_ord j1 j2 -> DS_ord (h j1) (h j2)) /\
+    (exists arbitrarily large i : DS_set I,
+      exists j : DS_set J, h j = i) /\
+    (* [y] is [x ∘ h] *)
+    (forall j : DS_set J,
+        y j = x (h j)).
 
 Section Net.
 Variable I:DirectedSet.
@@ -26,6 +29,17 @@ Definition net_limit (x:Net I X) (x0:X) : Prop :=
 Definition net_cluster_point (x:Net I X) (x0:X) : Prop :=
   forall U:Ensemble X, open U -> In U x0 ->
   exists arbitrarily large i:DS_set I, In U (x i).
+
+Lemma net_limit_compat (x1 x2 : Net I X) (x : X) :
+  (forall i : DS_set I, x1 i = x2 i) ->
+  net_limit x1 x -> net_limit x2 x.
+Proof.
+  intros Hxx Hx1.
+  intros U HU HUx.
+  specialize (Hx1 U HU HUx) as [i Hi].
+  exists i. intros i0 Hii.
+  rewrite <- Hxx. apply Hi; assumption.
+Qed.
 
 Lemma net_limit_is_cluster_point: forall (x:Net I X) (x0:X),
   net_limit x x0 -> net_cluster_point x x0.
@@ -279,18 +293,15 @@ Lemma subnet_limit: forall (x0:X) {J:DirectedSet}
   net_limit y x0.
 Proof.
 intros.
-destruct H0.
-red. intros.
-destruct (H U H2 H3).
-destruct (H1 x1).
-destruct H5, H6.
-exists x3.
-intros.
-apply H4.
-apply preord_trans with x2; trivial.
-- apply DS_ord_cond.
-- rewrite <- H6.
-  now apply H0.
+destruct H0 as [h [Hh0 [Hh1 Hxy]]].
+red. intros U HU HUx0.
+destruct (H U HU HUx0) as [i Hi].
+destruct (Hh1 i) as [i0 [Hii [j0 Hij0]]].
+subst i0. exists j0.
+intros j1 Hj1.
+rewrite Hxy. apply Hi.
+apply preord_trans with (h j0); auto.
+apply DS_ord_cond.
 Qed.
 
 Lemma subnet_cluster_point: forall (x0:X) {J:DirectedSet}
@@ -298,19 +309,16 @@ Lemma subnet_cluster_point: forall (x0:X) {J:DirectedSet}
   Subnet x y -> net_cluster_point x x0.
 Proof.
 intros.
-destruct H0 as [h h_increasing h_dominant].
-red. intros.
-red. intros.
-destruct (h_dominant i).
-destruct H2, H3.
-destruct (H U H0 H1 x2).
-destruct H4.
-exists (h x3).
-split; trivial.
-apply preord_trans with x1; trivial.
-- apply DS_ord_cond.
-- rewrite <- H3.
-  now apply h_increasing.
+destruct H0 as [h [h_increasing [h_dominant Hxy]]].
+intros U HU HUx0 i.
+destruct (h_dominant i) as [i0 [Hii [j Hj]]].
+subst i0.
+destruct (H U HU HUx0 j) as [j0 [Hj0 Hj1]].
+exists (h j0).
+split.
+- apply preord_trans with (h j); auto.
+  apply DS_ord_cond.
+- rewrite <- Hxy. assumption.
 Qed.
 
 Section cluster_point_subnet.
@@ -395,21 +403,23 @@ Definition cluster_point_subnet : Net
 Lemma cluster_point_subnet_is_subnet:
   Subnet x cluster_point_subnet.
 Proof.
-constructor.
-- intros.
+exists cps_i. split; [|split].
+- intros j1 j2.
   destruct j1, j2.
-  simpl in H. simpl.
-  red in H. tauto.
-- red. intros.
-  exists i. split.
+  simpl. intros Hjj.
+  unfold cluster_point_subnet_DS_ord in Hjj at 1.
+  cbn in Hjj. tauto.
+- intros i. exists i. split.
   + apply preord_refl, DS_ord_cond.
   + assert (open_neighborhood Full_set x0).
     { repeat constructor.
-      apply open_full. }
+      apply open_full.
+    }
     assert (In Full_set (x i)) by
       constructor.
     now exists (Build_cluster_point_subnet_DS_set
       i Full_set H H0).
+- intros j. reflexivity.
 Qed.
 
 Lemma cluster_point_subnet_converges:
