@@ -14,7 +14,7 @@ Definition cauchy (x:nat->X) : Prop :=
 Definition complete : Prop :=
   forall x:nat -> X, cauchy x ->
     exists x0 : X, forall eps:R,
-      eps > 0 -> for large i:DS_set nat_DS,
+      eps > 0 -> for large i:nat_DS,
       d x0 (x i) < eps.
 
 Lemma cauchy_impl_bounded (x : nat -> X) :

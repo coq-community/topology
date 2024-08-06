@@ -71,13 +71,13 @@ Qed.
 Section WeakTopology_and_Nets.
 
 Variable I:DirectedSet.
-Hypothesis I_nonempty: inhabited (DS_set I).
+Hypothesis I_nonempty: inhabited I.
 Variable x:Net I WeakTopology.
 Variable x0:X.
 
 Lemma net_limit_in_weak_topology_impl_net_limit_in_projections :
   net_limit x x0 ->
-  forall a:A, net_limit (fun i:DS_set I => (f a) (x i)) ((f a) x0).
+  forall a:A, net_limit (fun i:I => (f a) (x i)) ((f a) x0).
 Proof.
 intros.
 apply continuous_func_preserves_net_limits; trivial.
@@ -86,7 +86,7 @@ apply weak_topology_makes_continuous_funcs.
 Qed.
 
 Lemma net_limit_in_projections_impl_net_limit_in_weak_topology :
-  (forall a:A, net_limit (fun i:DS_set I => (f a) (x i))
+  (forall a:A, net_limit (fun i:I => (f a) (x i))
                          ((f a) x0)) ->
   net_limit x x0.
 Proof.
@@ -96,19 +96,19 @@ assert (@open_basis WeakTopology
         (finite_intersections weak_topology_subbasis)).
 { apply Build_TopologicalSpace_from_open_basis_basis. }
 destruct (open_basis_cover _ H2 x0 U) as [V [? [? ?]]]; trivial.
-assert (for large i:DS_set I, In V (x i)).
+assert (for large i:I, In V (x i)).
 { clear H4.
   induction H3.
   - destruct I_nonempty.
     exists X0; constructor.
   - destruct H3.
     destruct H5.
-    apply eventually_impl_base with (fun i:DS_set I => In V (f a (x i))).
+    apply eventually_impl_base with (fun i:I => In V (f a (x i))).
     + intros.
       constructor; trivial.
     + apply H; trivial.
   - apply eventually_impl_base with
-        (fun i:DS_set I => In U0 (x i) /\ In V (x i)).
+        (fun i:I => In U0 (x i) /\ In V (x i)).
     + intros.
       destruct H6.
       constructor; trivial.

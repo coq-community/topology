@@ -173,12 +173,12 @@ exists R_metric.
 Qed.
 
 Lemma bounded_real_net_has_cluster_point: forall (I:DirectedSet)
-  (x:Net I RTop) (a b:R), (forall i:DS_set I, a <= x i <= b) ->
+  (x:Net I RTop) (a b:R), (forall i:I, a <= x i <= b) ->
   exists x0:RTop, net_cluster_point x x0.
 Proof.
 (* idea: the liminf is a cluster point *)
 intros.
-destruct (classic (inhabited (DS_set I))) as [Hinh|Hempty].
+destruct (classic (inhabited I)) as [Hinh|Hempty].
 2: {
   exists a.
   red. intros.
@@ -186,8 +186,8 @@ destruct (classic (inhabited (DS_set I))) as [Hinh|Hempty].
   contradiction Hempty.
   now exists.
 }
-assert (forall i:DS_set I, { y:R | is_glb
-                           (Im [ j:DS_set I | DS_ord i j ] x) y }).
+assert (forall i:I, { y:R | is_glb
+                         (Im [ j:I | DS_ord i j ] x) y }).
 { intro.
   apply inf.
   - exists a.
@@ -221,7 +221,7 @@ assert ({ x0:R | is_lub (Im Full_set (fun i => proj1_sig (X i))) x0 }).
 }
 destruct H0 as [x0].
 exists x0.
-assert (forall i j:DS_set I,
+assert (forall i j:I,
            DS_ord i j -> proj1_sig (X i) <= proj1_sig (X j)).
 { intros.
   destruct (X i0), (X j).
@@ -283,7 +283,7 @@ Proof.
 intros a b Hbound.
 apply net_cluster_point_impl_compact.
 intros.
-pose (y := fun i:DS_set I => proj1_sig (x i)).
+pose (y := fun i:I => proj1_sig (x i)).
 destruct (bounded_real_net_has_cluster_point _ y a b).
 { intros.
   unfold y.

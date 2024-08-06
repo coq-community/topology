@@ -299,7 +299,7 @@ Qed.
 
 Lemma compact_impl_net_cluster_point:
   forall X:TopologicalSpace, compact X ->
-    forall (I:DirectedSet) (x:Net I X), inhabited (DS_set I) ->
+    forall (I:DirectedSet) (x:Net I X), inhabited I ->
     exists x0:X, net_cluster_point x x0.
 Proof.
 intros.
@@ -311,7 +311,7 @@ apply H1.
 Qed.
 
 Lemma net_cluster_point_impl_compact: forall X:TopologicalSpace,
-  (forall (I:DirectedSet) (x:Net I X), inhabited (DS_set I) ->
+  (forall (I:DirectedSet) (x:Net I X), inhabited I ->
     exists x0:X, net_cluster_point x x0) ->
   compact X.
 Proof.
@@ -357,13 +357,13 @@ apply Extensionality_Ensembles; split; red; intros.
   apply closure_inflationary. assumption.
 }
 destruct (net_limits_determine_topology _ _ H2) as [I0 [y []]].
-pose (yS (i:DS_set I0) := exist (fun x:X => In S x) (y i) (H3 i)).
+pose (yS (i:I0) := exist (fun x:X => In S x) (y i) (H3 i)).
 assert (inhabited (SubspaceTopology S)).
 { destruct H1.
   constructor.
   now exists x0.
 }
-assert (inhabited (DS_set I0)) as HinhI0.
+assert (inhabited I0) as HinhI0.
 { red in H4.
   destruct (H4 Full_set) as [i0]; auto with topology.
   constructor.
@@ -380,14 +380,14 @@ apply net_cluster_point_impl_subnet_converges in H6.
 }
 destruct H6 as [J [y' [HySy' Hy']]].
 destruct HySy' as [h [Hh0 [Hh1 Hhy']]].
-assert (net_limit (fun j:DS_set J => y (h j)) x0).
+assert (net_limit (fun j:J => y (h j)) x0).
 { apply continuous_func_preserves_net_limits with
   (f:=subspace_inc S) (Y:=X) in Hy'.
   - cbn in Hy'.
     eapply net_limit_compat; eauto.
     intros ?; cbn. rewrite Hhy'. reflexivity.
   - apply continuous_func_continuous_everywhere, subspace_inc_continuous. }
-assert (net_limit (fun j:DS_set J => y (h j)) x).
+assert (net_limit (fun j:J => y (h j)) x).
 { apply subnet_limit with I0 y; trivial.
   exists h. now constructor. }
 assert (x = x0).
@@ -443,7 +443,7 @@ intros.
 apply net_cluster_point_impl_compact.
 intros.
 destruct (compact_impl_net_cluster_point _ H
-  _ (fun i:DS_set I => subspace_inc _ (x i))) as [x0]; trivial.
+  _ (fun i:I => subspace_inc _ (x i))) as [x0]; trivial.
 assert (In S x0).
 { rewrite <- (closure_fixes_closed S); trivial.
   eapply net_cluster_point_in_closure;
