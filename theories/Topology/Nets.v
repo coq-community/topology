@@ -18,6 +18,36 @@ Definition Subnet {I : DirectedSet} {X : Type}
     (forall j : DS_set J,
         y j = x (h j)).
 
+Lemma Subnet_refl {I : DirectedSet} {X : Type} (x : Net I X) :
+  Subnet x x.
+Proof.
+  exists id. split; [|split].
+  - tauto.
+  - intros i. exists i. split.
+    + apply I.
+    + exists i; reflexivity.
+  - reflexivity.
+Qed.
+
+Lemma Subnet_trans {I J K : DirectedSet} {X : Type}
+  (x : Net I X) (y : Net J X) (z : Net K X) :
+  Subnet x y -> Subnet y z -> Subnet x z.
+Proof.
+  intros [f [Hf1 [Hf2 Hf3]]]
+         [g [Hg1 [Hg2 Hg3]]].
+  exists (compose f g). split; [|split].
+  - intros j1 j2 Hjj. apply Hf1, Hg1, Hjj.
+  - intros i.
+    specialize (Hf2 i) as [j0 [Hij [j Hj]]].
+    subst j0.
+    specialize (Hg2 j) as [k0 [Hjk [k Hk]]].
+    subst k0.
+    exists (f (g k)). split.
+    + apply preord_trans with (f j); auto. apply I.
+    + exists k. reflexivity.
+  - intros k. rewrite Hg3, Hf3. reflexivity.
+Qed.
+
 Section Net.
 Variable I:DirectedSet.
 Variable X:TopologicalSpace.
