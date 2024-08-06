@@ -9,8 +9,8 @@ Follow the instructions on https://github.com/coq-community/templates to regener
 [![Code of Conduct][conduct-shield]][conduct-link]
 [![Zulip][zulip-shield]][zulip-link]
 
-[docker-action-shield]: https://github.com/coq-community/topology/workflows/Docker%20CI/badge.svg?branch=master
-[docker-action-link]: https://github.com/coq-community/topology/actions?query=workflow:"Docker%20CI"
+[docker-action-shield]: https://github.com/coq-community/topology/actions/workflows/docker-action.yml/badge.svg?branch=master
+[docker-action-link]: https://github.com/coq-community/topology/actions/workflows/docker-action.yml
 
 [contributing-shield]: https://img.shields.io/badge/contributions-welcome-%23f7931e.svg
 [contributing-link]: https://github.com/coq-community/manifesto/blob/master/CONTRIBUTING.md
@@ -36,7 +36,7 @@ and results of general topology in Coq.
   - stop-cran ([**@stop-cran**](https://github.com/stop-cran))
   - Columbus240 ([**@Columbus240**](https://github.com/Columbus240))
 - License: [GNU Lesser General Public License v2.1 or later](LICENSE)
-- Compatible Coq versions: Coq 8.12 or later (use the corresponding branch or release for other Coq versions)
+- Compatible Coq versions: Coq 8.16 or later (use the corresponding branch or release for other Coq versions)
 - Additional dependencies:
   - Zorn's Lemma (set library that is part of this repository)
 - Coq namespace: `Topology`
