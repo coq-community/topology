@@ -7,10 +7,10 @@ Section net_tail_filter.
 Variable X:TopologicalSpace.
 Variable J:DirectedSet.
 Variable x:Net J X.
-Hypothesis J_nonempty: inhabited (DS_set J).
+Hypothesis J_nonempty: inhabited J.
 
-Definition net_tail (j:DS_set J) :=
-  Im [ i:DS_set J | DS_ord j i ] x.
+Definition net_tail (j:J) :=
+  Im [ i:J | DS_ord j i ] x.
 
 Definition tail_filter_basis : Family (point_set X) :=
   Im Full_set net_tail.

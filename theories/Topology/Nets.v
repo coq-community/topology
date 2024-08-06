@@ -4,18 +4,18 @@ From Topology Require Export TopologicalSpaces InteriorsClosures Continuity.
 Set Asymmetric Patterns.
 
 Definition Net (I : DirectedSet) (X : Type) : Type :=
-  DS_set I -> X.
+  I -> X.
 
 Definition Subnet {I : DirectedSet} {X : Type}
   (x : Net I X) {J : DirectedSet} (y : Net J X) : Prop :=
-  exists (h : DS_set J -> DS_set I),
+  exists (h : J -> I),
     (* [h] is monotonous *)
-    (forall j1 j2 : DS_set J,
+    (forall j1 j2 : J,
         DS_ord j1 j2 -> DS_ord (h j1) (h j2)) /\
-    (exists arbitrarily large i : DS_set I,
-      exists j : DS_set J, h j = i) /\
+    (exists arbitrarily large i : I,
+      exists j : J, h j = i) /\
     (* [y] is [x ∘ h] *)
-    (forall j : DS_set J,
+    (forall j : J,
         y j = x (h j)).
 
 Lemma Subnet_refl {I : DirectedSet} {X : Type} (x : Net I X) :
@@ -54,14 +54,14 @@ Variable X:TopologicalSpace.
 
 Definition net_limit (x:Net I X) (x0:X) : Prop :=
   forall U:Ensemble X, open U -> In U x0 ->
-  for large i:DS_set I, In U (x i).
+  for large i:I, In U (x i).
 
 Definition net_cluster_point (x:Net I X) (x0:X) : Prop :=
   forall U:Ensemble X, open U -> In U x0 ->
-  exists arbitrarily large i:DS_set I, In U (x i).
+  exists arbitrarily large i:I, In U (x i).
 
 Lemma net_limit_compat (x1 x2 : Net I X) (x : X) :
-  (forall i : DS_set I, x1 i = x2 i) ->
+  (forall i : I, x1 i = x2 i) ->
   net_limit x1 x -> net_limit x2 x.
 Proof.
   intros Hxx Hx1.
@@ -87,7 +87,7 @@ Qed.
 
 Lemma net_limit_in_closure: forall (S:Ensemble X)
   (x:Net I X) (x0:X),
-  (exists arbitrarily large i:DS_set I, In S (x i)) ->
+  (exists arbitrarily large i:I, In S (x i)) ->
   net_limit x x0 -> In (closure S) x0.
 Proof.
 intros.
@@ -105,7 +105,7 @@ Qed.
 
 Lemma net_cluster_point_in_closure: forall (S:Ensemble X)
   (x:Net I X) (x0:X),
-  (for large i:DS_set I, In S (x i)) ->
+  (for large i:I, In S (x i)) ->
   net_cluster_point x x0 -> In (closure S) x0.
 Proof.
 intros.
@@ -192,7 +192,7 @@ Lemma net_limits_determine_topology:
   forall {X:TopologicalSpace} (S:Ensemble X)
   (x0:X), In (closure S) x0 ->
   exists I:DirectedSet, exists x:Net I X,
-  (forall i:DS_set I, In S (x i)) /\ net_limit x x0.
+  (forall i:I, In S (x i)) /\ net_limit x x0.
 Proof.
 intros.
 assert (forall U:Ensemble X, open U -> In U x0 ->
@@ -273,7 +273,7 @@ Variable f:X -> Y.
 Lemma continuous_func_preserves_net_limits:
   forall {I:DirectedSet} (x:Net I X) (x0:X),
     net_limit x x0 -> continuous_at f x0 ->
-    net_limit (fun i:DS_set I => f (x i)) (f x0).
+    net_limit (fun i:I => f (x i)) (f x0).
 Proof.
 intros.
 red. intros V ? ?.
@@ -283,7 +283,7 @@ assert (neighborhood V (f x0)).
 destruct (H0 V H3) as [U [? ?]].
 destruct H4.
 pose proof (H U H4 H6).
-apply eventually_impl_base with (fun i:DS_set I => In U (x i));
+apply eventually_impl_base with (fun i:I => In U (x i));
   trivial.
 intros.
 assert (In (inverse_image f V) (x i)) by auto with sets.
@@ -293,7 +293,7 @@ Qed.
 Lemma func_preserving_net_limits_is_continuous:
   forall x0:X,
   (forall (I:DirectedSet) (x:Net I X),
-    net_limit x x0 -> net_limit (fun i:DS_set I => f (x i)) (f x0))
+    net_limit x x0 -> net_limit (fun i:I => f (x i)) (f x0))
   -> continuous_at f x0.
 Proof.
 intros.
@@ -355,10 +355,10 @@ Section cluster_point_subnet.
 
 Variable x0:X.
 Hypothesis x0_cluster_point: net_cluster_point x x0.
-Hypothesis I_nonempty: inhabited (DS_set I).
+Hypothesis I_nonempty: inhabited I.
 
 Record cluster_point_subnet_DS_set : Type := {
-  cps_i:DS_set I;
+  cps_i:I;
   cps_U:Ensemble X;
   cps_U_open_neigh: open_neighborhood cps_U x0;
   cps_xi_in_U: In cps_U (x cps_i)
@@ -427,7 +427,7 @@ Defined.
 
 Definition cluster_point_subnet : Net
   cluster_point_subnet_DS X :=
-  fun (iU:DS_set cluster_point_subnet_DS) =>
+  fun (iU : cluster_point_subnet_DS) =>
   x (cps_i iU).
 
 Lemma cluster_point_subnet_is_subnet:

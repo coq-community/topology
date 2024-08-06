@@ -5,7 +5,7 @@ From Coq Require Import Arith.
 From Coq Require Import Lia.
 
 Record DirectedSet := {
-  DS_set : Type;
+  DS_set :> Type;
   DS_ord : relation DS_set;
   DS_ord_cond : preorder DS_ord;
   DS_join_cond : forall i j:DS_set, exists k:DS_set,
@@ -20,13 +20,13 @@ Section for_large.
 
 Context {I : DirectedSet}.
 
-Definition eventually (P : DS_set I -> Prop) : Prop :=
-  exists i:DS_set I, forall j:DS_set I,
+Definition eventually (P : I -> Prop) : Prop :=
+  exists i : I, forall j : I,
   DS_ord i j -> P j.
 
-Lemma eventually_and: forall (P Q: DS_set I -> Prop),
+Lemma eventually_and: forall (P Q : I -> Prop),
   eventually P -> eventually Q ->
-  eventually (fun i:DS_set I => P i /\ Q i).
+  eventually (fun i : I => P i /\ Q i).
 Proof.
 intros.
 destruct H, H0.
@@ -39,8 +39,8 @@ intros; split;
   apply DS_ord_cond.
 Qed.
 
-Lemma eventually_impl_base: forall (P Q: DS_set I -> Prop),
-  (forall i:DS_set I, P i -> Q i) ->
+Lemma eventually_impl_base: forall (P Q : I -> Prop),
+  (forall i : I, P i -> Q i) ->
   eventually P -> eventually Q.
 Proof.
 intros.
@@ -50,23 +50,23 @@ intros.
 auto.
 Qed.
 
-Lemma eventually_impl: forall (P Q: DS_set I -> Prop),
-  eventually P -> eventually (fun i:DS_set I => P i -> Q i) ->
+Lemma eventually_impl: forall (P Q : I -> Prop),
+  eventually P -> eventually (fun i : I => P i -> Q i) ->
   eventually Q.
 Proof.
 intros.
-apply eventually_impl_base with (P := fun (i:DS_set I) =>
+apply eventually_impl_base with (P := fun (i : I) =>
   P i /\ (P i -> Q i)).
 - tauto.
 - now apply eventually_and.
 Qed.
 
-Definition exists_arbitrarily_large (P: DS_set I -> Prop) :=
-  forall i:DS_set I, exists j:DS_set I,
+Definition exists_arbitrarily_large (P : I -> Prop) :=
+  forall i : I, exists j : I,
   DS_ord i j /\ P j.
 
-Lemma exists_arbitrarily_large_all (P : DS_set I -> Prop) :
-  (forall i : DS_set I, P i) ->
+Lemma exists_arbitrarily_large_all (P : I -> Prop) :
+  (forall i : I, P i) ->
   exists_arbitrarily_large P.
 Proof.
   intros HP i.
@@ -74,9 +74,9 @@ Proof.
   apply DS_ord_cond.
 Qed.
 
-Lemma not_eal_eventually_not: forall (P: DS_set I -> Prop),
+Lemma not_eal_eventually_not: forall (P : I -> Prop),
   ~ exists_arbitrarily_large P ->
-  eventually (fun i:DS_set I => ~ P i).
+  eventually (fun i : I => ~ P i).
 Proof.
 intros.
 apply not_all_ex_not in H.
@@ -88,9 +88,9 @@ contradiction H.
 exists j; split; trivial.
 Qed.
 
-Lemma not_eventually_eal_not: forall (P: DS_set I -> Prop),
+Lemma not_eventually_eal_not: forall (P : I -> Prop),
   ~ eventually P ->
-  exists_arbitrarily_large (fun i:DS_set I => ~ P i).
+  exists_arbitrarily_large (fun i : I => ~ P i).
 Proof.
 intros.
 red; intros.

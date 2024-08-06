@@ -24,8 +24,8 @@ Qed.
 
 Lemma product_net_limit: forall (I:DirectedSet)
   (x:Net I ProductTopology) (x0:ProductTopology),
-  inhabited (DS_set I) ->
-  (forall a:A, net_limit (fun i:DS_set I => x i a) (x0 a)) ->
+  inhabited I ->
+  (forall a:A, net_limit (fun i:I => x i a) (x0 a)) ->
   net_limit x x0.
 Proof.
 intros.
@@ -215,8 +215,8 @@ apply net_limit_in_projections_impl_net_limit_in_weak_topology.
       now destruct (x0 i).
   + unfold product_space_proj.
     simpl.
-    replace (fun i:DS_set I => prod2_conv2 (x0 i) twoT_2) with
-      (fun i:DS_set I => snd (x0 i)).
+    replace (fun i:I => prod2_conv2 (x0 i) twoT_2) with
+      (fun i:I => snd (x0 i)).
     * now apply net_limit_in_weak_topology_impl_net_limit_in_projections
         with (a:=twoT_2) in H.
     * extensionality i.

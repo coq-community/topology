@@ -287,7 +287,7 @@ Qed.
 Lemma metric_space_net_limit: forall (X:TopologicalSpace)
   (d:X -> X -> R), metrizes X d ->
   forall (I:DirectedSet) (x:Net I X) (x0:X),
-  (forall eps:R, eps > 0 -> for large i:DS_set I, d x0 (x i) < eps) ->
+  (forall eps:R, eps > 0 -> for large i:I, d x0 (x i) < eps) ->
   net_limit x x0.
 Proof.
 intros.
@@ -306,7 +306,7 @@ Lemma metric_space_net_limit_converse: forall (X:TopologicalSpace)
   (d:X -> X -> R), metrizes X d ->
   forall (I:DirectedSet) (x:Net I X) (x0:X),
     net_limit x x0 -> forall eps:R, eps > 0 ->
-                         for large i:DS_set I, d x0 (x i) < eps.
+                         for large i:I, d x0 (x i) < eps.
 Proof.
 intros.
 pose (U:=open_ball d x0 eps).
@@ -324,7 +324,7 @@ Lemma metric_space_net_cluster_point: forall (X:TopologicalSpace)
   (d:X -> X -> R), metrizes X d ->
   forall (I:DirectedSet) (x:Net I X) (x0:X),
   (forall eps:R, eps > 0 ->
-     exists arbitrarily large i:DS_set I, d x0 (x i) < eps) ->
+     exists arbitrarily large i:I, d x0 (x i) < eps) ->
   net_cluster_point x x0.
 Proof.
 intros.
@@ -344,7 +344,7 @@ Lemma metric_space_net_cluster_point_converse: forall (X:TopologicalSpace)
   (d:X -> X -> R), metrizes X d ->
   forall (I:DirectedSet) (x:Net I X) (x0:X),
     net_cluster_point x x0 -> forall eps:R, eps > 0 ->
-                exists arbitrarily large i:DS_set I, d x0 (x i) < eps.
+                exists arbitrarily large i:I, d x0 (x i) < eps.
 Proof.
 intros.
 pose (U:=open_ball d x0 eps).
