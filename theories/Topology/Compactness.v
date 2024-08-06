@@ -378,16 +378,18 @@ apply net_cluster_point_impl_subnet_converges in H6.
   - constructor.
   - now constructor.
 }
-destruct H6 as [J [y' []]].
-destruct H6.
+destruct H6 as [J [y' [HySy' Hy']]].
+destruct HySy' as [h [Hh0 [Hh1 Hhy']]].
 assert (net_limit (fun j:DS_set J => y (h j)) x0).
 { apply continuous_func_preserves_net_limits with
-  (f:=subspace_inc S) (Y:=X) in H7.
-  - assumption.
+  (f:=subspace_inc S) (Y:=X) in Hy'.
+  - cbn in Hy'.
+    eapply net_limit_compat; eauto.
+    intros ?; cbn. rewrite Hhy'. reflexivity.
   - apply continuous_func_continuous_everywhere, subspace_inc_continuous. }
 assert (net_limit (fun j:DS_set J => y (h j)) x).
 { apply subnet_limit with I0 y; trivial.
-  now constructor. }
+  exists h. now constructor. }
 assert (x = x0).
 { eapply Hausdorff_impl_net_limit_unique; eassumption. }
 now subst.
