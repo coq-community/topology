@@ -322,8 +322,8 @@ assert (forall x:point_set RTop, In U (x / (1 + Rabs x))).
 { intros.
   now constructor. }
 exists (continuous_factorization _ _ H0).
-exists (fun x => (subspace_inc U x) / (1 - Rabs (subspace_inc U x))).
-- apply factorization_is_continuous.
+split.
+{ apply factorization_is_continuous.
   apply pointwise_continuity.
   intros.
   apply quotient_continuous.
@@ -333,6 +333,9 @@ exists (fun x => (subspace_inc U x) / (1 - Rabs (subspace_inc U x))).
     * apply continuous_func_continuous_everywhere, Rabs_continuous.
   + pose proof (Rabs_pos x).
     lra.
+}
+exists (fun x => (subspace_inc U x) / (1 - Rabs (subspace_inc U x))).
+split; [|split].
 - apply pointwise_continuity.
   intros.
   apply quotient_continuous.

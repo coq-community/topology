@@ -40,10 +40,15 @@ theories/Topology/UrysohnsLemma.v
 theories/Topology/WeakTopology.v
 theories/Topology/Examples/S1.v
 theories/ZornsLemma/Cardinals.v
-theories/ZornsLemma/CardinalsEns.v
+theories/ZornsLemma/Cardinals/Cardinals.v
+theories/ZornsLemma/Cardinals/CardinalsEns.v
+theories/ZornsLemma/Cardinals/Combinatorics.v
+theories/ZornsLemma/Cardinals/Comparability.v
+theories/ZornsLemma/Cardinals/CSB.v
+theories/ZornsLemma/Cardinals/Diagonalization.v
+theories/ZornsLemma/Cardinals/LeastCardinalsEns.v
 theories/ZornsLemma/Classical_Wf.v
 theories/ZornsLemma/CountableTypes.v
-theories/ZornsLemma/CSB.v
 theories/ZornsLemma/DecidableDec.v
 theories/ZornsLemma/DependentTypeChoice.v
 theories/ZornsLemma/DirectedSets.v
@@ -64,7 +69,6 @@ theories/ZornsLemma/FunctionPropertiesEns.v
 theories/ZornsLemma/Image.v
 theories/ZornsLemma/ImageImplicit.v
 theories/ZornsLemma/IndexedFamilies.v
-theories/ZornsLemma/InfiniteTypes.v
 theories/ZornsLemma/InverseImage.v
 theories/ZornsLemma/Ordinals.v
 theories/ZornsLemma/Powerset_facts.v
