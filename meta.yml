@@ -33,10 +33,11 @@ license:
 
 supported_coq_versions:
   text: Coq 8.16 or later (use the corresponding branch or release for other Coq versions)
-  opam: '{(>= "8.16" & < "8.19~") | (= "dev")}'
+  opam: '{(>= "8.16" & < "8.20~") | (= "dev")}'
 
 tested_coq_opam_versions:
 - version: dev
+- version: '8.19'
 - version: '8.18'
 - version: '8.17'
 - version: '8.16'
