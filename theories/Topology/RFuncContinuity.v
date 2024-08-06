@@ -311,7 +311,7 @@ assert (forall x:R, -1 < x / (1 + Rabs x) < 1).
   { pose proof (Rabs_pos x). lra. }
   apply and_comm, Rabs_def2.
   unfold Rdiv.
-  rewrite Rabs_mult, Rabs_Rinv; try lra.
+  rewrite Rabs_mult, Rabs_inv; try lra.
   rewrite (Rabs_right (1 + Rabs x)); [ | now left ].
   pattern 1 at 2.
   replace 1 with ((1 + Rabs x) * / (1 + Rabs x)) by (field; lra).
