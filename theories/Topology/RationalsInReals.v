@@ -25,7 +25,7 @@ Proof.
       apply lt_0_IZR in H0.
       now apply Z.lt_gt.
     - pattern eps at 2.
-      rewrite <- Rinv_involutive; auto with real;
+      rewrite <- Rinv_inv; auto with real;
         apply Rinv_lt_contravar; auto with real;
         apply Rmult_lt_0_compat; auto with real;
         apply Rlt_trans with (/ eps); auto with real.

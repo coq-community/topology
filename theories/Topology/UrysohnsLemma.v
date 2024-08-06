@@ -185,8 +185,6 @@ Qed.
 
 Require Export TopologicalSpaces.
 Require Export InteriorsClosures.
-Require Import Div2.
-Require Import Even.
 Require Import Arith.
 Require Export RTopology.
 
@@ -226,12 +224,12 @@ destruct n as [|].
   red; intros; constructor.
 Qed.
 
-Definition expand_U_dyadic (f:nat->Ensemble X)
+Definition expand_U_dyadic (f:nat -> Ensemble X)
   (Hopen: forall n:nat, open (f n))
   (Hincr: forall n:nat, Included (closure (f n)) (f (S n)))
   (n:nat) : Ensemble X :=
-if (even_odd_dec n) then f (div2 n) else
-let m := div2 n in proj1_sig
+if (Nat.Even_Odd_dec n) then f (Nat.div2 n) else
+let m := Nat.div2 n in proj1_sig
   (normal_sep_fun (closure (f m)) (f (S m))
      (closure_closed _) (Hopen _) (Hincr _)).
 
@@ -240,7 +238,7 @@ Lemma expand_U_dyadic_open: forall f Hopen Hincr n,
 Proof.
 intros.
 unfold expand_U_dyadic.
-destruct even_odd_dec.
+destruct Nat.Even_Odd_dec.
 - apply Hopen.
 - destruct normal_sep_fun.
   simpl.
@@ -254,22 +252,28 @@ Proof.
 intros.
 unfold expand_U_dyadic.
 simpl.
-destruct even_odd_dec.
+destruct Nat.Even_Odd_dec.
 - destruct normal_sep_fun.
   simpl.
   destruct n.
   + simpl.
     apply a.
-  + rewrite <- odd_div2.
+  + rewrite <- Nat.Odd_div2.
     * apply a.
-    * now inversion e.
+    * apply Nat.Even_succ.
+      exact e.
 - simpl.
-  destruct normal_sep_fun.
+  destruct normal_sep_fun as [x [Hx0 [Hx1 Hx2]]].
   simpl.
-  destruct o.
-  rewrite even_div2.
-  + now apply a.
-  + trivial.
+  destruct n.
+  { (* ~ Nat.Odd 0 *)
+    contradict o. clear.
+    intros []. lia.
+  }
+  apply Nat.Odd_succ in o.
+  rewrite Nat.Even_div2.
+  + exact Hx2.
+  + exact o.
 Qed.
 
 Definition packaged_expand_U_dyadic :
@@ -325,14 +329,12 @@ simpl.
 unfold expand_U_dyadic.
 change ((m + (m + 0))%nat) with ((2*m)%nat).
 rewrite div2_double.
-assert (forall m:nat, even (2*m)).
-{ induction m0.
-  { constructor. }
-  replace ((2 * S m0)%nat) with ((S (S (2 * m0)))%nat) by ring.
-  constructor.
-  now constructor. }
-destruct even_odd_dec; trivial.
-now contradiction not_even_and_odd with ((2 * m)%nat).
+assert (forall m:nat, Nat.Even (2*m)).
+{ intros ?. apply Nat.Even_mul_l.
+  exists 1%nat. reflexivity.
+}
+destruct Nat.Even_Odd_dec; trivial.
+now contradiction Nat.Even_Odd_False with (2 * m)%nat.
 Qed.
 
 Lemma U_dyadic_open: forall x:dyadic_rational,
