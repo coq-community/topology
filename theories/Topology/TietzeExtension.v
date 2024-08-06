@@ -1,6 +1,6 @@
 Require Export RTopology SeparatednessAxioms.
 Require Import RFuncContinuity UniformTopology ContinuousFactorization.
-From Coq Require Import Description Max Psatz ClassicalChoice.
+From Coq Require Import Description Psatz ClassicalChoice.
 From ZornsLemma Require Import Proj1SigInjective.
 Require Import UrysohnsLemma.
 

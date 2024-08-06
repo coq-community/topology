@@ -342,7 +342,7 @@ Proof.
           rewrite Nat.ltb_ge in Heqb.
           rewrite Nat.le_succ_r in Heqb.
           destruct Heqb; auto.
-          apply lt_not_le in Heqb0.
+          apply Nat.lt_nge in Heqb0.
           contradiction.
         }
         rewrite H1. assumption.

@@ -2,7 +2,6 @@ Require Export MetricSpaces.
 Require Import FunctionalExtensionality.
 Require Export Completeness.
 Require Import Description.
-Require Import Max.
 Require Import Psatz.
 Require Import Lra.
 From Coq Require ProofIrrelevance.

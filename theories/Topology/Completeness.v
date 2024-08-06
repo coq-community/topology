@@ -54,7 +54,7 @@ intros y Hy.
 inversion Hy; subst; clear Hy.
 rename x0 into n. clear Hx d_metric.
 constructor.
-destruct (le_or_lt N n).
+destruct (Nat.le_gt_cases N n).
 - apply Rlt_le_trans with 1; auto.
   unfold Rmax.
   destruct (Rle_dec _ _); lra.
