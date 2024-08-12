@@ -55,6 +55,7 @@ Definition ge_cardinal_ens {A B : Type}
     exists f : A -> B,
       range f U V /\ surjective_ens f U V.
 
+#[export]
 Instance eq_cardinal_ens_Reflexive (A : Type) :
   Reflexive (@eq_cardinal_ens A A).
 Proof.

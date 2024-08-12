@@ -80,7 +80,8 @@ Proof.
   apply functional_extensionality.
   auto.
 Qed.
-Global Instance N_equiv_Equivalence : Equivalence N_equiv.
+#[export]
+Instance N_equiv_Equivalence : Equivalence N_equiv.
 Proof.
   unfold N_equiv.
   split; red; intros.
