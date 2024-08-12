@@ -1,7 +1,11 @@
 (* “This is why we can’t have nice things.” *)
-From ZornsLemma Require Import EnsemblesImplicit.
-From Coq Require Import Morphisms Setoid.
+From Coq Require Import
+  Morphisms
+  Setoid.
+From ZornsLemma Require Import
+  EnsemblesImplicit.
 
+#[export]
 Instance In_Same_set_Proper {Z : Type} :
   Proper (Same_set ==> eq ==> iff) (@In Z).
 Proof.

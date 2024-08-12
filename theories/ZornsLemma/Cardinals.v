@@ -1,18 +1,20 @@
-From Coq Require Export Relation_Definitions.
-From Coq Require Import ClassicalChoice.
-From Coq Require Import ProofIrrelevance.
-From Coq Require Import FunctionalExtensionality.
-From Coq Require Import Description.
-From ZornsLemma Require Export FunctionProperties.
-From ZornsLemma Require Import FunctionPropertiesEns.
-From ZornsLemma Require Import Relation_Definitions_Implicit.
-From ZornsLemma Require Import CSB.
-From ZornsLemma Require Import ZornsLemma.
-From ZornsLemma Require Import EnsemblesImplicit.
-From ZornsLemma Require Import CountableTypes.
-From ZornsLemma Require Import FiniteTypes.
-From ZornsLemma Require Import InfiniteTypes.
-From Coq Require Import RelationClasses.
+From Coq Require Export
+  ClassicalChoice
+  Description
+  FunctionalExtensionality
+  ProofIrrelevance
+  Relation_Definitions.
+From ZornsLemma Require Export
+  CountableTypes
+  CSB
+  FiniteTypes
+  InfiniteTypes
+  FunctionProperties
+  FunctionPropertiesEns
+  Relation_Definitions_Implicit
+  ZornsLemma.
+From Coq Require Import
+  RelationClasses.
 
 Definition eq_cardinal (A B : Type) : Prop :=
   exists f : A -> B, bijective f.
@@ -41,6 +43,7 @@ split.
   apply bijective_compose; auto.
 Qed.
 
+#[export]
 Instance le_cardinal_preorder : PreOrder le_cardinal.
 Proof.
 split.
@@ -50,6 +53,7 @@ split.
   apply injective_compose; auto.
 Qed.
 
+#[export]
 Instance le_cardinal_PartialOrder :
   PartialOrder eq_cardinal le_cardinal.
 Proof.

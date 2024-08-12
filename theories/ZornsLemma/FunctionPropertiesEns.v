@@ -1,12 +1,21 @@
 (** Similar to [ZornsLemma.FunctionProperties] but focused on properties
     restricted to ensembles. *)
 
-From Coq Require Import ClassicalChoice Description Program.Subset.
+From Coq Require Import
+  ClassicalChoice
+  Description
+  Program.Subset.
 From ZornsLemma Require Import
-  DecidableDec EnsemblesImplicit
-  Families FunctionProperties Image InverseImage Powerset_facts
+  DecidableDec
+  EnsemblesImplicit
+  Families
+  FunctionProperties
+  Image
+  InverseImage
+  Powerset_facts
   Proj1SigInjective.
-From Coq Require Import RelationClasses.
+From Coq Require Import
+  RelationClasses.
 
 Section FunctionPropertiesEns.
   Context {A B : Type}
@@ -111,6 +120,7 @@ Proof.
   reflexivity.
 Qed.
 
+#[export]
 Instance range_id_refl {A : Type} :
   Reflexive (@range A A id).
 Proof.

@@ -1,8 +1,6 @@
 -R theories/Topology Topology
 -R theories/ZornsLemma ZornsLemma
 -arg -set -arg "'Default Goal Selector=!'"
--arg -w -arg -deprecated-hint-rewrite-without-locality
--arg -w -arg -deprecated-instance-without-locality
 
 theories/Topology/AdjunctionSpace.v
 theories/Topology/Compactness.v

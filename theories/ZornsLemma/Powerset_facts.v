@@ -114,6 +114,7 @@ apply Extensionality_Ensembles; split; red; intros.
 - destruct H. split; assumption.
 Qed.
 
+#[export]
 Instance Disjoint_Symmetric (A : Type) :
   Symmetric (@Disjoint A).
 Proof.
