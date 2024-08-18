@@ -99,9 +99,7 @@ documentation: |-
 
   ### Filters and nets
 
-  - `Filters.v`
   - `FilterLimits.v`
-  - `DirectedSets.v`
   - `Nets.v`
   - `FiltersAndNets.v` - various transformations between filters and nets
 
@@ -148,8 +146,14 @@ documentation: |-
 
   In alphabetical order, except where related files are grouped together:
 
-  - `Cardinals.v` - cardinalities of sets
-  - `Ordinals.v` - a construction of the ordinals without reference to well-orders
+  - `Cardinals.v` - collects the files in the folder `Cardinals`
+  - `Cardinals/Cardinals.v` defines cardinal comparisons for types
+  - `Cardinals/CardinalsEns.v` defines cardinal comparisons for ensembles
+  - `Cardinals/Combinatorics.v` defines some elementary bijections
+  - `Cardinals/Comparability.v` given choice, cardinals form a total order
+  - `Cardinals/CSB.v` prove Cantor-Schröder-Bernstein theorem
+  - `Cardinals/Diagonalization.v` Cantor's diagonalization and corollaries
+  - `Cardinals/LeastCardinalsEns.v` the cardinal orders are well-founded
 
   - `Classical_Wf.v` - proofs of the classical equivalence of wellfoundedness, the minimal element property, and the descending sequence property
 
@@ -159,9 +163,16 @@ documentation: |-
 
   - `DependentTypeChoice.v` - choice on a relation (`forall a: A, B a -> Prop`)
 
+  - `DirectedSets.v` - basics of directed sets
+  - `Filters.v` - basics of filters
+
+  - `EnsembleProduct.v` - products of ensembles, living in the type `A * B`
+
   - `EnsemblesImplicit.v` - settings for appropriate implicit parameters for the standard library's Ensembles functions
+  - `FiniteImplicit.v` - same for the standard library's Sets/Finite_sets
   - `ImageImplicit.v` - same for the standard library's Sets/Image
   - `Relation_Definitions_Implicit.v` - same for the standard library's Relation_Definitions
+  - `EnsemblesExplicit.v` - clears the implicit parameters set in the above files
 
   - `EnsemblesSpec.v` - defines a notation for e.g. `[ n: nat | n > 5 /\ even n ] : Ensemble nat.`
 
@@ -179,8 +190,12 @@ documentation: |-
   - `InfiniteTypes.v` - same for infinite types
 
   - `FunctionProperties.v` - injective, surjective, etc.
+  - `FunctionProperitesEns.v` - same but definitions restricted to ensembles
 
+  - `Image.v` - images of subsets under functions
   - `InverseImage.v` - inverse images of subsets under functions
+
+  - `Ordinals.v` - a construction of the ordinals without reference to well-orders
 
   - `Powerset_facts.v` - some lemmas about the operations on subsets that the stdlib is missing
 
