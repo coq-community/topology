@@ -49,28 +49,20 @@ Section FamilyFacts.
 
 Variable T:Type.
 
-Lemma empty_family_union: FamilyUnion (@Empty_set (Ensemble T)) =
-                          Empty_set.
+Lemma empty_family_union:
+  FamilyUnion (@Empty_set (Ensemble T)) = Empty_set.
 Proof.
-apply Extensionality_Ensembles.
-unfold Same_set.
-unfold Included.
-intuition.
-- destruct H.
-  contradiction H.
-- contradiction H.
+apply Extensionality_Ensembles; split.
+2: intros ? [].
+intros _ []. contradiction.
 Qed.
 
 Lemma empty_family_intersection:
   FamilyIntersection (@Empty_set (Ensemble T)) = Full_set.
 Proof.
-apply Extensionality_Ensembles.
-unfold Same_set.
-unfold Included.
-intuition.
-constructor.
-intros.
-contradiction H0.
+apply Extensionality_Ensembles; split.
+{ constructor. }
+intros x _. constructor. intros ? [].
 Qed.
 
 (* unions and intersections of subfamilies *)
