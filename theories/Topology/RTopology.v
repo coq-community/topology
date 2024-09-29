@@ -651,3 +651,48 @@ Proof.
   apply countable_type_ensemble.
   apply Q_countable.
 Qed.
+
+Lemma R_metric_unbounded : ~ bounded R_metric Full_set.
+Proof.
+  intros [x [r Hxr]].
+  specialize (Hxr (x + r + r)).
+  destruct Hxr as [Hxr].
+  { constructor. }
+  unfold R_metric, Rabs in Hxr.
+  destruct Rcase_abs; lra.
+Qed.
+
+Lemma RTop_non_compact : ~ compact RTop.
+Proof.
+  intros H. red in H.
+  (* cover [R] with open intervals of length 2 *)
+  pose (F :=
+          fun U : Ensemble RTop =>
+            exists n : Z, U = [r : R | IZR n < r < IZR n + 2]).
+  specialize (H F) as [C HC].
+  { intros U HU. destruct HU as [n HU]; subst U.
+    apply R_interval_open.
+  }
+  { apply Extensionality_Ensembles; split.
+    { intros ? ?; constructor. }
+    intros r0 _.
+    exists [r : R | IZR ((Int_part r0) - 1) < r < IZR ((Int_part r0) - 1) + 2].
+    { eexists; reflexivity. }
+    constructor.
+    pose proof (base_fp r0) as [].
+    rewrite <- Z_R_minus.
+    pose proof (base_Int_part r0); lra.
+  }
+  destruct HC as [HC_fin [HCF HC_full]].
+  apply R_metric_unbounded. cbn in HC_full. rewrite <- HC_full.
+  clear HC_full.
+  apply bounded_FamilyUnion_Finite; auto.
+  1: apply R_metric_is_metric.
+  2: constructor; exact 0.
+  intros U HU.
+  apply HCF in HU. clear C HC_fin HCF.
+  destruct HU as [n HU]; subst U; clear F.
+  exists (IZR n + 1), 1. intros r [Hr].
+  constructor. unfold R_metric, Rabs.
+  destruct Rcase_abs; lra.
+Qed.
