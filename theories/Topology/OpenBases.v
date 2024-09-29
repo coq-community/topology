@@ -42,6 +42,18 @@ Qed.
 
 End OpenBasis.
 
+Lemma open_basis_replace_with_FamilyUnion {X : TopologicalSpace}
+  (B : Family X) (U : Ensemble X) :
+  open_basis B -> open U ->
+  U = FamilyUnion (fun V => Included V U /\ In B V).
+Proof.
+  intros HB HU. apply Extensionality_Ensembles; split.
+  - intros x HUx.
+    pose proof (open_basis_cover B HB x U HU HUx) as [V HV].
+    exists V; repeat split; tauto.
+  - intros x Hx. destruct Hx as [V x [HV0 HV1] HV2]; auto with sets.
+Qed.
+
 Section BuildFromOpenBasis.
 
 Context {X : Type}.

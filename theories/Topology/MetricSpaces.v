@@ -1,9 +1,26 @@
-From Topology Require Export TopologicalSpaces NeighborhoodBases Nets Continuity CountabilityAxioms SupInf SeparatednessAxioms.
-From Topology Require Import RationalsInReals SubspaceTopology.
-From ZornsLemma Require Export EnsemblesSpec.
-From ZornsLemma Require Import EnsemblesTactics DecidableDec.
-From Coq Require Import Reals ClassicalChoice Program.Subset.
-From Coq Require Import Lia Lra.
+From Coq Require Import
+  Program.Subset
+  ClassicalChoice
+  Lia
+  Lra
+  Reals.
+From ZornsLemma Require Export
+  EnsemblesSpec.
+From ZornsLemma Require Import
+  DecidableDec
+  EnsemblesTactics.
+From Topology Require Export
+  Continuity
+  CountabilityAxioms
+  NeighborhoodBases
+  Nets
+  SeparatednessAxioms
+  SupInf
+  TopologicalSpaces.
+From Topology Require Import
+  Homeomorphisms
+  RationalsInReals
+  SubspaceTopology.
 
 Open Scope R_scope.
 
@@ -34,82 +51,181 @@ End metric.
 
 Arguments metric {X}.
 
-Definition isometry {X Y : Type}
-  (d0 : X -> X -> R) (d1 : Y -> Y -> R) (f : X -> Y) : Prop :=
-  forall x1 x2 : X, d1 (f x1) (f x2) = d0 x1 x2.
-
-Lemma isometry_injective {X Y : Type} d0 d1 (f : X -> Y) :
-  metric d0 ->
-  metric d1 ->
-  isometry d0 d1 f ->
-  injective f.
-Proof.
-  intros Hd0 Hd1 Hf x0 x1 Hx.
-  eapply metric_strict; eauto.
-  rewrite <- Hf, Hx.
-  apply metric_zero; auto.
-Qed.
-
 Section metric_topology.
 
 Context {X:Type}.
 Variable d:X->X->R.
 Hypothesis d_is_metric: metric d.
 
-Definition open_ball (x0:X) (r:R) : Ensemble X :=
+Definition open_ball (x0 : X) (r : R) : Ensemble X :=
   [ x:X | d x0 x < r ].
 
 Definition closed_ball (x0 : X) (r : R) : Ensemble X :=
   [x : X | d x0 x <= r].
 
+(** ** Facts about balls *)
+Lemma metric_open_ball_In :
+  forall x r,
+    0 < r <->
+    In (open_ball x r) x.
+Proof.
+  intros.
+  split.
+  - intros.
+    constructor.
+    rewrite metric_zero; assumption.
+  - intros.
+    destruct H.
+    rewrite metric_zero in H; assumption.
+Qed.
+
+Lemma open_ball_Included (x1 x2 : X) (r1 r2 : R) :
+  d x1 x2 + r1 <= r2 ->
+  Included (open_ball x1 r1) (open_ball x2 r2).
+Proof.
+  intros Hr y [Hy]. constructor.
+  eapply Rle_lt_trans.
+  { apply triangle_inequality with (y := x1); auto. }
+  rewrite (metric_sym X d d_is_metric x2 x1).
+  lra.
+Qed.
+
+(* This is not proven using [open_ball_Included], because it does not
+  require the triangle inequality. *)
+Lemma open_ball_monotonous (x : X) (r1 r2 : R) :
+  r1 <= r2 ->
+  Included (open_ball x r1) (open_ball x r2).
+Proof.
+  intros Hr. intros ? []. constructor. lra.
+Qed.
+
+Lemma open_ball_Intersection_concentric (x : X) (r1 r2 : R) :
+  Intersection (open_ball x r1) (open_ball x r2) =
+    open_ball x (Rmin r1 r2).
+Proof.
+  apply Extensionality_Ensembles; split.
+  - intros y Hy.
+    destruct Hy as [y [Hy1] [Hy2]].
+    constructor. apply Rmin_glb_lt; assumption.
+  - apply Intersection_maximal; apply open_ball_monotonous.
+    + apply Rmin_l.
+    + apply Rmin_r.
+Qed.
+
+Lemma closed_ball_radius_zero (x0 : X) :
+  closed_ball x0 0 = Singleton x0.
+Proof.
+  intros.
+  apply Extensionality_Ensembles; split; red; intros.
+  - destruct H.
+    apply Singleton_intro.
+    apply (metric_strict _ _ d_is_metric).
+    apply Rle_antisym; try assumption.
+    pose proof (metric_nonneg _ _ d_is_metric x0 x).
+    lra.
+  - constructor. destruct H.
+    rewrite metric_zero; auto; lra.
+Qed.
+
+Lemma metric_closed_ball_In :
+  forall x r, 0 <= r <-> In (closed_ball x r) x.
+Proof.
+  intros.
+  pose proof (metric_zero X d d_is_metric x).
+  split.
+  - intros. constructor. lra.
+  - intros. destruct H0. lra.
+Qed.
+
+Lemma closed_ball_radius_negative :
+  forall x r, r < 0 <-> closed_ball x r = Empty_set.
+Proof.
+  intros.
+  split.
+  - intros.
+    apply Extensionality_Ensembles; split; red; intros; try contradiction.
+    destruct H0.
+    pose proof (metric_nonneg X d d_is_metric x x0).
+    lra.
+  - intros.
+    apply NNPP.
+    intros ?.
+    apply not_Rlt in H0.
+    apply Rge_le in H0.
+    apply (metric_closed_ball_In x r) in H0.
+    rewrite H in H0.
+    destruct H0.
+Qed.
+
+Lemma metric_open_closed_ball_Included (x : X) r :
+  Included (open_ball x r) (closed_ball x r).
+Proof.
+  intros ? ?.
+  destruct H.
+  constructor.
+  lra.
+Qed.
+
+Lemma metric_open_ball_radius_nonpositive :
+  forall x r,
+    r <= 0 ->
+    open_ball x r = Empty_set.
+Proof.
+  intros.
+  apply Extensionality_Ensembles; split; red; intros; try contradiction.
+  destruct H0.
+  pose proof (metric_nonneg X d d_is_metric x x0).
+  lra.
+Qed.
+
+Lemma metric_open_ball_radius_nonpositive0 :
+  forall x r,
+    open_ball x r = Empty_set ->
+    r <= 0.
+Proof.
+  intros.
+  apply NNPP. intros ?.
+  apply Rnot_le_lt in H0.
+  apply (metric_open_ball_In x) in H0.
+  rewrite H in H0.
+  destruct H0.
+Qed.
+
+(** ** Topology induced by a metric *)
 Inductive metric_topology_neighborhood_basis (x:X) : Family X :=
   | intro_open_ball: forall r:R, r > 0 ->
     In (metric_topology_neighborhood_basis x) (open_ball x r).
 
-Definition MetricTopology : TopologicalSpace.
-refine (Build_TopologicalSpace_from_open_neighborhood_bases
-  X metric_topology_neighborhood_basis _ _ _ _);
-  intros.
-- destruct H as [r1 ?].
-  destruct H0 as [r2 ?].
+Program Definition MetricTopology : TopologicalSpace :=
+  (Build_TopologicalSpace_from_open_neighborhood_bases
+     X metric_topology_neighborhood_basis _ _ _ _).
+Next Obligation.
+  destruct H as [r1 Hr1]. destruct H0 as [r2 Hr2].
+  rewrite open_ball_Intersection_concentric.
   exists (open_ball x (Rmin r1 r2)); split.
-  + constructor.
-    apply Rmin_Rgt_r; split; trivial.
-  + red. intros.
-    destruct H1.
-    constructor;
-      constructor;
-      apply Rlt_le_trans with (Rmin r1 r2); trivial.
-    * apply Rmin_l.
-    * apply Rmin_r.
-- destruct H.
-  constructor.
-  now rewrite metric_zero.
-- exists (open_ball x 1).
-  constructor.
-  auto with *.
-- destruct H.
-  destruct H0.
+  - constructor. apply Rmin_Rgt_r; split; trivial.
+  - reflexivity.
+Qed.
+Next Obligation.
+  destruct H. apply metric_open_ball_In. lra.
+Qed.
+Next Obligation.
+  exists (open_ball x 1). constructor. lra.
+Qed.
+Next Obligation.
+  destruct H as [r Hr].
+  destruct H0 as [Hxy].
   exists (open_ball y (r - d x y)); split.
-  + constructor.
-    now apply Rgt_minus.
-  + red. intros z ?.
-    destruct H1.
-    constructor.
-    apply Rle_lt_trans with (d x y + d y z).
-    * now apply triangle_inequality.
-    * assert (d x y + d y z < d x y + (r - d x y)) by
-        auto with *.
-      now ring_simplify in H2.
-Defined.
+  - constructor. now apply Rgt_minus.
+  - apply open_ball_Included.
+    rewrite (metric_sym X d d_is_metric y x).
+    lra.
+Qed.
 
 End metric_topology.
 
 Arguments metric_topology_neighborhood_basis {X}.
 Arguments MetricTopology {X}.
-
-Definition bounded {X : Type} (d : X -> X -> R) (A : Ensemble X) :=
-  exists x r, Included A (open_ball d x r).
 
 Definition metrizes (X:TopologicalSpace)
   (d:X -> X -> R) : Prop :=
@@ -135,112 +251,6 @@ Proof.
 apply intro_metrizable with (d := d).
 - assumption.
 - apply MetricTopology_metrized.
-Qed.
-
-Lemma metric_open_ball_In X (d : X -> X -> R) :
-  metric d -> forall x r,
-    0 < r <->
-    In (open_ball d x r) x.
-Proof.
-  intros.
-  split.
-  - intros.
-    constructor.
-    rewrite metric_zero; assumption.
-  - intros.
-    destruct H0.
-    rewrite metric_zero in H0; assumption.
-Qed.
-
-Lemma metric_open_ball_radius_nonpositive X d :
-  @metric X d ->
-  forall x r,
-    r <= 0 ->
-    open_ball d x r = Empty_set.
-Proof.
-  intros.
-  apply Extensionality_Ensembles; split; red; intros; try contradiction.
-  destruct H1.
-  pose proof (metric_nonneg X d H x x0).
-  lra.
-Qed.
-
-Lemma metric_open_ball_radius_nonpositive0 X d :
-  @metric X d ->
-  forall x r,
-    open_ball d x r = Empty_set ->
-    r <= 0.
-Proof.
-  intros.
-  apply NNPP. intros ?.
-  apply Rnot_le_lt in H1.
-  apply (metric_open_ball_In X d H x) in H1.
-  rewrite H0 in H1.
-  destruct H1.
-Qed.
-
-Lemma closed_ball_radius_zero X d (x0 : X) :
-  metric d ->
-  closed_ball d x0 0 = Singleton x0.
-Proof.
-  intros.
-  apply Extensionality_Ensembles; split; red; intros.
-  - destruct H0.
-    apply Singleton_intro.
-    apply (metric_strict _ _ H).
-    apply Rle_antisym; try assumption.
-    pose proof (metric_nonneg _ _ H x0 x).
-    lra.
-  - constructor. destruct H0.
-    rewrite metric_zero; auto; lra.
-Qed.
-
-Lemma metric_closed_ball_In X (d : X -> X -> R) :
-  metric d -> forall x r,
-    0 <= r <->
-    In (closed_ball d x r) x.
-Proof.
-  intros.
-  pose proof (metric_zero X d H x).
-  split.
-  - intros.
-    constructor.
-    lra.
-  - intros.
-    destruct H1.
-    lra.
-Qed.
-
-Lemma closed_ball_radius_negative X d :
-  @metric X d ->
-  forall x r,
-    r < 0 <->
-    closed_ball d x r = Empty_set.
-Proof.
-  intros.
-  split.
-  - intros.
-    apply Extensionality_Ensembles; split; red; intros; try contradiction.
-    destruct H1.
-    pose proof (metric_nonneg X d H x x0).
-    lra.
-  - intros.
-    apply NNPP.
-    intros ?.
-    apply not_Rlt in H1.
-    apply Rge_le in H1.
-    apply (metric_closed_ball_In X d H x r) in H1.
-    rewrite H0 in H1.
-    destruct H1.
-Qed.
-
-Lemma metric_open_closed_ball_Included X d (x : X) r :
-  Included (open_ball d x r) (closed_ball d x r).
-Proof.
-  intros ? ?.
-  destruct H.
-  constructor.
-  lra.
 Qed.
 
 Lemma metric_space_open_ball_open :
@@ -284,6 +294,99 @@ Proof.
     lra.
 Qed.
 
+(** ** Isometries *)
+Definition isometry {X Y : Type}
+  (d0 : X -> X -> R) (d1 : Y -> Y -> R) (f : X -> Y) : Prop :=
+  forall x1 x2 : X, d1 (f x1) (f x2) = d0 x1 x2.
+
+Lemma isometry_injective {X Y : Type} d0 d1 (f : X -> Y) :
+  metric d0 ->
+  metric d1 ->
+  isometry d0 d1 f ->
+  injective f.
+Proof.
+  intros Hd0 Hd1 Hf x0 x1 Hx.
+  eapply metric_strict; eauto.
+  rewrite <- Hf, Hx.
+  apply metric_zero; auto.
+Qed.
+
+Lemma isometry_inv_image_open_ball {X Y : Type} dx dy (f : X -> Y) :
+  isometry dx dy f ->
+  forall (x : X) (r : R),
+    inverse_image f (open_ball dy (f x) r) =
+      open_ball dx x r.
+Proof.
+  intros Hf x r.
+  apply Extensionality_Ensembles; split.
+  - intros x0 [[Hx0]]. constructor.
+    rewrite Hf in Hx0. assumption.
+  - intros x0 [Hx0]. constructor. constructor.
+    rewrite Hf. assumption.
+Qed.
+
+Lemma isometry_Im_open_ball_surj {X Y : Type} dx dy (f : X -> Y) :
+  isometry dx dy f -> surjective f ->
+  forall (x : X) (r : R),
+    Im (open_ball dx x r) f =
+      open_ball dy (f x) r.
+Proof.
+  intros Hf0 Hf1 x r. apply Extensionality_Ensembles; split.
+  - intros y Hy. constructor.
+    apply Im_inv in Hy. destruct Hy as [x0 [Hx0]]; subst y.
+    destruct Hx0. now rewrite Hf0.
+  - intros y Hy. destruct Hy.
+    specialize (Hf1 y) as [x0 Hx0]. subst y.
+    apply Im_def. constructor. rewrite Hf0 in H. assumption.
+Qed.
+
+Lemma isometry_continuous {X Y : TopologicalSpace}
+  dx dy (f : X -> Y) :
+  metrizes X dx -> metrizes Y dy ->
+  isometry dx dy f -> continuous f.
+Proof.
+  intros HX HY Hf.
+  apply pointwise_continuity.
+  intros x.
+  eapply continuous_at_neighborhood_basis.
+  { apply open_neighborhood_basis_is_neighborhood_basis.
+    apply HY.
+  }
+  intros V HV. destruct HV.
+  erewrite isometry_inv_image_open_ball; eauto.
+  apply open_neighborhood_is_neighborhood.
+  apply HX. constructor. assumption.
+Qed.
+
+Lemma isometry_surj_open_map {X Y : TopologicalSpace} dx dy (f : X -> Y) :
+  metrizes X dx -> metrizes Y dy -> isometry dx dy f -> surjective f ->
+  open_map f.
+Proof.
+  intros HX HY Hf0 Hf1. eapply open_map_via_open_basis.
+  { apply open_neighborhood_bases_to_open_basis.
+    apply HX.
+  }
+  intros U HU. destruct HU as [x U HU]. destruct HU.
+  erewrite isometry_Im_open_ball_surj; eauto.
+  apply (open_neighborhood_basis_elements _ (f x) (HY (f x))
+           (open_ball dy (f x) r)).
+  constructor. assumption.
+Qed.
+
+Lemma isometry_homeomorphism {X Y : TopologicalSpace} dx dy (f : X -> Y) :
+  metric dx -> metric dy ->
+  metrizes X dx -> metrizes Y dy -> isometry dx dy f -> surjective f ->
+  homeomorphism f.
+Proof.
+  intros Hdx Hdy HX HY Hf0 Hf1.
+  apply invertible_open_map_is_homeomorphism.
+  - apply bijective_impl_invertible; split; auto.
+    eapply isometry_injective; eassumption.
+  - eapply isometry_continuous; eassumption.
+  - eapply isometry_surj_open_map; eassumption.
+Qed.
+
+(** ** Metric spaces and Nets *)
 Lemma metric_space_net_limit: forall (X:TopologicalSpace)
   (d:X -> X -> R), metrizes X d ->
   forall (I:DirectedSet) (x:Net I X) (x0:X),
@@ -360,6 +463,7 @@ split; trivial.
 now destruct H6.
 Qed.
 
+(** ** Continuity *)
 Lemma metric_space_fun_continuity_converse: forall (X Y:TopologicalSpace)
   (f:X->Y) (x:X)
   (dX:X -> X -> R)
@@ -425,8 +529,7 @@ split.
   now apply H7.
 Qed.
 
-Open Scope R_scope.
-
+(** ** Separation Axioms *)
 Lemma metrizable_impl_first_countable: forall X:TopologicalSpace,
   metrizable X -> first_countable X.
 Proof.
@@ -550,22 +653,6 @@ split.
   reflexivity.
 Qed.
 
-Lemma open_ball_half_radius_included X d r s x0 x1 :
-  @metric X d ->
-  In (open_ball d x1 s) x0 ->
-  0 < s < r / 2 ->
-  Included (open_ball d x1 s) (open_ball d x0 r).
-Proof.
-  intros ? ? ? z Hz.
-  constructor.
-  destruct Hz.
-  destruct H0.
-  apply (Rle_lt_trans _ (d x0 x1 + d x1 z)).
-  { now apply triangle_inequality. }
-  rewrite (metric_sym _ _ H x0 x1).
-  lra.
-Qed.
-
 Lemma metrizable_Lindelof_impl_second_countable:
   forall X:TopologicalSpace, metrizable X -> Lindelof X ->
     second_countable X.
@@ -644,8 +731,8 @@ assert (Included W (open_ball d x r)); auto with sets.
 pose proof (Hnsig_subcover0 _ HW_nsig) as HW_small_balls.
 destruct HW_small_balls. subst.
 simpl in *.
-apply open_ball_half_radius_included; auto.
-split; auto with real.
+apply open_ball_Included; auto.
+destruct HWx. lra.
 Qed.
 
 Lemma metrizable_Hausdorff :
@@ -955,6 +1042,7 @@ exists U, V; repeat split.
     lra.
 Qed.
 
+(** ** Subspace Metric *)
 Section SubspaceMetric.
 
 Context {X:Type}.
@@ -1047,4 +1135,69 @@ Proof.
     eassumption.
   - apply metric_space_subspace_topology_metrizes;
       auto.
+Qed.
+
+(** ** Bounded sets *)
+Definition bounded {X : Type} (d : X -> X -> R) (A : Ensemble X) :=
+  exists x r, Included A (open_ball d x r).
+
+Lemma open_ball_bounded {X : Type} (d : X -> X -> R) (x : X) (r : R) :
+  bounded d (open_ball d x r).
+Proof.
+  exists x, r. reflexivity.
+Qed.
+
+Lemma closed_ball_bounded {X : Type} (d : X -> X -> R) (x : X) (r : R) :
+  bounded d (closed_ball d x r).
+Proof.
+  exists x, (r + 1). intros y [Hy]. constructor. lra.
+Qed.
+
+Lemma bounded_Singleton {X : Type} (d : X -> X -> R) (Hd : metric d)
+  (x : X) : bounded d (Singleton x).
+Proof.
+  exists x, 1. intros y [].
+  apply metric_open_ball_In; auto with real.
+Qed.
+
+Lemma bounded_FamilyUnion_Finite {X : Type} (d : X -> X -> R) (d_metric : metric d)
+  (F : Family X) (HF_fin : Finite F) (HF_bnd : forall C, In F C -> bounded d C)
+  (HX : inhabited X) :
+  bounded d (FamilyUnion F).
+Proof.
+  destruct HX as [x0]; exists x0.
+  induction HF_fin as [|F HF_fin HF_ind U HFU].
+  { exists 0. rewrite empty_family_union.
+    apply Empty_set_minimal.
+  }
+  destruct HF_ind as [r0 Hr0].
+  { intros V HV. apply HF_bnd. left. exact HV. }
+  clear HF_fin HFU.
+  specialize (HF_bnd U).
+  destruct HF_bnd as [x1 [r1 HU]].
+  { right. constructor. }
+  exists (Rmax r0 (d x0 x1 + r1)).
+  intros x Hx.
+  rewrite family_union_add in Hx. destruct Hx as [x Hx|x Hx].
+  { apply Hr0 in Hx. eapply open_ball_monotonous; eauto.
+    apply Rmax_l.
+  }
+  clear F Hr0.
+  apply HU in Hx; clear U HU.
+  destruct Hx. constructor.
+  eapply Rlt_le_trans.
+  2: apply Rmax_r.
+  pose proof (triangle_inequality X d d_metric x0 x1 x).
+  lra.
+Qed.
+
+Lemma bounded_Finite {X : Type} d (Hd : metric d) (U : Ensemble X) :
+  inhabited X -> Finite U -> bounded d U.
+Proof.
+  intros HX HU.
+  rewrite FamilyUnion_Im_Singleton.
+  apply bounded_FamilyUnion_Finite; auto.
+  - apply finite_image, HU.
+  - intros _ [x HUx C]. subst C.
+    apply bounded_Singleton, Hd.
 Qed.

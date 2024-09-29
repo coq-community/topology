@@ -261,3 +261,14 @@ Proof.
   intros HU x Hx.
   destruct Hx. apply H, HU.
 Qed.
+
+(* can sometimes be useful to bring a term into a different shape *)
+Lemma FamilyUnion_Im_Singleton {X : Type} (U : Ensemble X) :
+  U = FamilyUnion (Im U Singleton).
+Proof.
+  apply Extensionality_Ensembles; split.
+  - intros x HUx. exists (Singleton x). 2: constructor.
+    apply Im_def. assumption.
+  - intros _ []. apply Im_inv in H. destruct H as [? []]; subst S.
+    destruct H0; assumption.
+Qed.

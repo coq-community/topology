@@ -25,6 +25,18 @@ Qed.
 Definition open_map {X Y:TopologicalSpace} (f:X -> Y) : Prop :=
 forall U:Ensemble X, open U -> open (Im U f).
 
+(** it suffices to check [open_map] on an [open_basis] *)
+Lemma open_map_via_open_basis {X Y : TopologicalSpace} (f : X -> Y)
+  (B : Family X) (HB : open_basis B) :
+  (forall U, In B U -> open (Im U f)) -> open_map f.
+Proof.
+  intros Hf U HU.
+  rewrite (open_basis_replace_with_FamilyUnion B U HB HU).
+  rewrite image_family_union. apply open_family_union.
+  intros S HS. destruct HS as [V [HVU HBV] S HS].
+  subst S. apply Hf, HBV.
+Qed.
+
 Lemma homeomorphism_is_open_map: forall {X Y:TopologicalSpace}
   (f:X -> Y),
   homeomorphism f -> open_map f.
