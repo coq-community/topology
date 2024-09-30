@@ -10,20 +10,20 @@ Context {X:Type}.
 Variable R:relation X.
 Hypothesis R_ord: order R.
 
-Inductive order_topology_subbasis : Family X :=
-  | intro_lower_interval: forall x:X,
-    In order_topology_subbasis [ y:X | R y x /\ y <> x ]
-  | intro_upper_interval: forall x:X,
-    In order_topology_subbasis [ y:X | R x y /\ y <> x].
-
-Definition OrderTopology : TopologicalSpace :=
-  Build_TopologicalSpace_from_subbasis X order_topology_subbasis.
-
 Definition lower_open_ray (x : X) : Ensemble X :=
   [ y : X | R y x /\ y <> x ].
 
 Definition upper_open_ray (x : X) : Ensemble X :=
   [ y : X | R x y /\ y <> x ].
+
+Inductive order_topology_subbasis : Family X :=
+  | intro_lower_interval: forall x:X,
+    In order_topology_subbasis (lower_open_ray x)
+  | intro_upper_interval: forall x:X,
+    In order_topology_subbasis (upper_open_ray x).
+
+Definition OrderTopology : TopologicalSpace :=
+  Build_TopologicalSpace_from_subbasis X order_topology_subbasis.
 
 Lemma lower_upper_open_ray_disjoint (x : X) :
   Disjoint (lower_open_ray x) (upper_open_ray x).
