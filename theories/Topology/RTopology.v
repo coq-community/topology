@@ -72,10 +72,13 @@ Lemma R_interval_open : forall p q,
 Proof.
 intros p q.
 replace [r : R | p < r < q] with
-        (Intersection [y : R | y < q] [y : R | y > p]) by (extensionality_ensembles; repeat constructor; lra).
+  (Intersection (lower_open_ray Rle q) (upper_open_ray Rle p))
+  by (extensionality_ensembles; repeat constructor; lra).
 eapply (@open_intersection2 RTop).
-- apply R_lower_beam_open.
-- apply R_upper_beam_open.
+- apply (lower_open_ray_open
+           (OrderTopology_orders_top Rle)).
+- apply (upper_open_ray_open
+           (OrderTopology_orders_top Rle)).
 Qed.
 
 Lemma RTop_neighborhood_is_neighbourhood
@@ -132,32 +135,40 @@ split.
     apply H, Rabs_def1; simpl; lra.
 Qed.
 
+Lemma R_metric_open_ball_as_Intersection_beam (x r : R) :
+  open_ball R_metric x r =
+    Intersection
+      (upper_open_ray Rle (x - r))
+      (lower_open_ray Rle (x + r)).
+Proof.
+  apply Extensionality_Ensembles; split.
+  - intros y [Hy]. unfold R_metric, Rabs in Hy.
+    split; constructor; destruct Rcase_abs; lra.
+  - intros y Hy.
+    destruct Hy as [y [[]] [[]]].
+    constructor. unfold R_metric, Rabs.
+    destruct Rcase_abs; lra.
+Qed.
+
 Lemma RTop_metrization: metrizes RTop R_metric.
 Proof.
 pose proof (Hsubbasis := Build_TopologicalSpace_from_subbasis_subbasis
   _ (order_topology_subbasis Rle)).
-red. intros.
-constructor;
-  intros.
-- destruct H.
-  replace (@open_ball RTop R_metric x r) with
-          (Intersection
-            [ y:R | x-r <= y /\ y <> x-r ]
-            [ y:R | y <= x+r /\ y <> x+r ]).
-  + constructor.
-    * apply (@open_intersection2 RTop);
-        apply Hsubbasis; constructor.
-    * repeat constructor; lra.
-  + extensionality_ensembles;
-      repeat constructor;
-      try apply Rabs_def2 in H0;
-      destruct H0;
-      try lra.
-    destruct H1.
-    apply Rabs_def1; lra.
-- intros.
-  apply open_neighborhood_is_neighborhood, RTop_neighborhood_is_neighbourhood in H.
-  destruct H.
+red. intros x.
+split.
+- intros U HU. destruct HU as [r Hr].
+  split.
+  2: {
+    apply metric_open_ball_In; auto.
+    apply R_metric_is_metric.
+  }
+  rewrite R_metric_open_ball_as_Intersection_beam.
+  apply (@open_intersection2 RTop);
+    apply Hsubbasis; constructor.
+- intros U HUx.
+  apply open_neighborhood_is_neighborhood,
+    RTop_neighborhood_is_neighbourhood in HUx.
+  destruct HUx.
   exists (open_ball R_metric x x0).
   split.
   + now destruct x0.
@@ -590,21 +601,25 @@ exists x0. assumption.
 Qed.
 
 Lemma RTop_subbasis_rational_beams :
-  subbasis (Union (ImageFamily (fun q => [r : RTop | r < Q2R q]))
-                     (ImageFamily (fun q => [r : RTop | r > Q2R q]))).
+  @subbasis RTop
+    (Union (ImageFamily (fun q => lower_open_ray Rle (Q2R q)))
+           (ImageFamily (fun q => upper_open_ray Rle (Q2R q)))).
 Proof.
 split.
 - intros S H.
   destruct H as [S [[q Hq] H]| S [[q Hq] H]]; subst.
-  + apply R_lower_beam_open.
-  + apply R_upper_beam_open.
+  + apply (lower_open_ray_open
+             (OrderTopology_orders_top Rle)).
+  + apply (upper_open_ray_open
+             (OrderTopology_orders_top Rle)).
 - intros U r H1 H2.
   assert (neighborhood U r) as H by now exists U.
   apply RTop_neighborhood_is_neighbourhood in H.
   destruct H as [[d ?] H],
           (rationals_dense_in_reals (r - d) r) as [p ?],
           (rationals_dense_in_reals r (r + d)) as [q ?];
-  exists (Intersection [x : R | x > Q2R p] [x : R | x < Q2R q]) + lra.
+    exists (Intersection (upper_open_ray Rle (Q2R p))
+         (lower_open_ray Rle (Q2R q))) + lra.
   repeat split;
     simpl; try lra.
   + do 2 constructor;
@@ -618,8 +633,8 @@ Qed.
 Corollary RTop_second_countable : second_countable RTop.
 Proof.
 apply (second_countable_subbasis
-         RTop (Union (ImageFamily (fun q => [r : R | r < Q2R q]))
-                     (ImageFamily (fun q => [r : R | r > Q2R q])))).
+         RTop (Union (ImageFamily (fun q => lower_open_ray Rle (Q2R q)))
+                     (ImageFamily (fun q => upper_open_ray Rle (Q2R q))))).
 2: {
   apply countable_union2;
   now apply countable_img, countable_type_ensemble, Q_countable.
