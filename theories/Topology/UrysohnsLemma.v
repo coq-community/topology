@@ -516,7 +516,7 @@ Qed.
 Lemma Urysohns_Lemma_function_continuous:
   continuous Urysohns_Lemma_function.
 Proof.
-apply continuous_subbasis with (order_topology_subbasis _ Rle).
+apply continuous_subbasis with (order_topology_subbasis Rle).
 { apply Build_TopologicalSpace_from_subbasis_subbasis. }
 intros.
 destruct H.

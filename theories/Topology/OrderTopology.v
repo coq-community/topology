@@ -6,7 +6,7 @@ From ZornsLemma Require Import EnsemblesTactics.
 
 Section OrderTopology.
 
-Variable X:Type.
+Context {X:Type}.
 Variable R:relation X.
 Hypothesis R_ord: order R.
 
@@ -25,22 +25,6 @@ Definition lower_open_ray (x : X) : Ensemble X :=
 Definition upper_open_ray (x : X) : Ensemble X :=
   [ y : X | R x y /\ y <> x ].
 
-Lemma lower_open_ray_open (x : X) :
-  @open OrderTopology (lower_open_ray x).
-Proof.
-  eapply subbasis_elements.
-  1: apply Build_TopologicalSpace_from_subbasis_subbasis.
-  constructor.
-Qed.
-
-Lemma upper_open_ray_open (x : X) :
-  @open OrderTopology (upper_open_ray x).
-Proof.
-  eapply subbasis_elements.
-  1: apply Build_TopologicalSpace_from_subbasis_subbasis.
-  constructor.
-Qed.
-
 Lemma lower_upper_open_ray_disjoint (x : X) :
   Disjoint (lower_open_ray x) (upper_open_ray x).
 Proof.
@@ -50,12 +34,45 @@ Proof.
   auto.
 Qed.
 
+End OrderTopology.
+
+(** The topology of [X] coincides with the order-topology defined
+  by [R]. *)
+Definition orders_top (X : TopologicalSpace) (R : relation X) : Prop :=
+  subbasis (order_topology_subbasis R).
+
+Fact OrderTopology_orders_top {X : Type} (R : relation X) :
+  orders_top (OrderTopology R) R.
+Proof.
+  apply Build_TopologicalSpace_from_subbasis_subbasis.
+Qed.
+
+Section OrderTopology.
+Context {X : TopologicalSpace}
+  {R : relation X} (R_ord : order R) (HR : orders_top X R).
+
+Lemma lower_open_ray_open (x : X) :
+  open (lower_open_ray R x).
+Proof.
+  eapply subbasis_elements.
+  1: apply HR.
+  constructor.
+Qed.
+
+Lemma upper_open_ray_open (x : X) :
+  open (upper_open_ray R x).
+Proof.
+  eapply subbasis_elements.
+  1: apply HR.
+  constructor.
+Qed.
+
 Section if_total_order.
 
 Hypothesis R_total: forall x y:X, R x y \/ R y x.
 
 Lemma lower_closed_interval_closed: forall x:X,
-  closed [ y:X | R y x ] (X:=OrderTopology).
+  closed [ y:X | R y x ].
 Proof.
 intro.
 red.
@@ -69,7 +86,7 @@ red in H.
 assert (R x y).
 { destruct (R_total x y); trivial.
   now contradiction H. }
-exists (upper_open_ray x);
+exists (upper_open_ray R x);
   constructor; split; trivial.
 - apply upper_open_ray_open.
 - red. intros z ?.
@@ -86,7 +103,7 @@ exists (upper_open_ray x);
 Qed.
 
 Lemma upper_closed_interval_closed: forall x:X,
-  closed [y:X | R x y] (X:=OrderTopology).
+  closed [y:X | R x y].
 Proof.
 intro.
 red.
@@ -100,7 +117,7 @@ red in H.
 assert (R y x).
 { destruct (R_total x y); trivial.
   now contradiction H. }
-exists (lower_open_ray x);
+exists (lower_open_ray R x);
   constructor; split; trivial.
 - apply lower_open_ray_open.
 - red; intros z ?.
@@ -116,13 +133,12 @@ exists (lower_open_ray x);
   now subst.
 Qed.
 
-Lemma order_topology_Hausdorff: Hausdorff OrderTopology.
+Lemma order_topology_Hausdorff: Hausdorff X.
 Proof.
 red.
-match goal with |- forall x y:point_set OrderTopology, ?P =>
-  cut (forall x y:point_set OrderTopology, R x y -> P)
-  end;
-  intros.
+match goal with |- forall x y : point_set X, ?P =>
+  cut (forall x y: X, R x y -> P)
+end; intros.
 - destruct (R_total x y).
   { exact (H x y H1 H0). }
   assert (y <> x) by auto.
@@ -133,13 +149,13 @@ match goal with |- forall x y:point_set OrderTopology, ?P =>
   now extensionality_ensembles.
 - destruct (classic (exists z:X, R x z /\ R z y /\ z <> x /\ z <> y)).
   + destruct H1 as [z [? [? []]]].
-    exists (lower_open_ray z), (upper_open_ray z).
+    exists (lower_open_ray R z), (upper_open_ray R z).
     repeat split; auto.
     * apply lower_open_ray_open.
     * apply upper_open_ray_open.
     * apply Disjoint_Intersection.
-      apply lower_upper_open_ray_disjoint.
-  + exists (lower_open_ray y), (upper_open_ray x).
+      apply lower_upper_open_ray_disjoint, R_ord.
+  + exists (lower_open_ray R y), (upper_open_ray R x).
     repeat split; auto.
     * apply lower_open_ray_open.
     * apply upper_open_ray_open.
@@ -153,5 +169,3 @@ Qed.
 End if_total_order.
 
 End OrderTopology.
-
-Arguments OrderTopology {X}.

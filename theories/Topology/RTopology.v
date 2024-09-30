@@ -135,7 +135,7 @@ Qed.
 Lemma RTop_metrization: metrizes RTop R_metric.
 Proof.
 pose proof (Hsubbasis := Build_TopologicalSpace_from_subbasis_subbasis
-  _ (order_topology_subbasis _ Rle)).
+  _ (order_topology_subbasis Rle)).
 red. intros.
 constructor;
   intros.
@@ -301,11 +301,13 @@ assert (closed [x:RTop | a <= x <= b]).
   - apply upper_closed_interval_closed.
     + constructor; red; intros; auto with real.
       apply Rle_trans with y0; trivial.
+    + apply OrderTopology_orders_top.
     + intros.
       destruct (total_order_T x1 y0) as [[|]|]; auto with real.
   - apply lower_closed_interval_closed.
     + constructor; red; intros; auto with real.
       apply Rle_trans with y0; trivial.
+    + apply OrderTopology_orders_top.
     + intros.
       destruct (total_order_T x1 y0) as [[|]|]; auto with real. }
 assert (Ensembles.In [x:RTop | a <= x <= b] x0).

@@ -59,6 +59,7 @@ refine (
     apply f0_cont.
     apply lower_closed_interval_closed.
     * apply Rle_order.
+    * apply OrderTopology_orders_top.
     * intros.
       destruct (total_order_T x y) as [[|]|];
         auto with real.
@@ -74,6 +75,7 @@ refine (
     apply f0_cont.
     apply upper_closed_interval_closed.
     * apply Rle_order.
+    * apply OrderTopology_orders_top.
     * intros.
       destruct (total_order_T x y) as [[|]|];
         auto with real.
