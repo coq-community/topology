@@ -513,6 +513,149 @@ replace 1 with (Q2R (dr2Q (m_over_2_to_n 1 0))).
   field.
 Qed.
 
+Lemma Urysohns_Lemma_function_inv_image_lower_ray_full (r : R) :
+  1 < r ->
+  inverse_image
+    Urysohns_Lemma_function (lower_open_ray Rle r) = Full_set.
+Proof.
+  intros Hr. apply Extensionality_Ensembles; split.
+  { constructor. }
+  intros x _. constructor. constructor.
+  pose proof (Urysohns_Lemma_function_range x). lra.
+Qed.
+
+Lemma Urysohns_Lemma_function_inv_image_lower_ray (x : R) :
+  x <= 1 ->
+  inverse_image
+    Urysohns_Lemma_function (lower_open_ray Rle x) =
+    IndexedUnion
+      (fun alpha : { alpha : dyadic_rational | Q2R (dr2Q alpha) < x } =>
+         U_dyadic (proj1_sig alpha)).
+Proof.
+  intros Hx. apply Extensionality_Ensembles; split.
+  - intros x0 [[Hx1]].
+    assert (Urysohns_Lemma_function x0 < x) as Hx0 by lra.
+    clear Hx1.
+    remember (Urysohns_Lemma_function x0) as y.
+    unfold Urysohns_Lemma_function in Heqy.
+    destruct inf in Heqy; simpl in Heqy.
+    destruct Heqy.
+    destruct (glb_approx _ _ (x-y) i) as [x1 [Hx1 Hxy]].
+    { now apply Rgt_minus. }
+    destruct Hx1.
+    2: {
+      destruct H; lra.
+    }
+    destruct H as [alpha [Halpha] x1].
+    subst x1.
+    unshelve eexists (exist _ alpha _).
+    { lra. }
+    cbn. assumption.
+  - intros y Hy. constructor. constructor.
+    destruct Hy as [[alpha Halpha] y Hy].
+    cbn in Hy.
+    cut (Urysohns_Lemma_function y < x);
+      [intros; lra|].
+    apply Rle_lt_trans with (2:=Halpha).
+    unfold Urysohns_Lemma_function. destruct inf. simpl.
+    cut (Q2R (dr2Q alpha) >= x0); auto with real.
+    apply i. left. now exists alpha.
+Qed.
+
+Lemma Urysohns_Lemma_function_inv_image_upper_ray_full (r : R) :
+  r < 0 ->
+  inverse_image Urysohns_Lemma_function (upper_open_ray Rle r) =
+    Full_set.
+Proof.
+  intros Hr. apply Extensionality_Ensembles; split.
+  { constructor. }
+  intros x _. constructor. constructor.
+  pose proof (Urysohns_Lemma_function_range x). lra.
+Qed.
+
+Lemma Urysohns_Lemma_function_inv_image_upper_ray_empty (r : R) :
+  1 <= r ->
+  inverse_image Urysohns_Lemma_function (upper_open_ray Rle r) =
+    Empty_set.
+Proof.
+  intros Hr. apply Extensionality_Ensembles; split.
+  2: { intros ? []. }
+  intros x [[Hx]].
+  pose proof (Urysohns_Lemma_function_range x). lra.
+Qed.
+
+Lemma Urysohns_Lemma_function_inv_image_upper_ray (r : R) :
+  0 <= r < 1 ->
+  inverse_image Urysohns_Lemma_function (upper_open_ray Rle r) =
+    IndexedUnion (fun alpha:{alpha:dyadic_rational |
+                       r < Q2R (dr2Q alpha) < 1} =>
+               (Complement (closure (U_dyadic (proj1_sig alpha))))).
+Proof.
+  intros Hr.
+  apply Extensionality_Ensembles; split.
+  - intros x [[Hx]].
+    remember (Urysohns_Lemma_function x) as y.
+    assert (y <= 1).
+    { rewrite Heqy. apply Urysohns_Lemma_function_range. }
+    unfold Urysohns_Lemma_function in Heqy.
+    destruct inf in Heqy. simpl in Heqy.
+    destruct Heqy.
+    assert (r < y) as Hry by lra.
+    clear Hx.
+    destruct (dyadic_rationals_dense_in_reals r y) as [alpha].
+    { lra. }
+    assert (~ In (U_dyadic alpha) x).
+    { intro.
+      absurd (Q2R (dr2Q alpha) >= y).
+      - lra.
+      - apply i. left. now exists alpha.
+    }
+    destruct (dyadic_rationals_dense_in_reals r (Q2R (dr2Q alpha)))
+      as [beta Hbeta].
+    { lra. }
+    unshelve eexists (exist _ beta _).
+    { cbn. lra. }
+    cbn. intros Hx.
+    assert (dr_lt beta alpha) as Hab by
+      apply Qlt_dr_lt, Rlt_Qlt, Hbeta.
+    pose proof (U_dyadic_incr _ _ Hab).
+    auto with sets.
+  - intros x Hx. constructor. constructor.
+    cut (r < Urysohns_Lemma_function x); auto with real.
+    destruct Hx as [a x Hx].
+    destruct a as [alpha Ha].
+    simpl in Hx.
+    apply Rlt_le_trans with (Q2R (dr2Q alpha)).
+    { apply Ha. }
+    unfold Urysohns_Lemma_function. destruct inf as [y]. simpl.
+    apply i. red. intros x0 Hx0.
+    destruct Hx0.
+    2: {
+      destruct H. lra.
+    }
+    destruct H as [beta [Hb]].
+    assert (dr_lt alpha beta \/ dr_eq alpha beta) as Hab.
+    { cut (~ dr_lt beta alpha).
+      - destruct (dr_total_order alpha beta) as [|[|]]; auto.
+        intro. tauto.
+      - intro.
+        pose proof (U_dyadic_incr _ _ H0) as H1.
+        subst y0. contradiction Hx.
+        apply closure_inflationary.
+        apply H1.
+        now apply closure_inflationary.
+    }
+    destruct Hab; rewrite H.
+    + pose proof (dr2Q_incr _ _ H0).
+      cut (Q2R (dr2Q alpha) <= Q2R (dr2Q beta)); auto with real.
+      apply Qle_Rle.
+      auto with qarith.
+    + cut (Q2R (dr2Q alpha) <= Q2R (dr2Q beta)); auto with real.
+      apply Qle_Rle.
+      pose proof (dr2Q_wd _ _ H0).
+      auto with zarith qarith.
+Qed.
+
 Lemma Urysohns_Lemma_function_continuous:
   continuous Urysohns_Lemma_function.
 Proof.
@@ -521,194 +664,34 @@ apply continuous_subbasis with (order_topology_subbasis Rle).
 intros.
 destruct H.
 - (* proving that inverse image of lower open interval is open *)
-  destruct (classic (x>1)).
-  (* if x>1, inverse image is everything *)
-  + match goal with |- open ?U => assert (U = Full_set) end.
-    * extensionality_ensembles;
-        constructor.
-      constructor.
-      cut (Urysohns_Lemma_function x0 < x);
-        auto with real.
-      apply Rle_lt_trans with 1; trivial.
-      apply Urysohns_Lemma_function_range.
-    * rewrite H0.
-      apply open_full.
-  + (* if x<=1, inverse image is union of U_alpha for alpha < x *)
-    assert (x<=1) by
-      now apply Rnot_gt_le.
-    match goal with |- open ?U => assert (U =
-      IndexedUnion (fun alpha:{alpha:dyadic_rational |
-                               Q2R (dr2Q alpha) < x} =>
-                    U_dyadic (proj1_sig alpha))) end.
-    * extensionality_ensembles.
-      ** destruct H1.
-         assert (Urysohns_Lemma_function x0 < x).
-         { destruct H1.
-           { destruct (Rdichotomy _ _ H2); trivial. }
-           contradict H2.
-           auto with real. }
-         clear H1.
-         remember (Urysohns_Lemma_function x0) as y.
-         unfold Urysohns_Lemma_function in Heqy.
-         destruct inf in Heqy; simpl in Heqy.
-         destruct Heqy.
-         destruct (glb_approx _ _ (x-y) i).
-         { now apply Rgt_minus. }
-         destruct H1.
-         destruct H1.
-         *** destruct H1 as [alpha].
-             destruct H1.
-             destruct H4.
-             ring_simplify in H6.
-             rewrite H5 in H6.
-             now exists (exist (fun beta:dyadic_rational => Q2R (dr2Q beta) < x)
-               alpha H6).
-         *** destruct H1.
-             lra.
-      ** destruct a as [alpha].
-         simpl in H1.
-         constructor.
-         constructor.
-         cut (Urysohns_Lemma_function x0 < x);
-           auto with real.
-         apply Rle_lt_trans with (2:=r).
-         unfold Urysohns_Lemma_function. destruct inf. simpl.
-         cut (Q2R (dr2Q alpha) >= x1); auto with real.
-         apply i.
-         left.
-         now exists alpha.
-    * rewrite H1.
-      apply open_indexed_union.
-      intro.
-      apply U_dyadic_open.
+  destruct (classic (1<x)).
+  { (* if [1<x], inverse image is everything *)
+    rewrite Urysohns_Lemma_function_inv_image_lower_ray_full;
+      auto with topology.
+  }
+  (* if x<=1, inverse image is union of U_alpha for alpha < x *)
+  assert (x<=1) by
+    now apply Rnot_gt_le.
+  rewrite Urysohns_Lemma_function_inv_image_lower_ray; auto.
+  apply open_indexed_union.
+  intros ?. apply U_dyadic_open.
 - (* proving that inverse image of upper open interval is open *)
-  destruct (classic (x<0)).
-  + (* if x<0, inverse image is everything *)
-    match goal with |- open ?U => assert (U = Full_set) end.
-    * extensionality_ensembles;
-        constructor.
-      constructor.
-      cut (x < Urysohns_Lemma_function x0); auto with real.
-      apply Rlt_le_trans with (1:=H), Urysohns_Lemma_function_range.
-    * rewrite H0.
-      apply open_full.
-  + assert (x >= 0) by now apply Rnot_lt_ge.
-    clear H.
-    (* if x>=1, inverse image is empty *)
-    destruct (classic (x>=1)).
-    * match goal with |- open ?U => assert (U = Empty_set) end.
-      2 : { rewrite H1. apply open_empty. }
-      extensionality_ensembles.
-      destruct H1.
-      assert (x < Urysohns_Lemma_function x0).
-      { destruct (total_order_T x (Urysohns_Lemma_function x0)) as
-        [[|]|]; trivial.
-        - now contradiction H2.
-        - contradict r.
-          now apply Rle_not_gt. }
-      exfalso.
-      apply (Rlt_irrefl x).
-      apply Rlt_le_trans with (Urysohns_Lemma_function x0); trivial.
-      apply Rle_trans with 1; auto with real.
-      apply Urysohns_Lemma_function_range.
-    * (* if 0 <= x < 1, inverse image is union of
-         Complement (closure U_alpha) for x < alpha < 1 *)
-      assert (x < 1) by now apply Rnot_ge_lt.
-      clear H.
-      match goal with |- open ?U => assert (U =
-        IndexedUnion (fun alpha:{alpha:dyadic_rational |
-                           x < Q2R (dr2Q alpha) < 1} =>
-                   (Complement (closure (U_dyadic (proj1_sig alpha))))))
-       end.
-      2 : {
-        rewrite H.
-        apply open_indexed_union.
-        intros.
-        apply closure_closed. }
-      apply Extensionality_Ensembles; split; red; intros.
-      ** destruct H.
-         destruct H.
-         destruct H.
-         remember (Urysohns_Lemma_function x0) as y.
-         assert (y <= 1).
-         { rewrite Heqy. apply Urysohns_Lemma_function_range. }
-         unfold Urysohns_Lemma_function in Heqy.
-         destruct inf in Heqy. simpl in Heqy.
-         destruct Heqy.
-         assert (x < y).
-         { destruct (total_order_T x y) as [[|]|]; trivial.
-           - now contradiction H2.
-           - contradict r.
-             now apply Rle_not_gt. }
-         destruct (dyadic_rationals_dense_in_reals x y) as [alpha].
-         { auto with real. }
-         assert (~ In (U_dyadic alpha) x0).
-         { intro.
-           absurd (Q2R (dr2Q alpha) >= y).
-           - destruct H5.
-             now apply Rlt_not_ge.
-           - apply i.
-             left.
-             now exists alpha. }
-         destruct (dyadic_rationals_dense_in_reals x (Q2R (dr2Q alpha)))
-           as [beta].
-         { split; auto with real.
-           apply H5. }
-         assert (dr_lt beta alpha) by
-           apply Qlt_dr_lt, Rlt_Qlt, H7.
-         pose proof (U_dyadic_incr _ _ H8).
-         assert (x < Q2R (dr2Q beta) < 1).
-         { split.
-           { apply H7. }
-           apply Rlt_trans with (Q2R (dr2Q alpha)).
-           { apply H7. }
-           apply Rlt_le_trans with y; trivial.
-           apply H5. }
-         exists (exist (fun alpha0:dyadic_rational =>
-                        x < Q2R (dr2Q alpha0) < 1)
-                 beta H10).
-         simpl.
-         intro.
-         contradiction H6.
-         now apply H9.
-      ** destruct H.
-         destruct a as [alpha].
-         simpl in H.
-         constructor.
-         constructor.
-         cut (x < Urysohns_Lemma_function x0); auto with real.
-         apply Rlt_le_trans with (Q2R (dr2Q alpha)).
-         { apply a. }
-         unfold Urysohns_Lemma_function. destruct inf as [y]. simpl.
-         apply i.
-         red. intros.
-         destruct H2.
-         *** destruct H2 as [beta].
-             assert (dr_lt alpha beta \/ dr_eq alpha beta).
-             { cut (~ dr_lt beta alpha).
-               - destruct (dr_total_order alpha beta) as [|[|]]; auto.
-                 intro.
-                 contradiction H5.
-               - intro.
-                 pose proof (U_dyadic_incr _ _ H4).
-                 destruct H2.
-                 contradiction H.
-                 apply closure_inflationary.
-                 apply H5.
-                 now apply closure_inflationary. }
-             destruct H4;
-               rewrite H3.
-             **** pose proof (dr2Q_incr _ _ H4).
-                 cut (Q2R (dr2Q alpha) <= Q2R (dr2Q beta)); auto with real.
-                 apply Qle_Rle.
-                 auto with qarith.
-             **** cut (Q2R (dr2Q alpha) <= Q2R (dr2Q beta)); auto with real.
-                  apply Qle_Rle.
-                  pose proof (dr2Q_wd _ _ H4).
-                  auto with zarith qarith.
-         *** destruct H2.
-             destruct a.
-             auto with real rorders.
+  destruct (classic (x<0)) as [Hx0|Hx0].
+  { (* if x<0, inverse image is everything *)
+    rewrite Urysohns_Lemma_function_inv_image_upper_ray_full;
+      auto with topology.
+  }
+  destruct (classic (1<=x)) as [Hx1|Hx1].
+  { (* if x>=1, inverse image is empty *)
+    rewrite Urysohns_Lemma_function_inv_image_upper_ray_empty;
+      auto with topology.
+  }
+  (* if 0 <= x < 1, inverse image is union of
+     Complement (closure U_alpha) for x < alpha < 1 *)
+  rewrite Urysohns_Lemma_function_inv_image_upper_ray.
+  2: lra.
+  apply open_indexed_union.
+  intros. apply closure_closed.
 Qed.
 
 End Urysohns_Lemma_construction.
