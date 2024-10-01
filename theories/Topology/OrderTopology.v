@@ -17,9 +17,9 @@ Definition upper_open_ray (x : X) : Ensemble X :=
   [ y : X | R x y /\ y <> x ].
 
 Inductive order_topology_subbasis : Family X :=
-  | intro_lower_interval: forall x:X,
+  | intro_lower_ray: forall x:X,
     In order_topology_subbasis (lower_open_ray x)
-  | intro_upper_interval: forall x:X,
+  | intro_upper_ray: forall x:X,
     In order_topology_subbasis (upper_open_ray x).
 
 Definition OrderTopology : TopologicalSpace :=
@@ -71,7 +71,7 @@ Section if_total_order.
 
 Hypothesis R_total: forall x y:X, R x y \/ R y x.
 
-Lemma lower_closed_interval_closed: forall x:X,
+Lemma lower_closed_ray_closed: forall x:X,
   closed [ y:X | R y x ].
 Proof.
 intro.
@@ -102,7 +102,7 @@ exists (upper_open_ray R x);
   now subst.
 Qed.
 
-Lemma upper_closed_interval_closed: forall x:X,
+Lemma upper_closed_ray_closed: forall x:X,
   closed [y:X | R x y].
 Proof.
 intro.

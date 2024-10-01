@@ -57,7 +57,7 @@ refine (
   + red.
     rewrite <- inverse_image_complement.
     apply f0_cont.
-    apply lower_closed_interval_closed.
+    apply lower_closed_ray_closed.
     * apply Rle_order.
     * apply OrderTopology_orders_top.
     * intros.
@@ -73,7 +73,7 @@ refine (
   + red.
     rewrite <- inverse_image_complement.
     apply f0_cont.
-    apply upper_closed_interval_closed.
+    apply upper_closed_ray_closed.
     * apply Rle_order.
     * apply OrderTopology_orders_top.
     * intros.

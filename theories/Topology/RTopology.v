@@ -47,26 +47,6 @@ cut (y - z <= R_metric y z).
   apply Rle_abs.
 Qed.
 
-Lemma R_lower_beam_open : forall p,
-  @open RTop [r : R | r < p].
-Proof.
-intro.
-replace [r : R | r < p] with
-        [y : R | y <= p /\ y <> p] by (extensionality_ensembles; constructor; lra).
-rewrite <- family_union_singleton.
-repeat (constructor + destruct H).
-Qed.
-
-Lemma R_upper_beam_open : forall p,
-  @open RTop [r : R | r > p].
-Proof.
-intro.
-replace [r : R | r > p] with
-        [y : R | p <= y /\ y <> p] by (extensionality_ensembles; constructor; lra).
-rewrite <- family_union_singleton.
-repeat (constructor + destruct H).
-Qed.
-
 Lemma R_interval_open : forall p q,
   @open RTop [r : R | p < r < q].
 Proof.
@@ -135,7 +115,7 @@ split.
     apply H, Rabs_def1; simpl; lra.
 Qed.
 
-Lemma R_metric_open_ball_as_Intersection_beam (x r : R) :
+Lemma R_metric_open_ball_as_Intersection_ray (x r : R) :
   open_ball R_metric x r =
     Intersection
       (upper_open_ray Rle (x - r))
@@ -162,7 +142,7 @@ split.
     apply metric_open_ball_In; auto.
     apply R_metric_is_metric.
   }
-  rewrite R_metric_open_ball_as_Intersection_beam.
+  rewrite R_metric_open_ball_as_Intersection_ray.
   apply (@open_intersection2 RTop);
     apply Hsubbasis; constructor.
 - intros U HUx.
@@ -309,13 +289,13 @@ assert (closed [x:RTop | a <= x <= b]).
     (extensionality_ensembles;
       do 2 constructor; lra).
   apply closed_intersection2.
-  - apply upper_closed_interval_closed.
+  - apply upper_closed_ray_closed.
     + constructor; red; intros; auto with real.
       apply Rle_trans with y0; trivial.
     + apply OrderTopology_orders_top.
     + intros.
       destruct (total_order_T x1 y0) as [[|]|]; auto with real.
-  - apply lower_closed_interval_closed.
+  - apply lower_closed_ray_closed.
     + constructor; red; intros; auto with real.
       apply Rle_trans with y0; trivial.
     + apply OrderTopology_orders_top.
@@ -600,7 +580,7 @@ destruct (bounded_real_net_has_cluster_point
 exists x0. assumption.
 Qed.
 
-Lemma RTop_subbasis_rational_beams :
+Lemma RTop_subbasis_rational_rays :
   @subbasis RTop
     (Union (ImageFamily (fun q => lower_open_ray Rle (Q2R q)))
            (ImageFamily (fun q => upper_open_ray Rle (Q2R q)))).
@@ -639,7 +619,7 @@ apply (second_countable_subbasis
   apply countable_union2;
   now apply countable_img, countable_type_ensemble, Q_countable.
 }
-apply RTop_subbasis_rational_beams.
+apply RTop_subbasis_rational_rays.
 Qed.
 
 Lemma rationals_dense_in_RTop :
