@@ -384,3 +384,23 @@ Proof.
   apply injective_finite_inverse_image_Singleton.
   assumption.
 Qed.
+
+Lemma Finite_Included_Im_inverse {X Y : Type} (f : X -> Y)
+  (A : Ensemble X) (B : Ensemble Y) :
+  Finite B -> Included B (Im A f) ->
+  exists C : Ensemble X,
+    Finite C /\ B = Im C f /\ Included C A.
+Proof.
+  intros HB HBA.
+  induction HB as [|B HB IHHB y Hy].
+  { exists Empty_set. auto with sets. }
+  destruct IHHB as [C0 [HC0 [HC1 HC2]]].
+  { intros a Ha; apply HBA; left; apply Ha. }
+  subst B.
+  destruct (HBA y ltac:(right; constructor)).
+  subst y. exists (Add C0 x). split; [|split].
+  - apply Add_preserves_Finite, HC0.
+  - symmetry. apply Im_add.
+  - intros x0 Hx0. destruct Hx0 as [x0 Hx0|x0 Hx0];
+      auto with sets. destruct Hx0. apply H.
+Qed.

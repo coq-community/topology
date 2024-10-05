@@ -338,6 +338,77 @@ destruct (H _ (filter_to_net _ F)) as [x0].
   now apply filter_to_net_cluster_point_impl_filter_cluster_point.
 Qed.
 
+Lemma compact_SubspaceTopology_char
+  {X : TopologicalSpace} (S : Ensemble X) :
+  compact (SubspaceTopology S) <->
+    forall C : Family X,
+      (forall U, In C U -> open U) ->
+      (Included S (FamilyUnion C)) ->
+      exists C' : Family X,
+        Finite C' /\ Included C' C /\ Included S (FamilyUnion C').
+Proof.
+  split.
+  - (* -> *)
+    intros HS C HC_open HC_cover.
+    specialize
+      (HS (Im C (inverse_image (subspace_inc S)))).
+    destruct HS as [D [HD_fin [HD_imC HD_cover]]].
+    { intros U HU. apply subspace_open_char.
+      apply Im_inv in HU. firstorder.
+    }
+    { apply Extensionality_Ensembles; split.
+      { constructor. }
+      intros p _.
+      specialize (HC_cover (proj1_sig p) (proj2_sig p)).
+      inversion HC_cover. subst.
+      exists (inverse_image (subspace_inc S) S0).
+      - apply Im_def. assumption.
+      - constructor. assumption.
+    }
+    pose proof (Finite_Included_Im_inverse
+                  (inverse_image (subspace_inc S)) C D HD_fin HD_imC)
+      as [D0 [HD0_fin [HD HDC]]].
+    clear HD_fin HD_imC.
+    subst D. exists D0; split; [|split]; try assumption.
+    clear HD0_fin HDC C HC_open HC_cover.
+    intros x HSx.
+    pose proof (Full_intro (SubspaceTopology S) (exist S x HSx)) as HSx0.
+    rewrite <- HD_cover in HSx0.
+    inversion HSx0. subst.
+    destruct H as [U HDU S0 ?]. subst S0.
+    destruct H0. exists U; assumption.
+  - (* <- *)
+    intros HS C HC_open HC_cover.
+    specialize
+      (HS (fun U : Ensemble X =>
+             open U /\
+               In C (inverse_image (subspace_inc S) U))).
+    destruct HS as [D [HD_fin [HD_imC HD_cover]]].
+    { intros U [HU _]. exact HU. }
+    { intros x HSx.
+      pose proof (Full_intro (SubspaceTopology S) (exist S x HSx)) as HSx0.
+      rewrite <- HC_cover in HSx0.
+      inversion HSx0. subst.
+      specialize (HC_open S0 H).
+      apply subspace_open_char in HC_open.
+      destruct HC_open as [U [HU HS0]]; subst S0.
+      destruct H0. exists U; [split|]; assumption.
+    }
+    exists (Im D (inverse_image (subspace_inc S))). split; [|split].
+    + apply finite_image, HD_fin.
+    + intros V HV.
+      destruct HV as [U HDU V HV]. subst V.
+      apply HD_imC, HDU.
+    + apply Extensionality_Ensembles; split.
+      { constructor. }
+      intros p _.
+      specialize (HD_cover (proj1_sig p) (proj2_sig p)).
+      inversion HD_cover. subst.
+      exists (inverse_image (subspace_inc S) S0).
+      * apply Im_def, H.
+      * constructor. exact H0.
+Qed.
+
 Lemma compact_closed: forall (X:TopologicalSpace)
   (S:Ensemble X), Hausdorff X ->
   compact (SubspaceTopology S) -> closed S.
