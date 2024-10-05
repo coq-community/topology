@@ -466,47 +466,6 @@ assert (x = x0).
 now subst.
 Qed.
 
-(* Every closed subset of a compact space is compact, but avoid
-   mentioning the subspace topology. *)
-Lemma closed_compact_ens (X : TopologicalSpace) (S : Ensemble X) :
-  compact X -> closed S ->
-  forall F : Family X,
-    (forall U, In F U -> open U) ->
-    Included S (FamilyUnion F) ->
-    exists C,
-      Finite C /\ Included C F /\
-        Included S (FamilyUnion C).
-Proof.
-  intros X_compact S_closed cover_of_S cover_open cover_covers.
-  specialize (X_compact (Union cover_of_S (Singleton (Complement S))))
-    as [fincover [Hfincover0 [Hfincover1 Hfincover2]]].
-  { intros. destruct H; auto.
-    destruct H. auto.
-  }
-  { rewrite family_union_union.
-    rewrite family_union_singleton.
-    apply union_complement_included_l.
-    assumption.
-  }
-  exists (Intersection cover_of_S fincover); repeat split.
-  - apply Intersection_preserves_finite.
-    assumption.
-  - intros U HU.
-    apply Intersection_decreases_l in HU.
-    assumption.
-  - intros x Hx.
-    assert (In (FamilyUnion fincover) x).
-    { rewrite Hfincover2. constructor. }
-    destruct H. exists S0; auto.
-    split; auto.
-    apply Hfincover1 in H.
-    destruct H.
-    2: {
-      destruct H; contradiction.
-    }
-    assumption.
-Qed.
-
 Lemma closed_compact: forall (X:TopologicalSpace) (S:Ensemble X),
   compact X -> closed S -> compact (SubspaceTopology S).
 Proof.
@@ -595,8 +554,10 @@ assert (forall V, In cover_of_F V -> open V) as Hcover_open.
   destruct HV as [U [y []]].
   intuition.
 }
-destruct (closed_compact_ens X F HX_compact HF cover_of_F) as
-  [fincover [Hfincover0 [Hfincover1 Hfincover2]]]; auto.
+pose proof (closed_compact X F HX_compact HF) as HF_compact.
+rewrite compact_SubspaceTopology_char in HF_compact.
+specialize (HF_compact cover_of_F).
+destruct HF_compact as [fincover [Hfincover0 [Hfincover1 Hfincover2]]]; auto.
 { intros y Hy.
   specialize (HX_Hausdorff x y) as [U [V [HU [HV [HUx [HVx0]]]]]].
   { intros ?. subst. contradiction. }
@@ -649,8 +610,10 @@ assert (forall U, In cover_of_F U -> open U) as Hcover_open.
   destruct HU as [V [y []]].
   intuition.
 }
-destruct (closed_compact_ens X F HX_compact HF_closed cover_of_F) as
-  [fincover [Hfincover0 [Hfincover1 Hfincover2]]]; auto.
+pose proof (closed_compact X F HX_compact HF_closed) as HF_compact.
+rewrite compact_SubspaceTopology_char in HF_compact.
+specialize (HF_compact cover_of_F).
+destruct HF_compact as [fincover [Hfincover0 [Hfincover1 Hfincover2]]]; auto.
 { intros y Hy.
   specialize (HX_regular y G) as [U [V [HU [HV [HUx [HVx0]]]]]];
     auto.
