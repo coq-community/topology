@@ -338,6 +338,37 @@ destruct (H _ (filter_to_net _ F)) as [x0].
   now apply filter_to_net_cluster_point_impl_filter_cluster_point.
 Qed.
 
+Lemma topological_property_compact :
+  topological_property compact.
+Proof.
+  apply Build_topological_property.
+  intros X Y f Hcont_f g Hcont_g Hfg Hcomp F H eq.
+  destruct (Hcomp (inverse_image (inverse_image g) F)) as [F' [H1 [H2 H3]]].
+  - intros.
+    rewrite <- (inverse_image_id_comp (proj1 Hfg)).
+    apply Hcont_f, H.
+    now destruct H0.
+  - erewrite <- inverse_image_full,
+             <- (inverse_image_id_comp (proj1 Hfg) (FamilyUnion _)).
+    f_equal.
+    erewrite <- inverse_image_family_union.
+    2, 3: apply Hfg.
+    rewrite inverse_image_id_comp; auto.
+    apply Hfg.
+  - exists (inverse_image (inverse_image f) F').
+    split; [|split].
+    + apply injective_finite_inverse_image; auto.
+      apply inverse_image_surjective_injective.
+      apply invertible_impl_bijective.
+      exists g; apply Hfg.
+    + intros S [Hin].
+      destruct (H2 _ Hin) as [H0].
+      rewrite inverse_image_id_comp in H0; auto.
+      apply Hfg.
+    + rewrite <- (inverse_image_family_union _ (proj2 Hfg) (proj1 Hfg)), H3.
+      apply inverse_image_full.
+Qed.
+
 Lemma compact_SubspaceTopology_char
   {X : TopologicalSpace} (S : Ensemble X) :
   compact (SubspaceTopology S) <->
@@ -496,44 +527,52 @@ rewrite H6.
 now constructor.
 Qed.
 
+Lemma compact_image_ens {X Y : TopologicalSpace} (f : X -> Y)
+  (A : Ensemble X) :
+  continuous f ->
+  compact (SubspaceTopology A) ->
+  compact (SubspaceTopology (Im A f)).
+Proof.
+  intros Hf HA.
+  apply compact_SubspaceTopology_char.
+  intros C HC_open HC_cover.
+  rewrite compact_SubspaceTopology_char in HA.
+  specialize
+    (HA (Im C (inverse_image f))).
+  destruct HA as [D [HD_fin [HD_inc HD_cover]]].
+  { intros U HU.
+    apply Im_inv in HU. destruct HU as [V [HV HU]];
+      subst U. apply Hf. apply HC_open, HV.
+  }
+  { intros x HAx.
+    specialize (HC_cover (f x) (Im_def A f x HAx)).
+    inversion HC_cover. subst.
+    exists (inverse_image f S).
+    - apply Im_def, H.
+    - constructor. assumption.
+  }
+  destruct (Finite_Included_Im_inverse
+                (inverse_image f) C D HD_fin HD_inc) as [C' [HC'_fin [HD HCC]]].
+  exists C'; split; [|split]; try assumption.
+  clear HC'_fin. subst D.
+  intros y Hy.
+  destruct Hy as [x HAx y Hy]. subst y.
+  specialize (HD_cover x HAx).
+  destruct HD_cover as [U x HU HUx].
+  destruct HU as [V HV U HU]. subst U.
+  destruct HUx. exists V; assumption.
+Qed.
+
 Lemma compact_image: forall {X Y:TopologicalSpace}
   (f:X->Y),
   compact X -> continuous f -> surjective f -> compact Y.
 Proof.
-intros.
-red; intros.
-pose (B := fun U:{U:Ensemble Y | In C U} =>
-           inverse_image f (proj1_sig U)).
-destruct (compactness_on_indexed_covers _ _ B H) as [subcover].
-{ destruct a as [U].
-  now apply H0, H2.
-}
-{ extensionality_ensembles.
-  { constructor. }
-  assert (In (FamilyUnion C) (f x)).
-  { rewrite H3; constructor. }
-  inversion_clear H4 as [V].
-  exists (exist _ V H5).
-  now constructor.
-}
-exists (Im subcover (@proj1_sig _ (fun U:Ensemble Y => In C U))).
-destruct H4.
-repeat split.
-- now apply finite_image.
-- intros V ?.
-  destruct H6 as [[U]].
-  now subst.
-- apply Extensionality_Ensembles; split; red; intros y ?.
-  { constructor. }
-  destruct (H1 y) as [x].
-  assert (In (IndexedUnion
-    (fun a':{a' | In subcover a'} => B (proj1_sig a'))) x).
-  { rewrite H5; constructor. }
-  destruct H8 as [[[U]]].
-  exists U.
-  + now exists (exist _ U i).
-  + destruct H8.
-    now subst.
+intros X Y f HX Hf_cts Hf_surj.
+pose proof topological_property_compact as Htopo.
+red in Htopo. rewrite <- subspace_full_homeo.
+rewrite <- (proj1 (surjective_Im_char f)); auto.
+apply compact_image_ens; auto.
+rewrite subspace_full_homeo. exact HX.
 Qed.
 
 Lemma compact_Hausdorff_impl_T3_sep: forall X:TopologicalSpace,
@@ -647,37 +686,6 @@ rewrite <- H3.
 split; assumption.
 Qed.
 
-Lemma topological_property_compact :
-  topological_property compact.
-Proof.
-  apply Build_topological_property.
-  intros X Y f Hcont_f g Hcont_g Hfg Hcomp F H eq.
-  destruct (Hcomp (inverse_image (inverse_image g) F)) as [F' [H1 [H2 H3]]].
-  - intros.
-    rewrite <- (inverse_image_id_comp (proj1 Hfg)).
-    apply Hcont_f, H.
-    now destruct H0.
-  - erewrite <- inverse_image_full,
-             <- (inverse_image_id_comp (proj1 Hfg) (FamilyUnion _)).
-    f_equal.
-    erewrite <- inverse_image_family_union.
-    2, 3: apply Hfg.
-    rewrite inverse_image_id_comp; auto.
-    apply Hfg.
-  - exists (inverse_image (inverse_image f) F').
-    split; [|split].
-    + apply injective_finite_inverse_image; auto.
-      apply inverse_image_surjective_injective.
-      apply invertible_impl_bijective.
-      exists g; apply Hfg.
-    + intros S [Hin].
-      destruct (H2 _ Hin) as [H0].
-      rewrite inverse_image_id_comp in H0; auto.
-      apply Hfg.
-    + rewrite <- (inverse_image_family_union _ (proj2 Hfg) (proj1 Hfg)), H3.
-      apply inverse_image_full.
-Qed.
-
 Lemma finite_topology_compact (X : TopologicalSpace) :
   Finite (@open X) -> compact X.
 Proof.
@@ -685,31 +693,6 @@ Proof.
   red. intros.
   exists C. repeat split; auto with sets.
   apply Finite_downward_closed with (A := open); assumption.
-Qed.
-
-Lemma compact_image_ens {X Y : TopologicalSpace} (f : X -> Y)
-      (U : Ensemble X) :
-  continuous f ->
-  compact (SubspaceTopology U) ->
-  compact (SubspaceTopology (Im U f)).
-Proof.
-  intros.
-  unshelve eapply (@compact_image (SubspaceTopology U)).
-  { refine (fun p => exist _ (f (proj1_sig p)) _).
-    apply Im_def. apply proj2_sig.
-  }
-  1: assumption.
-  { apply subspace_continuous_char.
-    unfold compose. simpl.
-    apply (continuous_composition f).
-    - assumption.
-    - apply subspace_inc_continuous.
-  }
-  intros [y Hy].
-  inversion Hy; subst.
-  exists (exist _ x H1).
-  simpl.
-  apply subset_eq. reflexivity.
 Qed.
 
 (* Every bijective map from a compact space to a Hausdorff space is a homeomorphism.

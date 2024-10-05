@@ -1,7 +1,12 @@
-From Coq Require Export Image.
-From Coq Require Export Program.Basics.
-From Coq Require Import Description.
-From Coq Require Import FunctionalExtensionality.
+From Coq Require Export
+  Image
+  Program.Basics.
+From Coq Require Import
+  Description
+  FunctionalExtensionality.
+From ZornsLemma Require Import
+  EnsemblesImplicit
+  ImageImplicit.
 
 Arguments injective {U} {V}.
 Definition surjective {X Y:Type} (f:X->Y) :=
@@ -174,4 +179,18 @@ Proof.
   apply (f_equal g) in H0.
   apply H in H0.
   assumption.
+Qed.
+
+Lemma surjective_Im_char {X Y : Type} (f : X -> Y) :
+  surjective f <-> Im Full_set f = Full_set.
+Proof.
+  split.
+  - intros Hf. apply Extensionality_Ensembles; split.
+    { constructor. }
+    intros y _. specialize (Hf y) as [x Hx].
+    exists x; auto with sets.
+  - intros Hf y.
+    pose proof (Full_intro Y y) as Hy.
+    rewrite <- Hf in Hy. destruct Hy.
+    eexists; eauto.
 Qed.

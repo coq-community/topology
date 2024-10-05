@@ -6,6 +6,7 @@ From ZornsLemma Require Import
 From Topology Require Export
   TopologicalSpaces.
 From Topology Require Import
+  Homeomorphisms
   WeakTopology.
 
 Section Subspace.
@@ -137,6 +138,20 @@ Proof.
 Qed.
 
 End Subspace.
+
+Lemma subspace_full_homeo (X : TopologicalSpace) :
+  homeomorphic
+    (SubspaceTopology (@Full_set X)) X.
+Proof.
+  exists (subspace_inc Full_set).
+  constructor.
+  { apply subspace_inc_continuous. }
+  exists (fun x => exist _ x (Full_intro X x)).
+  split; [|split].
+  - apply subspace_continuous_char. apply continuous_identity.
+  - intros ?. apply Subset.subset_eq. reflexivity.
+  - reflexivity.
+Qed.
 
 (* Every set is dense in its closure. *)
 Lemma dense_in_closure {X:TopologicalSpace} (A : Ensemble X) :
