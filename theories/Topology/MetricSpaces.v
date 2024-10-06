@@ -47,6 +47,17 @@ Proof.
   lra.
 Qed.
 
+(* the distance between distinct points is positive *)
+Lemma metric_distinct_pos
+  {X : Type} d (d_metric : metric d) (x1 x2 : X) (Hx : x1 <> x2) :
+  0 < d x1 x2.
+Proof.
+  destruct (Rtotal_order 0 (d x1 x2)) as [|[|]]; auto.
+  - symmetry in H. apply (metric_strict _ d d_metric) in H.
+    contradiction.
+  - pose proof (metric_nonneg _ d d_metric x1 x2); lra.
+Qed.
+
 End metric.
 
 Arguments metric {X}.
