@@ -37,7 +37,7 @@ assert (exists r : R,
   destruct IHN as [r0 [Hr0 Hr1]].
   exists (r0 + (d (x (S N)) (x N))).
   split.
-  { pose proof (metric_nonneg X d d_metric (x (S N)) (x N)).
+  { pose proof (metric_nonneg d_metric (x (S N)) (x N)).
     lra.
   }
   intros n Hn.
@@ -46,7 +46,7 @@ assert (exists r : R,
   - unshelve epose proof (Hr1 n _) as Hr1.
     { lia. }
     pose proof (triangle_inequality
-                  X d d_metric (x (S N)) (x N) (x n)).
+                  d_metric (x (S N)) (x N) (x n)).
     lra.
 }
 exists (x N), ((Rmax r 0) + 1).
@@ -103,7 +103,7 @@ destruct (H (open_ball d x0 (eps/2))) as [N].
   destruct (H1 m H2).
   destruct (H1 n H3).
   apply Rle_lt_trans with (d x0 (x m) + d x0 (x n)).
-  + rewrite (metric_sym _ _ d_metric x0 (x m)); trivial.
+  + rewrite (metric_sym d_metric x0 (x m)); trivial.
     now apply triangle_inequality.
   + lra.
 Qed.

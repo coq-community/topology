@@ -43,7 +43,7 @@ intros.
 replace z with (y + (z-y)) by ring.
 cut (y - z <= R_metric y z).
 - lra.
-- rewrite (metric_sym _ _ R_metric_is_metric).
+- rewrite (metric_sym R_metric_is_metric).
   apply Rle_abs.
 Qed.
 

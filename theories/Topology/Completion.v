@@ -23,10 +23,10 @@ Section Completion.
     unfold R_metric.
     rewrite <- Rabs_bound.
     pose proof (triangle_inequality
-                 X d d_metric x y z).
+                 d_metric x y z).
     pose proof (triangle_inequality
-                 X d d_metric y x z).
-    rewrite (metric_sym _ _ d_metric y x) in H0.
+                 d_metric y x z).
+    rewrite (metric_sym d_metric y x) in H0.
     lra.
   Qed.
 
@@ -69,10 +69,10 @@ Section Completion.
          apply metric_alternate_triangle_ineq.
       -- exists x1; [constructor|].
          rewrite metric_zero; auto.
-         rewrite (metric_sym _ _ d_metric x2 x1).
+         rewrite (metric_sym d_metric x2 x1).
          unfold R_metric.
          rewrite Rminus_0_r.
-         symmetry; apply Rabs_right, metric_nonneg, d_metric.
+         symmetry; apply Rabs_right, Rle_ge, metric_nonneg, d_metric.
     * apply uniform_metric_complete.
       apply R_metric_complete.
   Qed.

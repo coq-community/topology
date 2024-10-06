@@ -26,8 +26,8 @@ Open Scope R_scope.
 
 Section metric.
 
-Variable X:Type.
-Variable d:X->X->R.
+Local Set Implicit Arguments.
+Context {X : Type} (d : X -> X -> R).
 
 Record metric : Prop := {
   metric_sym: forall x y:X, d x y = d y x;
@@ -38,7 +38,7 @@ Record metric : Prop := {
 
 Lemma metric_nonneg :
   metric ->
-  forall x y : X, d x y >= 0.
+  forall x y : X, 0 <= d x y.
 Proof.
   intros.
   pose proof (triangle_inequality H x y x).
@@ -49,13 +49,13 @@ Qed.
 
 (* the distance between distinct points is positive *)
 Lemma metric_distinct_pos
-  {X : Type} d (d_metric : metric d) (x1 x2 : X) (Hx : x1 <> x2) :
+  (d_metric : metric) (x1 x2 : X) (Hx : x1 <> x2) :
   0 < d x1 x2.
 Proof.
   destruct (Rtotal_order 0 (d x1 x2)) as [|[|]]; auto.
-  - symmetry in H. apply (metric_strict _ d d_metric) in H.
+  - symmetry in H. apply (metric_strict d_metric) in H.
     contradiction.
-  - pose proof (metric_nonneg _ d d_metric x1 x2); lra.
+  - pose proof (metric_nonneg d_metric x1 x2); lra.
 Qed.
 
 End metric.
@@ -97,7 +97,7 @@ Proof.
   intros Hr y [Hy]. constructor.
   eapply Rle_lt_trans.
   { apply triangle_inequality with (y := x1); auto. }
-  rewrite (metric_sym X d d_is_metric x2 x1).
+  rewrite (metric_sym d_is_metric x2 x1).
   lra.
 Qed.
 
@@ -130,9 +130,9 @@ Proof.
   apply Extensionality_Ensembles; split; red; intros.
   - destruct H.
     apply Singleton_intro.
-    apply (metric_strict _ _ d_is_metric).
+    apply (metric_strict d_is_metric).
     apply Rle_antisym; try assumption.
-    pose proof (metric_nonneg _ _ d_is_metric x0 x).
+    pose proof (metric_nonneg d_is_metric x0 x).
     lra.
   - constructor. destruct H.
     rewrite metric_zero; auto; lra.
@@ -142,7 +142,7 @@ Lemma metric_closed_ball_In :
   forall x r, 0 <= r <-> In (closed_ball x r) x.
 Proof.
   intros.
-  pose proof (metric_zero X d d_is_metric x).
+  pose proof (metric_zero d_is_metric x).
   split.
   - intros. constructor. lra.
   - intros. destruct H0. lra.
@@ -156,7 +156,7 @@ Proof.
   - intros.
     apply Extensionality_Ensembles; split; red; intros; try contradiction.
     destruct H0.
-    pose proof (metric_nonneg X d d_is_metric x x0).
+    pose proof (metric_nonneg d_is_metric x x0).
     lra.
   - intros.
     apply NNPP.
@@ -185,7 +185,7 @@ Proof.
   intros.
   apply Extensionality_Ensembles; split; red; intros; try contradiction.
   destruct H0.
-  pose proof (metric_nonneg X d d_is_metric x x0).
+  pose proof (metric_nonneg d_is_metric x x0).
   lra.
 Qed.
 
@@ -229,7 +229,7 @@ Next Obligation.
   exists (open_ball y (r - d x y)); split.
   - constructor. now apply Rgt_minus.
   - apply open_ball_Included.
-    rewrite (metric_sym X d d_is_metric y x).
+    rewrite (metric_sym d_is_metric y x).
     lra.
 Qed.
 
@@ -285,23 +285,19 @@ Lemma metric_space_closed_ball_closed {X : TopologicalSpace} (d : X -> X -> R) :
   metrizes X d -> metric d ->
   forall x r, closed (closed_ball d x r).
 Proof.
-  intros.
-  red.
+  intros HX d_metric x r. red.
   apply open_char_neighborhood.
-  intros.
+  intros x0 Hx0.
   exists (open_ball d x0 (d x x0 - r)).
   split.
   - split.
     + apply metric_space_open_ball_open; assumption.
     + apply metric_open_ball_In; auto.
-      apply NNPP. intros ?.
-      apply H1. constructor. lra.
-  - intros ? ?.
-    destruct H2.
-    intros ?.
-    destruct H3.
-    pose proof (triangle_inequality X d H0 x x1 x0).
-    rewrite (metric_sym X d H0 x1 x0) in H4.
+      apply NNPP. intros Hn.
+      apply Hx0. constructor. lra.
+  - intros x1 [Hx1] [Hx2].
+    pose proof (triangle_inequality d_metric x x1 x0) as H.
+    rewrite (metric_sym d_metric x1 x0) in H.
     lra.
 Qed.
 
@@ -615,10 +611,10 @@ split.
     * exists ( (r', x0) ); trivial.
       constructor.
       split; trivial.
-      assert (Q2R r' > 0).
-      { apply Rgt_ge_trans with (d x x0).
-        - apply H9.
+      assert (0 < Q2R r').
+      { apply Rle_lt_trans with (d x x0).
         - now apply metric_nonneg.
+        - apply H9.
       }
       apply Rlt_Qlt.
       unfold Q2R at 1.
@@ -749,44 +745,33 @@ Qed.
 Lemma metrizable_Hausdorff :
   forall X, metrizable X -> Hausdorff X.
 Proof.
-  intros. red; intros.
-  destruct H.
+  intros X [d d_metric HX]. red; intros x y Hxy.
   exists (open_ball d x ((d x y)/2)).
   exists (open_ball d y ((d x y)/2)).
-  assert (0 < d x y).
-  { apply NNPP. intro.
-    contradict H0.
-    apply not_Rlt in H2.
-    apply metric_strict with (d := d).
-    { assumption. }
-    apply Rle_antisym.
-    + apply Rge_le. assumption.
-    + apply Rge_le. apply metric_nonneg. assumption.
-  }
-  assert (d x y / 2 > 0). {
-    apply Rdiv_lt_0_compat; try assumption.
-    apply Rlt_0_2.
-  }
+  assert (0 < d x y) as Hxy0.
+  { apply metric_distinct_pos; assumption. }
+  assert (0 < d x y / 2) as Hxy1. { lra. }
   repeat split.
   - apply metric_space_open_ball_open; assumption.
   - apply metric_space_open_ball_open; assumption.
   - rewrite metric_zero; assumption.
   - rewrite metric_zero; assumption.
-  - apply Extensionality_Ensembles; split; red; intros.
-    2: { contradiction. }
-    destruct H4. destruct H4, H5.
-    assert (d x x0 + d x0 y < d x y).
+  - apply Extensionality_Ensembles; split.
+    2: { intros ? []. }
+    intros z Hz. destruct Hz as [z Hz0 Hz1].
+    destruct Hz0 as [Hz0], Hz1 as [Hz1].
+    assert (d x z + d z y < d x y) as H.
     { rewrite double_var.
       apply Rplus_lt_compat; try assumption.
       rewrite metric_sym; assumption.
     }
-    pose proof (triangle_inequality _ _ H x x0 y).
-    pose proof (Rle_lt_trans _ _ _ H7 H6).
-    apply Rlt_irrefl in H8.
-    contradiction.
+    pose proof (triangle_inequality d_metric x z y).
+    lra.
 Qed.
 
 Section dist_to_set.
+
+Local Set Implicit Arguments.
 
 Variable X:Type.
 Variable d:X->X->R.
@@ -794,16 +779,45 @@ Hypothesis d_is_metric: metric d.
 Variable S:Ensemble X.
 Hypothesis S_nonempty: Inhabited S.
 
-Definition dist_to_set (x:X) : R.
-refine (proj1_sig (inf (Im S (d x)) _ _)).
-- exists 0.
-  red. intros.
-  destruct H.
-  rewrite H0.
-  now apply metric_nonneg.
-- destruct S_nonempty.
-  now exists (d x x0), x0.
+Lemma metric_Im_lower_bound_0 (x : X) :
+  is_lower_bound (Im S (d x)) 0%R.
+Proof.
+  intros r Hr. destruct Hr as [y Hy r Hr].
+  subst r. apply Rle_ge. apply metric_nonneg; assumption.
+Qed.
+
+Program Definition dist_to_set (x:X) : R :=
+  proj1_sig (inf (Im S (d x)) _ _).
+Next Obligation.
+  exists 0. apply metric_Im_lower_bound_0.
+Qed.
+Next Obligation.
+  destruct S_nonempty as [y Hy].
+  now exists (d x y), y.
 Defined.
+
+Lemma dist_to_set_nonneg (x : X) :
+  0 <= dist_to_set x.
+Proof.
+  unfold dist_to_set.
+  apply (proj2_sig (inf _ _ _)).
+  apply metric_Im_lower_bound_0.
+Qed.
+
+Lemma dist_to_set_In (x : X) : In S x -> dist_to_set x = 0.
+Proof.
+  intros HSx. apply Rle_antisym.
+  2: apply dist_to_set_nonneg.
+  unfold dist_to_set.
+  apply Rge_le.
+  pose proof (proj2_sig
+                (inf (Im S (d x))
+                   (dist_to_set_obligation_1 x)
+                   (dist_to_set_obligation_2 x))) as H.
+  destruct H as [H _]. specialize (H 0%R).
+  apply H; clear H. exists x; auto. symmetry; apply metric_zero.
+  assumption.
+Qed.
 
 Lemma dist_to_set_triangle_inequality: forall (x y:X),
   dist_to_set y <= dist_to_set x + d x y.
@@ -826,7 +840,7 @@ apply Rle_lt_trans with (d y z).
   now exists z.
 - eapply Rle_lt_trans.
   + now apply triangle_inequality.
-  + rewrite (metric_sym _ _ d_is_metric y x).
+  + rewrite (metric_sym d_is_metric y x).
     lra.
 Qed.
 
@@ -883,37 +897,35 @@ unfold dist_to_set; destruct inf.
 destruct i.
 simpl.
 apply Rle_antisym.
-- apply lt_plus_epsilon_le.
-  intros.
-  ring_simplify.
-  assert (exists y:X, In S y /\ d x y < eps).
-  { apply NNPP; intro.
-    pose proof (not_ex_all_not _ _ H1).
-    clear H1.
-    simpl in H2.
-    assert (In (interior (Complement S)) x).
-    { exists (open_ball d x eps).
-      - constructor. split.
-        { auto using metric_space_open_ball_open. }
-        intros y [Hy].
-        intros HSy.
-        specialize (H2 y).
-        contradict H2.
-        split; assumption.
-      - constructor.
-        now rewrite metric_zero. }
-    rewrite interior_complement in H1.
-    now contradiction H1. }
-  destruct H1 as [y [? ?]].
-  assert (d x y >= x0).
-  { apply i.
-    now exists y. }
-  lra.
-- apply r.
-  red. intros.
-  destruct H0.
-  rewrite H1.
-  now apply metric_nonneg.
+2: {
+  apply r. apply metric_Im_lower_bound_0, d_is_metric.
+}
+apply lt_plus_epsilon_le.
+intros.
+ring_simplify.
+assert (exists y:X, In S y /\ d x y < eps).
+{ apply NNPP; intro.
+  pose proof (not_ex_all_not _ _ H1).
+  clear H1.
+  simpl in H2.
+  assert (In (interior (Complement S)) x).
+  { exists (open_ball d x eps).
+    - constructor. split.
+      { auto using metric_space_open_ball_open. }
+      intros y [Hy].
+      intros HSy.
+      specialize (H2 y).
+      contradict H2.
+      split; assumption.
+    - constructor.
+      now rewrite metric_zero. }
+  rewrite interior_complement in H1.
+  now contradiction H1. }
+destruct H1 as [y [? ?]].
+assert (d x y >= x0).
+{ apply i.
+  now exists y. }
+lra.
 Qed.
 
 Variable T:Ensemble X.
@@ -952,7 +964,7 @@ eapply Rle_lt_trans with
     end; [| unfold eps]; lra.
   * assert (dist_to_set d d_is_metric T T_nonempty x <=
             dist_to_set d d_is_metric T T_nonempty x0 + d x x0).
-    { rewrite (metric_sym _ d d_is_metric x x0).
+    { rewrite (metric_sym d_is_metric x x0).
       apply dist_to_set_triangle_inequality.
     }
     lra.
@@ -999,56 +1011,25 @@ pose (V := [ x:X | dist_to_set d H G i0 x < dist_to_set d H F i x ]).
 exists U, V; repeat split.
 - now apply closer_to_S_than_T_open.
 - now apply closer_to_S_than_T_open.
-- replace (dist_to_set d H F i x) with 0.
-  + destruct (total_order_T 0 (dist_to_set d H G i0 x)) as [[?|?]|?]; trivial.
-    * symmetry in e.
-      apply dist_to_set_zero_impl_closure in e; trivial.
-      rewrite closure_fixes_closed in e; trivial.
-      assert (In Empty_set x).
-      { rewrite <- H3. now constructor. }
-      destruct H5.
-    * destruct (Rlt_irrefl 0).
-      apply Rle_lt_trans with (dist_to_set d H G i0 x); auto with sets.
-      unfold dist_to_set. destruct inf.
-      simpl.
-      apply i1.
-      red. intros.
-      destruct H5.
-      rewrite H6.
-      now apply metric_nonneg.
-  + unfold dist_to_set. destruct inf.
-    simpl.
-    apply Rle_antisym.
-    * apply i1.
-      red. intros.
-      destruct H5.
-      rewrite H6.
-      now apply metric_nonneg.
-    * destruct i1.
-      assert (0 >= x0); auto with real.
-      apply H5.
-      exists x; trivial.
-      rewrite metric_zero; auto with real.
-- replace (dist_to_set d H G i0 x) with 0.
-  + destruct (total_order_T 0 (dist_to_set d H F i x)) as [[?|?]|?]; trivial.
-    * symmetry in e.
-      apply dist_to_set_zero_impl_closure in e; trivial.
-      rewrite closure_fixes_closed in e; trivial.
-      now assert (In Empty_set x) by
-        now rewrite <- H3.
-    * destruct (Rlt_irrefl 0).
-      apply Rle_lt_trans with (dist_to_set d H F i x);
-        auto with real.
-      unfold dist_to_set. destruct inf.
-      simpl.
-      apply i1.
-      red. intros.
-      destruct H5.
-      rewrite H6.
-      now apply metric_nonneg.
-  + symmetry.
-    apply closure_impl_dist_to_set_zero; trivial.
-    now apply closure_inflationary.
+- rewrite dist_to_set_In; auto.
+  destruct (total_order_T 0 (dist_to_set d H G i0 x)) as [[?|?]|?]; trivial.
+  2: {
+    pose proof (dist_to_set_nonneg H i0 x). lra.
+  }
+  symmetry in e.
+  apply dist_to_set_zero_impl_closure in e; trivial.
+  rewrite closure_fixes_closed in e; trivial.
+  assert (In Empty_set x).
+  { rewrite <- H3. now constructor. }
+  destruct H5.
+- rewrite dist_to_set_In; auto.
+  destruct (total_order_T 0 (dist_to_set d H F i x)) as [[?|?]|?]; trivial.
+  2: { pose proof (dist_to_set_nonneg H i x); lra. }
+  symmetry in e.
+  apply dist_to_set_zero_impl_closure in e; trivial.
+  rewrite closure_fixes_closed in e; trivial.
+  now assert (In Empty_set x) by
+    now rewrite <- H3.
 - extensionality_ensembles;
     lra.
 Qed.
@@ -1198,7 +1179,7 @@ Proof.
   destruct Hx. constructor.
   eapply Rlt_le_trans.
   2: apply Rmax_r.
-  pose proof (triangle_inequality X d d_metric x0 x1 x).
+  pose proof (triangle_inequality d_metric x0 x1 x).
   lra.
 Qed.
 

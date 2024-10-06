@@ -450,12 +450,14 @@ apply Rle_trans with (uniform_metric _ _ R_metric_is_metric X_nonempty
     auto with real.
 - apply lt_plus_epsilon_le.
   intros.
-  unshelve refine (let H1:=metric_space_net_limit_converse _ _ _ _ _ _ n eps H0 in _); [ | | clearbody H1 ]; shelve_unifiable.
+  unshelve refine (let H1:=metric_space_net_limit_converse
+                             _ _ _ _ _ _ n eps H0 in _);
+    [ | | clearbody H1 ]; shelve_unifiable.
   { apply MetricTopology_metrized. }
   destruct H1 as [N].
   refine (Rle_lt_trans _ _ _
-    (triangle_inequality _ _ _ _ (convert_approx_to_uniform_space N) _) _).
-  { apply uniform_metric_is_metric. }
+            (triangle_inequality (uniform_metric_is_metric _ _ _ _ _ _) _
+               (convert_approx_to_uniform_space N) _) _).
   apply Rplus_lt_compat.
   + apply Rle_lt_trans with (1 - (2/3)^N).
     * unfold uniform_metric. simpl. destruct sup. simpl.
@@ -485,7 +487,7 @@ intros.
 apply R_metric_is_metric.
 apply Rle_antisym.
 2: {
-  apply Rge_le, metric_nonneg, R_metric_is_metric.
+  apply metric_nonneg, R_metric_is_metric.
 }
 apply lt_plus_epsilon_le; intros.
 unfold Tietze_extension_func;

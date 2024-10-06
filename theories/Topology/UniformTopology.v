@@ -28,7 +28,7 @@ refine (match f, g with exist f0 Hf, exist g0 Hg =>
   destruct H1.
   rewrite H2.
   apply Rle_trans with (d (y0 x) (f0 x) + d (y0 x) (g0 x)).
-  + rewrite (metric_sym _ d d_metric (y0 x) (f0 x)); trivial;
+  + rewrite (metric_sym d_metric (y0 x) (f0 x)); trivial;
       apply triangle_inequality; trivial.
   + assert (d (y0 x) (f0 x) <= mf) by (apply H; exists x; trivial).
     assert (d (y0 x) (g0 x) <= mg) by (apply H0; exists x; trivial).
@@ -130,9 +130,7 @@ constructor; intros.
   apply Rle_antisym.
   + apply i; exists x; trivial.
     constructor.
-  + cut (d (f0 x) (g0 x) >= 0); auto with real.
-    apply metric_nonneg.
-    assumption.
+  + now apply metric_nonneg.
 Qed.
 
 Definition UniformTopology : TopologicalSpace :=
@@ -190,7 +188,7 @@ unshelve refine (let H1 := _ in let H2 := _ in ex_intro _
     intros.
     destruct cauchy_limit; simpl.
     pose proof (metric_space_net_limit_converse _ _
-      (MetricTopology_metrized _ d d_metric) nat_DS
+      (MetricTopology_metrized Y d d_metric) nat_DS
       (fun n:nat => proj1_sig (f n) x) x0 n).
     destruct (H7 eps H6) as [i0].
     pose (N' := Nat.max N i0).
@@ -334,7 +332,7 @@ apply Rle_lt_trans with
           d (proj1_sig (f N) x) (proj1_sig f0 x)) by apply d_metric.
   lra.
 }
-rewrite (metric_sym _ d d_metric (proj1_sig (f N) x) (proj1_sig f0 x)).
+rewrite (metric_sym d_metric (proj1_sig (f N) x) (proj1_sig f0 x)).
 pose proof (uniform_metric_lt X Y d y0 d_metric X_inh
               f0 (f N) _ (HN N ltac:(reflexivity)) x0).
 pose proof (uniform_metric_lt X Y d y0 d_metric X_inh
@@ -389,7 +387,7 @@ constructor.
 specialize (HN N ltac:(reflexivity)).
 pose proof (uniform_metric_lt _ _ _ _ _ _ _ _ _ HN x).
 pose proof (triangle_inequality
-              _ d d_metric y1 (proj1_sig (f N) x) (proj1_sig f0 x)).
+              d_metric y1 (proj1_sig (f N) x) (proj1_sig f0 x)).
 rewrite metric_sym in H; auto.
 lra.
 Qed.
