@@ -82,6 +82,20 @@ Proof.
       eauto.
 Qed.
 
+Lemma complete_net_limit_ex_unique :
+  complete d ->
+  forall x:nat -> X, cauchy d x ->
+    exists! x0:X, net_limit x x0 (I:=nat_DS).
+Proof.
+  intros Hd x Hx.
+  rewrite complete_net_limit_char in Hd.
+  specialize (Hd x Hx) as [x0 Hx0].
+  exists x0. split; auto.
+  intros x1 Hx1.
+  unshelve eapply (Hausdorff_impl_net_limit_unique _ _ x0 x1 Hx0 Hx1).
+  apply metrizable_Hausdorff. exists d; auto.
+Qed.
+
 Lemma convergent_sequence_is_cauchy:
   forall (x:Net nat_DS X)
     (x0:point_set X),
