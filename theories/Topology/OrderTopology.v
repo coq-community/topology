@@ -271,7 +271,7 @@ Proof.
   clear Hc.
   destruct HA as [C [HC_fin [HC_imA HAC]]].
   (* destruct [HC_fin] and [HC_imA] *)
-  destruct (Finite_Included_Im_inverse _ _ _ HC_fin HC_imA)
+  destruct (finite_in_image _ _ _ HC_fin HC_imA)
     as [B [HB_fin [HBC HBA]]].
   subst C. clear HC_fin HC_imA.
   (* [A] is not relevant anymore *)

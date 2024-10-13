@@ -396,7 +396,7 @@ Proof.
       - apply Im_def. assumption.
       - constructor. assumption.
     }
-    pose proof (Finite_Included_Im_inverse
+    pose proof (finite_in_image
                   (inverse_image (subspace_inc S)) C D HD_fin HD_imC)
       as [D0 [HD0_fin [HD HDC]]].
     clear HD_fin HD_imC.
@@ -551,7 +551,7 @@ Proof.
     - apply Im_def, H.
     - constructor. assumption.
   }
-  destruct (Finite_Included_Im_inverse
+  destruct (finite_in_image
                 (inverse_image f) C D HD_fin HD_inc) as [C' [HC'_fin [HD HCC]]].
   exists C'; split; [|split]; try assumption.
   clear HC'_fin. subst D.

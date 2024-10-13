@@ -385,7 +385,13 @@ Proof.
   assumption.
 Qed.
 
-Lemma Finite_Included_Im_inverse {X Y : Type} (f : X -> Y)
+(** if we have a finite set [B] in the image of [A] under [f],
+  then we can choose a finite preimage [C] of [B] which lies in [A].
+  If [B] were infinite, we'd need choice to do this.
+
+  Alternative name I used once [finite_in_image].
+ *)
+Lemma finite_in_image {X Y : Type} (f : X -> Y)
   (A : Ensemble X) (B : Ensemble Y) :
   Finite B -> Included B (Im A f) ->
   exists C : Ensemble X,
