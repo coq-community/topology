@@ -1,4 +1,5 @@
-From Coq Require Import Reals Lia Lra ClassicalChoice.
+From Coq Require Import Reals Lia Lra ZArith ClassicalChoice.
+From Coq Require Import RelationClasses Morphisms.
 From Coq Require Export Qreals.
 Require Import RationalsInReals.
 Local Close Scope Q_scope.
@@ -23,18 +24,33 @@ Inductive dr_lt : dyadic_rational -> dyadic_rational -> Prop :=
   | dr_lt_wd: forall x x' y y':dyadic_rational,
     dr_lt x y -> dr_eq x x' -> dr_eq y y' -> dr_lt x' y'.
 
+#[global] Instance dr_eq_Equivalence : Equivalence dr_eq.
+Proof.
+constructor.
+- exact dr_eq_refl.
+- exact dr_eq_sym.
+- exact dr_eq_trans.
+Qed.
+
+#[global] Instance dr_lt_Proper :
+  Proper (dr_eq ==> dr_eq ==> iff) dr_lt.
+Proof.
+intros x x' Hx y y' Hy.
+split; intros H.
+- apply dr_lt_wd with x y; assumption.
+- apply dr_lt_wd with x' y'; auto using dr_eq_sym.
+Qed.
+
 Lemma dr_incr_denom: forall (m n n':nat), n<=n' ->
   exists m':nat, dr_eq (m_over_2_to_n m' n')
                        (m_over_2_to_n m n).
 Proof.
 induction 1.
-- exists m.
-  apply dr_eq_refl.
+- exists m. reflexivity.
 - destruct IHle as [m'].
   exists (2*m').
-  apply dr_eq_trans with (m_over_2_to_n m' m0); trivial.
-  apply dr_eq_sym.
-  apply dr_eq_scale.
+  transitivity (m_over_2_to_n m' m0); trivial.
+  symmetry. apply dr_eq_scale.
 Qed.
 
 Lemma dr_total_order: forall x y:dyadic_rational,
@@ -108,7 +124,7 @@ unfold Qeq.
 simpl.
 change ((' (pos_power2 n)~0)%Z) with
     ((2 * ' pos_power2 n)%Z).
-repeat rewrite inj_plus.
+repeat rewrite Nat2Z.inj_add.
 ring.
 Qed.
 

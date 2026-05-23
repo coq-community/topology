@@ -1,0 +1,16 @@
+# Normalize all text files to LF in the repository.
+# Working trees are checked out with LF on every platform,
+# preventing CRLF drift regardless of core.autocrlf settings.
+* text=auto eol=lf
+
+# Explicit text classification for files Git might guess wrong.
+*.v        text eol=lf
+*.yml      text eol=lf
+*.yaml     text eol=lf
+*.md       text eol=lf
+*.opam     text eol=lf
+*.json     text eol=lf
+Makefile   text eol=lf
+_CoqProject text eol=lf
+dune       text eol=lf
+dune-project text eol=lf

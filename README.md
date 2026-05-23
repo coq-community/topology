@@ -36,7 +36,7 @@ and results of general topology in Coq.
   - stop-cran ([**@stop-cran**](https://github.com/stop-cran))
   - Columbus240 ([**@Columbus240**](https://github.com/Columbus240))
 - License: [GNU Lesser General Public License v2.1 or later](LICENSE)
-- Compatible Coq versions: Coq 8.16 or later (use the corresponding branch or release for other Coq versions)
+- Compatible Coq versions: Coq 8.16 / Rocq up to 9.2 (use the corresponding branch or release for other versions)
 - Additional dependencies:
   - Zorn's Lemma (set library that is part of this repository)
 - Coq namespace: `Topology`
@@ -58,6 +58,20 @@ git clone https://github.com/coq-community/topology.git
 cd topology
 make   # or make -j <number-of-cores-on-your-machine>
 ```
+
+## Working in the VS Code dev container
+
+A ready-to-use development environment lives in [.devcontainer/](.devcontainer/),
+based on `ocaml/opam:debian-12-ocaml-4.14` (multi-arch: amd64 + arm64).
+The image pins Rocq 9.1 via opam and preinstalls `dune`, `coq-lsp`, and
+`vsrocq-language-server` so the [VsRocq](https://github.com/rocq-prover/vsrocq)
+or [coq-lsp](https://github.com/ejgallego/coq-lsp) VS Code clients work
+out of the box.
+
+Open the repository in VS Code and run **Dev Containers: Reopen in
+Container**. The first build takes ~15-30 minutes (Rocq is compiled from
+source via opam); subsequent rebuilds reuse the Docker layer cache. Once
+inside, run `make -j$(nproc)` from the integrated terminal.
 
 ## Contents of Topology, roughly grouped in related categories:
 
@@ -96,14 +110,18 @@ topological spaces
 - `SumTopology.v` - also called "disjoint union" or "coproduct"
 - `SubspaceTopology.v`
 - `QuotientTopology.v`
+- `AdjunctionSpace.v` - quotient that glues a subspace to a point
 - `ContinuousFactorization.v` - a continuous map factors through its image
 
 ### Metric spaces
 
 - `MetricSpaces.v`
+- `LipschitzMaps.v` - Lipschitz-continuous maps between metric spaces
 - `Completeness.v`
 - `Completion.v`
 - `UniformTopology.v` - the topology of uniform convergence
+- `BanachFixedPoint.v` - the Banach fixed-point theorem for contractions
+on complete metric spaces
 
 ### Real analysis
 
@@ -116,6 +134,10 @@ topological spaces
 
 - `UrysohnsLemma.v`
 - `TietzeExtension.v`
+
+### Worked examples
+
+- `Examples/S1.v` - the unit circle as a quotient of `[-1, 1]`
 
 ## Contents of Zorn's Lemma
 

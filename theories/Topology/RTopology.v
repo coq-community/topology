@@ -506,7 +506,7 @@ lra.
 Qed.
 
 Lemma R_bounded_char (U : Ensemble R) :
-  bounded R_metric U <-> Coq.Reals.Rtopology.bounded U.
+  bounded R_metric U <-> Rtopology.bounded U.
 Proof.
 unfold bounded, Rtopology.bounded.
 split.

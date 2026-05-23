@@ -20,3 +20,4 @@ Arguments Empty_set {U}.
 Arguments Full_set {U}.
 
 Global Hint Constructors Full_set : sets.
+Global Hint Unfold In Included : sets.

@@ -130,7 +130,7 @@ Lemma Disjoint_Intersection:
   Disjoint s1 s2 <-> Intersection s1 s2 = Empty_set.
 Proof.
 intros. split.
-- apply Coq.Sets.Powerset_facts.Disjoint_Intersection.
+- apply Powerset_facts.Disjoint_Intersection.
 - intros. constructor. intros.
   intros ?. rewrite H in H0. destruct H0.
 Qed.
@@ -151,15 +151,13 @@ Qed.
 Lemma Disjoint_Complement_r {X} (U : Ensemble X) :
   Disjoint U (Complement U).
 Proof.
-  constructor. intros.
-  intros ?. destruct H. intuition.
+  constructor; intros x [? ? ?]; contradiction.
 Qed.
 
 Lemma Disjoint_Complement_l {X} (U : Ensemble X) :
   Disjoint (Complement U) U.
 Proof.
-  constructor. intros.
-  intros ?. destruct H. intuition.
+  constructor; intros x [? ? ?]; contradiction.
 Qed.
 
 Lemma Union_Complement_r {X} (U : Ensemble X) :
@@ -275,8 +273,5 @@ Qed.
 Lemma Subtract_not_in {X : Type} (U : Ensemble X) (x : X) :
   ~ In (Subtract U x) x.
 Proof.
-  intros H.
-  destruct H.
-  contradict H0.
-  constructor.
+  intros [_ Hn]; apply Hn; constructor.
 Qed.

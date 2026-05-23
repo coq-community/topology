@@ -1,4 +1,4 @@
-From Coq Require Import Reals.Ratan Lia Lra Logic.IndefiniteDescription Program.Subset.
+From Coq Require Import Reals.Ratan Lia Lra ZArith Logic.IndefiniteDescription Program.Subset.
 From ZornsLemma Require Import Quotients.
 From Topology Require Import ProductTopology AdjunctionSpace SubspaceTopology RTopology RFuncContinuity Homeomorphisms.
 

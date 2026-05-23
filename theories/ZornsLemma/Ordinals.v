@@ -40,7 +40,7 @@ Definition ord_ge (alpha beta:Ordinal) :=
 Definition ord_gt (alpha beta:Ordinal) :=
   ord_lt beta alpha.
 
-Open Scope ordinal_scope.
+Local Open Scope ordinal_scope.
 Notation "alpha < beta" := (ord_lt alpha beta) : ordinal_scope.
 Notation "alpha <= beta" := (ord_le alpha beta) : ordinal_scope.
 Notation "alpha == beta" := (ord_eq alpha beta)

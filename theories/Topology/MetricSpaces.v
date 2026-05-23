@@ -761,7 +761,7 @@ Proof.
     intros z Hz. destruct Hz as [z Hz0 Hz1].
     destruct Hz0 as [Hz0], Hz1 as [Hz1].
     assert (d x z + d z y < d x y) as H.
-    { rewrite double_var.
+    { replace (d x y) with (d x y / 2 + d x y / 2) by lra.
       apply Rplus_lt_compat; try assumption.
       rewrite metric_sym; assumption.
     }

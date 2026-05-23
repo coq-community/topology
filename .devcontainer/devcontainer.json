@@ -1,0 +1,50 @@
+// Dev Container for coq-community/topology.
+//
+// Uses a multi-arch (amd64 + arm64) ocaml/opam base image and builds Rocq
+// (formerly Coq) and the language servers from opam, so the same setup
+// works natively on Linux, macOS (Intel / Apple Silicon) and Windows on
+// ARM — no emulation.
+//
+// First build is slow (~15-30 min) because Rocq is compiled from source via
+// opam. Subsequent rebuilds reuse the Docker layer cache.
+{
+    "name": "Rocq 9.1 (opam)",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+
+    // The ocaml/opam image runs as the non-root user `opam` (UID 1000) with sudo.
+    "remoteUser": "opam",
+
+    // Install this repo's project dependencies (coq-zorns-lemma is a local
+    // package; coq-topology depends on it). The base image already has Rocq,
+    // dune, coq-lsp and vsrocq-language-server preinstalled.
+    "postCreateCommand": "opam install -y --deps-only --with-test ./coq-zorns-lemma.opam ./coq-topology.opam",
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                // VsRocq (formerly VSCoq 2) — actively maintained Rocq/Coq
+                // language client. The extension keeps its old marketplace
+                // ID for backwards compatibility.
+                "maximedenes.vscoq",
+                // coq-lsp alternative client (the language server is also
+                // installed in the image, pick whichever you prefer).
+                "ejgallego.coq-lsp",
+                "ocamllabs.ocaml-platform"
+            ],
+            "settings": {
+                // vsrocqtop and coq-lsp are on PATH inside the opam switch.
+                // (The Rocq 9 release renamed vscoqtop to vsrocqtop.)
+                "vscoq.path": "vsrocqtop",
+                "coq-lsp.path": "coq-lsp",
+                "files.eol": "\n"
+            }
+        }
+    },
+
+    // Cache opam downloads across container rebuilds.
+    "mounts": [
+        "source=topology-opam-cache,target=/home/opam/.opam/download-cache,type=volume"
+    ]
+}

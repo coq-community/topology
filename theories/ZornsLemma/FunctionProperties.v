@@ -60,31 +60,16 @@ Definition function_inverse {X Y:Type} (f:X->Y)
 Lemma bijective_impl_invertible: forall {X Y:Type} (f:X->Y),
   bijective f -> invertible f.
 Proof.
-intros.
-destruct H.
-assert (forall y:Y, {x:X | f x = y}).
-{ intro.
-  apply constructive_definite_description.
-  pose proof (H0 y).
-  destruct H1.
-  exists x.
-  red; split.
-  - assumption.
-  - intros.
-    apply H.
-    transitivity y;
-      auto with *.
-}
-pose (g := fun y:Y => proj1_sig (X0 y)).
-pose proof (fun y:Y => proj2_sig (X0 y)).
-simpl in H1.
-exists g. split.
-- intro.
-  apply H.
-  unfold g; rewrite H1.
-  reflexivity.
-- intro.
-  unfold g; apply H1.
+intros X Y f [Hinj Hsurj].
+assert (forall y:Y, {x:X | f x = y}) as Hch.
+{ intro y. apply constructive_definite_description.
+  destruct (Hsurj y) as [x Hx].
+  exists x. split;
+    [ exact Hx
+    | intros x' Hx'; apply Hinj; congruence ]. }
+exists (fun y => proj1_sig (Hch y)). split.
+- intro x. apply Hinj. exact (proj2_sig (Hch (f x))).
+- intro y. exact (proj2_sig (Hch y)).
 Qed.
 
 Lemma invertible_impl_bijective: forall {X Y:Type} (f:X->Y),
