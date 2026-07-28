@@ -1,8 +1,8 @@
-(coq.theory
+(rocq.theory
  (name Topology)
  (package coq-topology)
  (synopsis "General topology in Coq")
- (theories ZornsLemma)
+ (theories ZornsLemma Stdlib)
  (flags (:standard
      -w -deprecated-hint-rewrite-without-locality
      -w -deprecated-instance-without-locality)))
