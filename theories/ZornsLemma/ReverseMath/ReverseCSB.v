@@ -259,7 +259,7 @@ Proof.
     destruct (proj1_sig p n) eqn:?; auto.
     exfalso.
     destruct (N_infty_false_eq_nat_inj' _ _ Heqb0) as [n'].
-    subst. rewrite H0 with _ n' in Heqb; intuition.
+    subst. rewrite H0 with _ n' in Heqb; [ discriminate | assumption ].
   }
   rewrite H in Heqb; try discriminate.
   red; intros.
@@ -407,10 +407,10 @@ Proof.
   induction n; simpl in *.
   { assumption. }
   rewrite Bool.andb_false_iff in H.
-  destruct H; intuition.
+  destruct H; [ assumption | ].
   exfalso.
   specialize (H0 n).
-  rewrite H0 in H; intuition.
+  rewrite H0 in H; [ discriminate | apply Nat.lt_succ_diag_r ].
 Qed.
 
 Program Definition N_infty_epsilon (Q : N_infty -> bool) : N_infty :=
